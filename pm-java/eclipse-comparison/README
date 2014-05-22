@@ -1,0 +1,110 @@
+OVERVIEW
+--------
+
+This directory contains the `autofrob' plugin, which provides a new
+entry point into Eclipse.  The plugin consists of two parts:
+
+  - Autofrob, the main Eclipse plugin which only needs to be built and
+    installed once
+  - plugin-diffs, a set of diffs to existing Eclipse plugins.  Some of
+    these may be necessary, but it's not clear that all still are.
+  - dynamic-module, which is the main functionality for the autofrob
+    plugin and can be updated by installing a jar file, without ever
+    having to re-initialise Eclipse's plugin mechanism
+
+
+INSTALLATION INSTRUCTIONS
+-------------------------
+
+I'm probably missing some parts here, so please poke me if things go
+wrong.  Anyway, you need to install all three of the parts in order to
+get things working.  I recommend the following steps:
+
+1.  Create a separate (!) installation of Eclipse at ECLIPSE_HOME.
+
+2.  Configure and install the Autofrob eclipse plugin:
+
+    (a)  Edit META-INF/MANIFEST.MF.  This file contains an external
+         reference, currently /home/creichen/autofrob.jar.  Make it
+         point to your own home directory instead.  (NOTE 1)
+
+    (b)  Start Eclipse and import the Autofrob project.   Build it as
+    	 a plugin and copy it into ${ECLIPSE_HOME}/plugins.  Kill
+    	 Eclipse.
+
+    (c)  Delete ${ECLIPSE_HOME}/configuration.  This directory should
+         be re-built the first time you start your separate
+         installation and automatically detect (and properly register)
+         the Autofrob plugin.
+
+3.  Install all patches (if needed) (NOTE 2).
+
+    (a)  Download the source version of your particular Eclipse
+    	 installation.  Start Eclipse.  For each diff in plugin-diffs,
+    	 do the following:
+
+	 (i)  Import the corresponding plugin from the eclipse sources
+	      into Eclipse.
+
+	 (ii)  Whack each plugin with a stick until it compiles.
+
+    (b)  Shut down Eclipse.  For each diff in plugin-diffs:
+
+         (i)  Apply the diff to the corresponding directory in your
+	      WORKSPACE.
+
+    (c)  Start Eclipse again.  For each of the imported plugins:
+
+    	 (i)  Update.
+
+	 (ii)  Whack with a stick (same as or different than before)
+	       until it builds.
+
+	 (iii)  Build as plugin.
+
+    (d)  Quit Eclipse.  Locate all of the generated plugins.  In
+         ${ECLIPSE_HOME}/plugins/ you will find corresponding plugins,
+         but probably with different timestamps (and possibly with
+         slightly different version numbers).  For each of them:
+
+	 (i)  Delete the old plugin in ${ECLIPSE_HOME}/plugins/
+
+	 (ii)  Copy your new plugin over to ${ECLIPSE_HOME}/plugins/
+
+4.  Install the dynamic autofrob jar for the first time.  If you add
+    new tests, this is what you will be working on.
+
+    (a)  Edit dynamic-module/build.sh to match your ${ECLIPSE_HOME}.
+
+    (b)  (optional)  Edit dynamic-module/rinstall.sh to match your
+    	 remote installation preferences.
+
+    (c)  In dynamic-module, run ./build.sh.  You should get no errors.
+
+    (d)  In dynamic-module, run ./install.sh.  You should get no
+         errors.
+
+5.  Run everything.
+
+    (a)  Edit run.sh to match your preferences.  If you want to test
+         multiple different projects, I recommend adjusting it to take
+         WORKSPACE as a command line parameter.
+
+    (b)  Set up a test.  Run your patched Eclipse with
+         ${ECLIPSE_HOME}/eclipse.  Import precisely one project that
+         you wish to run tests on.
+
+    (c)  Fire up `run.sh', and enjoy the fireworks!
+
+
+Good luck....
+
+
+
+NOTE 1:  After one shot at using environment variables to make this
+more flexible, I gave up.  Perhaps it is possible to eliminate this
+step.
+
+NOTE 2:  I don't know which of the patches are needed at this point.
+I recommend installing all of them, though, since you have nothing to
+lose.

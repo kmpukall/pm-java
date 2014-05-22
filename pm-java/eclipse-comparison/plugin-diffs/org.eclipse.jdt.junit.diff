@@ -1,0 +1,46 @@
+diff -ruN /home/creichen/src/eclipse/plugins/org.eclipse.jdt.junit/src/org/eclipse/jdt/junit/launcher/JUnitLaunchConfigurationDelegate.java ./src/org/eclipse/jdt/junit/launcher/JUnitLaunchConfigurationDelegate.java
+--- /home/creichen/src/eclipse/plugins/org.eclipse.jdt.junit/src/org/eclipse/jdt/junit/launcher/JUnitLaunchConfigurationDelegate.java	2007-09-21 10:59:16.000000000 -0600
++++ ./src/org/eclipse/jdt/junit/launcher/JUnitLaunchConfigurationDelegate.java	2008-11-03 08:07:32.000000000 -0700
+@@ -37,9 +37,9 @@
+ import org.eclipse.core.variables.VariablesPlugin;
+ 
+ import org.eclipse.swt.widgets.Display;
+-import org.eclipse.swt.widgets.Shell;
++//import org.eclipse.swt.widgets.Shell;
+ 
+-import org.eclipse.jface.dialogs.MessageDialog;
++//import org.eclipse.jface.dialogs.MessageDialog;
+ 
+ import org.eclipse.debug.core.ILaunch;
+ import org.eclipse.debug.core.ILaunchConfiguration;
+@@ -209,9 +209,9 @@
+ 			if ((javaProject == null) || !javaProject.exists()) {
+ 				informAndAbort(JUnitMessages.JUnitLaunchConfigurationDelegate_error_invalidproject, null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); 
+ 			}
+-			if (!TestSearchEngine.hasTestCaseType(javaProject)) {
+-				informAndAbort(JUnitMessages.JUnitLaunchConfigurationDelegate_error_junitnotonpath, null, IJUnitStatusConstants.ERR_JUNIT_NOT_ON_PATH);
+-			}
++//			if (!TestSearchEngine.hasTestCaseType(javaProject)) {
++//				informAndAbort(JUnitMessages.JUnitLaunchConfigurationDelegate_error_junitnotonpath, null, IJUnitStatusConstants.ERR_JUNIT_NOT_ON_PATH);
++//			}
+ 
+ 			ITestKind testKind= getTestRunnerKind(configuration);
+ 			boolean isJUnit4Configuration= TestKindRegistry.JUNIT4_TEST_KIND_ID.equals(testKind.getId());
+@@ -474,6 +474,8 @@
+ 	}
+ 
+ 	private boolean showStatusMessage(final IStatus status) {
++		return true;
++		/*
+ 		final boolean[] success= new boolean[] { false };
+ 		getDisplay().syncExec(
+ 				new Runnable() {
+@@ -488,7 +490,7 @@
+ 					}
+ 				}
+ 		);
+-		return success[0];
++		return success[0];*/
+ 	}
+ 	
+ 	private Display getDisplay() {

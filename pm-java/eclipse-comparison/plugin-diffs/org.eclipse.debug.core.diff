@@ -1,0 +1,58 @@
+diff -ruN /home/creichen/src/eclipse/plugins/org.eclipse.debug.core/core/org/eclipse/debug/core/DebugPlugin.java core/org/eclipse/debug/core/DebugPlugin.java
+--- /home/creichen/src/eclipse/plugins/org.eclipse.debug.core/core/org/eclipse/debug/core/DebugPlugin.java	2007-09-21 11:02:20.000000000 -0600
++++ core/org/eclipse/debug/core/DebugPlugin.java	2008-10-24 01:37:37.000000000 -0600
+@@ -779,6 +779,9 @@
+ 	 */
+ 	public static Process exec(String[] cmdLine, File workingDirectory, String[] envp) throws CoreException {
+ 		Process p= null;
++		last_exec_commandline = cmdLine;
++		last_exec_cwd = workingDirectory.toString();
++							
+ 		try {
+ 			if (workingDirectory == null) {
+ 				p= Runtime.getRuntime().exec(cmdLine, envp);
+@@ -801,7 +804,10 @@
+ 			}
+ 		}
+ 		return p;
+-	}	
++	}
++	
++	public static String[] last_exec_commandline;
++	public static String last_exec_cwd;
+ 	
+ 	/**
+ 	 * Returns whether this plug-in is in the process of 
+diff -ruN /home/creichen/src/eclipse/plugins/org.eclipse.debug.core/core/org/eclipse/debug/internal/core/LaunchManager.java core/org/eclipse/debug/internal/core/LaunchManager.java
+--- /home/creichen/src/eclipse/plugins/org.eclipse.debug.core/core/org/eclipse/debug/internal/core/LaunchManager.java	2007-09-21 10:57:53.000000000 -0600
++++ core/org/eclipse/debug/internal/core/LaunchManager.java	2008-10-23 23:26:25.000000000 -0600
+@@ -422,7 +422,8 @@
+ 			Object[] copiedListeners= fListeners.getListeners();
+ 			for (int i= 0; i < copiedListeners.length; i++) {
+ 				fListener = (ILaunchListener)copiedListeners[i];
+-                SafeRunner.run(this);
++				SafeRunner.run(this);
++					
+ 			}	
+ 			fLaunch = null;
+ 			fListener = null;		
+@@ -432,6 +433,7 @@
+ 		 * @see org.eclipse.core.runtime.ISafeRunnable#run()
+ 		 */
+ 		public void run() throws Exception {
++			try {
+ 			switch (fType) {
+ 				case ADDED:
+ 					fListener.launchAdded(fLaunch);
+@@ -444,7 +446,10 @@
+ 						fListener.launchChanged(fLaunch);
+ 					}
+ 					break;
+-			}			
++			}
++			} catch (Exception e) {
++				e.printStackTrace(System.err);
++			}
+ 		}
+ 	}
+ 	

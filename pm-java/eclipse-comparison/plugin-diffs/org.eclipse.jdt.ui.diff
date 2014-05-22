@@ -1,0 +1,21 @@
+diff -ruN /home/creichen/src/eclipse/plugins/org.eclipse.jdt.ui/ui/org/eclipse/jdt/internal/ui/javaeditor/ASTProvider.java ./ui/org/eclipse/jdt/internal/ui/javaeditor/ASTProvider.java
+--- /home/creichen/src/eclipse/plugins/org.eclipse.jdt.ui/ui/org/eclipse/jdt/internal/ui/javaeditor/ASTProvider.java	2007-09-21 11:01:23.000000000 -0600
++++ ./ui/org/eclipse/jdt/internal/ui/javaeditor/ASTProvider.java	2008-11-04 18:34:09.000000000 -0700
+@@ -282,6 +282,7 @@
+ 	 * Installs this AST provider.
+ 	 */
+ 	void install() {
++		if (true) return;
+ 		// Create and register activation listener
+ 		fActivationListener= new ActivationListener();
+ 		PlatformUI.getWorkbench().addWindowListener(fActivationListener);
+@@ -650,7 +651,8 @@
+ 	public void dispose() {
+ 
+ 		// Dispose activation listener
+-		PlatformUI.getWorkbench().removeWindowListener(fActivationListener);
++		if (false)
++			PlatformUI.getWorkbench().removeWindowListener(fActivationListener);
+ 		fActivationListener= null;
+ 
+ 		disposeAST();
