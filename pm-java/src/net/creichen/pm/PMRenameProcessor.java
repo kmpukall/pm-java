@@ -5,7 +5,7 @@
   implied.  Please refer to the included file LICENCE, detailing the terms of
   the GNU Lesser General Public Licence v3.0 or later, for details.
 
-*******************************************************************************/
+ *******************************************************************************/
 
 package net.creichen.pm;
 
@@ -109,8 +109,9 @@ public class PMRenameProcessor extends RenameProcessor implements PMProcessor {
 
 		project.syncSources();
 
-		_renameStep = new PMRenameStep(project, (SimpleName) project
-				.nodeForSelection(_textSelection, _iCompilationUnit));
+		_renameStep = new PMRenameStep(project,
+				(SimpleName) project.nodeForSelection(_textSelection,
+						_iCompilationUnit));
 
 		_renameStep.setNewName(_newName);
 
@@ -168,5 +169,4 @@ public class PMRenameProcessor extends RenameProcessor implements PMProcessor {
 
 	}
 
-	
 }

@@ -5,7 +5,7 @@
   implied.  Please refer to the included file LICENCE, detailing the terms of
   the GNU Lesser General Public Licence v3.0 or later, for details.
 
-*******************************************************************************/
+ *******************************************************************************/
 
 package net.creichen.pm;
 
@@ -154,10 +154,7 @@ public class PMProject {
 		updateToNewVersionsOfICompilationUnits(false);
 	}
 
-	
-
 	public void updateToNewVersionsOfICompilationUnits(boolean firstTime) {
-
 
 		Set<ICompilationUnit> iCompilationUnits = getSourceFilesForProject(_iJavaProject);
 
@@ -209,17 +206,19 @@ public class PMProject {
 				if (!finalFirstTime) {
 					CompilationUnit oldCompilationUnit = parsedCompilationUnitForICompilationUnit(source);
 
-					//debug
+					// debug
 					try {
-						//System.err.println("New source is " + source.getSource());
-						//System.err.println("New ast compilation unit is " + newCompilationUnit);
-						
-						//System.err.println("Old ast compilation unit is " + oldCompilationUnit);
+						// System.err.println("New source is " +
+						// source.getSource());
+						// System.err.println("New ast compilation unit is " +
+						// newCompilationUnit);
+
+						// System.err.println("Old ast compilation unit is " +
+						// oldCompilationUnit);
 					} catch (Exception e) {
-						throw new RuntimeException(e);			
+						throw new RuntimeException(e);
 					}
-					
-					
+
 					if (recursivelyReplaceNodeWithCopy(oldCompilationUnit,
 							newCompilationUnit)) {
 						pmCompilationUnit
@@ -363,9 +362,11 @@ public class PMProject {
 
 		IBinding nameBinding = nameNode.resolveBinding();
 
-		//System.out.println("Binding for " + nameNode + " in " + nameNode.getParent().getClass().getName() + " is " + binding);
-		
-		// It appears that name nodes like m in foo.m() have nil bindings here (but not always??)
+		// System.out.println("Binding for " + nameNode + " in " +
+		// nameNode.getParent().getClass().getName() + " is " + binding);
+
+		// It appears that name nodes like m in foo.m() have nil bindings here
+		// (but not always??)
 		// we'll want to do the analysis through the method invocation's
 		// resolveMethodBinding() to catch capture here
 		// in the future
@@ -373,41 +374,50 @@ public class PMProject {
 		if (nameBinding != null) {
 
 			IJavaElement elementForBinding = nameBinding.getJavaElement();
-			
-			//Some name's bindings may not not have java elements (e.g. "length" in an array.length)
-			//For now we ignore these, but in the future we need a way to make sure that array hasn't
-			//been switched to have another type that also has a "length" element
-			
-			if (elementForBinding != null) {
-				//System.out.println("java elementForBinding for " + nameNode + " in " + nameNode.getParent().getClass().getName() + " is " + elementForBinding);
 
-				ICompilationUnit declaringICompilationUnit = (ICompilationUnit)elementForBinding.getAncestor(IJavaElement.COMPILATION_UNIT);
-				
-				
-				//we may  not have the source to declaring compilation unit (e.g. for System.out.println())
-				//in this case file-level representation would be an IClassFile, not an ICompilation unit
-				//in this case we return null since we can't get an ASTNode from an IClassFile
-				
-									
+			// Some name's bindings may not not have java elements (e.g.
+			// "length" in an array.length)
+			// For now we ignore these, but in the future we need a way to make
+			// sure that array hasn't
+			// been switched to have another type that also has a "length"
+			// element
+
+			if (elementForBinding != null) {
+				// System.out.println("java elementForBinding for " + nameNode +
+				// " in " + nameNode.getParent().getClass().getName() + " is " +
+				// elementForBinding);
+
+				ICompilationUnit declaringICompilationUnit = (ICompilationUnit) elementForBinding
+						.getAncestor(IJavaElement.COMPILATION_UNIT);
+
+				// we may not have the source to declaring compilation unit
+				// (e.g. for System.out.println())
+				// in this case file-level representation would be an
+				// IClassFile, not an ICompilation unit
+				// in this case we return null since we can't get an ASTNode
+				// from an IClassFile
+
 				if (declaringICompilationUnit != null) {
 					PMCompilationUnit declaringPMCompilationUnit = getPMCompilationUnitForICompilationUnit(declaringICompilationUnit);
 
-					CompilationUnit declaringCompilationUnit = declaringPMCompilationUnit.getASTNode();
-					
+					CompilationUnit declaringCompilationUnit = declaringPMCompilationUnit
+							.getASTNode();
+
 					ASTNode declaringNode = declaringCompilationUnit
 							.findDeclaringNode(nameBinding);
 
 					if (declaringNode == null) {
-						declaringNode = usingCompilationUnit.findDeclaringNode(nameNode
-								.resolveBinding().getKey());
+						declaringNode = usingCompilationUnit
+								.findDeclaringNode(nameNode.resolveBinding()
+										.getKey());
 					}
 
 					return declaringNode;
 				}
 			}
-			
-		} 
-			
+
+		}
+
 		return null;
 
 	}
@@ -415,7 +425,7 @@ public class PMProject {
 	public boolean nameNodeIsDeclaring(SimpleName name) {
 		return simpleNameForDeclaringNode(findDeclaringNodeForName(name)) == name;
 	}
-	
+
 	public ASTNode declaringNodeForTypeName(String fullyQualifiedTypeName) {
 
 		ASTNode declaringNode = null;
@@ -581,15 +591,13 @@ public class PMProject {
 						PMMarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
 						inconsistency.allowsAcceptBehavioralChange());
 
-				marker.setAttribute(IMarker.MESSAGE, inconsistency
-						.getHumanReadableDescription());
+				marker.setAttribute(IMarker.MESSAGE,
+						inconsistency.getHumanReadableDescription());
 				marker.setAttribute(IMarker.TRANSIENT, true);
 
 				ASTNode node = inconsistency.getNode();
 
-				marker
-						.setAttribute(IMarker.CHAR_START, node
-								.getStartPosition());
+				marker.setAttribute(IMarker.CHAR_START, node.getStartPosition());
 				marker.setAttribute(IMarker.CHAR_END, node.getStartPosition()
 						+ node.getLength());
 
@@ -687,8 +695,8 @@ public class PMProject {
 
 				_iCompilationUnit = newICompilationUnit;
 
-				PMProject.this._pmCompilationUnits.put(newICompilationUnit
-						.getHandleIdentifier(), this);
+				PMProject.this._pmCompilationUnits.put(
+						newICompilationUnit.getHandleIdentifier(), this);
 
 			} catch (Exception e) {
 

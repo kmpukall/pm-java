@@ -5,7 +5,7 @@
   implied.  Please refer to the included file LICENCE, detailing the terms of
   the GNU Lesser General Public Licence v3.0 or later, for details.
 
-*******************************************************************************/
+ *******************************************************************************/
 
 package net.creichen.pm.steps;
 
@@ -23,76 +23,72 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMCutStep extends PMStep {
 	List<ASTNode> _selectedNodes;
-	
+
 	public PMCutStep(PMProject project, List<ASTNode> selectedNodes) {
 		super(project);
-		
+
 		initWithSelectedNodes(selectedNodes);
 	}
-	
+
 	public PMCutStep(PMProject project, ASTNode node) {
 		super(project);
-		
+
 		List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
-		
+
 		selectedNodes.add(node);
-		
+
 		initWithSelectedNodes(selectedNodes);
 	}
-	
+
 	private void initWithSelectedNodes(List<ASTNode> selectedNodes) {
 		_selectedNodes = selectedNodes;
 	}
-	
-	
-//need method to test for errors before asking for changes
-	
+
+	// need method to test for errors before asking for changes
+
 	public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
 		Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
-		
-		ASTRewrite astRewrite = ASTRewrite.create(_selectedNodes.get(0).getAST());
-		
+
+		ASTRewrite astRewrite = ASTRewrite.create(_selectedNodes.get(0)
+				.getAST());
+
 		for (ASTNode node : _selectedNodes) {
 			astRewrite.remove(node, null);
-			
-			result.put(_project.findPMCompilationUnitForNode(node).getICompilationUnit(), astRewrite);
+
+			result.put(_project.findPMCompilationUnitForNode(node)
+					.getICompilationUnit(), astRewrite);
 		}
-		
-		
-		
+
 		return result;
 	}
-	
-	
+
 	public void performASTChange() {
 		/*
 		 * 
-		 _project.setPasteboardRoot(_selectedNodes.get(0));
-		
-		PMCompilationUnitModel usingModel = _project.modelForASTNode(_selectedNodes.get(0));
-		usingModel.removeIdentifiersForTreeStartingAtNode(_selectedNodes.get(0));
-		
-		*/
+		 * _project.setPasteboardRoot(_selectedNodes.get(0));
+		 * 
+		 * PMCompilationUnitModel usingModel =
+		 * _project.modelForASTNode(_selectedNodes.get(0));
+		 * usingModel.removeIdentifiersForTreeStartingAtNode
+		 * (_selectedNodes.get(0));
+		 */
 
 		PMPasteboard pasteboard = _project.getPasteboard();
-		
+
 		pasteboard.setPasteboardRoots(_selectedNodes);
-		
-		
+
 		for (ASTNode node : _selectedNodes) {
 			node.delete();
 		}
-		
-	}
-	
-	public void updateAfterReparse() {
-		
-	}
-	
-	
-	public void cleanup() {
-		//called regardless of whether updateAfterReparse() was called
+
 	}
 
-	
+	public void updateAfterReparse() {
+
+	}
+
+	public void cleanup() {
+		// called regardless of whether updateAfterReparse() was called
+	}
+
 }
