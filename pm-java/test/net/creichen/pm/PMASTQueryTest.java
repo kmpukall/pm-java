@@ -7,9 +7,10 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm;
 
 import net.creichen.pm.PMASTQuery;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;

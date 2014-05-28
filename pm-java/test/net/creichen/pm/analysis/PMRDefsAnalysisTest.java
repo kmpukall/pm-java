@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.analysis;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +17,7 @@ import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.analysis.PMDef;
 import net.creichen.pm.analysis.PMRDefsAnalysis;
 import net.creichen.pm.analysis.PMUse;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;

@@ -7,10 +7,11 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.selection;
 
 import net.creichen.pm.selection.PMInsertionPoint;
 import net.creichen.pm.selection.PMSelection;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;

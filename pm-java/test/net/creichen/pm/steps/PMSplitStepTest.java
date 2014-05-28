@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.steps;
 
 import java.util.List;
 import java.util.Set;
@@ -20,6 +20,7 @@ import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.models.PMNameModel;
 import net.creichen.pm.models.PMUDModel;
 import net.creichen.pm.steps.PMSplitStep;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;

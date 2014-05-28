@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.models;
 
 import static org.junit.Assert.*;
 
@@ -16,6 +16,7 @@ import java.util.Set;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.inconsistencies.PMInconsistency;
+import net.creichen.pm.tests.PMTest;
 
 import org.junit.Test;
 

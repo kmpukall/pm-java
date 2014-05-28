@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.refactorings;
 
 
 
@@ -17,6 +17,7 @@ import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.refactorings.PMMoveFieldRefactoring;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;

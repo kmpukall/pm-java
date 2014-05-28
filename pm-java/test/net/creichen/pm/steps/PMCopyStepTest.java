@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.steps;
 
 import static org.junit.Assert.assertTrue;
 
@@ -22,6 +22,7 @@ import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.models.PMNameModel;
 import net.creichen.pm.models.PMUDModel;
 import net.creichen.pm.steps.PMCopyStep;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;

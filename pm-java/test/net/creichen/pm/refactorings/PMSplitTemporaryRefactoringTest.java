@@ -7,12 +7,13 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.refactorings;
 
 import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.refactorings.PMSplitTemporaryRefactoring;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -24,7 +25,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class PMSplitTemporaryRefactoringsTest extends PMTest {
+public class PMSplitTemporaryRefactoringTest extends PMTest {
 
 	
 	@Test public void testSimplestCase() throws JavaModelException {

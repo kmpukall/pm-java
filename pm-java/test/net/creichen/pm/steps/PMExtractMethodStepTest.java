@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.steps;
 
 
 import java.util.List;
@@ -17,6 +17,7 @@ import net.creichen.pm.PMCompilationUnit;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.steps.PMExtractMethodStep;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.Block;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
+
 
 
 
