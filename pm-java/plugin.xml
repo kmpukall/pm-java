@@ -1,38 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.3"?>
+<?eclipse version="3.4"?>
 <plugin>
-
-<!--
-<extension point="org.eclipse.ltk.core.refactoring.renameParticipants">
-
-	
-	<renameParticipant class="pm_rename_refactoring.PMRenameParticipant"
-						id="pm_rename_refactoring.PMRenameParticipant"
-						name="PMRenameParticipant">
-	<enablement>					
-		<with variable="element">
-          <instanceof value="org.eclipse.jdt.core.IJavaElement"/>
-        </with>
-      </enablement>
-	</renameParticipant>
-</extension>
-
--->
 
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
             label="Sample Action Set"
             visible="true"
+            id="Test.actionSet">
+         <menu
+               label="Sample &amp;Menu"
+               id="sampleMenu">
+            <separator
+                  name="sampleGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Sample Action"
+               icon="icons/sample.gif"
+               class="test.actions.SampleAction"
+               tooltip="Hello, Eclipse world"
+               menubarPath="sampleMenu/sampleGroup"
+               toolbarPath="sampleGroup"
+               id="test.actions.SampleAction">
+         </action>
+      </actionSet>
+      <actionSet
+            label="Sample Action Set"
+            visible="true"
             id="pm_rename_refactoring.actionSet">
 
-<menu label="Refactor" path="edit" id="org.eclipse.jdt.ui.refactoring.menu">
-	<separator name="ProgramMetamorphosis" />
-</menu>
-
-         <action
+		<menu label="Refactor" path="edit" id="org.eclipse.jdt.ui.refactoring.menu">
+			<separator name="ProgramMetamorphosis" />
+		</menu>
+		
+		<action
                label="PM Rename..."
-               class="pm_refactoring.actions.PMRenameAction"
+               class="net.creichen.pm.actions.PMRenameAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.RenameAction">
@@ -40,7 +44,7 @@
          
          <action
                label="PM Delegate..."
-               class="pm_refactoring.actions.PMDelegateAction"
+               class="net.creichen.pm.actions.PMDelegateAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.DelegateAction">
@@ -48,7 +52,7 @@
          
          <action
                label="PM Cut"
-               class="pm_refactoring.actions.PMCutAction"
+               class="net.creichen.pm.actions.PMCutAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.CutAction">
@@ -56,7 +60,7 @@
          
          <action
                label="PM Paste"
-               class="pm_refactoring.actions.PMPasteAction"
+               class="net.creichen.pm.actions.PMPasteAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.PasteAction">
@@ -64,7 +68,7 @@
          
           <action
                label="PM Split Temporary..."
-               class="pm_refactoring.actions.PMSplitAction"
+               class="net.creichen.pm.actions.PMSplitAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.SplitTemporaryAction">
@@ -72,22 +76,19 @@
          
          <action
                label="PM Time Parse"
-               class="pm_refactoring.actions.PMTimeParseAction"
+               class="net.creichen.pm.actions.PMTimeParseAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.TimeParseAction">
          </action>
-         
-      </actionSet>
+	  </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="pm_refactoring.inconsistencies.PMMarkerResolutionGenerator"
+            class="net.creichen.pm.inconsistencies.PMMarkerResolutionGenerator"
             markerType="org.eclipse.core.resources.problemmarker">
       </markerResolutionGenerator>
    </extension>
 
-
-	
 </plugin>
