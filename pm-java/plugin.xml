@@ -7,27 +7,6 @@
       <actionSet
             label="Sample Action Set"
             visible="true"
-            id="Test.actionSet">
-         <menu
-               label="Sample &amp;Menu"
-               id="sampleMenu">
-            <separator
-                  name="sampleGroup">
-            </separator>
-         </menu>
-         <action
-               label="&amp;Sample Action"
-               icon="icons/sample.gif"
-               class="test.actions.SampleAction"
-               tooltip="Hello, Eclipse world"
-               menubarPath="sampleMenu/sampleGroup"
-               toolbarPath="sampleGroup"
-               id="test.actions.SampleAction">
-         </action>
-      </actionSet>
-      <actionSet
-            label="Sample Action Set"
-            visible="true"
             id="pm_rename_refactoring.actionSet">
 
 		<menu label="Refactor" path="edit" id="org.eclipse.jdt.ui.refactoring.menu">

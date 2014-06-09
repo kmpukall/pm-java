@@ -24,3 +24,4 @@ Import-Package: org.eclipse.core.filebuffers,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.text.edits,
  org.eclipse.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
