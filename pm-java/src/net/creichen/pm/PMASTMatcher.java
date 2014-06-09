@@ -14,8 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.utils.ASTNodeUtil;
+
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
@@ -86,11 +90,11 @@ public class PMASTMatcher {
 			}
 		}
 
-		List<StructuralPropertyDescriptor> oldStructuralProperties = oldNode
-				.structuralPropertiesForType();
+		List<StructuralPropertyDescriptor> oldStructuralProperties = ASTNodeUtil
+				.structuralPropertiesForType(oldNode);
 
-		if (oldStructuralProperties.size() == newNode
-				.structuralPropertiesForType().size()) {
+		if (oldStructuralProperties.size() == ASTNodeUtil
+				.structuralPropertiesForType(newNode).size()) {
 			for (StructuralPropertyDescriptor structuralPropertyDescriptor : oldStructuralProperties) {
 
 				Object oldPropertyValue = oldNode
@@ -114,18 +118,31 @@ public class PMASTMatcher {
 						else
 							return false;
 					} else if (structuralPropertyDescriptor.isChildProperty()) {
-						if (recursiveMatch((ASTNode) oldPropertyValue,
-								(ASTNode) newPropertyValue)) {
+						ASTNode oldChild = ASTNodeUtil
+								.getStructuralProperty(
+										(ChildPropertyDescriptor) structuralPropertyDescriptor,
+										oldNode);
+						ASTNode newChild = ASTNodeUtil
+								.getStructuralProperty(
+										(ChildPropertyDescriptor) structuralPropertyDescriptor,
+										newNode);
 
-							continue;
-						} else
+						if (!recursiveMatch(oldChild, newChild))
 							return false;
+						else
+							continue;
+
 					} else if (structuralPropertyDescriptor
 							.isChildListProperty()) {
 
-						List<ASTNode> oldList = (List<ASTNode>) oldPropertyValue;
-
-						List<ASTNode> newList = (List<ASTNode>) newPropertyValue;
+						List<ASTNode> oldList = ASTNodeUtil
+								.getStructuralProperty(
+										(ChildListPropertyDescriptor) structuralPropertyDescriptor,
+										oldNode);
+						List<ASTNode> newList = ASTNodeUtil
+								.getStructuralProperty(
+										(ChildListPropertyDescriptor) structuralPropertyDescriptor,
+										newNode);
 
 						if (oldList.size() == newList.size()) {
 

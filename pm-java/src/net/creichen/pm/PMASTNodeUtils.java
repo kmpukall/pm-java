@@ -59,7 +59,7 @@ public class PMASTNodeUtils {
 		if (location.isChildProperty()) {
 			oldNode.getParent().setStructuralProperty(location, replacement);
 		} else {
-			List parentList = (List) oldNode.getParent().getStructuralProperty(
+			List<ASTNode> parentList = (List<ASTNode>) oldNode.getParent().getStructuralProperty(
 					location);
 
 			parentList.set(parentList.indexOf(oldNode), replacement);

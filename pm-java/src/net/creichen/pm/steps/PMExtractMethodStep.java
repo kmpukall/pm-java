@@ -70,7 +70,7 @@ public class PMExtractMethodStep extends PMStep {
 	}
 
 	public List<SimpleName> getNamesToExtract() {
-		return new ArrayList(_namesToExtract);
+		return new ArrayList<SimpleName>(_namesToExtract);
 	}
 
 	protected MethodDeclaration newMethodDeclaration() {

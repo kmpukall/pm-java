@@ -86,7 +86,7 @@ public class PMCutAction extends PMAction {
 					}
 				} else {
 
-					List propertyList = (List) selectionDescriptor
+					List<ASTNode> propertyList = (List<ASTNode>) selectionDescriptor
 							.selectedNodeParent().getStructuralProperty(
 									selectionDescriptor
 											.selectedNodeParentProperty());
@@ -96,7 +96,7 @@ public class PMCutAction extends PMAction {
 							.selectedNodeParentPropertyListOffset()
 							+ selectionDescriptor
 									.selectedNodeParentPropertyListLength(); i++) {
-						nodesToCut.add((ASTNode) propertyList.get(i));
+						nodesToCut.add(propertyList.get(i));
 					}
 
 				}

@@ -48,8 +48,8 @@ public class PMNodeReferenceStore {
 		if (weakReference == null || weakReference.get() == null) {
 			reference = new PMUUIDNodeReference(node);
 
-			_nodesForReferences.put(reference, new WeakReference(node));
-			_referencesForNodes.put(node, new WeakReference(reference));
+			_nodesForReferences.put(reference, new WeakReference<ASTNode>(node));
+			_referencesForNodes.put(node, new WeakReference<PMNodeReference>(reference));
 		} else {
 			reference = weakReference.get();
 		}
@@ -68,7 +68,7 @@ public class PMNodeReferenceStore {
 			if (reference != null) {
 				_referencesForNodes.remove(oldNode);
 				_referencesForNodes.put(newNode, referenceWeakRef);
-				_nodesForReferences.put(reference, new WeakReference(newNode));
+				_nodesForReferences.put(reference, new WeakReference<ASTNode>(newNode));
 			}
 		}
 
