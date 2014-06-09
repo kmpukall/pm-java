@@ -295,7 +295,7 @@ public class PMUDModel {
 								.getReferenceForNode(currentDefiningNode);
 
 						if (currentDefiningIdentifier == null)
-							new RuntimeException(
+							throw new RuntimeException(
 									"Couldn't find  identifier for current defining node "
 											+ currentDefiningNode);
 					} else

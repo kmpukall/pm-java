@@ -9,6 +9,8 @@
 
 package net.creichen.pm.selection;
 
+import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -58,8 +60,7 @@ public class PMInsertionPoint {
 
 	private boolean findInsertionPointUnderNode(ASTNode parentNode,
 			ChildListPropertyDescriptor property, int offset) {
-		List<ASTNode> statements = (List<ASTNode>) parentNode
-				.getStructuralProperty(property);
+		List<ASTNode> statements = getStructuralProperty(property, parentNode);
 
 		int statementCount = statements.size();
 

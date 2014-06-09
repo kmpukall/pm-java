@@ -9,10 +9,13 @@
 
 package net.creichen.pm;
 
+import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -59,8 +62,8 @@ public class PMASTNodeUtils {
 		if (location.isChildProperty()) {
 			oldNode.getParent().setStructuralProperty(location, replacement);
 		} else {
-			List<ASTNode> parentList = (List<ASTNode>) oldNode.getParent().getStructuralProperty(
-					location);
+			List<ASTNode> parentList = getStructuralProperty(
+					(ChildListPropertyDescriptor) location, oldNode.getParent());
 
 			parentList.set(parentList.indexOf(oldNode), replacement);
 		}

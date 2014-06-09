@@ -9,6 +9,9 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.APIWrapperUtil.arguments;
+import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,7 @@ import net.creichen.pm.models.PMUDModel;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -96,26 +100,24 @@ public class PMDelegateStep extends PMStep {
 		SuperMethodInvocation superMethodInvocationNode = ast
 				.newSuperMethodInvocation();
 
-		superMethodInvocationNode
-				.setStructuralProperty(
-						SuperMethodInvocation.NAME_PROPERTY,
-						ASTNode.copySubtree(
-								ast,
-								(ASTNode) invocationToDelegate
-										.getStructuralProperty(MethodInvocation.NAME_PROPERTY)));
-		superMethodInvocationNode
-				.arguments()
-				.addAll(ASTNode.copySubtrees(
+		superMethodInvocationNode.setStructuralProperty(
+				SuperMethodInvocation.NAME_PROPERTY, ASTNode.copySubtree(
 						ast,
-						(List) invocationToDelegate
-								.getStructuralProperty(MethodInvocation.ARGUMENTS_PROPERTY)));
+						getStructuralProperty(MethodInvocation.NAME_PROPERTY,
+								invocationToDelegate)));
+		arguments(superMethodInvocationNode).addAll(
+				ASTNode.copySubtrees(
+						ast,
+						getStructuralProperty(
+								MethodInvocation.ARGUMENTS_PROPERTY,
+								invocationToDelegate)));
 
-		superMethodInvocationNode
-				.arguments()
-				.addAll(ASTNode.copySubtrees(
+		arguments(superMethodInvocationNode).addAll(
+				ASTNode.copySubtrees(
 						ast,
-						(List) invocationToDelegate
-								.getStructuralProperty(MethodInvocation.TYPE_ARGUMENTS_PROPERTY)));
+						getStructuralProperty(
+								MethodInvocation.TYPE_ARGUMENTS_PROPERTY,
+								invocationToDelegate)));
 
 		return superMethodInvocationNode;
 	}
@@ -171,11 +173,10 @@ public class PMDelegateStep extends PMStep {
 
 			_project.recursivelyReplaceNodeWithCopy(
 					_selectedMethodInvocation.getName(),
-					((SuperMethodInvocation) _newSuperInvocationNode).getName());
+					_newSuperInvocationNode.getName());
 
-			List oldArguments = _selectedMethodInvocation.arguments();
-			List newArguments = ((SuperMethodInvocation) _newSuperInvocationNode)
-					.arguments();
+			List<Expression> oldArguments = arguments(_selectedMethodInvocation);
+			List<Expression> newArguments = arguments(_newSuperInvocationNode);
 
 			if (oldArguments.size() == newArguments.size()) {
 				for (int i = 0; i < oldArguments.size(); i++) {
@@ -199,8 +200,9 @@ public class PMDelegateStep extends PMStep {
 				_selectedMethodInvocation.getParent().setStructuralProperty(
 						location, _newSuperInvocationNode);
 			} else {
-				List parentList = (List) _selectedMethodInvocation.getParent()
-						.getStructuralProperty(location);
+				List<ASTNode> parentList = getStructuralProperty(
+						(ChildListPropertyDescriptor) location,
+						_selectedMethodInvocation.getParent());
 
 				parentList.set(parentList.indexOf(_selectedMethodInvocation),
 						_newSuperInvocationNode);

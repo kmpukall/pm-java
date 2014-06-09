@@ -23,8 +23,8 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -44,11 +44,11 @@ public class PMPasteAction extends PMAction {
 	}
 
 	protected int insertIndexOfSelectionInList(ITextSelection textSelection,
-			List list) {
+			List<ASTNode> list) {
 		int insertIndex = list.size();
 
 		for (int i = 0; i < list.size(); i++) {
-			ASTNode child = (ASTNode) list.get(i);
+			ASTNode child = list.get(i);
 
 			if (textSelection.getOffset() <= child.getStartPosition())
 				insertIndex = i;

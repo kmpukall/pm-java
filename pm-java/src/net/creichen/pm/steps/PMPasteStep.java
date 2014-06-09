@@ -9,6 +9,8 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +82,7 @@ public class PMPasteStep extends PMStep {
 			ASTNode node = nodesToPaste.get(i);
 			int insertionIndex = i + _index;
 
-			List childList = (List) _parent.getStructuralProperty(_property);
+			List<ASTNode> childList = getStructuralProperty(_property, _parent);
 
 			ASTNode copiedNode = ASTNode.copySubtree(_parent.getAST(), node);
 			childList.add(insertionIndex, copiedNode);

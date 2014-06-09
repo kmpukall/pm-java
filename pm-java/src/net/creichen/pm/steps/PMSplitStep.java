@@ -9,6 +9,8 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -235,8 +238,9 @@ public class PMSplitStep extends PMStep {
 		StructuralPropertyDescriptor location = _assignmentStatement
 				.getLocationInParent();
 
-		List parentList = (List) _assignmentStatement.getParent()
-				.getStructuralProperty(location);
+		List<ASTNode> parentList = getStructuralProperty(
+				(ChildListPropertyDescriptor) location,
+				_assignmentStatement.getParent());
 
 		parentList.set(parentList.indexOf(_assignmentStatement),
 				_replacementDeclarationStatement);

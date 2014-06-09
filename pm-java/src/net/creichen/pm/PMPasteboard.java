@@ -52,7 +52,7 @@ public class PMPasteboard {
 		_pasteboardRoots = null;
 	}
 
-	public boolean containsOnlyNodesOfClass(Class someClass) {
+	public boolean containsOnlyNodesOfClass(Class<?> someClass) {
 		for (ASTNode node : _pasteboardRoots) {
 			if (!someClass.isInstance(node))
 				return false;

@@ -9,6 +9,8 @@
 
 package net.creichen.pm.actions;
 
+import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import net.creichen.pm.steps.PMCutStep;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -86,10 +89,10 @@ public class PMCutAction extends PMAction {
 					}
 				} else {
 
-					List<ASTNode> propertyList = (List<ASTNode>) selectionDescriptor
-							.selectedNodeParent().getStructuralProperty(
-									selectionDescriptor
-											.selectedNodeParentProperty());
+					List<ASTNode> propertyList = getStructuralProperty(
+							(ChildListPropertyDescriptor) selectionDescriptor
+									.selectedNodeParentProperty(),
+							selectionDescriptor.selectedNodeParent());
 
 					for (int i = selectionDescriptor
 							.selectedNodeParentPropertyListOffset(); i < selectionDescriptor

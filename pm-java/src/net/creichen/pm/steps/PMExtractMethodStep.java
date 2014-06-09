@@ -9,6 +9,12 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.APIWrapperUtil.arguments;
+import static net.creichen.pm.utils.APIWrapperUtil.bodyDeclarations;
+import static net.creichen.pm.utils.APIWrapperUtil.modifiers;
+import static net.creichen.pm.utils.APIWrapperUtil.parameters;
+import static net.creichen.pm.utils.APIWrapperUtil.statements;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,16 +31,16 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
@@ -85,7 +91,7 @@ public class PMExtractMethodStep extends PMStep {
 				.newTypeASTNodeForTypeBinding(ast,
 						_originalExpression.resolveTypeBinding()));
 
-		newMethodDeclaration.modifiers().add(
+		modifiers(newMethodDeclaration).add(
 				ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD));
 
 		for (SimpleName nameToExtract : _namesToExtract) {
@@ -97,7 +103,7 @@ public class PMExtractMethodStep extends PMStep {
 			parameter.setType(PMExtractMethodStep.newTypeASTNodeForTypeBinding(
 					ast, nameToExtract.resolveTypeBinding()));
 
-			newMethodDeclaration.parameters().add(parameter);
+			parameters(newMethodDeclaration).add(parameter);
 		}
 
 		Block methodBody = ast.newBlock();
@@ -111,7 +117,7 @@ public class PMExtractMethodStep extends PMStep {
 
 		returnStatement.setExpression(_extractedExpression);
 
-		methodBody.statements().add(returnStatement);
+		statements(methodBody).add(returnStatement);
 
 		return newMethodDeclaration;
 	}
@@ -126,7 +132,7 @@ public class PMExtractMethodStep extends PMStep {
 						.getIdentifier()));
 
 		for (SimpleName nameToExtract : _namesToExtract) {
-			newMethodInvocation.arguments().add(
+			arguments(newMethodInvocation).add(
 					ast.newSimpleName(nameToExtract.getIdentifier()));
 		}
 
@@ -222,7 +228,7 @@ public class PMExtractMethodStep extends PMStep {
 	public void performASTChange() {
 		TypeDeclaration containingClass = containingClass(_originalExpression);
 
-		containingClass.bodyDeclarations().add(_extractedMethodDeclaration);
+		bodyDeclarations(containingClass).add(_extractedMethodDeclaration);
 
 		_project.recursivelyReplaceNodeWithCopy(_originalExpression,
 				_extractedExpression);

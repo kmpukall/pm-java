@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.utils.ASTNodeUtil;
+import net.creichen.pm.utils.APIWrapperUtil;
 
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -90,10 +90,10 @@ public class PMASTMatcher {
 			}
 		}
 
-		List<StructuralPropertyDescriptor> oldStructuralProperties = ASTNodeUtil
+		List<StructuralPropertyDescriptor> oldStructuralProperties = APIWrapperUtil
 				.structuralPropertiesForType(oldNode);
 
-		if (oldStructuralProperties.size() == ASTNodeUtil
+		if (oldStructuralProperties.size() == APIWrapperUtil
 				.structuralPropertiesForType(newNode).size()) {
 			for (StructuralPropertyDescriptor structuralPropertyDescriptor : oldStructuralProperties) {
 
@@ -118,11 +118,11 @@ public class PMASTMatcher {
 						else
 							return false;
 					} else if (structuralPropertyDescriptor.isChildProperty()) {
-						ASTNode oldChild = ASTNodeUtil
+						ASTNode oldChild = APIWrapperUtil
 								.getStructuralProperty(
 										(ChildPropertyDescriptor) structuralPropertyDescriptor,
 										oldNode);
-						ASTNode newChild = ASTNodeUtil
+						ASTNode newChild = APIWrapperUtil
 								.getStructuralProperty(
 										(ChildPropertyDescriptor) structuralPropertyDescriptor,
 										newNode);
@@ -135,11 +135,11 @@ public class PMASTMatcher {
 					} else if (structuralPropertyDescriptor
 							.isChildListProperty()) {
 
-						List<ASTNode> oldList = ASTNodeUtil
+						List<ASTNode> oldList = APIWrapperUtil
 								.getStructuralProperty(
 										(ChildListPropertyDescriptor) structuralPropertyDescriptor,
 										oldNode);
-						List<ASTNode> newList = ASTNodeUtil
+						List<ASTNode> newList = APIWrapperUtil
 								.getStructuralProperty(
 										(ChildListPropertyDescriptor) structuralPropertyDescriptor,
 										newNode);
