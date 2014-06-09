@@ -134,7 +134,7 @@ public class PMProject {
 	public void justParseMeasurement(boolean resolveBindings) {
 		Set<ICompilationUnit> iCompilationUnits = getSourceFilesForProject(_iJavaProject);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setProject(_iJavaProject);
 
 		parser.setResolveBindings(resolveBindings);
@@ -175,7 +175,7 @@ public class PMProject {
 
 		final boolean finalFirstTime = firstTime;
 
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setProject(_iJavaProject);
 
 		parser.setResolveBindings(true);

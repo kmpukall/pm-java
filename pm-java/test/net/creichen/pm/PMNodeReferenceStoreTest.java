@@ -24,7 +24,7 @@ public class PMNodeReferenceStoreTest {
 
 		PMNodeReferenceStore store = new PMNodeReferenceStore();
 
-		AST ast = AST.newAST(AST.JLS3);
+		AST ast = AST.newAST(AST.JLS8);
 
 		ASTNode node = ast.newSimpleName("Foo");
 
@@ -45,7 +45,7 @@ public class PMNodeReferenceStoreTest {
 
 		PMNodeReferenceStore store = new PMNodeReferenceStore();
 
-		AST ast = AST.newAST(AST.JLS3);
+		AST ast = AST.newAST(AST.JLS8);
 
 		ASTNode node = ast.newSimpleName("Foo");
 
@@ -63,7 +63,7 @@ public class PMNodeReferenceStoreTest {
 	public void testNullingOutReferenceRemovesNode() {
 		PMNodeReferenceStore store = new PMNodeReferenceStore();
 
-		AST ast = AST.newAST(AST.JLS3);
+		AST ast = AST.newAST(AST.JLS8);
 
 		ASTNode node = ast.newSimpleName("Foo");
 
@@ -84,7 +84,7 @@ public class PMNodeReferenceStoreTest {
 	public void testReplaceNodeWithNodeWithoutExistingReferenceToNewNode() {
 		PMNodeReferenceStore store = new PMNodeReferenceStore();
 
-		AST ast = AST.newAST(AST.JLS3);
+		AST ast = AST.newAST(AST.JLS8);
 
 		ASTNode node1 = ast.newSimpleName("Foo");
 
@@ -101,7 +101,7 @@ public class PMNodeReferenceStoreTest {
 	public void testReplaceNodeWithNodeWithExistingReferenceToNewNode() {
 		PMNodeReferenceStore store = new PMNodeReferenceStore();
 
-		AST ast = AST.newAST(AST.JLS3);
+		AST ast = AST.newAST(AST.JLS8);
 
 		ASTNode node1 = ast.newSimpleName("Foo");
 

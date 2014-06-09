@@ -9,12 +9,13 @@
 
 package net.creichen.pm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
-
-import net.creichen.pm.PMASTMatcher;
-import net.creichen.pm.PMASTQuery;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -27,7 +28,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchIsomorphicSimpleNames() {
-		AST ast = AST.newAST(AST.JLS3);
+		AST ast = AST.newAST(AST.JLS8);
 
 		ASTNode foo1 = ast.newSimpleName("Foo");
 
@@ -44,7 +45,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchNonIsomorphicSimpleNames() {
-		AST ast = AST.newAST(AST.JLS3);
+		AST ast = AST.newAST(AST.JLS8);
 
 		ASTNode foo = ast.newSimpleName("Foo");
 
@@ -59,7 +60,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchIsomorphicCompilationUnits() {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource("public class S { void m() {int x; x++; int y; y++;} }"
 				.toCharArray());
 
@@ -117,7 +118,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchNonIsomorphicInSimplePropertyCompilationUnits() {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource("public class S { void m() {int x; x++; int y; y++;} }"
 				.toCharArray());
 
@@ -139,7 +140,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchNonIsomorphicInChildListPropertyCompilationUnits() {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource("public class S { void m() {int x; x++; int y; y++;} }"
 				.toCharArray());
 
