@@ -55,7 +55,7 @@ public class PMUDModel {
 		// so it isn't garbage collected out of the store (since the store uses
 		// weak refs).
 
-		AST ast = AST.newAST(AST.JLS8);
+		AST ast = AST.newAST(AST.JLS4);
 
 		_uninitializedMarkerNode = ast.newSimpleName("Foo");
 		_uninitialized = _project.getReferenceForNode(_uninitializedMarkerNode);

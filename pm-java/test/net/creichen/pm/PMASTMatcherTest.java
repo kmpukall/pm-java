@@ -28,7 +28,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchIsomorphicSimpleNames() {
-		AST ast = AST.newAST(AST.JLS8);
+		AST ast = AST.newAST(AST.JLS4);
 
 		ASTNode foo1 = ast.newSimpleName("Foo");
 
@@ -45,7 +45,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchNonIsomorphicSimpleNames() {
-		AST ast = AST.newAST(AST.JLS8);
+		AST ast = AST.newAST(AST.JLS4);
 
 		ASTNode foo = ast.newSimpleName("Foo");
 
@@ -60,7 +60,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchIsomorphicCompilationUnits() {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		parser.setSource("public class S { void m() {int x; x++; int y; y++;} }"
 				.toCharArray());
 
@@ -118,7 +118,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchNonIsomorphicInSimplePropertyCompilationUnits() {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		parser.setSource("public class S { void m() {int x; x++; int y; y++;} }"
 				.toCharArray());
 
@@ -140,7 +140,7 @@ public class PMASTMatcherTest {
 
 	@Test
 	public void testMatchNonIsomorphicInChildListPropertyCompilationUnits() {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		parser.setSource("public class S { void m() {int x; x++; int y; y++;} }"
 				.toCharArray());
 

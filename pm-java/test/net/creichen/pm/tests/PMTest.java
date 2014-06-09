@@ -118,7 +118,7 @@ public class PMTest {
 	public CompilationUnit parseCompilationUnitFromSource(String source,
 			String unitName) {
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
 
 		if (unitName != null) {
 			ICompilationUnit iCompilationUnit = createNewCompilationUnit("",
