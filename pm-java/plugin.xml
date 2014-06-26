@@ -11,13 +11,6 @@
 
 		
          
-         <action
-               label="PM Delegate..."
-               class="net.creichen.pm.actions.PMDelegateAction"
-               tooltip="Hello, Eclipse world"
-               menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
-               id="pm_rename_refactoring.actions.DelegateAction">
-         </action>
          
          <action
                label="PM Cut"
@@ -66,6 +59,11 @@
             id="pm_rename_refactoring.actions.RenameAction"
             name="PM Rename...">
       </command>
+      <command
+            defaultHandler="net.creichen.pm.commands.DelegateHandler"
+            id="pm_rename_refactoring.actions.DelegateAction"
+            name="PM Delegate...">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -85,6 +83,12 @@
                   label="PM Rename..."
                   style="push"
                   tooltip="Rename an element using Program Metamorphosis">
+            </command>
+            <command
+                  commandId="pm_rename_refactoring.actions.DelegateAction"
+                  label="PM Delegate..."
+                  style="push"
+                  tooltip="Delegate a method call">
             </command>
          </menu>
       </menuContribution>
