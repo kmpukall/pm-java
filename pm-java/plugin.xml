@@ -9,17 +9,7 @@
             visible="true"
             id="pm_rename_refactoring.actionSet">
 
-		<menu label="Refactor" path="edit" id="org.eclipse.jdt.ui.refactoring.menu">
-			<separator name="ProgramMetamorphosis" />
-		</menu>
 		
-		<action
-               label="PM Rename..."
-               class="net.creichen.pm.actions.PMRenameAction"
-               tooltip="Hello, Eclipse world"
-               menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
-               id="pm_rename_refactoring.actions.RenameAction">
-         </action>
          
          <action
                label="PM Delegate..."
@@ -68,6 +58,36 @@
             class="net.creichen.pm.inconsistencies.PMMarkerResolutionGenerator"
             markerType="org.eclipse.core.resources.problemmarker">
       </markerResolutionGenerator>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="net.creichen.pm.commands.RenameHandler"
+            id="pm_rename_refactoring.actions.RenameAction"
+            name="PM Rename...">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="org.eclipse.jdt.ui.refactoring.menu"
+               label="Refactor"
+               path="edit">
+            <separator
+                  name="ProgramMetamorphosis"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="pm_rename_refactoring.actions.RenameAction"
+                  label="PM Rename..."
+                  style="push"
+                  tooltip="Rename an element using Program Metamorphosis">
+            </command>
+         </menu>
+      </menuContribution>
    </extension>
 
 </plugin>

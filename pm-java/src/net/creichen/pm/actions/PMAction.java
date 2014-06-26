@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-abstract public class PMAction implements IWorkbenchWindowActionDelegate {
+public abstract class PMAction implements IWorkbenchWindowActionDelegate {
 	protected IWorkbenchWindow window;
 
 	private ISelection _selection;
