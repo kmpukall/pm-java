@@ -27,15 +27,14 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class PMASTQuery {
 
-	@SuppressWarnings("restriction")
 	static public ASTNode nodeForSelectionInCompilationUnit(
 			int selectionOffset, int selectionLength,
 			CompilationUnit compilationUnit) {
 
 		// Should use PMSelection once it handles the generic case!!!
 
-		return org.eclipse.jdt.internal.corext.dom.NodeFinder.perform(
-				compilationUnit, selectionOffset, selectionLength);
+		return org.eclipse.jdt.core.dom.NodeFinder.perform(compilationUnit,
+				selectionOffset, selectionLength);
 	}
 
 	/*
@@ -215,14 +214,12 @@ public class PMASTQuery {
 
 	static private class LocalFinderASTVisitor extends ASTVisitor {
 		String _localName;
-		int _localNameOccurrence;
 		int _localNameOccurrenceCounter;
 
 		VariableDeclaration _result;
 
 		public LocalFinderASTVisitor(String localName, int localNameOccurrence) {
 			_localName = localName;
-			_localNameOccurrence = localNameOccurrence;
 
 			_localNameOccurrenceCounter = localNameOccurrence; // counts down to
 																// zero
