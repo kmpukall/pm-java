@@ -47,7 +47,7 @@ public class PMPasteStep extends PMStep {
     @Override
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
 
-        final PMPasteboard pasteboard = this._project.getPasteboard();
+        final PMPasteboard pasteboard = this.getProject().getPasteboard();
 
         final List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
 
@@ -63,7 +63,7 @@ public class PMPasteStep extends PMStep {
             final ListRewrite lrw = astRewrite.getListRewrite(this.parent, this.property);
             lrw.insertAt(copiedNode, index++, null /* textEditGroup */);
 
-            result.put(this._project.findPMCompilationUnitForNode(this.parent)
+            result.put(this.getProject().findPMCompilationUnitForNode(this.parent)
                     .getICompilationUnit(), astRewrite);
         }
 
@@ -78,11 +78,11 @@ public class PMPasteStep extends PMStep {
     @Override
     public void performASTChange() {
 
-        final PMPasteboard pasteboard = this._project.getPasteboard();
+        final PMPasteboard pasteboard = this.getProject().getPasteboard();
 
         final List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
 
-        final PMNameModel nameModel = this._project.getNameModel();
+        final PMNameModel nameModel = this.getProject().getNameModel();
 
         for (int i = 0; i < nodesToPaste.size(); i++) {
             final ASTNode node = nodesToPaste.get(i);
@@ -116,7 +116,7 @@ public class PMPasteStep extends PMStep {
             };
 
             if (node.subtreeMatch(identifierMatcher, copiedNode)) {
-                this._project.recursivelyReplaceNodeWithCopy(node, copiedNode);
+                this.getProject().recursivelyReplaceNodeWithCopy(node, copiedNode);
 
             } else {
                 System.err.println("Couldn't match copied statement to original");
@@ -127,7 +127,7 @@ public class PMPasteStep extends PMStep {
         }
 
         // FIXME(dcc) is this update necessary?
-        this._project.updateToNewVersionsOfICompilationUnits();
+        this.getProject().updateToNewVersionsOfICompilationUnits();
     }
 
     @Override

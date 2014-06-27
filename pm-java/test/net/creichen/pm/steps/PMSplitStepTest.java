@@ -37,7 +37,7 @@ public class PMSplitStepTest extends PMTest {
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
         final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final Assignment secondAssignment = PMASTQuery.assignmentInMethodInClassInCompilationUnit(
                 1, "m", 0, "S", 0,

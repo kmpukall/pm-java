@@ -39,7 +39,7 @@ public class PMDelegateStepTest extends PMTest {
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final PMCompilationUnit s2PMCompilationUnit = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnit2);

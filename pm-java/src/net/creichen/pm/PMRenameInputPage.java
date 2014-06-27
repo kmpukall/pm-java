@@ -23,12 +23,12 @@ import org.eclipse.swt.widgets.Text;
 public class PMRenameInputPage extends UserInputWizardPage {
     private Text fNameField;
 
-    private final PMRenameProcessor _processor;
+    private final PMRenameProcessor processor;
 
     public PMRenameInputPage(final PMRenameProcessor processor) {
         super("PM Refactoring Input Page");
 
-        this._processor = processor;
+        this.processor = processor;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class PMRenameInputPage extends UserInputWizardPage {
     }
 
     void handleInputChanged() {
-        this._processor.setNewName(this.fNameField.getText());
+        this.processor.setNewName(this.fNameField.getText());
 
         final RefactoringStatus status = new RefactoringStatus();
 

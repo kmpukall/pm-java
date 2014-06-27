@@ -137,15 +137,15 @@ public class PMSplitStep extends PMStep {
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
 
-        final PMNodeReference identifierForOldAssignment = this._project
+        final PMNodeReference identifierForOldAssignment = this.getProject()
                 .getReferenceForNode(oldAssignmentExpression);
 
-        this._project.recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
+        this.getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
 
         // !!!_project.removeNode(oldAssignmentExpression);
         // !!!_project.addNode(_replacementDeclarationStatement);
 
-        final PMNodeReference identifierForNewVariableDeclaration = this._project
+        final PMNodeReference identifierForNewVariableDeclaration = this.getProject()
                 .getReferenceForNode(newVariableDeclarationFragment);
 
         final SimpleName oldLHS = (SimpleName) oldAssignmentExpression.getLeftHandSide();
@@ -154,7 +154,7 @@ public class PMSplitStep extends PMStep {
         // Need to update UDModel to replace assignment definition with variable
         // declaration fragment definition
 
-        final PMUDModel udModel = this._project.getUDModel();
+        final PMUDModel udModel = this.getProject().getUDModel();
 
         // for each use of the assignment, replace the use of the assignment
         // with the use of the declaration
@@ -168,7 +168,7 @@ public class PMSplitStep extends PMStep {
 
         udModel.deleteDefinition(identifierForOldAssignment);
 
-        final PMNameModel nameModel = this._project.getNameModel();
+        final PMNameModel nameModel = this.getProject().getNameModel();
 
         nameModel.removeIdentifierForName(oldLHS);
 
@@ -190,7 +190,7 @@ public class PMSplitStep extends PMStep {
         parentList.set(parentList.indexOf(this.assignmentStatement),
                 this.replacementDeclarationStatement);
 
-        this.replacementDeclarationReference = this._project
+        this.replacementDeclarationReference = this.getProject()
                 .getReferenceForNode(this.replacementDeclarationStatement);
 
     }

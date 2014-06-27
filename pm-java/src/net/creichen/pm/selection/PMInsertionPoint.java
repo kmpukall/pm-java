@@ -32,13 +32,13 @@ public class PMInsertionPoint {
 
     protected static class PMContainingNodeVisitor extends ASTVisitor {
         private final int _offset;
-        private final int _length;
+        private final int length;
 
         private ASTNode containingNode = null;
 
         public PMContainingNodeVisitor(final int offset, final int length) {
             this._offset = offset;
-            this._length = length;
+            this.length = length;
         }
 
         public ASTNode getContainingNode() {
@@ -47,7 +47,7 @@ public class PMInsertionPoint {
 
         public boolean visitContainingNode(final ASTNode node) {
             if (node.getStartPosition() + 1 <= this._offset
-                    && this._offset + this._length <= node.getStartPosition() + node.getLength()
+                    && this._offset + this.length <= node.getStartPosition() + node.getLength()
                             - 1) {
 
                 this.containingNode = node;
@@ -70,7 +70,7 @@ public class PMInsertionPoint {
         }
     }
 
-    private static Block FindContainingBlockForSelection(final ASTNode nodeToSearch,
+    private static Block findContainingBlockForSelection(final ASTNode nodeToSearch,
             final int offset, final int length) {
 
         final PMContainingBlockVisitor containingBlockVisitor = new PMContainingBlockVisitor(
@@ -81,7 +81,7 @@ public class PMInsertionPoint {
         return (Block) containingBlockVisitor.getContainingNode();
     }
 
-    private static TypeDeclaration FindContainingTypeDeclarationForSelection(
+    private static TypeDeclaration findContainingTypeDeclarationForSelection(
             final ASTNode nodeToSearch, final int offset, final int length) {
         final PMContainingTypeDeclarationVisitor containingTypeDeclarationVisitor = new PMContainingTypeDeclarationVisitor(
                 offset, length);
@@ -122,7 +122,7 @@ public class PMInsertionPoint {
          * the first/last character of such a child
          */
 
-        final Block containingBlock = FindContainingBlockForSelection(this.compilationUnit, offset,
+        final Block containingBlock = findContainingBlockForSelection(this.compilationUnit, offset,
                 0);
 
         if (containingBlock != null) {
@@ -137,7 +137,7 @@ public class PMInsertionPoint {
 
     private boolean findInsertionPointInTypeDeclaration(final int offset) {
 
-        final TypeDeclaration containingTypeDeclaration = FindContainingTypeDeclarationForSelection(
+        final TypeDeclaration containingTypeDeclaration = findContainingTypeDeclarationForSelection(
                 this.compilationUnit, offset, 0);
 
         if (containingTypeDeclaration != null) {

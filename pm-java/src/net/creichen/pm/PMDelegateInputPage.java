@@ -23,12 +23,12 @@ import org.eclipse.swt.widgets.Text;
 public class PMDelegateInputPage extends UserInputWizardPage {
     private Text fNameField;
 
-    private final PMDelegateProcessor _processor;
+    private final PMDelegateProcessor processor;
 
     public PMDelegateInputPage(final PMDelegateProcessor processor) {
         super("PM Delegate Input Page");
 
-        this._processor = processor;
+        this.processor = processor;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class PMDelegateInputPage extends UserInputWizardPage {
     }
 
     void handleInputChanged() {
-        this._processor.setDelegateIdentifier(this.fNameField.getText());
+        this.processor.setDelegateIdentifier(this.fNameField.getText());
 
         final RefactoringStatus status = new RefactoringStatus();
 

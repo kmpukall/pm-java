@@ -49,7 +49,7 @@ public class PMCutStep extends PMStep {
         for (final ASTNode node : this.selectedNodes) {
             astRewrite.remove(node, null);
 
-            result.put(this._project.findPMCompilationUnitForNode(node).getICompilationUnit(),
+            result.put(this.getProject().findPMCompilationUnitForNode(node).getICompilationUnit(),
                     astRewrite);
         }
 
@@ -77,7 +77,7 @@ public class PMCutStep extends PMStep {
          * usingModel.removeIdentifiersForTreeStartingAtNode (_selectedNodes.get(0));
          */
 
-        final PMPasteboard pasteboard = this._project.getPasteboard();
+        final PMPasteboard pasteboard = this.getProject().getPasteboard();
 
         pasteboard.setPasteboardRoots(this.selectedNodes);
 

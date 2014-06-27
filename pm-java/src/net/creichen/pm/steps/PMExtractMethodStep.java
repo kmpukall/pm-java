@@ -132,7 +132,7 @@ public class PMExtractMethodStep extends PMStep {
 
         astRewrite.replace(this.originalExpression, this.replacementMethodInvocation, null);
 
-        result.put(this._project.findPMCompilationUnitForNode(this.originalExpression)
+        result.put(this.getProject().findPMCompilationUnitForNode(this.originalExpression)
                 .getICompilationUnit(), astRewrite);
 
         return result;
@@ -218,7 +218,7 @@ public class PMExtractMethodStep extends PMStep {
 
         bodyDeclarations(containingClass).add(this.extractedMethodDeclaration);
 
-        this._project.recursivelyReplaceNodeWithCopy(this.originalExpression,
+        this.getProject().recursivelyReplaceNodeWithCopy(this.originalExpression,
                 this.extractedExpression);
 
         PMASTNodeUtil.replaceNodeInParent(this.originalExpression,

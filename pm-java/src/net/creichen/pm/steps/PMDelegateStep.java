@@ -113,7 +113,7 @@ public class PMDelegateStep extends PMStep {
             // match the copies up with the old versions so that we can update
             // identifiers
 
-            this._project.recursivelyReplaceNodeWithCopy(this.selectedMethodInvocation.getName(),
+            this.getProject().recursivelyReplaceNodeWithCopy(this.selectedMethodInvocation.getName(),
                     this.newSuperInvocationNode.getName());
 
             final List<Expression> oldArguments = arguments(this.selectedMethodInvocation);
@@ -121,7 +121,7 @@ public class PMDelegateStep extends PMStep {
 
             if (oldArguments.size() == newArguments.size()) {
                 for (int i = 0; i < oldArguments.size(); i++) {
-                    this._project.recursivelyReplaceNodeWithCopy(oldArguments.get(i),
+                    this.getProject().recursivelyReplaceNodeWithCopy(oldArguments.get(i),
                             newArguments.get(i));
                 }
 
@@ -152,7 +152,7 @@ public class PMDelegateStep extends PMStep {
             if (this.newExpressionNode != null) {
                 if ((this.newExpressionNode instanceof Name)) {
 
-                    this.newExpressionNodeReference = this._project
+                    this.newExpressionNodeReference = this.getProject()
                             .getReferenceForNode(this.newExpressionNode);
                 } else {
                     System.err.println("Unexpected new expression type "
@@ -221,12 +221,12 @@ public class PMDelegateStep extends PMStep {
 
             final SimpleName name = (SimpleName) this.newExpressionNode;
 
-            final PMNameModel nameModel = this._project.getNameModel();
+            final PMNameModel nameModel = this.getProject().getNameModel();
 
-            final ASTNode declaringNode = this._project.findDeclaringNodeForName(name);
+            final ASTNode declaringNode = this.getProject().findDeclaringNodeForName(name);
 
             if (declaringNode != null) {
-                final SimpleName simpleNameForDeclaringNode = this._project
+                final SimpleName simpleNameForDeclaringNode = this.getProject()
                         .simpleNameForDeclaringNode(declaringNode);
 
                 final String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);
@@ -254,7 +254,7 @@ public class PMDelegateStep extends PMStep {
 
             final PMUse use = analysis.useForSimpleName(name);
 
-            final PMUDModel udModel = this._project.getUDModel();
+            final PMUDModel udModel = this.getProject().getUDModel();
 
             udModel.addUseToModel(use);
 

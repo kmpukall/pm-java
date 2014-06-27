@@ -47,9 +47,9 @@ public class PMRenameStep extends PMStep {
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
         final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-        this._project.syncSources();
+        this.getProject().syncSources();
 
-        final PMNameModel nameModel = this._project.getNameModel();
+        final PMNameModel nameModel = this.getProject().getNameModel();
 
         final ArrayList<SimpleName> nodesToRename = nameModel
                 .nameNodesRelatedToNameNode(this.nameNode);
@@ -120,7 +120,7 @@ public class PMRenameStep extends PMStep {
                 final ICompilationUnit iCompilationUnitToRename = (ICompilationUnit) ((CompilationUnit) nameNode
                         .getParent().getParent()).getJavaElement();
 
-                final PMCompilationUnit pmCompilationUnitToRename = this._project
+                final PMCompilationUnit pmCompilationUnitToRename = this.getProject()
                         .getPMCompilationUnitForICompilationUnit(iCompilationUnitToRename);
 
                 pmCompilationUnitToRename.rename(this.newName);

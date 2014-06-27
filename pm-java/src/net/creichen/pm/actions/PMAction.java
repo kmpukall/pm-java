@@ -29,14 +29,14 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public abstract class PMAction implements IWorkbenchWindowActionDelegate {
     private IWorkbenchWindow window;
 
-    private ISelection _selection;
+    private ISelection selection;
 
     public PMAction() {
 
     }
 
     public ICompilationUnit currentICompilationUnit() {
-        final IWorkbenchPage activePage = window.getActivePage();
+        final IWorkbenchPage activePage = this.window.getActivePage();
 
         if (activePage != null) {
             final IEditorPart editor = activePage.getActiveEditor();
@@ -50,7 +50,7 @@ public abstract class PMAction implements IWorkbenchWindowActionDelegate {
     }
 
     public IDocument currentIDocument() {
-        final IWorkbenchPage activePage = window.getActivePage();
+        final IWorkbenchPage activePage = this.window.getActivePage();
 
         if (activePage != null) {
             final IEditorPart editor = activePage.getActiveEditor();
@@ -77,11 +77,11 @@ public abstract class PMAction implements IWorkbenchWindowActionDelegate {
 
     public ISelection getSelection() {
 
-        return window.getSelectionService().getSelection(); // Doesn't seem to
-                                                            // make a difference
-                                                            // in the selection
-                                                            // not updated
-                                                            // problem
+        return this.window.getSelectionService().getSelection(); // Doesn't seem to
+        // make a difference
+        // in the selection
+        // not updated
+        // problem
         // return _selection;
     }
 
@@ -108,7 +108,7 @@ public abstract class PMAction implements IWorkbenchWindowActionDelegate {
      */
     @Override
     public void run(final IAction action) {
-        if (_selection instanceof ITextSelection) {
+        if (this.selection instanceof ITextSelection) {
 
             final RefactoringProcessor processor = newProcessor();
 
@@ -116,7 +116,7 @@ public abstract class PMAction implements IWorkbenchWindowActionDelegate {
                     new PMWizard(processor, newWizardInputPage(processor)));
 
             try {
-                operation.run(window.getShell(), "PM Rename Title");
+                operation.run(this.window.getShell(), "PM Rename Title");
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -138,10 +138,10 @@ public abstract class PMAction implements IWorkbenchWindowActionDelegate {
         // and only get selected ast node in run()
 
         // System.err.println("Selection changed");
-        _selection = selection;
+        this.selection = selection;
     }
 
     public void showErrorDialog(final String dialogTitle, final String errorExplanation) {
-        MessageDialog.openError(window.getShell(), dialogTitle, errorExplanation);
+        MessageDialog.openError(this.window.getShell(), dialogTitle, errorExplanation);
     }
 }

@@ -38,7 +38,7 @@ public class PMPushDownFieldTest extends PMTest {
         ICompilationUnit iCompilationUnitT2 = createNewCompilationUnit("", "T2.java",
                 "public class T2 extends S {  }");
 
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         FieldDeclaration yField = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,

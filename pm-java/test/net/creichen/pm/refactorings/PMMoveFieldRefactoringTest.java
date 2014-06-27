@@ -32,7 +32,7 @@ public class PMMoveFieldRefactoringTest extends PMTest {
                 "public class T {  }");
 
         final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final CompilationUnit compilationUnitS = (CompilationUnit) project
                 .findASTRootForICompilationUnit(iCompilationUnitS);

@@ -23,8 +23,8 @@ import org.junit.Assert;
 import org.junit.Before;
 
 public class PMTest {
-    protected IProject iProject = null;
-    protected IJavaProject iJavaProject = null;
+    private IProject iProject = null;
+    private IJavaProject iJavaProject = null;
 
     public boolean compilationUnitSourceMatchesSource(final String source1, final String source2) {
         final CompilationUnit compilationUnit1 = parseCompilationUnitFromSource(source1);
@@ -45,8 +45,7 @@ public class PMTest {
                 folder.create(true, true, null);
             }
 
-            final IPackageFragmentRoot srcFolder = this.iJavaProject
-                    .getPackageFragmentRoot(folder);
+            final IPackageFragmentRoot srcFolder = this.iJavaProject.getPackageFragmentRoot(folder);
 
             Assert.assertTrue(srcFolder.exists());
 
@@ -85,8 +84,8 @@ public class PMTest {
                     JavaCore.newSourceEntry(this.iProject.getFullPath().append("src")),
                     JavaRuntime.getDefaultJREContainerEntry() };
 
-            this.iJavaProject.setRawClasspath(buildPath, this.iProject.getFullPath()
-                    .append("bin"), null);
+            this.iJavaProject.setRawClasspath(buildPath, this.iProject.getFullPath().append("bin"),
+                    null);
 
         } catch (final Exception e) {
             e.printStackTrace();
@@ -110,6 +109,10 @@ public class PMTest {
 
         this.iProject = null;
         this.iJavaProject = null;
+    }
+
+    protected IJavaProject getIJavaProject() {
+        return this.iJavaProject;
     }
 
     public CompilationUnit parseCompilationUnitFromSource(final String source) {

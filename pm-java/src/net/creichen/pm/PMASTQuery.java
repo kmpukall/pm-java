@@ -234,17 +234,17 @@ public class PMASTQuery {
 
         node.accept(new ASTVisitor() {
 
-            private int _simpleNameOccurrenceCount = simpleNameOccurrence;
+            private int simpleNameOccurrenceCount = simpleNameOccurrence;
 
             @Override
             public boolean visit(final SimpleName visitedSimpleName) {
 
                 if (result[0] == null
                         && visitedSimpleName.getIdentifier().equals(simpleNameIdentifier)) {
-                    if (this._simpleNameOccurrenceCount == 0) {
+                    if (this.simpleNameOccurrenceCount == 0) {
                         result[0] = visitedSimpleName;
                     } else {
-                        this._simpleNameOccurrenceCount--;
+                        this.simpleNameOccurrenceCount--;
                     }
                 }
 

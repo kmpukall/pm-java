@@ -15,14 +15,12 @@ import net.creichen.pm.PMRenameProcessor;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will be created by the
  * workbench and shown in the UI. When the user tries to use the action, this delegate will be
  * created and execution will be delegated to it.
  * 
- * @see IWorkbenchWindowActionDelegate
  */
 public class PMRenameAction extends PMAction {
 

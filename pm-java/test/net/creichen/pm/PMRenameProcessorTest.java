@@ -36,7 +36,7 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
                 "public class Foo {}");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         assertTrue(pmProject.getPMCompilationUnitForICompilationUnit(iCompilationUnit) != null);
 
@@ -101,7 +101,7 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
                 "public class Foo {int foo; void method() {int bar; foo = 5;} }");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3),
                 iCompilationUnit);
@@ -154,7 +154,7 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
                 "public class Foo {void method() {int foo; int bar; foo = 5; bar = 6;} }");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         PMRenameProcessor renameFooToBar = new PMRenameProcessor(new TextSelection(37, 3),
                 iCompilationUnit);
@@ -211,7 +211,7 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit unit2 = createNewCompilationUnit("", "Unit2.java",
                 "public class Unit2 { void method() {Unit1 unit1 = new Unit1(); unit1.x--;} }");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         PMRenameProcessor renameXToY = new PMRenameProcessor(new TextSelection(32, 1), unit1);
 
@@ -242,7 +242,7 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
                 "public class Foo {int foo; void method() {int bar; foo = 5;} }");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3),
                 iCompilationUnit);

@@ -36,7 +36,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("s", 0, "S1", 0, (CompilationUnit) pmProject
@@ -73,7 +73,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final MethodDeclaration methodDeclaration = PMASTQuery
                 .methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
@@ -109,7 +109,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final MethodDeclaration sourceMethodDeclaration = PMASTQuery
                 .methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
@@ -149,7 +149,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         CompilationUnit compilationUnit = (CompilationUnit) pmProject
                 .findASTRootForICompilationUnit(iCompilationUnit);
@@ -202,7 +202,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("B", "T.java", sourceT);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit(
@@ -244,7 +244,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("string", 0, "S", 0,
@@ -285,7 +285,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit(
@@ -327,7 +327,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit(
@@ -369,7 +369,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit(
@@ -412,7 +412,7 @@ public class PMPasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final MethodDeclaration methodDeclaration = PMASTQuery
                 .methodWithNameInClassInCompilationUnit("foo", 0, "S", 0,

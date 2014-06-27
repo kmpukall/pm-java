@@ -19,21 +19,21 @@ import org.eclipse.jdt.core.dom.*;
 public class PMRDefsAnalysis {
     protected static class VariableAssignment {
 
-        private final PMDef _definition;
+        private final PMDef definition;
 
-        private final IBinding _variableBinding;
+        private final IBinding variableBinding;
 
         public VariableAssignment(final PMDef definition, final IBinding variableBinding) {
-            this._definition = definition;
-            this._variableBinding = variableBinding;
+            this.definition = definition;
+            this.variableBinding = variableBinding;
         }
 
         public PMDef getDefinition() {
-            return this._definition;
+            return this.definition;
         }
 
         public IBinding getVariableBinding() {
-            return this._variableBinding;
+            return this.variableBinding;
         }
     }
 

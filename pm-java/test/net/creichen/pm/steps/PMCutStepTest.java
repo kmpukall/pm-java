@@ -39,7 +39,7 @@ public class PMCutStepTest extends PMTest {
 
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
                 "m", 0, "S", 0,
@@ -58,7 +58,7 @@ public class PMCutStepTest extends PMTest {
 
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
                 "m", 0, "S", 0,
@@ -78,7 +78,7 @@ public class PMCutStepTest extends PMTest {
 
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
                 "m", 0, "S", 0,
@@ -100,7 +100,7 @@ public class PMCutStepTest extends PMTest {
 
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("s", 0, "S", 0,
@@ -122,7 +122,7 @@ public class PMCutStepTest extends PMTest {
 
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         CompilationUnit compilationUnit = (CompilationUnit) pmProject
                 .findASTRootForICompilationUnit(iCompilationUnit);
@@ -154,7 +154,7 @@ public class PMCutStepTest extends PMTest {
 
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         CompilationUnit compilationUnit = (CompilationUnit) pmProject
                 .findASTRootForICompilationUnit(iCompilationUnit);
@@ -186,7 +186,7 @@ public class PMCutStepTest extends PMTest {
 
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("x", 0, "S", 0, (CompilationUnit) pmProject

@@ -71,7 +71,7 @@ public class PMCopyStep extends PMStep {
          * AST.
          */
 
-        final PMNameModel nameModel = _project.getNameModel();
+        final PMNameModel nameModel = getProject().getNameModel();
 
         final Map<String, String> copyNameIdentifiersForOriginals = new HashMap<String, String>();
 
@@ -80,7 +80,7 @@ public class PMCopyStep extends PMStep {
             public boolean match(final SimpleName originalName, final Object copyNameObject) {
                 final SimpleName copyName = (SimpleName) copyNameObject;
 
-                if (_project.nameNodeIsDeclaring(originalName)) {
+                if (getProject().nameNodeIsDeclaring(originalName)) {
                     // Generate fresh identifier for node with name model
 
                     final String freshNameModelIdentifier = nameModel
@@ -140,7 +140,7 @@ public class PMCopyStep extends PMStep {
 
         // for each each in the copy, if it's definition is internal,
 
-        final PMUDModel udModel = _project.getUDModel();
+        final PMUDModel udModel = getProject().getUDModel();
 
         final Map<ASTNode, ASTNode> originalUsingNodesForCopiedUsingNodes = new HashMap<ASTNode, ASTNode>();
         final Map<ASTNode, ASTNode> copiedUsingNodesForOriginalUsingNodes = new HashMap<ASTNode, ASTNode>();
@@ -198,10 +198,10 @@ public class PMCopyStep extends PMStep {
             final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes
                     .get(copiedDefinition);
 
-            final Set<PMNodeReference> originalUses = udModel.usesForDefinition(_project
+            final Set<PMNodeReference> originalUses = udModel.usesForDefinition(getProject()
                     .getReferenceForNode(originalDefinition));
 
-            final Set<PMNodeReference> copyUses = udModel.usesForDefinition(_project
+            final Set<PMNodeReference> copyUses = udModel.usesForDefinition(getProject()
                     .getReferenceForNode(copiedDefinition));
 
             for (final PMNodeReference originalUseReference : originalUses) {
@@ -211,7 +211,7 @@ public class PMCopyStep extends PMStep {
                         .get(originalUseNode);
 
                 if (copyUseNode != null) { /* use is internal */
-                    copyUses.add(_project.getReferenceForNode(copyUseNode));
+                    copyUses.add(getProject().getReferenceForNode(copyUseNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyUses.add(originalUseReference);
                 }
@@ -222,10 +222,10 @@ public class PMCopyStep extends PMStep {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
             final Set<PMNodeReference> originalDefinitions = udModel
-                    .definitionIdentifiersForName(_project.getReferenceForNode(originalUse));
+                    .definitionIdentifiersForName(getProject().getReferenceForNode(originalUse));
 
             final Set<PMNodeReference> copyDefinitions = udModel
-                    .definitionIdentifiersForName(_project.getReferenceForNode(copiedUse));
+                    .definitionIdentifiersForName(getProject().getReferenceForNode(copiedUse));
 
             for (final PMNodeReference originalDefinitionReference : originalDefinitions) {
                 final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
@@ -234,7 +234,7 @@ public class PMCopyStep extends PMStep {
                         .get(originalDefinitionNode);
 
                 if (copyDefinitionNode != null) { /* def is internal */
-                    copyDefinitions.add(_project.getReferenceForNode(copyDefinitionNode));
+                    copyDefinitions.add(getProject().getReferenceForNode(copyDefinitionNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyDefinitions.add(originalDefinitionReference);
                 }
@@ -262,7 +262,7 @@ public class PMCopyStep extends PMStep {
 
         copyUDModel(selectedNodes, copiedPasteboardRootNodes);
 
-        final PMPasteboard pasteboard = _project.getPasteboard();
+        final PMPasteboard pasteboard = getProject().getPasteboard();
 
         pasteboard.setPasteboardRoots(copiedPasteboardRootNodes);
     }

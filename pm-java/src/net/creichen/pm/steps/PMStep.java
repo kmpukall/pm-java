@@ -38,13 +38,13 @@ public class PMStep {
 
             performASTChange();
 
-            PMStep.this._project.updateToNewVersionsOfICompilationUnits();
+            getProject().updateToNewVersionsOfICompilationUnits();
 
             updateAfterReparse();
 
             cleanup();
 
-            PMStep.this._project.rescanForInconsistencies();
+            getProject().rescanForInconsistencies();
 
             return result;
         }
@@ -74,10 +74,10 @@ public class PMStep {
 
     // need method to test for errors before asking for changes
 
-    PMProject _project;
+    private final PMProject project;
 
     PMStep(final PMProject project) {
-        this._project = project;
+        this.project = project;
     }
 
     public void applyAllAtOnce() {
@@ -91,13 +91,13 @@ public class PMStep {
 
         performASTChange();
 
-        this._project.updateToNewVersionsOfICompilationUnits();
+        this.project.updateToNewVersionsOfICompilationUnits();
 
         updateAfterReparse();
 
         cleanup();
 
-        this._project.rescanForInconsistencies();
+        this.project.rescanForInconsistencies();
     }
 
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
@@ -142,6 +142,10 @@ public class PMStep {
         return result;
     }
 
+    PMProject getProject() {
+        return this.project;
+    }
+
     public void performASTChange() {
 
     }
@@ -149,4 +153,5 @@ public class PMStep {
     public void updateAfterReparse() {
 
     }
+
 }

@@ -32,7 +32,7 @@ public class PMExtractMethodStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
@@ -66,7 +66,7 @@ public class PMExtractMethodStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);

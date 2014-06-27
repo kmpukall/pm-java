@@ -25,7 +25,7 @@ public class PMSelection {
         private final int _offset;
         private final int _length;
 
-        private ASTNode _containingNode;
+        private ASTNode containingNode;
 
         public PMExactSelectionVisitor(final int offset, final int length) {
             this._offset = offset;
@@ -33,7 +33,7 @@ public class PMSelection {
         }
 
         public ASTNode getContainingNode() {
-            return this._containingNode;
+            return this.containingNode;
         }
 
         private boolean nodeContainsSelection(final ASTNode node) {
@@ -48,7 +48,7 @@ public class PMSelection {
 
             if (nodeContainsSelection(node)) {
 
-                this._containingNode = node;
+                this.containingNode = node;
 
                 return true;
             } else {

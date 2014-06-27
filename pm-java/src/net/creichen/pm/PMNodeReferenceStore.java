@@ -10,7 +10,6 @@
 package net.creichen.pm;
 
 import java.lang.ref.WeakReference;
-import java.util.UUID;
 import java.util.WeakHashMap;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -26,8 +25,6 @@ public class PMNodeReferenceStore {
 
     public final class PMUUIDNodeReference implements PMNodeReference {
 
-        String _description;
-
         // This provides a way of referring to nodes without using the node ptr
         // This is useful to maintain references across reparses (which will
         // create new nodes)
@@ -40,23 +37,12 @@ public class PMNodeReferenceStore {
             // PMNodeIdentifier for this node
             // otherwise we will loose uniqueness of PMNodeIdentifier and ptr
             // comparison
-
-            this._description = PMNodeReferenceStore.generatedIdentifierForNode(node);
-
         }
 
         @Override
         public ASTNode getNode() {
             return getNodeForReference(this);
         }
-    }
-
-    private static String generatedIdentifierForNode(final ASTNode node) {
-        // Note: the actual class implementing particular node might change
-        // across different versions of eclipse or even runs -- might be better
-        // to use node.getNodeType() here instead of node.getClas()
-
-        return node.getClass().getName().toString() + ":" + UUID.randomUUID().toString();
     }
 
     private final WeakHashMap<PMNodeReference, WeakReference<ASTNode>> nodesForReferences;

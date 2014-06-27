@@ -33,7 +33,7 @@ public class PMSplitProcessorTest extends PMTest {
                 63 - 57), compilationUnit);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         PMProcessorDriver.drive(splitTemporary);
 

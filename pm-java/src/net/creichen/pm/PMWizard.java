@@ -16,18 +16,18 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PMWizard extends RefactoringWizard {
 
-    private final UserInputWizardPage _wizardPage;
+    private final UserInputWizardPage wizardPage;
 
     public PMWizard(final RefactoringProcessor processor, final UserInputWizardPage wizardPage) {
         super(new PMProcessorBasedRefactoring(processor), CHECK_INITIAL_CONDITIONS_ON_OPEN);
 
-        _wizardPage = wizardPage;
+        this.wizardPage = wizardPage;
     }
 
     @Override
     protected void addUserInputPages() {
-        if (_wizardPage != null) {
-            addPage(_wizardPage);
+        if (this.wizardPage != null) {
+            addPage(this.wizardPage);
         }
     }
 

@@ -42,7 +42,7 @@ public class PMCopyStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final PMNameModel nameModel = pmProject.getNameModel();
 
@@ -138,7 +138,7 @@ public class PMCopyStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final PMUDModel udModel = pmProject.getUDModel();
 
@@ -220,7 +220,7 @@ public class PMCopyStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iJavaProject);
+                this.getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("x", 0, "S", 0, (CompilationUnit) pmProject
