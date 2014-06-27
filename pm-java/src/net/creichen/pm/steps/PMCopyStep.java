@@ -30,37 +30,40 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMCopyStep extends PMStep {
-    List<ASTNode> _selectedNodes;
+    private List<ASTNode> selectedNodes;
 
-    public PMCopyStep(PMProject project, List<ASTNode> selectedNodes) {
+    public PMCopyStep(final PMProject project, final ASTNode node) {
         super(project);
 
-        initWithSelectedNodes(selectedNodes);
-    }
-
-    public PMCopyStep(PMProject project, ASTNode node) {
-        super(project);
-
-        List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
+        final List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
 
         selectedNodes.add(node);
 
         initWithSelectedNodes(selectedNodes);
     }
 
-    private void initWithSelectedNodes(List<ASTNode> selectedNodes) {
-        _selectedNodes = selectedNodes;
+    public PMCopyStep(final PMProject project, final List<ASTNode> selectedNodes) {
+        super(project);
+
+        initWithSelectedNodes(selectedNodes);
     }
 
-    // need method to test for errors before asking for changes
-
+    @Override
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
         return result;
     }
 
-    public void copyNameModel(List<ASTNode> originalRootNodes, List<ASTNode> copiedRootNodes) {
+    // need method to test for errors before asking for changes
+
+    @Override
+    public void cleanup() {
+
+    }
+
+    public void copyNameModel(final List<ASTNode> originalRootNodes,
+            final List<ASTNode> copiedRootNodes) {
         /*
          * Generate fresh identifiers for all copied declarations (and definitions) and keep a
          * mapping from the original identifiers to the new ones so we can later fix up references.
@@ -72,14 +75,15 @@ public class PMCopyStep extends PMStep {
 
         final Map<String, String> copyNameIdentifiersForOriginals = new HashMap<String, String>();
 
-        ASTMatcher matcher = new ASTMatcher() {
-            public boolean match(SimpleName originalName, Object copyNameObject) {
-                SimpleName copyName = (SimpleName) copyNameObject;
+        final ASTMatcher matcher = new ASTMatcher() {
+            @Override
+            public boolean match(final SimpleName originalName, final Object copyNameObject) {
+                final SimpleName copyName = (SimpleName) copyNameObject;
 
                 if (_project.nameNodeIsDeclaring(originalName)) {
                     // Generate fresh identifier for node with name model
 
-                    String freshNameModelIdentifier = nameModel
+                    final String freshNameModelIdentifier = nameModel
                             .generateNewIdentifierForName(copyName);
                     nameModel.setIdentifierForName(freshNameModelIdentifier, copyName);
 
@@ -95,8 +99,8 @@ public class PMCopyStep extends PMStep {
         };
 
         for (int i = 0; i < originalRootNodes.size(); i++) {
-            ASTNode original = originalRootNodes.get(i);
-            ASTNode copy = copiedRootNodes.get(i);
+            final ASTNode original = originalRootNodes.get(i);
+            final ASTNode copy = copiedRootNodes.get(i);
 
             original.subtreeMatch(matcher, copy);
 
@@ -108,24 +112,26 @@ public class PMCopyStep extends PMStep {
          * identifiers
          */
 
-        ASTVisitor fixupReferenceVisitor = new ASTVisitor() {
+        final ASTVisitor fixupReferenceVisitor = new ASTVisitor() {
             @Override
-            public boolean visit(SimpleName name) {
-                String nameIdentifier = nameModel.identifierForName(name);
+            public boolean visit(final SimpleName name) {
+                final String nameIdentifier = nameModel.identifierForName(name);
 
-                if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier))
+                if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier)) {
                     nameModel.setIdentifierForName(
                             copyNameIdentifiersForOriginals.get(nameIdentifier), name);
+                }
                 return true;
             }
         };
 
-        for (ASTNode copiedPasteboardRoot : copiedRootNodes) {
+        for (final ASTNode copiedPasteboardRoot : copiedRootNodes) {
             copiedPasteboardRoot.accept(fixupReferenceVisitor);
         }
     }
 
-    public void copyUDModel(List<ASTNode> originalRootNodes, List<ASTNode> copiedRootNodes) {
+    public void copyUDModel(final List<ASTNode> originalRootNodes,
+            final List<ASTNode> copiedRootNodes) {
         // find all definitions in the copy
         // and keep a mapping from the new definition to the old
 
@@ -139,9 +145,10 @@ public class PMCopyStep extends PMStep {
         final Map<ASTNode, ASTNode> originalUsingNodesForCopiedUsingNodes = new HashMap<ASTNode, ASTNode>();
         final Map<ASTNode, ASTNode> copiedUsingNodesForOriginalUsingNodes = new HashMap<ASTNode, ASTNode>();
 
-        ASTMatcher nameMatcher = new ASTMatcher() {
-            public boolean match(SimpleName originalName, Object copyNameObject) {
-                SimpleName copyName = (SimpleName) copyNameObject;
+        final ASTMatcher nameMatcher = new ASTMatcher() {
+            @Override
+            public boolean match(final SimpleName originalName, final Object copyNameObject) {
+                final SimpleName copyName = (SimpleName) copyNameObject;
 
                 if (udModel.nameIsUse(originalName)) {
                     originalUsingNodesForCopiedUsingNodes.put(copyName, originalName);
@@ -152,21 +159,21 @@ public class PMCopyStep extends PMStep {
             }
         };
 
-        Map<ASTNode, ASTNode> originalDefiningNodesForCopiedDefiningNodes = new HashMap<ASTNode, ASTNode>();
-        Map<ASTNode, ASTNode> copiedDefiningNodesForCopiedOriginalDefiningNodes = new HashMap<ASTNode, ASTNode>();
+        final Map<ASTNode, ASTNode> originalDefiningNodesForCopiedDefiningNodes = new HashMap<ASTNode, ASTNode>();
+        final Map<ASTNode, ASTNode> copiedDefiningNodesForCopiedOriginalDefiningNodes = new HashMap<ASTNode, ASTNode>();
 
         for (int rootNodeIndex = 0; rootNodeIndex < originalRootNodes.size(); rootNodeIndex++) {
-            ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
-            ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
+            final ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
+            final ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
 
-            List<ASTNode> originalDefiningNodes = PMRDefsAnalysis
+            final List<ASTNode> originalDefiningNodes = PMRDefsAnalysis
                     .findDefiningNodesUnderNode(originalRootNode);
-            List<ASTNode> copyDefiningNodes = PMRDefsAnalysis
+            final List<ASTNode> copyDefiningNodes = PMRDefsAnalysis
                     .findDefiningNodesUnderNode(copyRootNode);
 
             for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes.size(); definingNodeIndex++) {
-                ASTNode originalDefiningNode = originalDefiningNodes.get(definingNodeIndex);
-                ASTNode copyDefiningNode = copyDefiningNodes.get(definingNodeIndex);
+                final ASTNode originalDefiningNode = originalDefiningNodes.get(definingNodeIndex);
+                final ASTNode copyDefiningNode = copyDefiningNodes.get(definingNodeIndex);
 
                 originalDefiningNodesForCopiedDefiningNodes.put(copyDefiningNode,
                         originalDefiningNode);
@@ -187,20 +194,21 @@ public class PMCopyStep extends PMStep {
          * definition
          */
 
-        for (ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes.keySet()) {
-            ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes
+        for (final ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes.keySet()) {
+            final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes
                     .get(copiedDefinition);
 
-            Set<PMNodeReference> originalUses = udModel.usesForDefinition(_project
+            final Set<PMNodeReference> originalUses = udModel.usesForDefinition(_project
                     .getReferenceForNode(originalDefinition));
 
-            Set<PMNodeReference> copyUses = udModel.usesForDefinition(_project
+            final Set<PMNodeReference> copyUses = udModel.usesForDefinition(_project
                     .getReferenceForNode(copiedDefinition));
 
-            for (PMNodeReference originalUseReference : originalUses) {
-                ASTNode originalUseNode = originalUseReference.getNode();
+            for (final PMNodeReference originalUseReference : originalUses) {
+                final ASTNode originalUseNode = originalUseReference.getNode();
 
-                ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes.get(originalUseNode);
+                final ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes
+                        .get(originalUseNode);
 
                 if (copyUseNode != null) { /* use is internal */
                     copyUses.add(_project.getReferenceForNode(copyUseNode));
@@ -210,19 +218,19 @@ public class PMCopyStep extends PMStep {
             }
         }
 
-        for (ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
-            ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
+        for (final ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
+            final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
-            Set<PMNodeReference> originalDefinitions = udModel
+            final Set<PMNodeReference> originalDefinitions = udModel
                     .definitionIdentifiersForName(_project.getReferenceForNode(originalUse));
 
-            Set<PMNodeReference> copyDefinitions = udModel.definitionIdentifiersForName(_project
-                    .getReferenceForNode(copiedUse));
+            final Set<PMNodeReference> copyDefinitions = udModel
+                    .definitionIdentifiersForName(_project.getReferenceForNode(copiedUse));
 
-            for (PMNodeReference originalDefinitionReference : originalDefinitions) {
-                ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
+            for (final PMNodeReference originalDefinitionReference : originalDefinitions) {
+                final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
 
-                ASTNode copyDefinitionNode = copiedDefiningNodesForCopiedOriginalDefiningNodes
+                final ASTNode copyDefinitionNode = copiedDefiningNodesForCopiedOriginalDefiningNodes
                         .get(originalDefinitionNode);
 
                 if (copyDefinitionNode != null) { /* def is internal */
@@ -235,30 +243,32 @@ public class PMCopyStep extends PMStep {
 
     }
 
+    private void initWithSelectedNodes(final List<ASTNode> selectedNodes) {
+        this.selectedNodes = selectedNodes;
+    }
+
+    @Override
     public void performASTChange() {
 
-        List<ASTNode> copiedPasteboardRootNodes = new ArrayList<ASTNode>();
+        final List<ASTNode> copiedPasteboardRootNodes = new ArrayList<ASTNode>();
 
-        for (ASTNode original : _selectedNodes) {
-            ASTNode copy = ASTNode.copySubtree(original.getAST(), original);
+        for (final ASTNode original : selectedNodes) {
+            final ASTNode copy = ASTNode.copySubtree(original.getAST(), original);
 
             copiedPasteboardRootNodes.add(copy);
         }
 
-        copyNameModel(_selectedNodes, copiedPasteboardRootNodes);
+        copyNameModel(selectedNodes, copiedPasteboardRootNodes);
 
-        copyUDModel(_selectedNodes, copiedPasteboardRootNodes);
+        copyUDModel(selectedNodes, copiedPasteboardRootNodes);
 
-        PMPasteboard pasteboard = _project.getPasteboard();
+        final PMPasteboard pasteboard = _project.getPasteboard();
 
         pasteboard.setPasteboardRoots(copiedPasteboardRootNodes);
     }
 
+    @Override
     public void updateAfterReparse() {
-
-    }
-
-    public void cleanup() {
 
     }
 

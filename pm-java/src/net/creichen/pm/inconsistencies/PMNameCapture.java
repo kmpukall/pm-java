@@ -46,8 +46,9 @@ public class PMNameCapture extends PMInconsistency {
 
         if (_node instanceof SimpleName) {
             return ((SimpleName) _node).getIdentifier();
-        } else
+        } else {
             return "Unknown node";
+        }
     }
 
     @Override
@@ -55,10 +56,12 @@ public class PMNameCapture extends PMInconsistency {
         return getCapturedNodeDescription() + " was captured.";
     }
 
+    @Override
     public boolean allowsAcceptBehavioralChange() {
         return true;
     }
 
+    @Override
     public void acceptBehavioralChange() {
         Name capturedName = (Name) getCapturedNode();
 

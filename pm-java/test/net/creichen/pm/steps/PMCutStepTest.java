@@ -9,8 +9,8 @@
 
 package net.creichen.pm.steps;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,6 @@ import java.util.List;
 import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
-import net.creichen.pm.steps.PMCutStep;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -48,7 +47,7 @@ public class PMCutStepTest extends PMTest {
 
         PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
 
-        assertTrue(cutStep != null);// just to make warning go away
+        assertTrue(cutStep != null); // just to make warning go away
     }
 
     // None of these tests non-textual side effects of cut method
@@ -145,7 +144,7 @@ public class PMCutStepTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource(
                 "public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
 
-        assertEquals(pmProject.getPasteboard().getPasteboardRoots().size(), (int) 2);
+        assertEquals(pmProject.getPasteboard().getPasteboardRoots().size(), 2);
         assertTrue(pmProject.getPasteboard().containsOnlyNodesOfClass(Statement.class));
     }
 

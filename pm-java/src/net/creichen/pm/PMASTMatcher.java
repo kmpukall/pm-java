@@ -67,8 +67,9 @@ public class PMASTMatcher {
         if ((old_type == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
                 || old_type == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || old_type == org.eclipse.jdt.core.dom.ASTNode.JAVADOC)
                 && (new_type == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
-                        || new_type == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || new_type == org.eclipse.jdt.core.dom.ASTNode.JAVADOC))
+                        || new_type == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || new_type == org.eclipse.jdt.core.dom.ASTNode.JAVADOC)) {
             return true; // Nothing to do for comments, really
+        }
 
         if (oldNode instanceof MethodDeclaration && newNode instanceof MethodDeclaration) {
 
@@ -103,29 +104,32 @@ public class PMASTMatcher {
                         .getStructuralProperty(structuralPropertyDescriptor);
 
                 if ((oldPropertyValue == null && newPropertyValue != null)
-                        || (newPropertyValue != null && newPropertyValue == null))
+                        || (newPropertyValue != null && newPropertyValue == null)) {
                     return false;
+                }
 
-                if (oldPropertyValue == null && newPropertyValue == null)
+                if (oldPropertyValue == null && newPropertyValue == null) {
                     continue;
-                else {
+                } else {
                     // property values are ptr different and not null
 
                     if (structuralPropertyDescriptor.isSimpleProperty()) {
-                        if (oldPropertyValue.equals(newPropertyValue))
+                        if (oldPropertyValue.equals(newPropertyValue)) {
                             continue;
-                        else
+                        } else {
                             return false;
+                        }
                     } else if (structuralPropertyDescriptor.isChildProperty()) {
                         ASTNode oldChild = APIWrapperUtil.getStructuralProperty(
                                 (ChildPropertyDescriptor) structuralPropertyDescriptor, oldNode);
                         ASTNode newChild = APIWrapperUtil.getStructuralProperty(
                                 (ChildPropertyDescriptor) structuralPropertyDescriptor, newNode);
 
-                        if (!recursiveMatch(oldChild, newChild))
+                        if (!recursiveMatch(oldChild, newChild)) {
                             return false;
-                        else
+                        } else {
                             continue;
+                        }
 
                     } else if (structuralPropertyDescriptor.isChildListProperty()) {
 
@@ -145,14 +149,16 @@ public class PMASTMatcher {
 
                                 ASTNode newChildNode = newList.get(i);
 
-                                if (recursiveMatch(oldChildNode, newChildNode))
+                                if (recursiveMatch(oldChildNode, newChildNode)) {
                                     continue;
-                                else
+                                } else {
                                     return false;
+                                }
                             }
 
-                        } else
+                        } else {
                             return false;
+                        }
 
                     } else {
 
@@ -161,8 +167,9 @@ public class PMASTMatcher {
                 }
 
             }
-        } else
+        } else {
             return false;
+        }
 
         // if we've gotten this far then all the structural properties match, so
         // we

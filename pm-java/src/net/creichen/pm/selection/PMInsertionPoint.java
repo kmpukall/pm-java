@@ -23,90 +23,102 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 //This class is a mess
 
 public class PMInsertionPoint {
-    CompilationUnit _compilationUnit;
-    int _offset;
+    protected static class PMContainingBlockVisitor extends PMContainingNodeVisitor {
 
-    int _insertionIndex;
-    ChildListPropertyDescriptor _insertionProperty;
-    ASTNode _insertionParent;
+        public PMContainingBlockVisitor(final int offset, final int length) {
+            super(offset, length);
+        }
 
-    public PMInsertionPoint(CompilationUnit compilationUnit, int offset) {
-        _insertionIndex = -1;
-
-        _compilationUnit = compilationUnit;
-
-        _offset = offset;
-
-        if (!findInsertionPointInBlock(_offset)) {
-            findInsertionPointInTypeDeclaration(_offset);
+        @Override
+        public boolean visit(final Block block) {
+            return visitContainingNode(block);
         }
     }
 
-    public boolean isSaneInsertionPoint() {
-        return _insertionIndex != -1;
-    }
+    protected static class PMContainingNodeVisitor extends ASTVisitor {
+        int _offset;
+        int _length;
 
-    public int insertionIndex() {
-        return _insertionIndex;
-    }
+        ASTNode _containingNode = null;
 
-    public ChildListPropertyDescriptor insertionProperty() {
-        return _insertionProperty;
-    }
+        public PMContainingNodeVisitor(final int offset, final int length) {
+            this._offset = offset;
+            this._length = length;
+        }
 
-    public ASTNode insertionParent() {
-        return _insertionParent;
-    }
+        public ASTNode getContainingNode() {
+            return this._containingNode;
+        }
 
-    private boolean findInsertionPointUnderNode(ASTNode parentNode,
-            ChildListPropertyDescriptor property, int offset) {
-        List<ASTNode> statements = getStructuralProperty(property, parentNode);
+        public boolean visitContainingNode(final ASTNode node) {
+            if (node.getStartPosition() + 1 <= this._offset
+                    && this._offset + this._length <= node.getStartPosition() + node.getLength()
+                            - 1) {
 
-        int statementCount = statements.size();
-
-        if (statementCount > 0) {
-            if (offset <= statements.get(0).getStartPosition())
-                _insertionIndex = 0;
-            else {
-                ASTNode lastStatement = statements.get(statementCount - 1);
-
-                if (offset >= lastStatement.getStartPosition() + lastStatement.getLength()) {
-                    _insertionIndex = statementCount;
-                } else {
-                    // offset is not before the first statement, or after the
-                    // last statement, so see if it is between two statements
-
-                    for (int i = 1; i < statementCount; i++) {
-                        ASTNode statement1 = statements.get(i - 1);
-                        ASTNode statement2 = statements.get(i);
-
-                        if (offset >= statement1.getStartPosition() + statement1.getLength()
-                                && offset <= statement2.getStartPosition()) {
-
-                            _insertionIndex = i;
-                            break;
-                        }
-                    }
-                }
+                this._containingNode = node;
+                return true;
+            } else {
+                return false;
             }
-        } else {
-            _insertionIndex = 0;
         }
-
-        if (_insertionIndex != -1) {
-            _insertionParent = parentNode;
-            _insertionProperty = property;
-            return true;
-        } else {
-            _insertionParent = null;
-            _insertionProperty = null;
-
-            return false;
-        }
-
     }
 
-    private boolean findInsertionPointInBlock(int offset) {
+    protected static class PMContainingTypeDeclarationVisitor extends PMContainingNodeVisitor {
+
+        public PMContainingTypeDeclarationVisitor(final int offset, final int length) {
+            super(offset, length);
+        }
+
+        @Override
+        public boolean visit(final TypeDeclaration typeDeclaration) {
+            return visitContainingNode(typeDeclaration);
+        }
+    }
+
+    private static Block FindContainingBlockForSelection(final ASTNode nodeToSearch,
+            final int offset, final int length) {
+
+        final PMContainingBlockVisitor containingBlockVisitor = new PMContainingBlockVisitor(
+                offset, length);
+
+        nodeToSearch.accept(containingBlockVisitor);
+
+        return (Block) containingBlockVisitor.getContainingNode();
+    }
+
+    private static TypeDeclaration FindContainingTypeDeclarationForSelection(
+            final ASTNode nodeToSearch, final int offset, final int length) {
+        final PMContainingTypeDeclarationVisitor containingTypeDeclarationVisitor = new PMContainingTypeDeclarationVisitor(
+                offset, length);
+
+        nodeToSearch.accept(containingTypeDeclarationVisitor);
+
+        return (TypeDeclaration) containingTypeDeclarationVisitor.getContainingNode();
+    }
+
+    private final CompilationUnit compilationUnit;
+
+    private final int offset;
+
+    private int insertionIndex;
+
+    private ChildListPropertyDescriptor insertionProperty;
+
+    private ASTNode insertionParent;
+
+    public PMInsertionPoint(final CompilationUnit compilationUnit, final int offset) {
+        this.insertionIndex = -1;
+
+        this.compilationUnit = compilationUnit;
+
+        this.offset = offset;
+
+        if (!findInsertionPointInBlock(this.offset)) {
+            findInsertionPointInTypeDeclaration(this.offset);
+        }
+    }
+
+    private boolean findInsertionPointInBlock(final int offset) {
 
         /*
          * a point is an insertion point if:
@@ -115,22 +127,23 @@ public class PMInsertionPoint {
          * the first/last character of such a child
          */
 
-        Block containingBlock = FindContainingBlockForSelection(_compilationUnit, offset, 0);
+        final Block containingBlock = FindContainingBlockForSelection(this.compilationUnit,
+                offset, 0);
 
         if (containingBlock != null) {
             return findInsertionPointUnderNode(containingBlock, Block.STATEMENTS_PROPERTY, offset);
 
         } else {
-            _insertionIndex = -1;
+            this.insertionIndex = -1;
 
             return false;
         }
     }
 
-    private boolean findInsertionPointInTypeDeclaration(int offset) {
+    private boolean findInsertionPointInTypeDeclaration(final int offset) {
 
-        TypeDeclaration containingTypeDeclaration = FindContainingTypeDeclarationForSelection(
-                _compilationUnit, offset, 0);
+        final TypeDeclaration containingTypeDeclaration = FindContainingTypeDeclarationForSelection(
+                this.compilationUnit, offset, 0);
 
         if (containingTypeDeclaration != null) {
             return findInsertionPointUnderNode(containingTypeDeclaration,
@@ -138,80 +151,73 @@ public class PMInsertionPoint {
 
         } else {
             System.err.println("Couldn't find containing type declaration");
-            _insertionIndex = -1;
+            this.insertionIndex = -1;
 
             return false;
         }
     }
 
-    static protected class PMContainingNodeVisitor extends ASTVisitor {
-        int _offset;
-        int _length;
+    private boolean findInsertionPointUnderNode(final ASTNode parentNode,
+            final ChildListPropertyDescriptor property, final int offset) {
+        final List<ASTNode> statements = getStructuralProperty(property, parentNode);
 
-        ASTNode _containingNode = null;
+        final int statementCount = statements.size();
 
-        public PMContainingNodeVisitor(int offset, int length) {
-            _offset = offset;
-            _length = length;
+        if (statementCount > 0) {
+            if (offset <= statements.get(0).getStartPosition()) {
+                this.insertionIndex = 0;
+            } else {
+                final ASTNode lastStatement = statements.get(statementCount - 1);
+
+                if (offset >= lastStatement.getStartPosition() + lastStatement.getLength()) {
+                    this.insertionIndex = statementCount;
+                } else {
+                    // offset is not before the first statement, or after the
+                    // last statement, so see if it is between two statements
+
+                    for (int i = 1; i < statementCount; i++) {
+                        final ASTNode statement1 = statements.get(i - 1);
+                        final ASTNode statement2 = statements.get(i);
+
+                        if (offset >= statement1.getStartPosition() + statement1.getLength()
+                                && offset <= statement2.getStartPosition()) {
+
+                            this.insertionIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            this.insertionIndex = 0;
         }
 
-        public boolean visitContainingNode(ASTNode node) {
-            if (node.getStartPosition() + 1 <= _offset
-                    && _offset + _length <= node.getStartPosition() + node.getLength() - 1) {
+        if (this.insertionIndex != -1) {
+            this.insertionParent = parentNode;
+            this.insertionProperty = property;
+            return true;
+        } else {
+            this.insertionParent = null;
+            this.insertionProperty = null;
 
-                _containingNode = node;
-                return true;
-            } else
-                return false;
+            return false;
         }
 
-        public ASTNode getContainingNode() {
-            return _containingNode;
-        }
     }
 
-    private static Block FindContainingBlockForSelection(ASTNode nodeToSearch, int offset,
-            int length) {
-
-        PMContainingBlockVisitor containingBlockVisitor = new PMContainingBlockVisitor(offset,
-                length);
-
-        nodeToSearch.accept(containingBlockVisitor);
-
-        return (Block) containingBlockVisitor.getContainingNode();
+    public int insertionIndex() {
+        return this.insertionIndex;
     }
 
-    static protected class PMContainingBlockVisitor extends PMContainingNodeVisitor {
-
-        public PMContainingBlockVisitor(int offset, int length) {
-            super(offset, length);
-        }
-
-        @Override
-        public boolean visit(Block block) {
-            return visitContainingNode(block);
-        }
+    public ASTNode insertionParent() {
+        return this.insertionParent;
     }
 
-    private static TypeDeclaration FindContainingTypeDeclarationForSelection(ASTNode nodeToSearch,
-            int offset, int length) {
-        PMContainingTypeDeclarationVisitor containingTypeDeclarationVisitor = new PMContainingTypeDeclarationVisitor(
-                offset, length);
-
-        nodeToSearch.accept(containingTypeDeclarationVisitor);
-
-        return (TypeDeclaration) containingTypeDeclarationVisitor.getContainingNode();
+    public ChildListPropertyDescriptor insertionProperty() {
+        return this.insertionProperty;
     }
 
-    static protected class PMContainingTypeDeclarationVisitor extends PMContainingNodeVisitor {
-
-        public PMContainingTypeDeclarationVisitor(int offset, int length) {
-            super(offset, length);
-        }
-
-        @Override
-        public boolean visit(TypeDeclaration typeDeclaration) {
-            return visitContainingNode(typeDeclaration);
-        }
+    public boolean isSaneInsertionPoint() {
+        return this.insertionIndex != -1;
     }
 }

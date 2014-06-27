@@ -9,14 +9,11 @@
 
 package net.creichen.pm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import net.creichen.pm.PMASTQuery;
-import net.creichen.pm.PMProject;
-import net.creichen.pm.PMRenameProcessor;
-import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.inconsistencies.PMInconsistency;
 import net.creichen.pm.inconsistencies.PMMissingDefinition;
 import net.creichen.pm.inconsistencies.PMNameCapture;
@@ -26,8 +23,8 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.junit.Test;
 import org.eclipse.jface.text.TextSelection;
+import org.junit.Test;
 
 //Note: org.junit4 must be in your plugin dependencies
 //otherwise you will get a "No runnable methods" error
@@ -230,9 +227,10 @@ public class PMRenameProcessorTest extends PMTest {
         for (PMInconsistency inconsistency : pmProject.allInconsistencies()) {
             System.out.println(inconsistency.getHumanReadableDescription());
 
-            if (inconsistency instanceof PMMissingDefinition)
+            if (inconsistency instanceof PMMissingDefinition) {
                 System.out.println("For definition of class: "
                         + ((PMMissingDefinition) inconsistency).getDefiningNode().getClass());
+            }
         }
 
         assertTrue(pmProject.allInconsistencies().size() == 0);

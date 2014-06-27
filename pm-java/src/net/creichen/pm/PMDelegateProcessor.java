@@ -15,14 +15,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.ICompilationUnit;
-
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.NullChange;
-
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
@@ -32,70 +29,68 @@ import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 public class PMDelegateProcessor extends RefactoringProcessor implements PMProcessor,
         PMProjectListener {
 
-    ICompilationUnit _iCompilationUnit;
-    ITextSelection _textSelection;
+    private final ICompilationUnit iCompilationUnit;
+    private final ITextSelection textSelection;
 
-    String _delegateIdentifier;
+    private String delegateIdentifier;
 
-    PMDelegateStep _step;
+    private PMDelegateStep step;
 
-    public PMDelegateProcessor(ITextSelection selection, ICompilationUnit iCompilationUnit) {
-        _textSelection = selection;
-        _iCompilationUnit = iCompilationUnit;
+    public PMDelegateProcessor(final ITextSelection selection,
+            final ICompilationUnit iCompilationUnit) {
+        this.textSelection = selection;
+        this.iCompilationUnit = iCompilationUnit;
     }
 
-    public ICompilationUnit getICompilationUnit() {
-        return _iCompilationUnit;
-    }
-
-    public void setDelegateIdentifier(String delegateIdentifier) {
-        _delegateIdentifier = delegateIdentifier;
-    }
-
-    public RefactoringStatus checkFinalConditions(IProgressMonitor pm,
-            CheckConditionsContext context) throws CoreException, OperationCanceledException {
+    @Override
+    public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
+            final CheckConditionsContext context) throws CoreException, OperationCanceledException {
         return new RefactoringStatus();
     }
 
     @Override
-    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException,
-            OperationCanceledException {
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                _iCompilationUnit.getJavaProject());
+    public RefactoringStatus checkInitialConditions(final IProgressMonitor pm)
+            throws CoreException, OperationCanceledException {
+        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {
-            ASTNode selectedNode = project.nodeForSelection(_textSelection, _iCompilationUnit);
+            final ASTNode selectedNode = project.nodeForSelection(this.textSelection,
+                    this.iCompilationUnit);
 
             if (selectedNode instanceof MethodInvocation) {
                 return new RefactoringStatus();
-            } else
+            } else {
                 return RefactoringStatus
                         .createFatalErrorStatus("Please select a method invocation [not a "
                                 + selectedNode.getClass() + "]");
-        } else
+            }
+        } else {
             return RefactoringStatus
                     .createWarningStatus("PM Model is out of date. This will reinitialize.");
+        }
 
     }
 
     @Override
-    public Change createChange(IProgressMonitor pm) throws CoreException,
+    public Change createChange(final IProgressMonitor pm) throws CoreException,
             OperationCanceledException {
 
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                _iCompilationUnit.getJavaProject());
+        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iCompilationUnit.getJavaProject());
 
         project.syncSources();
 
         Change result = new NullChange();
 
-        ASTNode selectedNode = project.nodeForSelection(_textSelection, _iCompilationUnit);
+        final ASTNode selectedNode = project.nodeForSelection(this.textSelection,
+                this.iCompilationUnit);
 
-        _step = new PMDelegateStep(project, selectedNode);
+        this.step = new PMDelegateStep(project, selectedNode);
 
-        _step.setDelegateIdentifier(_delegateIdentifier);
+        this.step.setDelegateIdentifier(this.delegateIdentifier);
 
-        result = _step.createCompositeChange("Delegate");
+        result = this.step.createCompositeChange("Delegate");
 
         return result;
     }
@@ -104,6 +99,11 @@ public class PMDelegateProcessor extends RefactoringProcessor implements PMProce
     public Object[] getElements() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public ICompilationUnit getICompilationUnit() {
+        return this.iCompilationUnit;
     }
 
     @Override
@@ -123,32 +123,39 @@ public class PMDelegateProcessor extends RefactoringProcessor implements PMProce
     }
 
     @Override
-    public RefactoringParticipant[] loadParticipants(RefactoringStatus status,
-            SharableParticipants sharedParticipants) throws CoreException {
+    public RefactoringParticipant[] loadParticipants(final RefactoringStatus status,
+            final SharableParticipants sharedParticipants) throws CoreException {
         return new RefactoringParticipant[0];
     }
 
+    @Override
+    public void projectDidReparse(final PMProject project) {
+        this.step.updateAfterReparse();
+        this.step.cleanup();
+    }
+
+    public void setDelegateIdentifier(final String delegateIdentifier) {
+        this.delegateIdentifier = delegateIdentifier;
+    }
+
+    @Override
     public void textChangeWasApplied() {
         // this is after the text change was applied but before the model
         // has sync'd itself to the new text
 
-        _step.performASTChange();
+        this.step.performASTChange();
 
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                _iCompilationUnit.getJavaProject());
+        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iCompilationUnit.getJavaProject());
 
         project.addProjectListener(this);
     }
 
+    @Override
     public void textChangeWasNotApplied() {
 
-        _step.cleanup();
+        this.step.cleanup();
 
-    }
-
-    public void projectDidReparse(PMProject project) {
-        _step.updateAfterReparse();
-        _step.cleanup();
     }
 
 }

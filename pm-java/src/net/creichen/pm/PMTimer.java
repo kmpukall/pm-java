@@ -13,57 +13,60 @@ import java.util.HashMap;
 
 public class PMTimer {
 
-    protected HashMap<String, Long> _accumulatedMilliseconds;
+    private static final double MILLISECONDS_PER_SECOND = 1000.0;
 
-    protected HashMap<String, Long> _startTimes;
+    private final HashMap<String, Long> accumulatedMilliseconds;
 
-    public PMTimer() {
-        _accumulatedMilliseconds = new HashMap<String, Long>();
-        _startTimes = new HashMap<String, Long>();
+    private final HashMap<String, Long> startTimes;
 
-    }
+    private static PMTimer sharedTimer;
 
-    protected static PMTimer _sharedTimer;
-
-    static public PMTimer sharedTimer() {
-        if (_sharedTimer == null) {
-            _sharedTimer = new PMTimer();
+    public static PMTimer sharedTimer() {
+        if (sharedTimer == null) {
+            sharedTimer = new PMTimer();
         }
 
-        return _sharedTimer;
+        return sharedTimer;
     }
 
-    public void start(String key) {
-        _startTimes.put(key, System.currentTimeMillis());
+    public PMTimer() {
+        accumulatedMilliseconds = new HashMap<String, Long>();
+        startTimes = new HashMap<String, Long>();
 
-        if (!_accumulatedMilliseconds.containsKey(key))
-            _accumulatedMilliseconds.put(key, 0L);
     }
 
-    public void stop(String key) {
-        long stopTime = System.currentTimeMillis();
-
-        long startTime = _startTimes.get(key);
-
-        long accumulatedTime = _accumulatedMilliseconds.get(key);
-
-        accumulatedTime += (stopTime - startTime);
-
-        _accumulatedMilliseconds.put(key, accumulatedTime);
-    }
-
-    public void clear(String key) {
-        _accumulatedMilliseconds.remove(key);
-        _startTimes.remove(key);
-    }
-
-    public double accumulatedSecondsForKey(String key) {
-        if (_accumulatedMilliseconds.containsKey(key)) {
-            return ((double) _accumulatedMilliseconds.get(key)) / 1000.0;
+    public double accumulatedSecondsForKey(final String key) {
+        if (accumulatedMilliseconds.containsKey(key)) {
+            return ((double) accumulatedMilliseconds.get(key)) / MILLISECONDS_PER_SECOND;
         } else {
             System.err.println("ERROR: no accumulated time for key: " + key);
             return 0.0;
         }
 
+    }
+
+    public void clear(final String key) {
+        accumulatedMilliseconds.remove(key);
+        startTimes.remove(key);
+    }
+
+    public void start(final String key) {
+        startTimes.put(key, System.currentTimeMillis());
+
+        if (!accumulatedMilliseconds.containsKey(key)) {
+            accumulatedMilliseconds.put(key, 0L);
+        }
+    }
+
+    public void stop(final String key) {
+        final long stopTime = System.currentTimeMillis();
+
+        final long startTime = startTimes.get(key);
+
+        long accumulatedTime = accumulatedMilliseconds.get(key);
+
+        accumulatedTime += (stopTime - startTime);
+
+        accumulatedMilliseconds.put(key, accumulatedTime);
     }
 }

@@ -49,8 +49,9 @@ public class PMPasteAction extends PMAction {
         for (int i = 0; i < list.size(); i++) {
             ASTNode child = list.get(i);
 
-            if (textSelection.getOffset() <= child.getStartPosition())
+            if (textSelection.getOffset() <= child.getStartPosition()) {
                 insertIndex = i;
+            }
         }
 
         System.out.println("insertIndex is " + insertIndex);
@@ -58,6 +59,7 @@ public class PMPasteAction extends PMAction {
         return insertIndex;
     }
 
+    @Override
     public void run(IAction action) {
         System.err.println("In PMPasteAction run()");
 
@@ -74,8 +76,8 @@ public class PMPasteAction extends PMAction {
                     (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit),
                     textSelection.getOffset());
 
-            ASTNode selectedNode = insertionPoint.insertionParent();// project.nodeForSelection((ITextSelection)getSelection(),
-                                                                    // iCompilationUnit);
+            ASTNode selectedNode = insertionPoint.insertionParent(); // project.nodeForSelection((ITextSelection)getSelection(),
+                                                                     // iCompilationUnit);
 
             PMPasteboard pasteboard = project.getPasteboard();
 

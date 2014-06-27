@@ -38,17 +38,21 @@ public class PMASTNodeUtils {
 
         // not sure this is actually the best way to do this
 
-        if (parent instanceof CatchClause)
+        if (parent instanceof CatchClause) {
             return true;
+        }
 
-        if (parent instanceof VariableDeclarationExpression)
+        if (parent instanceof VariableDeclarationExpression) {
             return true;
+        }
 
-        if (parent instanceof VariableDeclarationStatement)
+        if (parent instanceof VariableDeclarationStatement) {
             return true;
+        }
 
-        if (parent instanceof ForStatement)
+        if (parent instanceof ForStatement) {
             return true;
+        }
 
         return false;
     }

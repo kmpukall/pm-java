@@ -16,53 +16,54 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class PMBlock {
-    protected ArrayList<ASTNode> _nodes;
+    private final ArrayList<ASTNode> nodes;
 
-    protected Set<PMBlock> _incomingBlocks;
-    protected Set<PMBlock> _outgoingBlocks;
+    private final Set<PMBlock> incomingBlocks;
+    private final Set<PMBlock> outgoingBlocks;
 
     public PMBlock() {
-        _nodes = new ArrayList<ASTNode>();
+        this.nodes = new ArrayList<ASTNode>();
 
-        _incomingBlocks = new HashSet<PMBlock>();
-        _outgoingBlocks = new HashSet<PMBlock>();
+        this.incomingBlocks = new HashSet<PMBlock>();
+        this.outgoingBlocks = new HashSet<PMBlock>();
     }
 
-    public ArrayList<ASTNode> getNodes() {
-        return _nodes;
-    }
+    public void addIncomingBlock(final PMBlock block) {
 
-    public void addNode(ASTNode node) {
-        _nodes.add(node);
-    }
-
-    public Set<PMBlock> getIncomingBlocks() {
-        return _incomingBlocks;
-    }
-
-    public void addIncomingBlock(PMBlock block) {
-
-        if (_incomingBlocks.add(block)) {
+        if (this.incomingBlocks.add(block)) {
             block.addOutgoingBlock(this);
         }
     }
 
-    public Set<PMBlock> getOutgoingBlocks() {
-        return _outgoingBlocks;
+    public void addNode(final ASTNode node) {
+        this.nodes.add(node);
     }
 
-    public void addOutgoingBlock(PMBlock block) {
-        if (_outgoingBlocks.add(block)) {
+    public void addOutgoingBlock(final PMBlock block) {
+        if (this.outgoingBlocks.add(block)) {
             block.addIncomingBlock(this);
         }
     }
 
+    public Set<PMBlock> getIncomingBlocks() {
+        return this.incomingBlocks;
+    }
+
+    public ArrayList<ASTNode> getNodes() {
+        return this.nodes;
+    }
+
+    public Set<PMBlock> getOutgoingBlocks() {
+        return this.outgoingBlocks;
+    }
+
+    @Override
     public String toString() {
         String result = "";
 
         int i = 0;
 
-        for (ASTNode node : getNodes()) {
+        for (final ASTNode node : getNodes()) {
             result = +i++ + ": " + node + "\n";
         }
 

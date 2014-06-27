@@ -15,40 +15,39 @@ import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 public class PMWorkspace {
-    private static PMWorkspace _sharedWorkspace = null;
+    private static PMWorkspace sharedWorkspace = null;
 
     public static synchronized PMWorkspace sharedWorkspace() {
 
-        if (_sharedWorkspace == null)
-            _sharedWorkspace = new PMWorkspace();
+        if (sharedWorkspace == null) {
+            sharedWorkspace = new PMWorkspace();
+        }
 
-        return _sharedWorkspace;
+        return sharedWorkspace;
     }
 
     private PMWorkspace() {
-        _projectMapping = new HashMap<IJavaProject, PMProject>();
+        projectMapping = new HashMap<IJavaProject, PMProject>();
 
     }
 
-    private HashMap<IJavaProject, PMProject> _projectMapping;
+    private HashMap<IJavaProject, PMProject> projectMapping;
 
     public synchronized PMProject projectForIJavaProject(IJavaProject iJavaProject) {
 
-        PMProject result = _projectMapping.get(iJavaProject);
+        PMProject result = projectMapping.get(iJavaProject);
 
         if (result == null) {
             result = new PMProject(iJavaProject);
-            _projectMapping.put(iJavaProject, result);
+            projectMapping.put(iJavaProject, result);
 
         }
 
@@ -56,7 +55,7 @@ public class PMWorkspace {
     }
 
     public synchronized void removeProjectForIJavaProject(IJavaProject iJavaProject) {
-        _projectMapping.remove(iJavaProject);
+        projectMapping.remove(iJavaProject);
     }
 
     static public void applyRewrite(ASTRewrite rewrite, ICompilationUnit iCompilationUnit) {

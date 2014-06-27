@@ -31,37 +31,35 @@ import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
 public class PMSplitProcessor extends RefactoringProcessor implements PMProcessor {
 
-    ICompilationUnit _iCompilationUnit;
-    ITextSelection _textSelection;
+    private final ICompilationUnit iCompilationUnit;
+    private final ITextSelection textSelection;
 
-    PMSplitStep _step;
+    private PMSplitStep step;
 
-    public PMSplitProcessor(ITextSelection selection, ICompilationUnit iCompilationUnit) {
-        _textSelection = selection;
-        _iCompilationUnit = iCompilationUnit;
+    public PMSplitProcessor(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
+        this.textSelection = selection;
+        this.iCompilationUnit = iCompilationUnit;
     }
 
-    public ICompilationUnit getICompilationUnit() {
-        return _iCompilationUnit;
-    }
-
-    public RefactoringStatus checkFinalConditions(IProgressMonitor pm,
-            CheckConditionsContext context) throws CoreException, OperationCanceledException {
+    @Override
+    public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
+            final CheckConditionsContext context) throws CoreException, OperationCanceledException {
         return new RefactoringStatus();
     }
 
     @Override
-    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException,
-            OperationCanceledException {
+    public RefactoringStatus checkInitialConditions(final IProgressMonitor pm)
+            throws CoreException, OperationCanceledException {
 
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                _iCompilationUnit.getJavaProject());
+        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {
 
             project.syncSources();
 
-            ASTNode selectedNode = project.nodeForSelection(_textSelection, _iCompilationUnit);
+            ASTNode selectedNode = project.nodeForSelection(this.textSelection,
+                    this.iCompilationUnit);
 
             // We expect the selected node to be an ExpressionStatement with an
             // Assignment as the expression.
@@ -69,7 +67,7 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
             // fix up the selectednode to be the ExpressionStatement.
 
             if (selectedNode instanceof Assignment) {
-                Assignment assignment = (Assignment) selectedNode;
+                final Assignment assignment = (Assignment) selectedNode;
 
                 if (assignment.getParent() instanceof ExpressionStatement) {
                     selectedNode = assignment.getParent();
@@ -78,22 +76,23 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
 
             if (selectedNode instanceof ExpressionStatement) {
 
-                ExpressionStatement assignmentStatement = (ExpressionStatement) selectedNode;
+                final ExpressionStatement assignmentStatement = (ExpressionStatement) selectedNode;
 
                 if (assignmentStatement.getExpression() instanceof Assignment) {
-                    Assignment assignmentExpression = (Assignment) assignmentStatement
+                    final Assignment assignmentExpression = (Assignment) assignmentStatement
                             .getExpression();
 
                     if (assignmentExpression.getLeftHandSide() instanceof SimpleName) {
 
-                        SimpleName name = (SimpleName) assignmentExpression.getLeftHandSide();
+                        final SimpleName name = (SimpleName) assignmentExpression.getLeftHandSide();
 
-                        VariableDeclaration declaration = PMASTNodeUtils
+                        final VariableDeclaration declaration = PMASTNodeUtils
                                 .localVariableDeclarationForSimpleName(name);
 
                         if (declaration != null
                                 && PMASTNodeUtils.variableDeclarationIsLocal(declaration)) {
-                            _step = new PMSplitStep(project, (ExpressionStatement) selectedNode);
+                            this.step = new PMSplitStep(project,
+                                    (ExpressionStatement) selectedNode);
 
                             return new RefactoringStatus();
                         }
@@ -105,19 +104,20 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
             return RefactoringStatus
                     .createFatalErrorStatus("Split temporary can only be run on an assignment to a local variable.");
 
-        } else
+        } else {
             return RefactoringStatus
                     .createWarningStatus("PM Model is out of date. This will reinitialize.");
+        }
 
     }
 
     @Override
-    public Change createChange(IProgressMonitor pm) throws CoreException,
+    public Change createChange(final IProgressMonitor pm) throws CoreException,
             OperationCanceledException {
 
         Change result = new NullChange();
 
-        result = _step.createCompositeChange("Split");
+        result = this.step.createCompositeChange("Split");
 
         return result;
     }
@@ -126,6 +126,11 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
     public Object[] getElements() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public ICompilationUnit getICompilationUnit() {
+        return this.iCompilationUnit;
     }
 
     @Override
@@ -145,21 +150,23 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
     }
 
     @Override
-    public RefactoringParticipant[] loadParticipants(RefactoringStatus status,
-            SharableParticipants sharedParticipants) throws CoreException {
+    public RefactoringParticipant[] loadParticipants(final RefactoringStatus status,
+            final SharableParticipants sharedParticipants) throws CoreException {
         return new RefactoringParticipant[0];
     }
 
+    @Override
     public void textChangeWasApplied() {
         // this is after the text change was applied but before the model
         // has sync'd itself to the new text
 
-        _step.performASTChange();
+        this.step.performASTChange();
 
     }
 
+    @Override
     public void textChangeWasNotApplied() {
-        _step.cleanup();
+        this.step.cleanup();
     }
 
 }

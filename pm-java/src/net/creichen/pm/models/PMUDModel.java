@@ -33,20 +33,20 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 public class PMUDModel {
-    protected PMProject _project;
+    private final PMProject project;
 
     // for now we only care about the defs that are used by our names
 
-    final ASTNode _uninitializedMarkerNode;
-    final PMNodeReference _uninitialized;
+    private final ASTNode uninitializedMarkerNode;
+    private final PMNodeReference uninitialized;
 
-    Map<PMNodeReference, Set<PMNodeReference>> _definitionIdentifiersByUseIdentifier;
+    private final Map<PMNodeReference, Set<PMNodeReference>> definitionIdentifiersByUseIdentifier;
 
-    Map<PMNodeReference, Set<PMNodeReference>> _useIdentifiersByDefinitionIdentifier;
+    private final Map<PMNodeReference, Set<PMNodeReference>> useIdentifiersByDefinitionIdentifier;
 
-    public PMUDModel(PMProject project) {
+    public PMUDModel(final PMProject project) {
 
-        _project = project;
+        this.project = project;
 
         // this is such a hack; we create a random ast node and then get a
         // reference to it to
@@ -55,113 +55,198 @@ public class PMUDModel {
         // so it isn't garbage collected out of the store (since the store uses
         // weak refs).
 
-        AST ast = AST.newAST(AST.JLS4);
+        final AST ast = AST.newAST(AST.JLS4);
 
-        _uninitializedMarkerNode = ast.newSimpleName("Foo");
-        _uninitialized = _project.getReferenceForNode(_uninitializedMarkerNode);
+        this.uninitializedMarkerNode = ast.newSimpleName("Foo");
+        this.uninitialized = this.project.getReferenceForNode(this.uninitializedMarkerNode);
 
-        _definitionIdentifiersByUseIdentifier = new HashMap<PMNodeReference, Set<PMNodeReference>>();
-        _useIdentifiersByDefinitionIdentifier = new HashMap<PMNodeReference, Set<PMNodeReference>>();
+        this.definitionIdentifiersByUseIdentifier = new HashMap<PMNodeReference, Set<PMNodeReference>>();
+        this.useIdentifiersByDefinitionIdentifier = new HashMap<PMNodeReference, Set<PMNodeReference>>();
 
         initializeModel();
     }
 
-    public boolean nameIsUse(SimpleName name) {
-        PMNodeReference nameReference = _project.getReferenceForNode(name);
-
-        return _definitionIdentifiersByUseIdentifier.containsKey(nameReference);
-    }
-
-    public Set<PMNodeReference> definitionIdentifiersForName(PMNodeReference nameIdentifier) {
-        Set<PMNodeReference> definitionIdentifiers = _definitionIdentifiersByUseIdentifier
-                .get(nameIdentifier);
-
-        if (definitionIdentifiers == null) {
-            definitionIdentifiers = new HashSet<PMNodeReference>();
-            _definitionIdentifiersByUseIdentifier.put(nameIdentifier, definitionIdentifiers);
-        }
-
-        return definitionIdentifiers;
-    }
-
-    public void addDefinitionIdentifierForName(PMNodeReference definitionIdentifier,
-            PMNodeReference nameIdentifier) {
+    public void addDefinitionIdentifierForName(final PMNodeReference definitionIdentifier,
+            final PMNodeReference nameIdentifier) {
         definitionIdentifiersForName(nameIdentifier).add(definitionIdentifier);
         addUseForDefinition(nameIdentifier, definitionIdentifier);
 
     }
 
-    public void removeDefinitionIdentifierForName(PMNodeReference definitionIdentifier,
-            PMNodeReference nameIdentifier) {
-        definitionIdentifiersForName(nameIdentifier).remove(definitionIdentifier);
-        removeUseForDefinition(nameIdentifier, definitionIdentifier);
-    }
-
-    public Set<PMNodeReference> usesForDefinition(PMNodeReference definitionIdentifier) {
-        Set<PMNodeReference> useIdentifiers = _useIdentifiersByDefinitionIdentifier
-                .get(definitionIdentifier);
-
-        if (useIdentifiers == null) {
-            useIdentifiers = new HashSet<PMNodeReference>();
-            _useIdentifiersByDefinitionIdentifier.put(definitionIdentifier, useIdentifiers);
-        }
-
-        return useIdentifiers;
-    }
-
-    public void addUseForDefinition(PMNodeReference useIdentifier,
-            PMNodeReference definitionIdentifier) {
+    public void addUseForDefinition(final PMNodeReference useIdentifier,
+            final PMNodeReference definitionIdentifier) {
         usesForDefinition(definitionIdentifier).add(useIdentifier);
     }
 
-    public void removeUseForDefinition(PMNodeReference useIdentifier,
-            PMNodeReference definitionIdentifier) {
-        usesForDefinition(definitionIdentifier).remove(useIdentifier);
-    }
-
-    public void deleteDefinition(PMNodeReference definition) {
-        // delete all uses of the definition
-
-        for (PMNodeReference use : usesForDefinition(definition)) {
-            removeDefinitionIdentifierForName(definition, use);
+    protected void addUsesToModel(final Collection<PMUse> uses) {
+        for (final PMUse use : uses) {
+            addUseToModel(use);
         }
-
-        // delete list of uses for definition
-
-        _useIdentifiersByDefinitionIdentifier.remove(definition);
     }
 
-    public void addUseToModel(PMUse use) {
-        SimpleName name = use.getSimpleName();
+    public void addUseToModel(final PMUse use) {
+        final SimpleName name = use.getSimpleName();
 
-        PMNodeReference nameIdentifier = _project.getReferenceForNode(name);
+        final PMNodeReference nameIdentifier = this.project.getReferenceForNode(name);
 
         definitionIdentifiersForName(nameIdentifier); // To add an empty entry
                                                       // to our store; gross.
 
-        for (PMDef def : use.getReachingDefinitions()) {
+        for (final PMDef def : use.getReachingDefinitions()) {
 
             PMNodeReference definitionIdentifier;
 
             if (def != null) {
-                ASTNode definingNode = def.getDefiningNode();
-                definitionIdentifier = _project.getReferenceForNode(definingNode);
+                final ASTNode definingNode = def.getDefiningNode();
+                definitionIdentifier = this.project.getReferenceForNode(definingNode);
 
-                if (definitionIdentifier == null)
+                if (definitionIdentifier == null) {
                     throw new RuntimeException("Couldn't find identifier for defining node "
                             + definingNode);
+                }
             } else {
-                definitionIdentifier = _uninitialized;
+                definitionIdentifier = this.uninitialized;
             }
 
             addDefinitionIdentifierForName(definitionIdentifier, nameIdentifier);
         }
     }
 
-    protected void addUsesToModel(Collection<PMUse> uses) {
-        for (PMUse use : uses) {
-            addUseToModel(use);
+    public Collection<PMInconsistency> calculateInconsistencies() {
+
+        final Collection<PMInconsistency> inconsistencies = new HashSet<PMInconsistency>();
+
+        final Collection<PMUse> uses = getCurrentUses();
+
+        PMTimer.sharedTimer().start("INCONSISTENCIES");
+
+        for (final PMUse use : uses) {
+
+            final ASTNode usingNode = use.getSimpleName();
+
+            final Collection<ASTNode> currentDefiningNodes = definingNodesForUse(use);
+
+            final PMNodeReference useNameIdentifier = this.project.getReferenceForNode(usingNode);
+
+            if (useNameIdentifier != null) {
+                final Set<PMNodeReference> desiredDefinitionIdentifiers = this.definitionIdentifiersByUseIdentifier
+                        .get(useNameIdentifier);
+
+                if (desiredDefinitionIdentifiers != null) {
+                    // find definitions that should reach and missing
+                    // definitions
+
+                    for (final PMNodeReference desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
+                        ASTNode desiredDefiningNode;
+
+                        if (!desiredDefinitionIdentifier.equals(this.uninitialized)) {
+                            desiredDefiningNode = desiredDefinitionIdentifier.getNode();
+
+                            if (desiredDefiningNode == null) {
+                                throw new RuntimeException(
+                                        "Couldn't find defining node for identifier:"
+                                                + desiredDefinitionIdentifier + "for use "
+                                                + usingNode);
+                            }
+                        } else {
+                            desiredDefiningNode = null;
+                        }
+
+                        if (!currentDefiningNodes.contains(desiredDefiningNode)) {
+
+                            inconsistencies.add(new PMMissingDefinition(this.project,
+                                    this.project.findPMCompilationUnitForNode(usingNode),
+                                    usingNode, desiredDefiningNode));
+
+                        }
+                    }
+
+                } else {
+                    inconsistencies.add(new PMUnknownUse(this.project, this.project
+                            .findPMCompilationUnitForNode(usingNode), use.getSimpleName()));
+
+                    continue;
+                    // throw new
+                    // RuntimeException("Couldn't find stored mappings for use:"
+                    // + use.getSimpleName());
+                }
+
+                // Now check to make sure there aren't any extra defs
+                // i.e. is every current defining node in the list of desired
+                // efining nodes
+
+                for (final ASTNode currentDefiningNode : currentDefiningNodes) {
+                    PMNodeReference currentDefiningIdentifier = null;
+
+                    if (currentDefiningNode != null) {
+                        currentDefiningIdentifier = this.project
+                                .getReferenceForNode(currentDefiningNode);
+
+                        if (currentDefiningIdentifier == null) {
+                            throw new RuntimeException(
+                                    "Couldn't find  identifier for current defining node "
+                                            + currentDefiningNode);
+                        }
+                    } else {
+                        currentDefiningIdentifier = this.uninitialized;
+                    }
+
+                    if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
+                        inconsistencies.add(new PMExtraDefinition(this.project, this.project
+                                .findPMCompilationUnitForNode(usingNode), usingNode,
+                                currentDefiningNode));
+
+                    }
+                }
+
+            } else {
+                throw new RuntimeException("Couldn't find use identifier for use:"
+                        + use.getSimpleName());
+            }
         }
+
+        PMTimer.sharedTimer().stop("INCONSISTENCIES");
+
+        return inconsistencies;
+    }
+
+    protected Collection<ASTNode> definingNodesForUse(final PMUse use) {
+        final HashSet<ASTNode> definingNodes = new HashSet<ASTNode>();
+
+        for (final PMDef definition : use.getReachingDefinitions()) {
+            if (definition != null) {
+                definingNodes.add(definition.getDefiningNode());
+            } else {
+                definingNodes.add(null);
+            }
+
+        }
+
+        return definingNodes;
+    }
+
+    public Set<PMNodeReference> definitionIdentifiersForName(final PMNodeReference nameIdentifier) {
+        Set<PMNodeReference> definitionIdentifiers = this.definitionIdentifiersByUseIdentifier
+                .get(nameIdentifier);
+
+        if (definitionIdentifiers == null) {
+            definitionIdentifiers = new HashSet<PMNodeReference>();
+            this.definitionIdentifiersByUseIdentifier.put(nameIdentifier, definitionIdentifiers);
+        }
+
+        return definitionIdentifiers;
+    }
+
+    public void deleteDefinition(final PMNodeReference definition) {
+        // delete all uses of the definition
+
+        for (final PMNodeReference use : usesForDefinition(definition)) {
+            removeDefinitionIdentifierForName(definition, use);
+        }
+
+        // delete list of uses for definition
+
+        this.useIdentifiersByDefinitionIdentifier.remove(definition);
     }
 
     protected Collection<PMUse> getCurrentUses() {
@@ -170,15 +255,16 @@ public class PMUDModel {
 
         final Collection<PMUse> uses = new HashSet<PMUse>();
 
-        for (ASTNode root : _project.getASTRoots()) {
+        for (final ASTNode root : this.project.getASTRoots()) {
 
             root.accept(new ASTVisitor() {
-                public boolean visit(MethodDeclaration methodDeclaration) {
+                @Override
+                public boolean visit(final MethodDeclaration methodDeclaration) {
 
                     // There is nothing to analyze if we have an interface or
                     // abstract method
                     if (methodDeclaration.getBody() != null) {
-                        PMRDefsAnalysis analysis = new PMRDefsAnalysis(methodDeclaration);
+                        final PMRDefsAnalysis analysis = new PMRDefsAnalysis(methodDeclaration);
 
                         uses.addAll(analysis.getUses());
                     }
@@ -198,112 +284,32 @@ public class PMUDModel {
 
     }
 
-    protected Collection<ASTNode> definingNodesForUse(PMUse use) {
-        HashSet<ASTNode> definingNodes = new HashSet<ASTNode>();
+    public boolean nameIsUse(final SimpleName name) {
+        final PMNodeReference nameReference = this.project.getReferenceForNode(name);
 
-        for (PMDef definition : use.getReachingDefinitions()) {
-            if (definition != null) {
-                definingNodes.add(definition.getDefiningNode());
-            } else
-                definingNodes.add(null);
-
-        }
-
-        return definingNodes;
+        return this.definitionIdentifiersByUseIdentifier.containsKey(nameReference);
     }
 
-    public Collection<PMInconsistency> calculateInconsistencies() {
+    public void removeDefinitionIdentifierForName(final PMNodeReference definitionIdentifier,
+            final PMNodeReference nameIdentifier) {
+        definitionIdentifiersForName(nameIdentifier).remove(definitionIdentifier);
+        removeUseForDefinition(nameIdentifier, definitionIdentifier);
+    }
 
-        final Collection<PMInconsistency> inconsistencies = new HashSet<PMInconsistency>();
+    public void removeUseForDefinition(final PMNodeReference useIdentifier,
+            final PMNodeReference definitionIdentifier) {
+        usesForDefinition(definitionIdentifier).remove(useIdentifier);
+    }
 
-        Collection<PMUse> uses = getCurrentUses();
+    public Set<PMNodeReference> usesForDefinition(final PMNodeReference definitionIdentifier) {
+        Set<PMNodeReference> useIdentifiers = this.useIdentifiersByDefinitionIdentifier
+                .get(definitionIdentifier);
 
-        PMTimer.sharedTimer().start("INCONSISTENCIES");
-
-        for (PMUse use : uses) {
-
-            ASTNode usingNode = use.getSimpleName();
-
-            Collection<ASTNode> currentDefiningNodes = definingNodesForUse(use);
-
-            PMNodeReference useNameIdentifier = _project.getReferenceForNode(usingNode);
-
-            if (useNameIdentifier != null) {
-                Set<PMNodeReference> desiredDefinitionIdentifiers = _definitionIdentifiersByUseIdentifier
-                        .get(useNameIdentifier);
-
-                if (desiredDefinitionIdentifiers != null) {
-                    // find definitions that should reach and missing
-                    // definitions
-
-                    for (PMNodeReference desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
-                        ASTNode desiredDefiningNode;
-
-                        if (!desiredDefinitionIdentifier.equals(_uninitialized)) {
-                            desiredDefiningNode = desiredDefinitionIdentifier.getNode();
-
-                            if (desiredDefiningNode == null)
-                                throw new RuntimeException(
-                                        "Couldn't find defining node for identifier:"
-                                                + desiredDefinitionIdentifier + "for use "
-                                                + usingNode);
-                        } else {
-                            desiredDefiningNode = null;
-                        }
-
-                        if (!currentDefiningNodes.contains(desiredDefiningNode)) {
-
-                            inconsistencies.add(new PMMissingDefinition(_project, _project
-                                    .findPMCompilationUnitForNode(usingNode), usingNode,
-                                    desiredDefiningNode));
-
-                        }
-                    }
-
-                } else {
-                    inconsistencies.add(new PMUnknownUse(_project, _project
-                            .findPMCompilationUnitForNode(usingNode), use.getSimpleName()));
-
-                    continue;
-                    // throw new
-                    // RuntimeException("Couldn't find stored mappings for use:"
-                    // + use.getSimpleName());
-                }
-
-                // Now check to make sure there aren't any extra defs
-                // i.e. is every current defining node in the list of desired
-                // efining nodes
-
-                for (ASTNode currentDefiningNode : currentDefiningNodes) {
-                    PMNodeReference currentDefiningIdentifier = null;
-
-                    if (currentDefiningNode != null) {
-                        currentDefiningIdentifier = _project
-                                .getReferenceForNode(currentDefiningNode);
-
-                        if (currentDefiningIdentifier == null)
-                            throw new RuntimeException(
-                                    "Couldn't find  identifier for current defining node "
-                                            + currentDefiningNode);
-                    } else
-                        currentDefiningIdentifier = _uninitialized;
-
-                    if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
-                        inconsistencies.add(new PMExtraDefinition(_project, _project
-                                .findPMCompilationUnitForNode(usingNode), usingNode,
-                                currentDefiningNode));
-
-                    }
-                }
-
-            } else {
-                throw new RuntimeException("Couldn't find use identifier for use:"
-                        + use.getSimpleName());
-            }
+        if (useIdentifiers == null) {
+            useIdentifiers = new HashSet<PMNodeReference>();
+            this.useIdentifiersByDefinitionIdentifier.put(definitionIdentifier, useIdentifiers);
         }
 
-        PMTimer.sharedTimer().stop("INCONSISTENCIES");
-
-        return inconsistencies;
+        return useIdentifiers;
     }
 }

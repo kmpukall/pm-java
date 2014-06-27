@@ -19,7 +19,6 @@ import net.creichen.pm.PMProject;
 import net.creichen.pm.models.PMNameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -38,8 +37,9 @@ public class PMRenameStep extends PMStep {
         if (nameNode != null) {
             _nameNode = nameNode;
             _nameNodesToChange = new ArrayList<SimpleName>();
-        } else
+        } else {
             throw new RuntimeException("Cannot create PMRenameStep with null nameNode");
+        }
 
     }
 
@@ -53,6 +53,7 @@ public class PMRenameStep extends PMStep {
 
     // need method to test for errors before asking for changes
 
+    @Override
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
         Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
@@ -104,6 +105,7 @@ public class PMRenameStep extends PMStep {
         return result;
     }
 
+    @Override
     public void performASTChange() {
         for (SimpleName nameNode : _nameNodesToChange) {
             nameNode.setIdentifier(_newName);
@@ -125,10 +127,12 @@ public class PMRenameStep extends PMStep {
 
     }
 
+    @Override
     public void updateAfterReparse() {
 
     }
 
+    @Override
     public void cleanup() {
         // called regardless of whether updateAfterReparse() was called
     }

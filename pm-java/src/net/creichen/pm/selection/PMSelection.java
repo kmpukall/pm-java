@@ -12,148 +12,43 @@ package net.creichen.pm.selection;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
-
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 public class PMSelection {
 
-    CompilationUnit _compilationUnit;
-    int _offset;
-    int _length;
-
-    ASTNode _singleSelectedNode;
-
-    ASTNode _propertyParentNode;
-    StructuralPropertyDescriptor _selectedPropertyDescriptor;
-    int _childListPropertyOffset;
-    int _childListPropertyLength;
-
-    public PMSelection(CompilationUnit compilationUnit, int offset, int length) {
-
-        _compilationUnit = compilationUnit;
-
-        _offset = offset;
-        _length = length;
-
-        _childListPropertyOffset = -1;
-        _childListPropertyLength = -1;
-
-        trimWhitespace();
-
-        // ought to do this lazily
-        findSelection(_offset, _length);
-
-    }
-
-    public ASTNode singleSelectedNode() {
-        return _singleSelectedNode;
-    }
-
-    public ASTNode[] selectedNodes() {
-        return new ASTNode[0];
-    }
-
-    public StructuralPropertyDescriptor selectedNodeParentProperty() {
-        return _selectedPropertyDescriptor;
-    }
-
-    public ASTNode selectedNodeParent() {
-        if (_singleSelectedNode != null)
-            return _singleSelectedNode.getParent();
-        else
-            return _propertyParentNode;
-    }
-
-    public int selectedNodeParentPropertyListOffset() {
-        return _childListPropertyOffset;
-    }
-
-    public int selectedNodeParentPropertyListLength() {
-        return _childListPropertyLength;
-    }
-
-    public boolean isListSelection() {
-        return _selectedPropertyDescriptor instanceof ChildListPropertyDescriptor;
-    }
-
-    public boolean isMultipleSelection() {
-        return _childListPropertyLength > 0;
-    }
-
-    public boolean isSaneSelection() {
-        return _selectedPropertyDescriptor != null || _singleSelectedNode != null;
-    }
-
-    private void findSelection(int offset, int length) {
-        PMExactSelectionVisitor selectionVisitor = new PMExactSelectionVisitor(offset, length);
-        _compilationUnit.accept(selectionVisitor);
-
-        ASTNode containingNode = selectionVisitor.getContainingNode();
-
-        if (containingNode.getStartPosition() == offset && containingNode.getLength() == length)
-            _singleSelectedNode = containingNode;
-        else {
-            _singleSelectedNode = null;
-
-            // if there is no single selected node, find the insertion points
-            // corresponding to the start and
-            // end of the selection and see if these insertion points contain a
-            // sequence of nodes
-
-            PMInsertionPoint startInsertionPoint = new PMInsertionPoint(_compilationUnit, offset);
-
-            PMInsertionPoint endInsertionPoint = new PMInsertionPoint(_compilationUnit, offset
-                    + length);
-
-            if (startInsertionPoint.isSaneInsertionPoint()
-                    && endInsertionPoint.isSaneInsertionPoint()) {
-
-                if (startInsertionPoint.insertionParent() == endInsertionPoint.insertionParent()
-                        && startInsertionPoint.insertionProperty().equals(
-                                endInsertionPoint.insertionProperty())) {
-
-                    _propertyParentNode = startInsertionPoint.insertionParent();
-
-                    _selectedPropertyDescriptor = startInsertionPoint.insertionProperty();
-
-                    _childListPropertyOffset = startInsertionPoint.insertionIndex();
-
-                    _childListPropertyLength = endInsertionPoint.insertionIndex()
-                            - startInsertionPoint.insertionIndex();
-                }
-            }
-        }
-
-    }
-
     @SuppressWarnings("restriction")
     protected static class PMExactSelectionVisitor extends
             org.eclipse.jdt.internal.corext.dom.GenericVisitor {
 
-        int _offset;
-        int _length;
+        private final int _offset;
+        private final int _length;
 
-        ASTNode _containingNode;
+        private ASTNode _containingNode;
 
-        public PMExactSelectionVisitor(int offset, int length) {
-            _offset = offset;
-            _length = length;
+        public PMExactSelectionVisitor(final int offset, final int length) {
+            this._offset = offset;
+            this._length = length;
         }
 
-        protected boolean nodeContainsSelection(ASTNode node, int offset, int length) {
-            return offset >= node.getStartPosition()
-                    && offset + length <= node.getStartPosition() + node.getLength();
+        public ASTNode getContainingNode() {
+            return this._containingNode;
         }
 
-        public boolean visitNode(ASTNode node) {
+        private boolean nodeContainsSelection(final ASTNode node) {
+            return this._offset >= node.getStartPosition()
+                    && this._offset + this._length <= node.getStartPosition() + node.getLength();
+        }
+
+        @Override
+        public boolean visitNode(final ASTNode node) {
             // result from this method determines whether it will be called for
             // nodes beneath it.
 
-            if (nodeContainsSelection(node, _offset, _length)) {
+            if (nodeContainsSelection(node)) {
 
-                _containingNode = node;
+                this._containingNode = node;
 
                 return true;
             } else {
@@ -162,10 +57,78 @@ public class PMSelection {
             }
 
         }
+    }
 
-        public ASTNode getContainingNode() {
-            return _containingNode;
+    private final CompilationUnit compilationUnit;
+    private int offset;
+
+    private int length;
+
+    private ASTNode singleSelectedNode;
+    private ASTNode propertyParentNode;
+    private StructuralPropertyDescriptor selectedPropertyDescriptor;
+    private int childListPropertyOffset;
+
+    private int childListPropertyLength;
+
+    public PMSelection(final CompilationUnit compilationUnit, final int offset, final int length) {
+
+        this.compilationUnit = compilationUnit;
+
+        this.offset = offset;
+        this.length = length;
+
+        this.childListPropertyOffset = -1;
+        this.childListPropertyLength = -1;
+
+        trimWhitespace();
+
+        // ought to do this lazily
+        findSelection(this.offset, this.length);
+
+    }
+
+    private void findSelection(final int offset, final int length) {
+        final PMExactSelectionVisitor selectionVisitor = new PMExactSelectionVisitor(offset, length);
+        this.compilationUnit.accept(selectionVisitor);
+
+        final ASTNode containingNode = selectionVisitor.getContainingNode();
+
+        if (containingNode.getStartPosition() == offset && containingNode.getLength() == length) {
+            this.singleSelectedNode = containingNode;
+        } else {
+            this.singleSelectedNode = null;
+
+            // if there is no single selected node, find the insertion points
+            // corresponding to the start and
+            // end of the selection and see if these insertion points contain a
+            // sequence of nodes
+
+            final PMInsertionPoint startInsertionPoint = new PMInsertionPoint(this.compilationUnit,
+                    offset);
+
+            final PMInsertionPoint endInsertionPoint = new PMInsertionPoint(this.compilationUnit,
+                    offset + length);
+
+            if (startInsertionPoint.isSaneInsertionPoint()
+                    && endInsertionPoint.isSaneInsertionPoint()) {
+
+                if (startInsertionPoint.insertionParent() == endInsertionPoint.insertionParent()
+                        && startInsertionPoint.insertionProperty().equals(
+                                endInsertionPoint.insertionProperty())) {
+
+                    this.propertyParentNode = startInsertionPoint.insertionParent();
+
+                    this.selectedPropertyDescriptor = startInsertionPoint.insertionProperty();
+
+                    this.childListPropertyOffset = startInsertionPoint.insertionIndex();
+
+                    this.childListPropertyLength = endInsertionPoint.insertionIndex()
+                            - startInsertionPoint.insertionIndex();
+                }
+            }
         }
+
     }
 
     public String getSelectionAsString() {
@@ -175,7 +138,7 @@ public class PMSelection {
         String entireSource = null;
 
         try {
-            ICompilationUnit iCompilationUnit = ((ICompilationUnit) _compilationUnit
+            final ICompilationUnit iCompilationUnit = ((ICompilationUnit) this.compilationUnit
                     .getJavaElement());
 
             // Sometimes CompilationUnits don't have an associated
@@ -183,43 +146,87 @@ public class PMSelection {
             // If not, just us the (for debugging purposes only)
             // _compilation.toString()
 
-            if (iCompilationUnit != null)
-                entireSource = ((ICompilationUnit) _compilationUnit.getJavaElement()).getSource();
-            else
-                entireSource = _compilationUnit.toString();
+            if (iCompilationUnit != null) {
+                entireSource = ((ICompilationUnit) this.compilationUnit.getJavaElement())
+                        .getSource();
+            } else {
+                entireSource = this.compilationUnit.toString();
+            }
 
-        } catch (JavaModelException e) {
+        } catch (final JavaModelException e) {
             System.err.println("Exception in PMSelection.getSelectionAsString(): " + e);
 
             throw new RuntimeException(e);
         }
 
-        result = entireSource.substring(_offset, _offset + _length);
+        result = entireSource.substring(this.offset, this.offset + this.length);
 
         return result;
+    }
+
+    public boolean isListSelection() {
+        return this.selectedPropertyDescriptor instanceof ChildListPropertyDescriptor;
+    }
+
+    public boolean isMultipleSelection() {
+        return this.childListPropertyLength > 0;
+    }
+
+    public boolean isSaneSelection() {
+        return this.selectedPropertyDescriptor != null || this.singleSelectedNode != null;
+    }
+
+    public ASTNode selectedNodeParent() {
+        if (this.singleSelectedNode != null) {
+            return this.singleSelectedNode.getParent();
+        } else {
+            return this.propertyParentNode;
+        }
+    }
+
+    public StructuralPropertyDescriptor selectedNodeParentProperty() {
+        return this.selectedPropertyDescriptor;
+    }
+
+    public int selectedNodeParentPropertyListLength() {
+        return this.childListPropertyLength;
+    }
+
+    public int selectedNodeParentPropertyListOffset() {
+        return this.childListPropertyOffset;
+    }
+
+    public ASTNode[] selectedNodes() {
+        return new ASTNode[0];
+    }
+
+    public ASTNode singleSelectedNode() {
+        return this.singleSelectedNode;
     }
 
     private void trimWhitespace() {
         // move the selection so that it contains no leading or trailing
         // whitespace
 
-        String selection = getSelectionAsString();
+        final String selection = getSelectionAsString();
 
         // trim whitespace at beginning
         for (int index = 0; index < selection.length(); index++) {
             if (Character.isWhitespace(selection.charAt(index))) {
-                _offset++;
-                _length--;
-            } else
+                this.offset++;
+                this.length--;
+            } else {
                 break;
+            }
         }
 
         // trim whitespace at end
         for (int index = selection.length() - 1; index >= 0; index--) {
             if (Character.isWhitespace(selection.charAt(index))) {
-                _length--;
-            } else
+                this.length--;
+            } else {
                 break;
+            }
         }
 
     }

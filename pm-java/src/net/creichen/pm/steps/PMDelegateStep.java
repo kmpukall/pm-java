@@ -39,61 +39,168 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMDelegateStep extends PMStep {
 
-    ASTNode _selectedNode;
+    private final ASTNode selectedNode;
 
-    String _delegateIdentifier;
+    private String delegateIdentifier;
 
     // iVars to hold state between textual change and ast change
 
-    SuperMethodInvocation _newSuperInvocationNode; // for delegation to super,
-    MethodInvocation _selectedMethodInvocation;
+    private SuperMethodInvocation newSuperInvocationNode; // for delegation to super,
+    private MethodInvocation selectedMethodInvocation;
 
-    Expression _newExpressionNode;
+    private Expression newExpressionNode;
 
     // ivar to hold state across reparse
 
-    PMNodeReference _newExpressionNodeReference;
+    private PMNodeReference newExpressionNodeReference;
 
-    ICompilationUnit _iCompilationUnit;
+    private final ICompilationUnit iCompilationUnit;
 
-    public PMDelegateStep(PMProject project, ASTNode selectedNode) {
+    public PMDelegateStep(final PMProject project, final ASTNode selectedNode) {
         super(project);
 
-        _selectedNode = selectedNode;
+        this.selectedNode = selectedNode;
 
-        CompilationUnit containingCompilationUnit = (CompilationUnit) _selectedNode.getRoot();
+        final CompilationUnit containingCompilationUnit = (CompilationUnit) this.selectedNode
+                .getRoot();
 
-        _iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
+        this.iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
 
+    }
+
+    @Override
+    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+
+        // we don't yet do anything fancy here; only handle the simple case.
+        if (this.selectedNode instanceof MethodInvocation) {
+            this.selectedMethodInvocation = (MethodInvocation) this.selectedNode;
+
+            // create new SimpleName expression for our delegate identifier and
+            // create the change
+            // by setting it to be the expression of the method invocation.
+
+            final AST ast = this.selectedMethodInvocation.getAST();
+
+            final ASTRewrite astRewrite = ASTRewrite.create(ast);
+
+            if (this.delegateIdentifier.equals("super")) {
+                this.newExpressionNode = null;
+
+                this.newSuperInvocationNode = superMethodDelegatingMethodInvocation(this.selectedMethodInvocation);
+
+                rewriteToDelegateMethodInvocationToSuperInvocation(astRewrite,
+                        this.selectedMethodInvocation, this.newSuperInvocationNode);
+
+            } else {
+                if (!this.delegateIdentifier.equals("")) {
+                    this.newExpressionNode = ast.newSimpleName(this.delegateIdentifier);
+                } else {
+                    this.newExpressionNode = null;
+                }
+
+                rewriteToDelegateMethodInvocationToIdentifier(astRewrite,
+                        this.selectedMethodInvocation, this.newExpressionNode);
+            }
+
+            result.put(this.iCompilationUnit, astRewrite);
+
+        }
+
+        return result;
     }
 
     public String getDelegateIdentifier() {
-        return _delegateIdentifier;
+        return this.delegateIdentifier;
     }
 
-    public void setDelegateIdentifier(String delegateIdentifier) {
-        _delegateIdentifier = delegateIdentifier;
+    @Override
+    public void performASTChange() {
+        if (this.delegateIdentifier.equals("super")) {
+
+            // since we made copies of the arguments and name properties, we
+            // have to
+            // match the copies up with the old versions so that we can update
+            // identifiers
+
+            this._project.recursivelyReplaceNodeWithCopy(this.selectedMethodInvocation.getName(),
+                    this.newSuperInvocationNode.getName());
+
+            final List<Expression> oldArguments = arguments(this.selectedMethodInvocation);
+            final List<Expression> newArguments = arguments(this.newSuperInvocationNode);
+
+            if (oldArguments.size() == newArguments.size()) {
+                for (int i = 0; i < oldArguments.size(); i++) {
+                    this._project.recursivelyReplaceNodeWithCopy(oldArguments.get(i),
+                            newArguments.get(i));
+                }
+
+            } else {
+                throw new RuntimeException("oldArguments.size != newArguments.size()");
+            }
+
+            // FIXME(dcc) Should use ASTNodeUtils.replaceNodeInParent()
+
+            final StructuralPropertyDescriptor location = this.selectedMethodInvocation
+                    .getLocationInParent();
+
+            // replace the selected method invocation with the new invocation
+            if (location.isChildProperty()) {
+                this.selectedMethodInvocation.getParent().setStructuralProperty(location,
+                        this.newSuperInvocationNode);
+            } else {
+                final List<ASTNode> parentList = getStructuralProperty(
+                        (ChildListPropertyDescriptor) location,
+                        this.selectedMethodInvocation.getParent());
+
+                parentList.set(parentList.indexOf(this.selectedMethodInvocation),
+                        this.newSuperInvocationNode);
+            }
+
+        } else {
+
+            if (this.newExpressionNode != null) {
+                if ((this.newExpressionNode instanceof Name)) {
+
+                    this.newExpressionNodeReference = this._project
+                            .getReferenceForNode(this.newExpressionNode);
+                } else {
+                    System.err.println("Unexpected new expression type "
+                            + this.newExpressionNode.getClass());
+                }
+
+            }
+
+            // Here is where we actually change the AST
+
+            this.selectedMethodInvocation.setExpression(this.newExpressionNode);
+        }
+
     }
 
-    void rewriteToDelegateMethodInvocationToIdentifier(ASTRewrite astRewrite,
-            MethodInvocation methodInvocation, Expression identifierNode) {
+    void rewriteToDelegateMethodInvocationToIdentifier(final ASTRewrite astRewrite,
+            final MethodInvocation methodInvocation, final Expression identifierNode) {
         astRewrite
                 .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
     }
 
-    void rewriteToDelegateMethodInvocationToSuperInvocation(ASTRewrite astRewrite,
-            MethodInvocation methodInvocation, Expression superInvocationNode) {
+    void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
+            final MethodInvocation methodInvocation, final Expression superInvocationNode) {
         astRewrite.replace(methodInvocation, superInvocationNode, null /*
                                                                         * edit group
                                                                         */);
     }
 
+    public void setDelegateIdentifier(final String delegateIdentifier) {
+        this.delegateIdentifier = delegateIdentifier;
+    }
+
     SuperMethodInvocation superMethodDelegatingMethodInvocation(
-            MethodInvocation invocationToDelegate) {
+            final MethodInvocation invocationToDelegate) {
 
-        AST ast = invocationToDelegate.getAST();
+        final AST ast = invocationToDelegate.getAST();
 
-        SuperMethodInvocation superMethodInvocationNode = ast.newSuperMethodInvocation();
+        final SuperMethodInvocation superMethodInvocationNode = ast.newSuperMethodInvocation();
 
         superMethodInvocationNode
                 .setStructuralProperty(SuperMethodInvocation.NAME_PROPERTY, ASTNode
@@ -101,9 +208,9 @@ public class PMDelegateStep extends PMStep {
                                 ast,
                                 getStructuralProperty(MethodInvocation.NAME_PROPERTY,
                                         invocationToDelegate)));
-        List<ASTNode> argumentsProperty = getStructuralProperty(
+        final List<ASTNode> argumentsProperty = getStructuralProperty(
                 MethodInvocation.ARGUMENTS_PROPERTY, invocationToDelegate);
-        List<ASTNode> typeArgumentsProperty = getStructuralProperty(
+        final List<ASTNode> typeArgumentsProperty = getStructuralProperty(
                 MethodInvocation.TYPE_ARGUMENTS_PROPERTY, invocationToDelegate);
 
         arguments(superMethodInvocationNode).addAll(ASTNode.copySubtrees(ast, argumentsProperty));
@@ -113,125 +220,26 @@ public class PMDelegateStep extends PMStep {
         return superMethodInvocationNode;
     }
 
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
-
-        // we don't yet do anything fancy here; only handle the simple case.
-        if (_selectedNode instanceof MethodInvocation) {
-            _selectedMethodInvocation = (MethodInvocation) _selectedNode;
-
-            // create new SimpleName expression for our delegate identifier and
-            // create the change
-            // by setting it to be the expression of the method invocation.
-
-            AST ast = _selectedMethodInvocation.getAST();
-
-            ASTRewrite astRewrite = ASTRewrite.create(ast);
-
-            if (_delegateIdentifier.equals("super")) {
-                _newExpressionNode = null;
-
-                _newSuperInvocationNode = superMethodDelegatingMethodInvocation(_selectedMethodInvocation);
-
-                rewriteToDelegateMethodInvocationToSuperInvocation(astRewrite,
-                        _selectedMethodInvocation, _newSuperInvocationNode);
-
-            } else {
-                if (!_delegateIdentifier.equals("")) {
-                    _newExpressionNode = ast.newSimpleName(_delegateIdentifier);
-                } else {
-                    _newExpressionNode = null;
-                }
-
-                rewriteToDelegateMethodInvocationToIdentifier(astRewrite,
-                        _selectedMethodInvocation, _newExpressionNode);
-            }
-
-            result.put(_iCompilationUnit, astRewrite);
-
-        }
-
-        return result;
-    }
-
-    public void performASTChange() {
-        if (_delegateIdentifier.equals("super")) {
-
-            // since we made copies of the arguments and name properties, we
-            // have to
-            // match the copies up with the old versions so that we can update
-            // identifiers
-
-            _project.recursivelyReplaceNodeWithCopy(_selectedMethodInvocation.getName(),
-                    _newSuperInvocationNode.getName());
-
-            List<Expression> oldArguments = arguments(_selectedMethodInvocation);
-            List<Expression> newArguments = arguments(_newSuperInvocationNode);
-
-            if (oldArguments.size() == newArguments.size()) {
-                for (int i = 0; i < oldArguments.size(); i++) {
-                    _project.recursivelyReplaceNodeWithCopy((Expression) oldArguments.get(i),
-                            (Expression) newArguments.get(i));
-                }
-
-            } else {
-                throw new RuntimeException("oldArguments.size != newArguments.size()");
-            }
-
-            // FIXME(dcc) Should use ASTNodeUtils.replaceNodeInParent()
-
-            StructuralPropertyDescriptor location = _selectedMethodInvocation.getLocationInParent();
-
-            // replace the selected method invocation with the new invocation
-            if (location.isChildProperty()) {
-                _selectedMethodInvocation.getParent().setStructuralProperty(location,
-                        _newSuperInvocationNode);
-            } else {
-                List<ASTNode> parentList = getStructuralProperty(
-                        (ChildListPropertyDescriptor) location,
-                        _selectedMethodInvocation.getParent());
-
-                parentList.set(parentList.indexOf(_selectedMethodInvocation),
-                        _newSuperInvocationNode);
-            }
-
-        } else {
-
-            if (_newExpressionNode != null) {
-                if ((_newExpressionNode instanceof Name)) {
-
-                    _newExpressionNodeReference = _project.getReferenceForNode(_newExpressionNode);
-                } else
-                    System.err.println("Unexpected new expression type "
-                            + _newExpressionNode.getClass());
-
-            }
-
-            // Here is where we actually change the AST
-
-            _selectedMethodInvocation.setExpression(_newExpressionNode);
-        }
-
-    }
-
+    @Override
     public void updateAfterReparse() {
 
-        if (_newExpressionNodeReference != null)
-            _newExpressionNode = (Expression) _newExpressionNodeReference.getNode();
+        if (this.newExpressionNodeReference != null) {
+            this.newExpressionNode = (Expression) this.newExpressionNodeReference.getNode();
+        }
 
-        if (_newExpressionNode instanceof SimpleName) {
+        if (this.newExpressionNode instanceof SimpleName) {
 
-            SimpleName name = (SimpleName) _newExpressionNode;
+            final SimpleName name = (SimpleName) this.newExpressionNode;
 
-            PMNameModel nameModel = _project.getNameModel();
+            final PMNameModel nameModel = this._project.getNameModel();
 
-            ASTNode declaringNode = _project.findDeclaringNodeForName(name);
+            final ASTNode declaringNode = this._project.findDeclaringNodeForName(name);
 
             if (declaringNode != null) {
-                SimpleName simpleNameForDeclaringNode = _project
+                final SimpleName simpleNameForDeclaringNode = this._project
                         .simpleNameForDeclaringNode(declaringNode);
 
-                String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);
+                final String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);
 
                 nameModel.setIdentifierForName(identifier, name);
 
@@ -247,19 +255,20 @@ public class PMDelegateStep extends PMStep {
                 if (iterator instanceof MethodDeclaration) {
                     methodDeclaration = (MethodDeclaration) iterator;
                     break;
-                } else
+                } else {
                     iterator = iterator.getParent();
+                }
             } while (iterator != null);
 
-            PMRDefsAnalysis analysis = new PMRDefsAnalysis(methodDeclaration);
+            final PMRDefsAnalysis analysis = new PMRDefsAnalysis(methodDeclaration);
 
-            PMUse use = analysis.useForSimpleName(name);
+            final PMUse use = analysis.useForSimpleName(name);
 
-            PMUDModel udModel = _project.getUDModel();
+            final PMUDModel udModel = this._project.getUDModel();
 
             udModel.addUseToModel(use);
 
-        } else if (_newExpressionNode == null) {
+        } else if (this.newExpressionNode == null) {
             // !!! should remove old expression info from name and use/def model
             // FIXME(dcc)
 

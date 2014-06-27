@@ -24,64 +24,7 @@ public class PMNodeReferenceStore {
     // as long as we make sure that there are no cycles from the node to
     // the store (such as, perhaps, via the node's properties)
 
-    WeakHashMap<PMNodeReference, WeakReference<ASTNode>> _nodesForReferences;
-
-    WeakHashMap<ASTNode, WeakReference<PMNodeReference>> _referencesForNodes;
-
-    public PMNodeReferenceStore() {
-        _nodesForReferences = new WeakHashMap<PMNodeReference, WeakReference<ASTNode>>();
-
-        _referencesForNodes = new WeakHashMap<ASTNode, WeakReference<PMNodeReference>>();
-    }
-
-    public ASTNode getNodeForReference(PMNodeReference nodeIdentifier) {
-        return _nodesForReferences.get(nodeIdentifier).get();
-    }
-
-    public PMNodeReference getReferenceForNode(ASTNode node) {
-
-        WeakReference<PMNodeReference> weakReference = _referencesForNodes.get(node);
-
-        PMNodeReference reference;
-
-        if (weakReference == null || weakReference.get() == null) {
-            reference = new PMUUIDNodeReference(node);
-
-            _nodesForReferences.put(reference, new WeakReference<ASTNode>(node));
-            _referencesForNodes.put(node, new WeakReference<PMNodeReference>(reference));
-        } else {
-            reference = weakReference.get();
-        }
-
-        return reference;
-    }
-
-    public void replaceOldNodeVersionWithNewVersion(ASTNode oldNode, ASTNode newNode) {
-        WeakReference<PMNodeReference> referenceWeakRef = _referencesForNodes.get(oldNode);
-
-        if (referenceWeakRef != null) {
-            PMNodeReference reference = referenceWeakRef.get();
-
-            if (reference != null) {
-                _referencesForNodes.remove(oldNode);
-                _referencesForNodes.put(newNode, referenceWeakRef);
-                _nodesForReferences.put(reference, new WeakReference<ASTNode>(newNode));
-            }
-        }
-
-    }
-
-    private static String generatedIdentifierForNode(ASTNode node) {
-        // Note: the actual class implementing particular node might change
-        // across different versions of eclipse or even runs -- might be better
-        // to use node.getNodeType() here instead of node.getClas()
-
-        return node.getClass().getName().toString() + ":" + UUID.randomUUID().toString();
-    }
-
-    // Note that this is a non-static inner class
-
-    public class PMUUIDNodeReference implements PMNodeReference {
+    public final class PMUUIDNodeReference implements PMNodeReference {
 
         String _description;
 
@@ -92,19 +35,78 @@ public class PMNodeReferenceStore {
         // in memory
         // when we don't need to
 
-        private PMUUIDNodeReference(ASTNode node) {
+        private PMUUIDNodeReference(final ASTNode node) {
             // Note: We require that the project does NOT already have a
             // PMNodeIdentifier for this node
             // otherwise we will loose uniqueness of PMNodeIdentifier and ptr
             // comparison
 
-            _description = PMNodeReferenceStore.generatedIdentifierForNode(node);
+            this._description = PMNodeReferenceStore.generatedIdentifierForNode(node);
 
         }
 
+        @Override
         public ASTNode getNode() {
-            return PMNodeReferenceStore.this.getNodeForReference(this);
+            return getNodeForReference(this);
         }
+    }
+
+    private static String generatedIdentifierForNode(final ASTNode node) {
+        // Note: the actual class implementing particular node might change
+        // across different versions of eclipse or even runs -- might be better
+        // to use node.getNodeType() here instead of node.getClas()
+
+        return node.getClass().getName().toString() + ":" + UUID.randomUUID().toString();
+    }
+
+    private final WeakHashMap<PMNodeReference, WeakReference<ASTNode>> nodesForReferences;
+
+    private final WeakHashMap<ASTNode, WeakReference<PMNodeReference>> referencesForNodes;
+
+    public PMNodeReferenceStore() {
+        this.nodesForReferences = new WeakHashMap<PMNodeReference, WeakReference<ASTNode>>();
+
+        this.referencesForNodes = new WeakHashMap<ASTNode, WeakReference<PMNodeReference>>();
+    }
+
+    public ASTNode getNodeForReference(final PMNodeReference nodeIdentifier) {
+        return this.nodesForReferences.get(nodeIdentifier).get();
+    }
+
+    public PMNodeReference getReferenceForNode(final ASTNode node) {
+
+        final WeakReference<PMNodeReference> weakReference = this.referencesForNodes.get(node);
+
+        PMNodeReference reference;
+
+        if (weakReference == null || weakReference.get() == null) {
+            reference = new PMUUIDNodeReference(node);
+
+            this.nodesForReferences.put(reference, new WeakReference<ASTNode>(node));
+            this.referencesForNodes.put(node, new WeakReference<PMNodeReference>(reference));
+        } else {
+            reference = weakReference.get();
+        }
+
+        return reference;
+    }
+
+    // Note that this is a non-static inner class
+
+    public void replaceOldNodeVersionWithNewVersion(final ASTNode oldNode, final ASTNode newNode) {
+        final WeakReference<PMNodeReference> referenceWeakRef = this.referencesForNodes
+                .get(oldNode);
+
+        if (referenceWeakRef != null) {
+            final PMNodeReference reference = referenceWeakRef.get();
+
+            if (reference != null) {
+                this.referencesForNodes.remove(oldNode);
+                this.referencesForNodes.put(newNode, referenceWeakRef);
+                this.nodesForReferences.put(reference, new WeakReference<ASTNode>(newNode));
+            }
+        }
+
     }
 
 }

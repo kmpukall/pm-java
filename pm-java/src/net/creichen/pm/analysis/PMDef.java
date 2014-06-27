@@ -10,7 +10,6 @@
 package net.creichen.pm.analysis;
 
 import java.util.HashSet;
-
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -29,45 +28,37 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class PMDef {
 
-    protected ASTNode _definingNode;
-
-    protected Set<PMUse> _uses;
-
-    public PMDef(ASTNode definingNode) {
-        _definingNode = definingNode;
-
-        _uses = new HashSet<PMUse>();
+    public static VariableDeclaration localDeclarationForSimpleName(final SimpleName simpleName) {
+        return (VariableDeclaration) ((CompilationUnit) simpleName.getRoot())
+                .findDeclaringNode(simpleName.resolveBinding());
     }
 
-    public String toString() {
+    private final ASTNode definingNode;
 
-        return "PMDef: " + _definingNode + " [ " + _uses.size() + " uses]";
+    private final Set<PMUse> uses;
+
+    public PMDef(final ASTNode definingNode) {
+        this.definingNode = definingNode;
+
+        this.uses = new HashSet<PMUse>();
     }
 
-    public void addUse(PMUse use) {
-        if (!_uses.contains(use)) {
-            _uses.add(use);
+    public void addUse(final PMUse use) {
+        if (!this.uses.contains(use)) {
+            this.uses.add(use);
 
             use.addReachingDefinition(this);
         }
     }
 
-    public Set<PMUse> getUses() {
-        return _uses;
-    }
-
-    public ASTNode getDefiningNode() {
-        return _definingNode;
-    }
-
-    public IBinding findBindingForLHS(Expression lhs) {
+    public IBinding findBindingForLHS(final Expression lhs) {
         IBinding binding = null;
 
         if (lhs instanceof Name) {
-            Name assignmentName = (Name) lhs;
+            final Name assignmentName = (Name) lhs;
             binding = assignmentName.resolveBinding();
         } else if (lhs instanceof FieldAccess) {
-            FieldAccess fieldAccess = (FieldAccess) lhs;
+            final FieldAccess fieldAccess = (FieldAccess) lhs;
 
             binding = fieldAccess.resolveFieldBinding();
         } else {
@@ -81,32 +72,41 @@ public class PMDef {
     public IBinding getBinding() {
         IBinding result = null;
 
-        if (_definingNode instanceof Assignment) {
-            Assignment assignment = (Assignment) _definingNode;
+        if (this.definingNode instanceof Assignment) {
+            final Assignment assignment = (Assignment) this.definingNode;
 
             result = findBindingForLHS(assignment.getLeftHandSide());
-        } else if (_definingNode instanceof SingleVariableDeclaration) {
-            SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) _definingNode;
+        } else if (this.definingNode instanceof SingleVariableDeclaration) {
+            final SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) this.definingNode;
 
             result = findBindingForLHS(singleVariableDeclaration.getName());
 
-        } else if (_definingNode instanceof VariableDeclarationFragment) {
-            VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) _definingNode;
+        } else if (this.definingNode instanceof VariableDeclarationFragment) {
+            final VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) this.definingNode;
 
             result = findBindingForLHS(variableDeclarationFragment.getName());
-        } else if (_definingNode instanceof PostfixExpression) {
-            PostfixExpression postfixExpression = (PostfixExpression) _definingNode;
+        } else if (this.definingNode instanceof PostfixExpression) {
+            final PostfixExpression postfixExpression = (PostfixExpression) this.definingNode;
 
             result = findBindingForLHS(postfixExpression.getOperand());
-        } else if (_definingNode instanceof PrefixExpression) {
-            PrefixExpression prefixExpression = (PrefixExpression) _definingNode;
+        } else if (this.definingNode instanceof PrefixExpression) {
+            final PrefixExpression prefixExpression = (PrefixExpression) this.definingNode;
 
             result = findBindingForLHS(prefixExpression.getOperand());
         } else {
-            throw new RuntimeException("Un-handled _definingNode type " + _definingNode.getClass());
+            throw new RuntimeException("Un-handled _definingNode type "
+                    + this.definingNode.getClass());
         }
 
         return result;
+    }
+
+    public ASTNode getDefiningNode() {
+        return this.definingNode;
+    }
+
+    public Set<PMUse> getUses() {
+        return this.uses;
     }
 
     // Not all declaring nodes are VariableDeclarations; they could be
@@ -160,8 +160,9 @@ public class PMDef {
      * return result; }
      */
 
-    public static VariableDeclaration localDeclarationForSimpleName(SimpleName simpleName) {
-        return (VariableDeclaration) ((CompilationUnit) simpleName.getRoot())
-                .findDeclaringNode(simpleName.resolveBinding());
+    @Override
+    public String toString() {
+
+        return "PMDef: " + this.definingNode + " [ " + this.uses.size() + " uses]";
     }
 }

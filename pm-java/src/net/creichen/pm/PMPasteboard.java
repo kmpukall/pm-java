@@ -16,49 +16,47 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 public class PMPasteboard {
 
-    List<ASTNode> _pasteboardRoots;
+    private List<ASTNode> pasteboardRoots;
 
-    PMProject _project;
+    public PMPasteboard(final PMProject project) {
+        this.pasteboardRoots = null;
+    }
 
-    public PMPasteboard(PMProject project) {
-        _pasteboardRoots = null;
+    public void clearPasteboard() {
+        // clear model information via _project
 
-        _project = project;
+        this.pasteboardRoots = null;
+    }
+
+    public boolean containsOnlyNodesOfClass(final Class<?> someClass) {
+        for (final ASTNode node : this.pasteboardRoots) {
+            if (!someClass.isInstance(node)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public List<ASTNode> getPasteboardRoots() {
-        return _pasteboardRoots;
+        return this.pasteboardRoots;
     }
 
-    public void setPasteboardRoot(ASTNode root) {
-        List<ASTNode> roots = new ArrayList<ASTNode>();
+    public void setPasteboardRoot(final ASTNode root) {
+        final List<ASTNode> roots = new ArrayList<ASTNode>();
 
         roots.add(root);
 
         setPasteboardRoots(roots);
     }
 
-    public void setPasteboardRoots(List<ASTNode> pasteboardRoots) {
-        if (_pasteboardRoots != null)
+    public void setPasteboardRoots(final List<ASTNode> pasteboardRoots) {
+        if (this.pasteboardRoots != null) {
             clearPasteboard();
-
-        _pasteboardRoots = pasteboardRoots;
-
-    }
-
-    public void clearPasteboard() {
-        // clear model information via _project
-
-        _pasteboardRoots = null;
-    }
-
-    public boolean containsOnlyNodesOfClass(Class<?> someClass) {
-        for (ASTNode node : _pasteboardRoots) {
-            if (!someClass.isInstance(node))
-                return false;
         }
 
-        return true;
+        this.pasteboardRoots = pasteboardRoots;
+
     }
 
 }

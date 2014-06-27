@@ -16,26 +16,40 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PMWizard extends RefactoringWizard {
 
-    protected UserInputWizardPage _wizardPage;
+    private final UserInputWizardPage _wizardPage;
 
-    public PMWizard(RefactoringProcessor processor, UserInputWizardPage wizardPage) {
+    public PMWizard(final RefactoringProcessor processor, final UserInputWizardPage wizardPage) {
         super(new PMProcessorBasedRefactoring(processor), CHECK_INITIAL_CONDITIONS_ON_OPEN);
 
         _wizardPage = wizardPage;
     }
 
+    @Override
     protected void addUserInputPages() {
-        if (_wizardPage != null)
+        if (_wizardPage != null) {
             addPage(_wizardPage);
+        }
     }
 
     public RefactoringProcessor getProcessor() {
         return ((ProcessorBasedRefactoring) getRefactoring()).getProcessor();
     }
 
+    @Override
+    public boolean performCancel() {
+        super.performCancel();
+
+        /*
+         * ((PMProcessor)getProcessor()).textChangeWasNotApplied();
+         */
+
+        return true;
+    }
+
+    @Override
     public boolean performFinish() {
 
-        boolean result = super.performFinish();
+        final boolean result = super.performFinish();
 
         /*
          * if (result) {
@@ -55,15 +69,5 @@ public class PMWizard extends RefactoringWizard {
          * PMTimer.sharedTimer().clear("STEP");
          */
         return result;
-    }
-
-    public boolean performCancel() {
-        super.performCancel();
-
-        /*
-         * ((PMProcessor)getProcessor()).textChangeWasNotApplied();
-         */
-
-        return true;
     }
 }

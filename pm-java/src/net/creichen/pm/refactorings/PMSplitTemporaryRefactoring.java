@@ -24,41 +24,41 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class PMSplitTemporaryRefactoring {
 
-    PMProject _project;
+    private final PMProject project;
 
-    PMSplitStep _splitStep;
+    private final PMSplitStep splitStep;
 
-    PMRenameStep _renameStep;
+    private PMRenameStep renameStep;
 
-    String _newVariableName;
+    private final String newVariableName;
 
-    public PMSplitTemporaryRefactoring(PMProject project,
-            ExpressionStatement assignmentExpressionStatement, String newVariableName) {
+    public PMSplitTemporaryRefactoring(final PMProject project,
+            final ExpressionStatement assignmentExpressionStatement, final String newVariableName) {
 
-        _project = project;
+        this.project = project;
 
-        _splitStep = new PMSplitStep(project, assignmentExpressionStatement);
+        this.splitStep = new PMSplitStep(project, assignmentExpressionStatement);
 
-        _newVariableName = newVariableName;
+        this.newVariableName = newVariableName;
     }
 
     public void apply() {
 
-        _splitStep.applyAllAtOnce();
+        this.splitStep.applyAllAtOnce();
 
         // now find the name for the new declaration and rename it
 
-        VariableDeclarationStatement newlyCreatedDeclaration = _splitStep
+        final VariableDeclarationStatement newlyCreatedDeclaration = this.splitStep
                 .getReplacementDeclarationStatement();
 
-        SimpleName simpleNameToRename = ((VariableDeclarationFragment) newlyCreatedDeclaration
+        final SimpleName simpleNameToRename = ((VariableDeclarationFragment) newlyCreatedDeclaration
                 .fragments().get(0)).getName();
 
-        _renameStep = new PMRenameStep(_project, simpleNameToRename);
+        this.renameStep = new PMRenameStep(this.project, simpleNameToRename);
 
-        _renameStep.setNewName(_newVariableName);
+        this.renameStep.setNewName(this.newVariableName);
 
-        _renameStep.applyAllAtOnce();
+        this.renameStep.applyAllAtOnce();
 
     }
 }

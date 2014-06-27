@@ -92,8 +92,9 @@ public class PMTest {
         try {
             IFolder folder = _iProject.getFolder("src");
 
-            if (!folder.exists())
+            if (!folder.exists()) {
                 folder.create(true, true, null);
+            }
 
             IPackageFragmentRoot srcFolder = _iJavaProject.getPackageFragmentRoot(folder);
 
