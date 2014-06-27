@@ -13,12 +13,7 @@ import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
 import java.util.List;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 
 //This class is a mess
 
@@ -36,10 +31,10 @@ public class PMInsertionPoint {
     }
 
     protected static class PMContainingNodeVisitor extends ASTVisitor {
-        int _offset;
-        int _length;
+        private final int _offset;
+        private final int _length;
 
-        ASTNode _containingNode = null;
+        private ASTNode containingNode = null;
 
         public PMContainingNodeVisitor(final int offset, final int length) {
             this._offset = offset;
@@ -47,7 +42,7 @@ public class PMInsertionPoint {
         }
 
         public ASTNode getContainingNode() {
-            return this._containingNode;
+            return this.containingNode;
         }
 
         public boolean visitContainingNode(final ASTNode node) {
@@ -55,7 +50,7 @@ public class PMInsertionPoint {
                     && this._offset + this._length <= node.getStartPosition() + node.getLength()
                             - 1) {
 
-                this._containingNode = node;
+                this.containingNode = node;
                 return true;
             } else {
                 return false;
@@ -127,8 +122,8 @@ public class PMInsertionPoint {
          * the first/last character of such a child
          */
 
-        final Block containingBlock = FindContainingBlockForSelection(this.compilationUnit,
-                offset, 0);
+        final Block containingBlock = FindContainingBlockForSelection(this.compilationUnit, offset,
+                0);
 
         if (containingBlock != null) {
             return findInsertionPointUnderNode(containingBlock, Block.STATEMENTS_PROPERTY, offset);

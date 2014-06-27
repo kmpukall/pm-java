@@ -24,17 +24,7 @@ import net.creichen.pm.models.PMNameModel;
 import net.creichen.pm.models.PMUDModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMDelegateStep extends PMStep {
@@ -268,11 +258,9 @@ public class PMDelegateStep extends PMStep {
 
             udModel.addUseToModel(use);
 
-        } else if (this.newExpressionNode == null) {
-            // !!! should remove old expression info from name and use/def model
-            // FIXME(dcc)
-
         }
+        // !!! should remove old expression info from name and use/def model
+        // FIXME(dcc)
     }
 
 }

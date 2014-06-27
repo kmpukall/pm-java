@@ -18,13 +18,7 @@ import net.creichen.pm.selection.PMInsertionPoint;
 import net.creichen.pm.steps.PMPasteStep;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
-import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -32,22 +26,12 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PMPasteAction extends PMAction {
 
-    @Override
-    public RefactoringProcessor newProcessor() {
-
-        return null;
-    }
-
-    @Override
-    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
-        return null;
-    }
-
-    protected int insertIndexOfSelectionInList(ITextSelection textSelection, List<ASTNode> list) {
+    protected int insertIndexOfSelectionInList(final ITextSelection textSelection,
+            final List<ASTNode> list) {
         int insertIndex = list.size();
 
         for (int i = 0; i < list.size(); i++) {
-            ASTNode child = list.get(i);
+            final ASTNode child = list.get(i);
 
             if (textSelection.getOffset() <= child.getStartPosition()) {
                 insertIndex = i;
@@ -60,26 +44,37 @@ public class PMPasteAction extends PMAction {
     }
 
     @Override
-    public void run(IAction action) {
+    public RefactoringProcessor newProcessor() {
+
+        return null;
+    }
+
+    @Override
+    public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
+        return null;
+    }
+
+    @Override
+    public void run(final IAction action) {
         System.err.println("In PMPasteAction run()");
 
         if (getSelection() instanceof ITextSelection) {
 
-            ITextSelection textSelection = (ITextSelection) getSelection();
+            final ITextSelection textSelection = (ITextSelection) getSelection();
 
-            ICompilationUnit iCompilationUnit = currentICompilationUnit();
+            final ICompilationUnit iCompilationUnit = currentICompilationUnit();
 
-            PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+            final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                     iCompilationUnit.getJavaProject());
 
-            PMInsertionPoint insertionPoint = new PMInsertionPoint(
+            final PMInsertionPoint insertionPoint = new PMInsertionPoint(
                     (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit),
                     textSelection.getOffset());
 
-            ASTNode selectedNode = insertionPoint.insertionParent(); // project.nodeForSelection((ITextSelection)getSelection(),
-                                                                     // iCompilationUnit);
+            final ASTNode selectedNode = insertionPoint.insertionParent(); // project.nodeForSelection((ITextSelection)getSelection(),
+            // iCompilationUnit);
 
-            PMPasteboard pasteboard = project.getPasteboard();
+            final PMPasteboard pasteboard = project.getPasteboard();
 
             if (insertionPoint.isSaneInsertionPoint()
                     && (selectedNode instanceof Block && pasteboard
@@ -87,11 +82,12 @@ public class PMPasteAction extends PMAction {
                     || (selectedNode instanceof TypeDeclaration && pasteboard
                             .containsOnlyNodesOfClass(BodyDeclaration.class))) {
 
-                ChildListPropertyDescriptor childProperty = insertionPoint.insertionProperty();
+                final ChildListPropertyDescriptor childProperty = insertionPoint
+                        .insertionProperty();
 
-                int insertIndex = insertionPoint.insertionIndex();
+                final int insertIndex = insertionPoint.insertionIndex();
 
-                PMPasteStep pasteStep = new PMPasteStep(project, selectedNode, childProperty,
+                final PMPasteStep pasteStep = new PMPasteStep(project, selectedNode, childProperty,
                         insertIndex);
 
                 pasteStep.applyAllAtOnce();

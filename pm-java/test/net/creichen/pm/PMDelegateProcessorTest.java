@@ -9,14 +9,11 @@
 
 package net.creichen.pm;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import net.creichen.pm.PMDelegateProcessor;
-import net.creichen.pm.PMProject;
-import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.inconsistencies.PMInconsistency;
 import net.creichen.pm.tests.PMTest;
 
@@ -29,16 +26,17 @@ import org.junit.Test;
 public class PMDelegateProcessorTest extends PMTest {
     @Test
     public void testAddDelegateToSimpleMethodInvocation() throws JavaModelException {
-        String source = "public class S {void m(){S s = new S();s.getClass(); m();}}";
+        final String source = "public class S {void m(){S s = new S();s.getClass(); m();}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(79 - 26,
-                3), compilationUnit);
+        final PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(
+                79 - 26, 3), compilationUnit);
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
         PMProcessorDriver.drive(delegateProcessor);
 
@@ -46,78 +44,55 @@ public class PMDelegateProcessorTest extends PMTest {
                 "public class S {void m(){S s = new S();s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }
 
     @Test
     public void testAddSuperDelegateToSimpleMethodInvocation() throws JavaModelException {
-        String source = "public class S {void m(){S s; m();}}";
+        final String source = "public class S {void m(){S s; m();}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(56 - 26,
-                59 - 56), compilationUnit);
+        final PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(
+                56 - 26, 59 - 56), compilationUnit);
 
         delegateProcessor.setDelegateIdentifier("super");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
         PMProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; super.m();}}",
                 compilationUnit.getSource()));
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
-
-        assertEquals(0, inconsistencies.size());
-    }
-
-    @Test
-    public void testRemoveDelegateFromSimpleMethodInvocation() throws JavaModelException {
-        String source = "public class S {void m(){S s; s.m();}}";
-
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
-
-        PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(56 - 26,
-                61 - 56), compilationUnit);
-
-        delegateProcessor.setDelegateIdentifier("");
-
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
-
-        RefactoringStatus status = PMProcessorDriver.drive(delegateProcessor);
-
-        assertTrue(status.getSeverity() < RefactoringStatus.ERROR);
-
-        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; m();}}",
-                compilationUnit.getSource()));
-
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }
 
     @Test
     public void testDelegateToField() throws JavaModelException {
-        String source = "public class S {S s; void m(){s.getClass(); m();}}";
+        final String source = "public class S {S s; void m(){s.getClass(); m();}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(70 - 26,
-                3), compilationUnit);
+        final PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(
+                70 - 26, 3), compilationUnit);
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
         PMProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource(
                 "public class S {S s; void m(){s.getClass(); s.m();}}", compilationUnit.getSource()));
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }
@@ -127,18 +102,20 @@ public class PMDelegateProcessorTest extends PMTest {
         // String superSource =
         // "package t; public class Super {Super s; void m() { } }";
 
-        String subSource = "package t; public class Sub extends Super {void g() {m();}}";
+        final String subSource = "package t; public class Sub extends Super {void g() {m();}}";
 
         // ICompilationUnit superCompilationUnit = createNewCompilationUnit("t",
         // "Super.java", superSource);
-        ICompilationUnit subCompilationUnit = createNewCompilationUnit("t", "Sub.java", subSource);
+        final ICompilationUnit subCompilationUnit = createNewCompilationUnit("t", "Sub.java",
+                subSource);
 
-        PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(82 - 29,
-                3), subCompilationUnit);
+        final PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(
+                82 - 29, 3), subCompilationUnit);
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
         PMProcessorDriver.drive(delegateProcessor);
 
@@ -146,7 +123,33 @@ public class PMDelegateProcessorTest extends PMTest {
                 "package t; public class Sub extends Super {void g() {s.m();}}",
                 subCompilationUnit.getSource()));
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+
+        assertEquals(0, inconsistencies.size());
+    }
+
+    @Test
+    public void testRemoveDelegateFromSimpleMethodInvocation() throws JavaModelException {
+        final String source = "public class S {void m(){S s; s.m();}}";
+
+        final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+
+        final PMDelegateProcessor delegateProcessor = new PMDelegateProcessor(new TextSelection(
+                56 - 26, 61 - 56), compilationUnit);
+
+        delegateProcessor.setDelegateIdentifier("");
+
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
+
+        final RefactoringStatus status = PMProcessorDriver.drive(delegateProcessor);
+
+        assertTrue(status.getSeverity() < RefactoringStatus.ERROR);
+
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; m();}}",
+                compilationUnit.getSource()));
+
+        final Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }

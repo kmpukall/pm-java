@@ -16,18 +16,20 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class PMNameConflict extends PMInconsistency {
 
-    String _expectedName;
-    SimpleName _name;
+    private final String expectedName;
+    private final SimpleName name;
 
-    public PMNameConflict(PMProject project, PMCompilationUnit iCompilationUnit, SimpleName name,
-            String expectedName) {
+    public PMNameConflict(final PMProject project, final PMCompilationUnit iCompilationUnit,
+            final SimpleName name, final String expectedName) {
         super(project, iCompilationUnit, name);
-        _name = name;
+        this.name = name;
 
-        _expectedName = expectedName;
+        this.expectedName = expectedName;
     }
 
+    @Override
     public String getHumanReadableDescription() {
-        return "Variable named " + _name + " refers to declaration with name " + _expectedName;
+        return "Variable named " + this.name + " refers to declaration with name "
+                + this.expectedName;
     }
 }

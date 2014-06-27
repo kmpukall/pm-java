@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import net.creichen.pm.PMASTNodeUtils;
+import net.creichen.pm.PMASTNodeUtil;
 import net.creichen.pm.PMNodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.analysis.PMDef;
@@ -217,7 +217,7 @@ public class PMSplitStep extends PMStep {
 
         this.replacementDeclarationStatement = ast.newVariableDeclarationStatement(fragment);
 
-        final VariableDeclaration originalVariableDeclaration = PMASTNodeUtils
+        final VariableDeclaration originalVariableDeclaration = PMASTNodeUtil
                 .localVariableDeclarationForSimpleName(lhs);
 
         Type type = null;

@@ -20,12 +20,7 @@ import net.creichen.pm.selection.PMSelection;
 import net.creichen.pm.steps.PMCutStep;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -40,34 +35,35 @@ public class PMCutAction extends PMAction {
     }
 
     @Override
-    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
+    public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
         return null;
     }
 
-    public void run(IAction action) {
+    @Override
+    public void run(final IAction action) {
         System.err.println("In PMCutAction run()");
 
         if (getSelection() instanceof ITextSelection) {
 
-            ICompilationUnit iCompilationUnit = currentICompilationUnit();
+            final ICompilationUnit iCompilationUnit = currentICompilationUnit();
 
-            PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+            final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                     iCompilationUnit.getJavaProject());
 
-            ITextSelection textSelection = (ITextSelection) getSelection();
+            final ITextSelection textSelection = (ITextSelection) getSelection();
 
             project.syncSources(); // in case they have changed behid our backs
 
-            PMSelection selectionDescriptor = new PMSelection(
+            final PMSelection selectionDescriptor = new PMSelection(
                     (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit),
                     textSelection.getOffset(), textSelection.getLength());
 
             if (selectionDescriptor.isSaneSelection()) {
-                List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
+                final List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
 
                 if (!selectionDescriptor.isListSelection()) {
-                    ASTNode selectedNode = selectionDescriptor.singleSelectedNode(); // project.nodeForSelection((ITextSelection)getSelection(),
-                                                                                     // iCompilationUnit);
+                    final ASTNode selectedNode = selectionDescriptor.singleSelectedNode(); // project.nodeForSelection((ITextSelection)getSelection(),
+                    // iCompilationUnit);
 
                     System.err.println("selected node is " + selectedNode + "["
                             + selectedNode.getClass() + "]");
@@ -86,7 +82,7 @@ public class PMCutAction extends PMAction {
                     }
                 } else {
 
-                    List<ASTNode> propertyList = getStructuralProperty(
+                    final List<ASTNode> propertyList = getStructuralProperty(
                             (ChildListPropertyDescriptor) selectionDescriptor
                                     .selectedNodeParentProperty(),
                             selectionDescriptor.selectedNodeParent());
@@ -100,7 +96,7 @@ public class PMCutAction extends PMAction {
                 }
 
                 if (nodesToCut.size() > 0) {
-                    PMCutStep cutStep = new PMCutStep(project, nodesToCut);
+                    final PMCutStep cutStep = new PMCutStep(project, nodesToCut);
 
                     cutStep.applyAllAtOnce();
                 }

@@ -15,6 +15,7 @@ import net.creichen.pm.PMRenameProcessor;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will be created by the
@@ -25,11 +26,13 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
  */
 public class PMRenameAction extends PMAction {
 
+    @Override
     public RefactoringProcessor newProcessor() {
         return new PMRenameProcessor((ITextSelection) getSelection(), currentICompilationUnit());
     }
 
-    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
+    @Override
+    public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
         return new PMRenameInputPage((PMRenameProcessor) processor);
     }
 

@@ -9,46 +9,44 @@
 
 package net.creichen.pm.steps;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
 import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.PMNodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.models.PMNameModel;
 import net.creichen.pm.models.PMUDModel;
-import net.creichen.pm.steps.PMSplitStep;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.junit.Test;
 
 public class PMSplitStepTest extends PMTest {
 
     @Test
     public void testSimplestCase() throws JavaModelException {
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java",
+        final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        Assignment secondAssignment = PMASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m",
-                0, "S", 0,
+        final Assignment secondAssignment = PMASTQuery.assignmentInMethodInClassInCompilationUnit(
+                1, "m", 0, "S", 0,
                 (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
 
-        ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment
+        final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment
                 .getParent();
 
-        PMSplitStep step = new PMSplitStep(project, assignmentStatement);
+        final PMSplitStep step = new PMSplitStep(project, assignmentStatement);
 
         step.applyAllAtOnce();
 
@@ -64,30 +62,30 @@ public class PMSplitStepTest extends PMTest {
 
         // Name model test
 
-        PMNameModel nameModel = project.getNameModel();
+        final PMNameModel nameModel = project.getNameModel();
 
         // First two occurrences of x should have same identifier
         // Second two occurrences of x should have same identifier (different
         // from first identifier)
 
-        SimpleName firstX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-                "x", 0, "m", 0, "S", 0,
-                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
-        SimpleName secondX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-                "x", 1, "m", 0, "S", 0,
-                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        final SimpleName firstX = PMASTQuery
+                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0, "S", 0,
+                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        final SimpleName secondX = PMASTQuery
+                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 1, "m", 0, "S", 0,
+                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.identifierForName(firstX));
         assertNotNull(nameModel.identifierForName(secondX));
 
         assertEquals(nameModel.identifierForName(firstX), nameModel.identifierForName(secondX));
 
-        SimpleName thirdX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-                "x", 2, "m", 0, "S", 0,
-                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
-        SimpleName fourthX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-                "x", 3, "m", 0, "S", 0,
-                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        final SimpleName thirdX = PMASTQuery
+                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0, "S", 0,
+                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        final SimpleName fourthX = PMASTQuery
+                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 3, "m", 0, "S", 0,
+                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.identifierForName(thirdX));
         assertNotNull(nameModel.identifierForName(fourthX));
@@ -98,14 +96,14 @@ public class PMSplitStepTest extends PMTest {
 
         // now test reverse mapping interface
 
-        List<SimpleName> nodesRelatedToFirstDeclaration = nameModel
+        final List<SimpleName> nodesRelatedToFirstDeclaration = nameModel
                 .nameNodesRelatedToNameNode(firstX);
 
         assertEquals(2, nodesRelatedToFirstDeclaration.size());
         assertTrue(nodesRelatedToFirstDeclaration.contains(firstX));
         assertTrue(nodesRelatedToFirstDeclaration.contains(secondX));
 
-        List<SimpleName> nodesRelatedToSecondDeclaration = nameModel
+        final List<SimpleName> nodesRelatedToSecondDeclaration = nameModel
                 .nameNodesRelatedToNameNode(thirdX);
 
         assertEquals(2, nodesRelatedToSecondDeclaration.size());
@@ -114,14 +112,14 @@ public class PMSplitStepTest extends PMTest {
 
         // DU/UD test
 
-        PMUDModel udModel = project.getUDModel();
+        final PMUDModel udModel = project.getUDModel();
 
         // The use for the second declaration should be the fourthX
 
-        VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX
+        final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX
                 .getParent();
 
-        Set<PMNodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(project
+        final Set<PMNodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(project
                 .getReferenceForNode(secondXDeclaration));
 
         assertEquals(1, usesOfSecondDeclaration.size());
@@ -130,7 +128,7 @@ public class PMSplitStepTest extends PMTest {
         // Make sure the node we report back is exactly equal to the one in the
         // AST
 
-        VariableDeclarationStatement expectedReplacementDeclaration = (VariableDeclarationStatement) secondXDeclaration
+        final VariableDeclarationStatement expectedReplacementDeclaration = (VariableDeclarationStatement) secondXDeclaration
                 .getParent();
 
         assertTrue(expectedReplacementDeclaration == step.getReplacementDeclarationStatement());

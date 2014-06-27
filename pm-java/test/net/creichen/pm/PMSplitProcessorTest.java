@@ -9,14 +9,11 @@
 
 package net.creichen.pm;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import net.creichen.pm.PMProject;
-import net.creichen.pm.PMSplitProcessor;
-import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.inconsistencies.PMInconsistency;
 import net.creichen.pm.tests.PMTest;
 
@@ -28,14 +25,15 @@ import org.junit.Test;
 public class PMSplitProcessorTest extends PMTest {
     @Test
     public void testStraightlineCode() throws JavaModelException {
-        String source = "public class S {void m(){int x;x = 1;x = x + 1;}}";
+        final String source = "public class S {void m(){int x;x = 1;x = x + 1;}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMSplitProcessor splitTemporary = new PMSplitProcessor(new TextSelection(57 - 26, 63 - 57),
-                compilationUnit);
+        final PMSplitProcessor splitTemporary = new PMSplitProcessor(new TextSelection(57 - 26,
+                63 - 57), compilationUnit);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
         PMProcessorDriver.drive(splitTemporary);
 
@@ -43,7 +41,7 @@ public class PMSplitProcessorTest extends PMTest {
                 "public class S {void m(){int x;int x = 1;x = x + 1;}}",
                 compilationUnit.getSource()));
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(1, inconsistencies.size());
     }

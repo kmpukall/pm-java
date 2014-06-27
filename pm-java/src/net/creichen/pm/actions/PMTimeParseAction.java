@@ -26,13 +26,14 @@ public class PMTimeParseAction extends PMAction {
     }
 
     @Override
-    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
+    public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void run(IAction action) {
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+    @Override
+    public void run(final IAction action) {
+        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 currentICompilationUnit().getJavaProject());
 
         for (int i = 0; i < 10; i++) {
@@ -45,7 +46,8 @@ public class PMTimeParseAction extends PMAction {
 
             PMTimer.sharedTimer().stop("JUST_PARSE");
 
-            double elapsedSeconds = PMTimer.sharedTimer().accumulatedSecondsForKey("JUST_PARSE");
+            final double elapsedSeconds = PMTimer.sharedTimer().accumulatedSecondsForKey(
+                    "JUST_PARSE");
 
             System.out.println("Time to just parse is " + elapsedSeconds);
 
@@ -62,8 +64,8 @@ public class PMTimeParseAction extends PMAction {
 
             PMTimer.sharedTimer().stop("PARSE_BINDINGS");
 
-            double elapsedSeconds = PMTimer.sharedTimer()
-                    .accumulatedSecondsForKey("PARSE_BINDINGS");
+            final double elapsedSeconds = PMTimer.sharedTimer().accumulatedSecondsForKey(
+                    "PARSE_BINDINGS");
 
             System.out.println("Time to just parse with bindings is " + elapsedSeconds);
 
@@ -80,7 +82,7 @@ public class PMTimeParseAction extends PMAction {
 
             PMTimer.sharedTimer().stop("PARSE_BINDINGS_UPDATE");
 
-            double elapsedSeconds = PMTimer.sharedTimer().accumulatedSecondsForKey(
+            final double elapsedSeconds = PMTimer.sharedTimer().accumulatedSecondsForKey(
                     "PARSE_BINDINGS_UPDATE");
 
             System.out.println("Time parse and update model is " + elapsedSeconds);

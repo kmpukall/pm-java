@@ -25,6 +25,32 @@ import org.eclipse.text.edits.TextEdit;
 public class PMWorkspace {
     private static PMWorkspace sharedWorkspace = null;
 
+    static public void applyRewrite(final ASTRewrite rewrite,
+            final ICompilationUnit iCompilationUnit) {
+        try {
+            final TextEdit astEdit = rewrite.rewriteAST();
+
+            final ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
+            final IPath path = iCompilationUnit.getPath();
+            try {
+                bufferManager.connect(path, LocationKind.IFILE, null);
+                final ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path,
+                        LocationKind.IFILE);
+
+                final IDocument document = textFileBuffer.getDocument();
+
+                astEdit.apply(document);
+
+                textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */);
+            } finally {
+                bufferManager.disconnect(path, LocationKind.IFILE, null);
+            }
+
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static synchronized PMWorkspace sharedWorkspace() {
 
         if (sharedWorkspace == null) {
@@ -34,53 +60,28 @@ public class PMWorkspace {
         return sharedWorkspace;
     }
 
+    private final HashMap<IJavaProject, PMProject> projectMapping;
+
     private PMWorkspace() {
-        projectMapping = new HashMap<IJavaProject, PMProject>();
+        this.projectMapping = new HashMap<IJavaProject, PMProject>();
 
     }
 
-    private HashMap<IJavaProject, PMProject> projectMapping;
+    public synchronized PMProject projectForIJavaProject(final IJavaProject iJavaProject) {
 
-    public synchronized PMProject projectForIJavaProject(IJavaProject iJavaProject) {
-
-        PMProject result = projectMapping.get(iJavaProject);
+        PMProject result = this.projectMapping.get(iJavaProject);
 
         if (result == null) {
             result = new PMProject(iJavaProject);
-            projectMapping.put(iJavaProject, result);
+            this.projectMapping.put(iJavaProject, result);
 
         }
 
         return result;
     }
 
-    public synchronized void removeProjectForIJavaProject(IJavaProject iJavaProject) {
-        projectMapping.remove(iJavaProject);
-    }
-
-    static public void applyRewrite(ASTRewrite rewrite, ICompilationUnit iCompilationUnit) {
-        try {
-            TextEdit astEdit = rewrite.rewriteAST();
-
-            ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
-            IPath path = iCompilationUnit.getPath();
-            try {
-                bufferManager.connect(path, LocationKind.IFILE, null);
-                ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path,
-                        LocationKind.IFILE);
-
-                IDocument document = textFileBuffer.getDocument();
-
-                astEdit.apply(document);
-
-                textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */);
-            } finally {
-                bufferManager.disconnect(path, LocationKind.IFILE, null);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public synchronized void removeProjectForIJavaProject(final IJavaProject iJavaProject) {
+        this.projectMapping.remove(iJavaProject);
     }
 
 }

@@ -9,11 +9,10 @@
 
 package net.creichen.pm.refactorings;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
-import net.creichen.pm.refactorings.PMMoveFieldRefactoring;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -27,26 +26,28 @@ public class PMMoveFieldRefactoringTest extends PMTest {
 
     @Test
     public void testMoveField() throws JavaModelException {
-        ICompilationUnit iCompilationUnitS = createNewCompilationUnit("", "S.java",
+        final ICompilationUnit iCompilationUnitS = createNewCompilationUnit("", "S.java",
                 "public class S { int _y; void m() {int x; _y = 7; x = 5; System.out.println(x);} }");
-        ICompilationUnit iCompilationUnitT = createNewCompilationUnit("", "T.java",
+        final ICompilationUnit iCompilationUnitT = createNewCompilationUnit("", "T.java",
                 "public class T {  }");
 
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        CompilationUnit compilationUnitS = (CompilationUnit) project
+        final CompilationUnit compilationUnitS = (CompilationUnit) project
                 .findASTRootForICompilationUnit(iCompilationUnitS);
-        CompilationUnit compilationUnitT = (CompilationUnit) project
+        final CompilationUnit compilationUnitT = (CompilationUnit) project
                 .findASTRootForICompilationUnit(iCompilationUnitT);
 
-        FieldDeclaration yField = (FieldDeclaration) PMASTQuery
+        final FieldDeclaration yField = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0, compilationUnitS)
                 .getParent();
 
-        TypeDeclaration classT = PMASTQuery
-                .classWithNameInCompilationUnit("T", 0, compilationUnitT);
+        final TypeDeclaration classT = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+                compilationUnitT);
 
-        PMMoveFieldRefactoring refactoring = new PMMoveFieldRefactoring(project, yField, classT);
+        final PMMoveFieldRefactoring refactoring = new PMMoveFieldRefactoring(project, yField,
+                classT);
 
         refactoring.apply();
 

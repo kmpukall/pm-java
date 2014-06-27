@@ -18,11 +18,13 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PMDelegateAction extends PMAction {
 
+    @Override
     public RefactoringProcessor newProcessor() {
         return new PMDelegateProcessor((ITextSelection) getSelection(), currentICompilationUnit());
     }
 
-    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
+    @Override
+    public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
         return new PMDelegateInputPage((PMDelegateProcessor) processor);
     }
 

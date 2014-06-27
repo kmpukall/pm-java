@@ -18,20 +18,22 @@ import org.eclipse.ui.IMarkerResolution;
 
 public abstract class PMIgnorableInconsistency extends PMInconsistency {
 
-    public PMIgnorableInconsistency(PMProject project, PMCompilationUnit compilationUnit,
-            ASTNode node) {
-        super(project, compilationUnit, node);
+    private class IgnoreMeResolution implements IMarkerResolution {
+        @Override
+        public String getLabel() {
+            return "Accept change";
+        }
+
+        @Override
+        public void run(final IMarker marker) {
+            System.out.println("FIXME");
+        }
+
     }
 
-    /**
-     * Determine all quick fixes for this inconsistency
-     * 
-     * @return The relevant quick fixes. The default implementation yields a single quick fix that
-     *         ignores this particular inconsistency.
-     */
-    @Override
-    public IMarkerResolution[] getQuickFixes() {
-        return new IMarkerResolution[] { new IgnoreMeResolution() };
+    public PMIgnorableInconsistency(final PMProject project,
+            final PMCompilationUnit compilationUnit, final ASTNode node) {
+        super(project, compilationUnit, node);
     }
 
     // My current guess is that we will keep a set of ignored inconsistencies.
@@ -43,14 +45,14 @@ public abstract class PMIgnorableInconsistency extends PMInconsistency {
     @Override
     public abstract boolean equals(Object o);
 
-    private class IgnoreMeResolution implements IMarkerResolution {
-        public String getLabel() {
-            return "Accept change";
-        }
-
-        public void run(IMarker marker) {
-            System.out.println("FIXME");
-        }
-
+    /**
+     * Determine all quick fixes for this inconsistency
+     * 
+     * @return The relevant quick fixes. The default implementation yields a single quick fix that
+     *         ignores this particular inconsistency.
+     */
+    @Override
+    public IMarkerResolution[] getQuickFixes() {
+        return new IMarkerResolution[] { new IgnoreMeResolution() };
     }
 }

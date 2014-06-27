@@ -19,29 +19,33 @@ import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator;
 
 public class PMMarkerResolutionGenerator implements IMarkerResolutionGenerator {
-    public static final String INCONSISTENCY_ID = "pm-inconsistency-id";
-    public static final String PROJECT_ID = "pm-project-id";
-
-    public static final String ACCEPTS_BEHAVIORAL_CHANGE = "pm-accepts-behavioral-change";
-
     public static class AcceptBehavioralChangeQuickFix implements IMarkerResolution {
-        PMInconsistency _inconsistency;
+        private final PMInconsistency inconsistency;
 
-        AcceptBehavioralChangeQuickFix(PMInconsistency inconsistency) {
-            _inconsistency = inconsistency;
+        AcceptBehavioralChangeQuickFix(final PMInconsistency inconsistency) {
+            this.inconsistency = inconsistency;
         }
 
+        @Override
         public String getLabel() {
             return "Accept behavioral change.";
         }
 
-        public void run(IMarker marker) {
-            _inconsistency.acceptBehavioralChange();
+        @Override
+        public void run(final IMarker marker) {
+            this.inconsistency.acceptBehavioralChange();
 
         }
     }
 
-    public IMarkerResolution[] getResolutions(IMarker marker) {
+    public static final String INCONSISTENCY_ID = "pm-inconsistency-id";
+
+    public static final String PROJECT_ID = "pm-project-id";
+
+    public static final String ACCEPTS_BEHAVIORAL_CHANGE = "pm-accepts-behavioral-change";
+
+    @Override
+    public IMarkerResolution[] getResolutions(final IMarker marker) {
         System.out.println("Getting resolutions");
 
         try {
@@ -49,15 +53,15 @@ public class PMMarkerResolutionGenerator implements IMarkerResolutionGenerator {
             final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                     (IJavaProject) JavaCore.create((String) marker.getAttribute(PROJECT_ID)));
 
-            String inconsistencyID = (String) marker.getAttribute(INCONSISTENCY_ID);
+            final String inconsistencyID = (String) marker.getAttribute(INCONSISTENCY_ID);
 
-            PMInconsistency inconsistency = project.getInconsistencyWithKey(inconsistencyID);
+            final PMInconsistency inconsistency = project.getInconsistencyWithKey(inconsistencyID);
 
-            IMarkerResolution[] result = new IMarkerResolution[1];
+            final IMarkerResolution[] result = new IMarkerResolution[1];
             result[0] = new AcceptBehavioralChangeQuickFix(inconsistency);
 
             return result;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return new IMarkerResolution[0];
         }
     }

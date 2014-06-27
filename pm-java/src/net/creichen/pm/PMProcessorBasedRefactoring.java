@@ -16,17 +16,16 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 public class PMProcessorBasedRefactoring extends ProcessorBasedRefactoring {
 
-    RefactoringProcessor _processor;
+    private final RefactoringProcessor processor;
 
-    public PMProcessorBasedRefactoring(RefactoringProcessor processor) {
+    public PMProcessorBasedRefactoring(final RefactoringProcessor processor) {
         super(processor);
-
-        _processor = processor;
+        this.processor = processor;
     }
 
+    @Override
     public RefactoringProcessor getProcessor() {
-
-        return _processor;
+        return this.processor;
     }
 
 }

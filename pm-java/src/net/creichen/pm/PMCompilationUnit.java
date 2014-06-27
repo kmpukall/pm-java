@@ -14,11 +14,11 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public interface PMCompilationUnit {
 
-    public String getSource();
+    CompilationUnit getASTNode();
 
-    public void rename(String newName);
+    ICompilationUnit getICompilationUnit();
 
-    public CompilationUnit getASTNode();
+    String getSource();
 
-    public ICompilationUnit getICompilationUnit();
+    void rename(String newName);
 }

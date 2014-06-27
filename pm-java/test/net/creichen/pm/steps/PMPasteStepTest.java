@@ -17,20 +17,11 @@ import java.util.List;
 import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
-import net.creichen.pm.steps.PMCutStep;
-import net.creichen.pm.steps.PMPasteStep;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.*;
 import org.junit.Test;
 
 public class PMPasteStepTest extends PMTest {
@@ -38,28 +29,30 @@ public class PMPasteStepTest extends PMTest {
     @Test
     public void testCutPasteField() throws JavaModelException {
 
-        String source1 = "public class S1 {S1 s; void m1(){System.out.println(s);}}";
-        String source2 = "public class S2 {void a(){} void b(){} }";
+        final String source1 = "public class S1 {S1 s; void m1(){System.out.println(s);}}";
+        final String source2 = "public class S2 {void a(){} void b(){} }";
 
-        ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
-        ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
+        final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
+        final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
+        final VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
                 .fieldWithNameInClassInCompilationUnit("s", 0, "S1", 0, (CompilationUnit) pmProject
                         .findASTRootForICompilationUnit(compilationUnit1));
 
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment
+                .getParent();
 
-        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+        final PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        TypeDeclaration classDeclaration = PMASTQuery.classWithNameInCompilationUnit("S2", 0,
+        final TypeDeclaration classDeclaration = PMASTQuery.classWithNameInCompilationUnit("S2", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit2));
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, classDeclaration,
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, classDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 1);
 
         pasteStep.applyAllAtOnce();
@@ -71,70 +64,30 @@ public class PMPasteStepTest extends PMTest {
     }
 
     @Test
-    public void testCutPasteStatement() throws JavaModelException {
+    public void testCutPasteMethod() throws JavaModelException {
 
-        String source1 = "public class S1 {S1 s; void m(){System.out.println(s);}}";
-        String source2 = "public class S2 {void a(){System.out.println(1); System.out.println(2);}}";
+        final String source1 = "public class S1 {S1 s; void m(){System.out.println(s);}}";
+        final String source2 = "public class S2 {String a; String b;";
 
-        ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
-        ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
+        final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
+        final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        MethodDeclaration sourceMethodDeclaration = PMASTQuery
+        final MethodDeclaration methodDeclaration = PMASTQuery
                 .methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
                         (CompilationUnit) pmProject
                                 .findASTRootForICompilationUnit(compilationUnit1));
 
-        Statement firstStatement = (Statement) sourceMethodDeclaration.getBody().statements()
-                .get(0);
-
-        PMCutStep cutStep = new PMCutStep(pmProject, firstStatement);
+        final PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        MethodDeclaration targetMethodDeclaration = PMASTQuery
-                .methodWithNameInClassInCompilationUnit("a", 0, "S2", 0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnit2));
-
-        Block targetBlock = targetMethodDeclaration.getBody();
-
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, targetBlock, Block.STATEMENTS_PROPERTY,
-                1);
-
-        pasteStep.applyAllAtOnce();
-
-        assertTrue(compilationUnitSourceMatchesSource("public class S1 {S1 s; void m(){}}",
-                compilationUnit1.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S2 {void a(){System.out.println(1);System.out.println(s); System.out.println(2);}}",
-                compilationUnit2.getSource()));
-    }
-
-    @Test
-    public void testCutPasteMethod() throws JavaModelException {
-
-        String source1 = "public class S1 {S1 s; void m(){System.out.println(s);}}";
-        String source2 = "public class S2 {String a; String b;";
-
-        ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
-        ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
-
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
-
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S1", 0,
-                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit1));
-
-        PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
-
-        cutStep.applyAllAtOnce();
-
-        TypeDeclaration classDeclaration = PMASTQuery.classWithNameInCompilationUnit("S2", 0,
+        final TypeDeclaration classDeclaration = PMASTQuery.classWithNameInCompilationUnit("S2", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit2));
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, classDeclaration,
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, classDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 1);
 
         pasteStep.applyAllAtOnce();
@@ -147,12 +100,56 @@ public class PMPasteStepTest extends PMTest {
     }
 
     @Test
+    public void testCutPasteStatement() throws JavaModelException {
+
+        final String source1 = "public class S1 {S1 s; void m(){System.out.println(s);}}";
+        final String source2 = "public class S2 {void a(){System.out.println(1); System.out.println(2);}}";
+
+        final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
+        final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
+
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
+
+        final MethodDeclaration sourceMethodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
+                        (CompilationUnit) pmProject
+                                .findASTRootForICompilationUnit(compilationUnit1));
+
+        final Statement firstStatement = (Statement) sourceMethodDeclaration.getBody().statements()
+                .get(0);
+
+        final PMCutStep cutStep = new PMCutStep(pmProject, firstStatement);
+
+        cutStep.applyAllAtOnce();
+
+        final MethodDeclaration targetMethodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("a", 0, "S2", 0,
+                        (CompilationUnit) pmProject
+                                .findASTRootForICompilationUnit(compilationUnit2));
+
+        final Block targetBlock = targetMethodDeclaration.getBody();
+
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, targetBlock,
+                Block.STATEMENTS_PROPERTY, 1);
+
+        pasteStep.applyAllAtOnce();
+
+        assertTrue(compilationUnitSourceMatchesSource("public class S1 {S1 s; void m(){}}",
+                compilationUnit1.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(
+                "public class S2 {void a(){System.out.println(1);System.out.println(s); System.out.println(2);}}",
+                compilationUnit2.getSource()));
+    }
+
+    @Test
     public void testCutPasteStatements() throws JavaModelException {
-        String source = "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}";
+        final String source = "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}";
 
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
         CompilationUnit compilationUnit = (CompilationUnit) pmProject
                 .findASTRootForICompilationUnit(iCompilationUnit);
@@ -160,14 +157,16 @@ public class PMPasteStepTest extends PMTest {
         MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
                 "m", 0, "S", 0, compilationUnit);
 
-        Statement thirdStatement = (Statement) methodDeclaration.getBody().statements().get(2);
-        Statement fourthStatement = (Statement) methodDeclaration.getBody().statements().get(3);
+        final Statement thirdStatement = (Statement) methodDeclaration.getBody().statements()
+                .get(2);
+        final Statement fourthStatement = (Statement) methodDeclaration.getBody().statements()
+                .get(3);
 
-        List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
+        final List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
         nodesToCut.add(thirdStatement);
         nodesToCut.add(fourthStatement);
 
-        PMCutStep cutStep = new PMCutStep(pmProject, nodesToCut);
+        final PMCutStep cutStep = new PMCutStep(pmProject, nodesToCut);
 
         cutStep.applyAllAtOnce();
 
@@ -181,7 +180,7 @@ public class PMPasteStepTest extends PMTest {
         methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
                 compilationUnit);
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, methodDeclaration.getBody(),
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, methodDeclaration.getBody(),
                 Block.STATEMENTS_PROPERTY, 2);
 
         pasteStep.applyAllAtOnce();
@@ -193,37 +192,82 @@ public class PMPasteStepTest extends PMTest {
     }
 
     @Test
-    public void testPullupFieldViaCutAndPaste() throws JavaModelException {
+    public void testPullupFieldToDifferentPackageWithStaticMethodInitializer()
+            throws JavaModelException {
 
-        String sourceS = "public class S extends T {String string; void m(){System.out.println(string);}}";
-        String sourceT = "public class T {}";
+        final String sourceS = "package A; public class S extends A.T {String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
+        final String sourceT = "package B; public class T {}";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
-        ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("A", "S.java", sourceS);
+        final ICompilationUnit compilationUnitT = createNewCompilationUnit("B", "T.java", sourceT);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
-                .fieldWithNameInClassInCompilationUnit("string", 0, "S", 0,
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
+                .fieldWithNameInClassInCompilationUnit(
+                        "string",
+                        0,
+                        "S",
+                        0,
                         (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS));
+                                .findASTRootForICompilationUnit(compilationUnitS)).getParent();
 
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
-
-        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+        final PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+        final TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
         pasteStep.applyAllAtOnce();
 
-        String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
-        String expectedNewSourceT = "public class T {String string;}";
+        final String expectedNewSourceS = "package A; public class S extends A.T {void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
+        final String expectedNewSourceT = "package B; public class T {String string = foo(); }";
+
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
+                compilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
+                compilationUnitT.getSource()));
+    }
+
+    @Test
+    public void testPullupFieldViaCutAndPaste() throws JavaModelException {
+
+        final String sourceS = "public class S extends T {String string; void m(){System.out.println(string);}}";
+        final String sourceT = "public class T {}";
+
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+        final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
+
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
+
+        final VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
+                .fieldWithNameInClassInCompilationUnit("string", 0, "S", 0,
+                        (CompilationUnit) pmProject
+                                .findASTRootForICompilationUnit(compilationUnitS));
+
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment
+                .getParent();
+
+        final PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+
+        cutStep.applyAllAtOnce();
+
+        final TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
+
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
+                TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
+
+        pasteStep.applyAllAtOnce();
+
+        final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
+        final String expectedNewSourceT = "public class T {String string;}";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
                 compilationUnitS.getSource()));
@@ -234,15 +278,16 @@ public class PMPasteStepTest extends PMTest {
     @Test
     public void testPullupFieldViaWithConstantInitializer() throws JavaModelException {
 
-        String sourceS = "public class S extends T {String string = \"Bar\"; void m(){System.out.println(string);}}";
-        String sourceT = "public class T {}";
+        final String sourceS = "public class S extends T {String string = \"Bar\"; void m(){System.out.println(string);}}";
+        final String sourceT = "public class T {}";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
-        ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+        final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit(
                         "string",
                         0,
@@ -251,20 +296,20 @@ public class PMPasteStepTest extends PMTest {
                         (CompilationUnit) pmProject
                                 .findASTRootForICompilationUnit(compilationUnitS)).getParent();
 
-        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+        final PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+        final TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
         pasteStep.applyAllAtOnce();
 
-        String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
-        String expectedNewSourceT = "public class T {String string = \"Bar\";}";
+        final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
+        final String expectedNewSourceT = "public class T {String string = \"Bar\";}";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
                 compilationUnitS.getSource()));
@@ -275,15 +320,16 @@ public class PMPasteStepTest extends PMTest {
     @Test
     public void testPullupFieldViaWithStaticMethodInitializer() throws JavaModelException {
 
-        String sourceS = "public class S extends T {String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        String sourceT = "public class T {}";
+        final String sourceS = "public class S extends T {String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
+        final String sourceT = "public class T {}";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
-        ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+        final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit(
                         "string",
                         0,
@@ -292,20 +338,20 @@ public class PMPasteStepTest extends PMTest {
                         (CompilationUnit) pmProject
                                 .findASTRootForICompilationUnit(compilationUnitS)).getParent();
 
-        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+        final PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+        final TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
         pasteStep.applyAllAtOnce();
 
-        String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        String expectedNewSourceT = "public class T {String string = foo();}";
+        final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
+        final String expectedNewSourceT = "public class T {String string = foo();}";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
                 compilationUnitS.getSource()));
@@ -316,15 +362,16 @@ public class PMPasteStepTest extends PMTest {
     @Test
     public void testPullupStaticFieldWithStaticMethodInitializer() throws JavaModelException {
 
-        String sourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        String sourceT = "public class T {}";
+        final String sourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
+        final String sourceT = "public class T {}";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
-        ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+        final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
                 .fieldWithNameInClassInCompilationUnit(
                         "string",
                         0,
@@ -333,20 +380,20 @@ public class PMPasteStepTest extends PMTest {
                         (CompilationUnit) pmProject
                                 .findASTRootForICompilationUnit(compilationUnitS)).getParent();
 
-        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+        final PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+        final TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
         pasteStep.applyAllAtOnce();
 
-        String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        String expectedNewSourceT = "public class T {static String string = foo();}";
+        final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
+        final String expectedNewSourceT = "public class T {static String string = foo();}";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
                 compilationUnitS.getSource()));
@@ -358,75 +405,34 @@ public class PMPasteStepTest extends PMTest {
     public void testPullupStaticMethodWithStaticFieldInitializerReferencingIt()
             throws JavaModelException {
 
-        String sourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        String sourceT = "public class T {}";
+        final String sourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
+        final String sourceT = "public class T {}";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
-        ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+        final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        MethodDeclaration methodDeclaration = (MethodDeclaration) PMASTQuery
+        final MethodDeclaration methodDeclaration = PMASTQuery
                 .methodWithNameInClassInCompilationUnit("foo", 0, "S", 0,
                         (CompilationUnit) pmProject
                                 .findASTRootForICompilationUnit(compilationUnitS));
 
-        PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
+        final PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+        final TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
 
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
+        final PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
         pasteStep.applyAllAtOnce();
 
-        String expectedNewSourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);}  }";
-        String expectedNewSourceT = "public class T { private static String foo() {return \"foo\";}}";
-
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
-                compilationUnitT.getSource()));
-    }
-
-    @Test
-    public void testPullupFieldToDifferentPackageWithStaticMethodInitializer()
-            throws JavaModelException {
-
-        String sourceS = "package A; public class S extends A.T {String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        String sourceT = "package B; public class T {}";
-
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("A", "S.java", sourceS);
-        ICompilationUnit compilationUnitT = createNewCompilationUnit("B", "T.java", sourceT);
-
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
-
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) PMASTQuery
-                .fieldWithNameInClassInCompilationUnit(
-                        "string",
-                        0,
-                        "S",
-                        0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS)).getParent();
-
-        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
-
-        cutStep.applyAllAtOnce();
-
-        TypeDeclaration targetDeclaration = PMASTQuery.classWithNameInCompilationUnit("T", 0,
-                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
-
-        PMPasteStep pasteStep = new PMPasteStep(pmProject, targetDeclaration,
-                TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
-
-        pasteStep.applyAllAtOnce();
-
-        String expectedNewSourceS = "package A; public class S extends A.T {void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        String expectedNewSourceT = "package B; public class T {String string = foo(); }";
+        final String expectedNewSourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);}  }";
+        final String expectedNewSourceT = "public class T { private static String foo() {return \"foo\";}}";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
                 compilationUnitS.getSource()));

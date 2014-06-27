@@ -17,9 +17,9 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 public class PMProcessorDriver {
 
-    static RefactoringStatus drive(RefactoringProcessor eclipseProcessor) {
+    static RefactoringStatus drive(final RefactoringProcessor eclipseProcessor) {
 
-        IProgressMonitor pm = new NullProgressMonitor();
+        final IProgressMonitor pm = new NullProgressMonitor();
 
         RefactoringStatus status = new RefactoringStatus();
 
@@ -35,7 +35,7 @@ public class PMProcessorDriver {
                                                                   // called
 
             if (status.getSeverity() < RefactoringStatus.ERROR) {
-                Change change = eclipseProcessor.createChange(pm);
+                final Change change = eclipseProcessor.createChange(pm);
 
                 change.perform(pm);
 
@@ -45,10 +45,14 @@ public class PMProcessorDriver {
                         + eclipseProcessor.getClass().getName() + " : " + status);
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
         return status;
+    }
+
+    private PMProcessorDriver() {
+        // private utility class constructor
     }
 }

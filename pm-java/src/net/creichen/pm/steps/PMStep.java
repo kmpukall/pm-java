@@ -26,66 +26,104 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.TextEdit;
 
 public class PMStep {
-    PMProject _project;
+    public class PMCompositeChange extends CompositeChange {
+        public PMCompositeChange(final String name) {
+            super(name);
+        }
 
-    PMStep(PMProject project) {
-        _project = project;
+        @Override
+        public Change perform(final IProgressMonitor pm) throws CoreException {
+
+            final Change result = super.perform(pm);
+
+            performASTChange();
+
+            PMStep.this._project.updateToNewVersionsOfICompilationUnits();
+
+            updateAfterReparse();
+
+            cleanup();
+
+            PMStep.this._project.rescanForInconsistencies();
+
+            return result;
+        }
+
+    }
+
+    public class PMTextFileChange extends TextFileChange {
+        public PMTextFileChange(final String name, final IFile file) {
+            super(name, file);
+        }
+
+        // This will do the text change but not the ast changes
+
+        @Override
+        public Change perform(final IProgressMonitor pm) throws CoreException {
+
+            // In future, we might as well do the text replacement parts of the
+            // change ourselves, too (since this will make sure that we do the
+            // same thing in all situations), but for now we let the superclass
+            // do it
+            final Change result = super.perform(pm);
+
+            return result;
+        }
+
     }
 
     // need method to test for errors before asking for changes
 
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        return null;
-    }
+    PMProject _project;
 
-    public void performASTChange() {
-
-    }
-
-    public void updateAfterReparse() {
-
-    }
-
-    public void cleanup() {
-        // called regardless of whether updateAfterReparse() was called
+    PMStep(final PMProject project) {
+        this._project = project;
     }
 
     public void applyAllAtOnce() {
 
-        Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
+        final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
-        for (ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
+        for (final ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
             PMWorkspace.applyRewrite(rewrites.get(compilationUnitToRewrite),
                     compilationUnitToRewrite);
         }
 
         performASTChange();
 
-        _project.updateToNewVersionsOfICompilationUnits();
+        this._project.updateToNewVersionsOfICompilationUnits();
 
         updateAfterReparse();
 
         cleanup();
 
-        _project.rescanForInconsistencies();
+        this._project.rescanForInconsistencies();
     }
 
-    public Change createCompositeChange(String changeDescription) {
+    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+        return null;
+    }
 
-        Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
+    public void cleanup() {
+        // called regardless of whether updateAfterReparse() was called
+    }
+
+    public Change createCompositeChange(final String changeDescription) {
+
+        final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
         Change result = new NullChange();
 
         try {
             if (rewrites.size() > 0) {
-                CompositeChange combinedChange = new PMCompositeChange(changeDescription);
+                final CompositeChange combinedChange = new PMCompositeChange(changeDescription);
 
-                for (ICompilationUnit compilationUnitToChange : rewrites.keySet()) {
-                    ASTRewrite rewrite = rewrites.get(compilationUnitToChange);
+                for (final ICompilationUnit compilationUnitToChange : rewrites.keySet()) {
+                    final ASTRewrite rewrite = rewrites.get(compilationUnitToChange);
 
-                    TextEdit astEdit = rewrite.rewriteAST();
+                    final TextEdit astEdit = rewrite.rewriteAST();
 
-                    TextFileChange localChange = new PMTextFileChange(changeDescription,
+                    final TextFileChange localChange = new PMTextFileChange(changeDescription,
                             (IFile) compilationUnitToChange.getResource());
 
                     localChange.setTextType("java");
@@ -97,54 +135,18 @@ public class PMStep {
                 result = combinedChange;
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
         return result;
     }
 
-    public class PMCompositeChange extends CompositeChange {
-        public PMCompositeChange(String name) {
-            super(name);
-        }
-
-        public Change perform(IProgressMonitor pm) throws CoreException {
-
-            Change result = super.perform(pm);
-
-            performASTChange();
-
-            _project.updateToNewVersionsOfICompilationUnits();
-
-            updateAfterReparse();
-
-            cleanup();
-
-            _project.rescanForInconsistencies();
-
-            return result;
-        }
+    public void performASTChange() {
 
     }
 
-    public class PMTextFileChange extends TextFileChange {
-        public PMTextFileChange(String name, IFile file) {
-            super(name, file);
-        }
-
-        // This will do the text change but not the ast changes
-
-        public Change perform(IProgressMonitor pm) throws CoreException {
-
-            // In future, we might as well do the text replacement parts of the
-            // change ourselves, too (since this will make sure that we do the
-            // same thing in all situations), but for now we let the superclass
-            // do it
-            Change result = super.perform(pm);
-
-            return result;
-        }
+    public void updateAfterReparse() {
 
     }
 }

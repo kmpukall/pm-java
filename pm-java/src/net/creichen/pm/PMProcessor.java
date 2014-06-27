@@ -12,9 +12,9 @@ package net.creichen.pm;
 import org.eclipse.jdt.core.ICompilationUnit;
 
 public interface PMProcessor {
-    public void textChangeWasApplied();
+    ICompilationUnit getICompilationUnit();
 
-    public void textChangeWasNotApplied();
+    void textChangeWasApplied();
 
-    public ICompilationUnit getICompilationUnit();
+    void textChangeWasNotApplied();
 }

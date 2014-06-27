@@ -1,4 +1,4 @@
-/*******************************************************************************
+/******************************************************************************
   Copyright (C) 2008 Devin Coughlin
 
   This program is provided WITHOUT WARRANY of any kind, either expressed or
@@ -16,28 +16,39 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.ui.IMarkerResolution;
 
 public class PMInconsistency {
-    protected PMProject _project;
-    protected PMCompilationUnit _pmCompilationUnit;
-    protected ASTNode _node;
-    protected String _id;
+    private final PMProject project;
+    private final ASTNode node;
+    private final String id;
 
-    public PMInconsistency(PMProject project, PMCompilationUnit pmCompilationUnit, ASTNode node) {
-        _project = project;
-        _pmCompilationUnit = pmCompilationUnit;
-        _node = node;
-        _id = java.util.UUID.randomUUID().toString();
+    public PMInconsistency(final PMProject project, final PMCompilationUnit pmCompilationUnit,
+            final ASTNode node) {
+        this.project = project;
+        this.node = node;
+        this.id = java.util.UUID.randomUUID().toString();
+    }
+
+    public void acceptBehavioralChange() {
+        throw new RuntimeException("Un-implemented acceptBehavioralChange()");
+    }
+
+    public boolean allowsAcceptBehavioralChange() {
+        return false;
     }
 
     public String getHumanReadableDescription() {
-        return "Unknown inconsistency for " + _node.getClass();
+        return "Unknown inconsistency for " + this.node.getClass();
+    }
+
+    public String getID() {
+        return this.id;
     }
 
     public ASTNode getNode() {
-        return _node;
+        return this.node;
     }
 
-    public String toString() {
-        return getHumanReadableDescription();
+    protected PMProject getProject() {
+        return this.project;
     }
 
     /**
@@ -49,16 +60,9 @@ public class PMInconsistency {
         return new IMarkerResolution[0];
     }
 
-    public String getID() {
-        return this._id;
-    }
-
-    public boolean allowsAcceptBehavioralChange() {
-        return false;
-    }
-
-    public void acceptBehavioralChange() {
-        throw new RuntimeException("Un-implemented acceptBehavioralChange()");
+    @Override
+    public String toString() {
+        return getHumanReadableDescription();
     }
 
 }

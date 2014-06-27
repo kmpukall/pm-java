@@ -17,11 +17,13 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PMSplitAction extends PMAction {
 
+    @Override
     public RefactoringProcessor newProcessor() {
         return new PMSplitProcessor((ITextSelection) getSelection(), currentICompilationUnit());
     }
 
-    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
+    @Override
+    public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
         return null; // No input page currently needed for split temporary
     }
 

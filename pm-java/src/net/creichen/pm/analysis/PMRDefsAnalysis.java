@@ -12,33 +12,9 @@ package net.creichen.pm.analysis;
 import static net.creichen.pm.utils.APIWrapperUtil.fragments;
 import static net.creichen.pm.utils.APIWrapperUtil.statements;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.*;
 
 public class PMRDefsAnalysis {
     protected static class VariableAssignment {
@@ -48,16 +24,16 @@ public class PMRDefsAnalysis {
         private final IBinding _variableBinding;
 
         public VariableAssignment(final PMDef definition, final IBinding variableBinding) {
-            _definition = definition;
-            _variableBinding = variableBinding;
+            this._definition = definition;
+            this._variableBinding = variableBinding;
         }
 
         public PMDef getDefinition() {
-            return _definition;
+            return this._definition;
         }
 
         public IBinding getVariableBinding() {
-            return _variableBinding;
+            return this._variableBinding;
         }
     }
 
@@ -135,29 +111,28 @@ public class PMRDefsAnalysis {
         return result;
     }
 
-    private final MethodDeclaration _methodDeclaration;
+    private final MethodDeclaration methodDeclaration;
 
-    private ArrayList<PMDef> _definitions;
+    private ArrayList<PMDef> definitions;
 
-    private Map<IBinding, Set<PMDef>> _definitionsByBinding;
+    private Map<IBinding, Set<PMDef>> definitionsByBinding;
 
-    private Map<ASTNode, PMDef> _definitionsByDefiningNode;
+    private Map<ASTNode, PMDef> definitionsByDefiningNode;
 
-    private Map<SimpleName, PMUse> _usesByName;
+    private Map<SimpleName, PMUse> usesByName;
 
-    private ArrayList<PMBlock> _allBlocks;
+    private ArrayList<PMBlock> allBlocks;
 
-    private Map<ASTNode, PMBlock> _blocksByNode;
-    private ArrayList<VariableDeclaration> _declarations;
+    private Map<ASTNode, PMBlock> blocksByNode;
 
-    private Map<PMBlock, Set<VariableAssignment>> _reachingDefsOnEntry;
+    private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnEntry;
 
-    private Map<PMBlock, Set<VariableAssignment>> _reachingDefsOnExit;
+    private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnExit;
 
-    private final HashMap<PMDef, HashMap<IBinding, VariableAssignment>> _uniqueVariableAssigments = new HashMap<PMDef, HashMap<IBinding, VariableAssignment>>();
+    private final HashMap<PMDef, HashMap<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<PMDef, HashMap<IBinding, VariableAssignment>>();
 
     public PMRDefsAnalysis(final MethodDeclaration methodDeclaration) {
-        _methodDeclaration = methodDeclaration;
+        this.methodDeclaration = methodDeclaration;
 
         runAnalysis(); // may wish to do this lazily
     }
@@ -166,8 +141,8 @@ public class PMRDefsAnalysis {
 
         final PMDef definition = new PMDef(node);
 
-        _definitions.add(definition);
-        _definitionsByDefiningNode.put(node, definition);
+        this.definitions.add(definition);
+        this.definitionsByDefiningNode.put(node, definition);
     }
 
     protected void addSerialBlockToEndOfList(final PMBlock block, final ArrayList<PMBlock> blockList) {
@@ -216,47 +191,49 @@ public class PMRDefsAnalysis {
 
     void findAllBlocks() {
 
-        _allBlocks = new ArrayList<PMBlock>();
+        this.allBlocks = new ArrayList<PMBlock>();
 
-        _allBlocks.add(new PMBlock()); // synthetic initial block;
+        this.allBlocks.add(new PMBlock()); // synthetic initial block;
 
-        mergeBlockLists(_allBlocks, generateBlocksForStatement(_methodDeclaration.getBody()));
+        mergeBlockLists(this.allBlocks,
+                generateBlocksForStatement(this.methodDeclaration.getBody()));
 
         // fill in _blocksByNode
         // Every node should have at least one ancestor that has a block
         // according to this hash
 
-        _blocksByNode = new HashMap<ASTNode, PMBlock>();
+        this.blocksByNode = new HashMap<ASTNode, PMBlock>();
 
-        for (final PMBlock block : _allBlocks) {
+        for (final PMBlock block : this.allBlocks) {
             for (final ASTNode node : block.getNodes()) {
-                _blocksByNode.put(node, block);
+                this.blocksByNode.put(node, block);
             }
 
         }
     }
 
     void findDefinitions() {
-        _definitions = new ArrayList<PMDef>();
-        _definitionsByDefiningNode = new HashMap<ASTNode, PMDef>();
+        this.definitions = new ArrayList<PMDef>();
+        this.definitionsByDefiningNode = new HashMap<ASTNode, PMDef>();
 
-        final List<ASTNode> definingNodes = findDefiningNodesUnderNode(_methodDeclaration.getBody());
+        final List<ASTNode> definingNodes = findDefiningNodesUnderNode(this.methodDeclaration
+                .getBody());
 
         for (final ASTNode definingNode : definingNodes) {
             addDefinitionForNode(definingNode);
         }
 
-        _definitionsByBinding = new HashMap<IBinding, Set<PMDef>>();
+        this.definitionsByBinding = new HashMap<IBinding, Set<PMDef>>();
 
-        for (final PMDef def : _definitions) {
+        for (final PMDef def : this.definitions) {
 
             final IBinding binding = def.getBinding();
 
-            Set<PMDef> definitionsForBinding = _definitionsByBinding.get(binding);
+            Set<PMDef> definitionsForBinding = this.definitionsByBinding.get(binding);
 
             if (definitionsForBinding == null) {
                 definitionsForBinding = new HashSet<PMDef>();
-                _definitionsByBinding.put(binding, definitionsForBinding);
+                this.definitionsByBinding.put(binding, definitionsForBinding);
             }
 
             definitionsForBinding.add(def);
@@ -267,7 +244,7 @@ public class PMRDefsAnalysis {
 
         final HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
 
-        for (final PMDef definition : _definitions) {
+        for (final PMDef definition : this.definitions) {
 
             // Create singleton set for gen set (could probably dispense w/
             // containing set)
@@ -297,7 +274,7 @@ public class PMRDefsAnalysis {
         // Note: we populate the killsets by iterating through definitions
         // this means there will be no killset for a block with no definitions
         //
-        for (final PMDef definition : _definitions) {
+        for (final PMDef definition : this.definitions) {
             final IBinding binding = definition.getBinding();
 
             // Binding may be null if the declaring node for our lhs no longer
@@ -311,7 +288,7 @@ public class PMRDefsAnalysis {
                 killSet.add(uniqueVariableAssignment(null, binding)); // "undefined"
                                                                       // assignment
 
-                for (final PMDef otherDefinition : _definitionsByBinding.get(binding)) {
+                for (final PMDef otherDefinition : this.definitionsByBinding.get(binding)) {
                     if (otherDefinition != definition) {
                         killSet.add(uniqueVariableAssignment(otherDefinition, binding));
                     }
@@ -329,9 +306,9 @@ public class PMRDefsAnalysis {
 
     protected void findUses() {
 
-        _usesByName = new HashMap<SimpleName, PMUse>();
+        this.usesByName = new HashMap<SimpleName, PMUse>();
 
-        final Block body = _methodDeclaration.getBody();
+        final Block body = this.methodDeclaration.getBody();
 
         final ASTVisitor visitor = new ASTVisitor() {
 
@@ -340,12 +317,13 @@ public class PMRDefsAnalysis {
 
                 final PMBlock block = getBlockForNode(name);
 
-                final Set<VariableAssignment> reachingDefinitions = _reachingDefsOnEntry.get(block);
+                final Set<VariableAssignment> reachingDefinitions = PMRDefsAnalysis.this.reachingDefsOnEntry
+                        .get(block);
 
                 if (simpleNameIsUse(name)) {
                     final PMUse use = new PMUse(name);
 
-                    _usesByName.put(name, use);
+                    PMRDefsAnalysis.this.usesByName.put(name, use);
 
                     final IBinding variableBinding = name.resolveBinding();
 
@@ -520,14 +498,14 @@ public class PMRDefsAnalysis {
     }
 
     public ArrayList<PMBlock> getAllBlocks() {
-        return _allBlocks;
+        return this.allBlocks;
     }
 
     protected PMBlock getBlockForNode(ASTNode node) {
         final ASTNode originalNode = node;
 
         do {
-            final PMBlock block = _blocksByNode.get(node);
+            final PMBlock block = this.blocksByNode.get(node);
 
             if (block == null) {
                 node = node.getParent();
@@ -542,15 +520,15 @@ public class PMRDefsAnalysis {
     }
 
     public PMDef getDefinitionForDefiningNode(final ASTNode definingNode) {
-        return _definitionsByDefiningNode.get(definingNode);
+        return this.definitionsByDefiningNode.get(definingNode);
     }
 
     public ArrayList<PMDef> getDefinitions() {
-        return _definitions;
+        return this.definitions;
     }
 
     public Collection<PMUse> getUses() {
-        return _usesByName.values();
+        return this.usesByName.values();
     }
 
     boolean isAnalyzableLeftHandSide(final ASTNode lhs) {
@@ -579,18 +557,18 @@ public class PMRDefsAnalysis {
 
         // Forward analysis
 
-        _reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
-        _reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
+        this.reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
+        this.reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
 
-        final PMBlock initialBlock = _allBlocks.get(0);
+        final PMBlock initialBlock = this.allBlocks.get(0);
 
-        for (final PMBlock block : _allBlocks) {
-            _reachingDefsOnEntry.put(block, new HashSet<VariableAssignment>());
+        for (final PMBlock block : this.allBlocks) {
+            this.reachingDefsOnEntry.put(block, new HashSet<VariableAssignment>());
 
             if (block == initialBlock) {
                 // add "undefined" assignments for all free variables in method
 
-                _methodDeclaration.accept(new ASTVisitor() {
+                this.methodDeclaration.accept(new ASTVisitor() {
                     @Override
                     public boolean visit(final SimpleName name) {
 
@@ -599,7 +577,7 @@ public class PMRDefsAnalysis {
                         // locals or fields)
 
                         if (binding instanceof IVariableBinding) {
-                            _reachingDefsOnEntry.get(block).add(
+                            PMRDefsAnalysis.this.reachingDefsOnEntry.get(block).add(
                                     uniqueVariableAssignment(null, binding));
                         }
 
@@ -610,7 +588,7 @@ public class PMRDefsAnalysis {
 
             }
 
-            _reachingDefsOnExit.put(block, new HashSet<VariableAssignment>());
+            this.reachingDefsOnExit.put(block, new HashSet<VariableAssignment>());
         }
         boolean changed = false;
         do {
@@ -618,23 +596,23 @@ public class PMRDefsAnalysis {
             // or can we update in place??
             changed = false;
 
-            for (final PMBlock block : _allBlocks) {
+            for (final PMBlock block : this.allBlocks) {
 
                 // entry prop
                 if (block != initialBlock) {
                     final Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
 
                     for (final PMBlock incomingBlock : block.getIncomingBlocks()) {
-                        if (_reachingDefsOnExit.get(incomingBlock) == null) {
+                        if (this.reachingDefsOnExit.get(incomingBlock) == null) {
                             System.out.println("Coulding find reaching defs for block "
                                     + incomingBlock);
                         }
-                        newEntryReachingDefs.addAll(_reachingDefsOnExit.get(incomingBlock));
+                        newEntryReachingDefs.addAll(this.reachingDefsOnExit.get(incomingBlock));
                     }
 
-                    if (!newEntryReachingDefs.equals(_reachingDefsOnEntry.get(block))) {
+                    if (!newEntryReachingDefs.equals(this.reachingDefsOnEntry.get(block))) {
                         changed = true;
-                        _reachingDefsOnEntry.put(block, newEntryReachingDefs);
+                        this.reachingDefsOnEntry.put(block, newEntryReachingDefs);
                     }
 
                 }
@@ -643,7 +621,7 @@ public class PMRDefsAnalysis {
 
                 final Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
 
-                newExitReachingDefs.addAll(_reachingDefsOnEntry.get(block));
+                newExitReachingDefs.addAll(this.reachingDefsOnEntry.get(block));
 
                 final HashSet<VariableAssignment> killSet = killSets.get(block);
 
@@ -657,9 +635,9 @@ public class PMRDefsAnalysis {
                     newExitReachingDefs.addAll(genSet);
                 }
 
-                if (!newExitReachingDefs.equals(_reachingDefsOnExit.get(block))) {
+                if (!newExitReachingDefs.equals(this.reachingDefsOnExit.get(block))) {
                     changed = true;
-                    _reachingDefsOnExit.put(block, newExitReachingDefs);
+                    this.reachingDefsOnExit.put(block, newExitReachingDefs);
                 }
 
             }
@@ -758,12 +736,12 @@ public class PMRDefsAnalysis {
             throw new RuntimeException("variableBinding for " + definition + " is null!");
         }
 
-        HashMap<IBinding, VariableAssignment> assignmentsForLocation = _uniqueVariableAssigments
+        HashMap<IBinding, VariableAssignment> assignmentsForLocation = this.uniqueVariableAssigments
                 .get(definition);
 
         if (assignmentsForLocation == null) {
             assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
-            _uniqueVariableAssigments.put(definition, assignmentsForLocation);
+            this.uniqueVariableAssigments.put(definition, assignmentsForLocation);
         }
 
         VariableAssignment variableAssignment = assignmentsForLocation.get(variableBinding);
@@ -779,6 +757,6 @@ public class PMRDefsAnalysis {
     // return PMUse object for a simple name, or null if the simpleName does not
     // represent a use
     public PMUse useForSimpleName(final SimpleName name) {
-        return _usesByName.get(name);
+        return this.usesByName.get(name);
     }
 }

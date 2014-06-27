@@ -9,7 +9,8 @@
 
 package net.creichen.pm.steps;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
@@ -18,38 +19,35 @@ import net.creichen.pm.PMCompilationUnit;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.inconsistencies.PMInconsistency;
-import net.creichen.pm.steps.PMRenameStep;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.*;
 import org.junit.Test;
 
 public class PMRenameStepTest extends PMTest {
 
     @Test
     public void testLocalWithMethodInvocation() throws JavaModelException {
-        String sourceS = "public class S {void sMethod() {}}";
-        String sourceT = "public class T {void m() {S s = new S(); s.sMethod();} }";
+        final String sourceS = "public class S {void sMethod() {}}";
+        final String sourceT = "public class T {void m() {S s = new S(); s.sMethod();} }";
 
         /* ICompilationUnit compilationUnitS = */
 
         createNewCompilationUnit("", "S.java", sourceS);
-        ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
+        final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        SimpleName firstSInT = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-                "s", 0, "m", 0, "T", 0,
-                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitT));
+        final SimpleName firstSInT = PMASTQuery
+                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("s", 0, "m", 0, "T", 0,
+                        (CompilationUnit) pmProject
+                                .findASTRootForICompilationUnit(compilationUnitT));
 
-        PMRenameStep step = new PMRenameStep(pmProject, firstSInT);
+        final PMRenameStep step = new PMRenameStep(pmProject, firstSInT);
 
         step.setNewName("sInstance");
 
@@ -59,108 +57,153 @@ public class PMRenameStepTest extends PMTest {
                 "public class T {void m() {S sInstance = new S(); sInstance.sMethod();} }",
                 compilationUnitT.getSource()));
 
-        IProblem[] problemsT = ((CompilationUnit) pmProject
+        final IProblem[] problemsT = ((CompilationUnit) pmProject
                 .findASTRootForICompilationUnit(compilationUnitT)).getProblems();
 
         assertEquals(0, problemsT.length);
     }
 
     @Test
-    public void testRenameClassToNewName() throws JavaModelException {
-        String sourceS = "public class S {void sMethod() {}}";
+    public void testRenameClassFollowedByRenameConstructor() {
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+        final String source = "class S {S() {}}";
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        PMCompilationUnit pmCompilationUnitS = pmProject
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
+
+        final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        TypeDeclaration classS = PMASTQuery.classWithNameInCompilationUnit("S", 0,
+        final TypeDeclaration classNode = PMASTQuery.classWithNameInCompilationUnit("S", 0,
+                pmCompilationUnitS.getASTNode());
+
+        final SimpleName className = classNode.getName();
+
+        final PMRenameStep renameClassStep = new PMRenameStep(pmProject, className);
+
+        renameClassStep.setNewName("T");
+
+        renameClassStep.applyAllAtOnce();
+
+        final String expectedNewSourceAfterRenameClass = "class T {T() {}}";
+
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameClass,
+                pmCompilationUnitS.getSource()));
+
+        final MethodDeclaration methodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("T", 0, "T", 0,
+                        pmCompilationUnitS.getASTNode());
+
+        final SimpleName methodName = methodDeclaration.getName();
+
+        final PMRenameStep renameConstructorStep = new PMRenameStep(pmProject, methodName);
+
+        renameConstructorStep.setNewName("S");
+
+        renameConstructorStep.applyAllAtOnce();
+
+        final String expectedNewSourceAfterRenameConstructor = "class S {S() {}}";
+
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameConstructor,
+                pmCompilationUnitS.getSource()));
+
+    }
+
+    @Test
+    public void testRenameClassToNewName() throws JavaModelException {
+        final String sourceS = "public class S {void sMethod() {}}";
+
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
+
+        final PMCompilationUnit pmCompilationUnitS = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
+
+        final TypeDeclaration classS = PMASTQuery.classWithNameInCompilationUnit("S", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS));
 
-        SimpleName className = classS.getName();
+        final SimpleName className = classS.getName();
 
-        PMRenameStep step = new PMRenameStep(pmProject, className);
+        final PMRenameStep step = new PMRenameStep(pmProject, className);
 
         step.setNewName("T");
 
         step.applyAllAtOnce();
 
-        ICompilationUnit compilationUnitT = pmCompilationUnitS.getICompilationUnit();
+        final ICompilationUnit compilationUnitT = pmCompilationUnitS.getICompilationUnit();
 
         assertTrue(compilationUnitSourceMatchesSource("public class T {void sMethod() {}}",
                 compilationUnitT.getSource()));
 
-        IProblem[] problems = ((CompilationUnit) pmProject
+        final IProblem[] problems = ((CompilationUnit) pmProject
                 .findASTRootForICompilationUnit(compilationUnitT)).getProblems();
 
         assertEquals(0, problems.length);
     }
 
     @Test
-    public void testRenameLocalToShadowField() throws JavaModelException {
-        String sourceS = "public class S {" + "String iVar;" + "void m() {" + "String lVar;"
-                + "iVar.length();" + "}" + "}";
+    public void testRenameClassViaExtendsClause() {
+        final String sourceA = "public class A {public A() {} public static class InnerA extends A {} }";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
+        final ICompilationUnit compilationUnitA = createNewCompilationUnit("", "A.java", sourceA);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        PMCompilationUnit pmCompilationUnitS = pmProject
-                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
+        final PMCompilationUnit pmCompilationUnitA = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitA);
 
-        SimpleName name = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-                "lVar", 0, "m", 0, "S", 0, pmCompilationUnitS.getASTNode());
+        final TypeDeclaration outerClassDeclaration = PMASTQuery.classWithNameInCompilationUnit(
+                "A", 0, pmCompilationUnitA.getASTNode());
 
-        PMRenameStep step = new PMRenameStep(pmProject, name);
+        final TypeDeclaration innerAClassDeclaration = (TypeDeclaration) outerClassDeclaration
+                .bodyDeclarations().get(1);
 
-        step.setNewName("iVar");
+        final SimpleName extendsClassName = (SimpleName) ((SimpleType) innerAClassDeclaration
+                .getSuperclassType()).getName();
 
-        step.applyAllAtOnce();
+        final PMRenameStep renameStep = new PMRenameStep(pmProject, extendsClassName);
 
-        String expectedNewSourceS = "public class S {" + "String iVar;" + "void m() {"
-                + "String iVar;" + "iVar.length();" + "}" + "}";
+        renameStep.setNewName("x__5");
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
+        renameStep.applyAllAtOnce();
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        final String expectedNewSourceA = "public class x__5 {public x__5() {} public static class InnerA extends x__5 {} }";
 
-        // Inconsistencies are:
-        // [Definition (null) should be used by iVar,
-        // iVar was captured.,
-        // Unexpected definition (iVar) used by iVar]
-
-        assertEquals(3, inconsistencies.size());
-
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceA,
+                pmCompilationUnitA.getSource()));
     }
 
     @Test
     public void testRenameClassWithConstructor() {
         // We expect all constructors to be renamed as well
 
-        String source = "public class A {protected int x; public A(int y) {x=y;} public A() {x = 0; A a = new A(); a = new A(x);} public static class InnerA extends A { } }";
+        final String source = "public class A {protected int x; public A(int y) {x=y;} public A() {x = 0; A a = new A(); a = new A(x);} public static class InnerA extends A { } }";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        PMCompilationUnit pmCompilationUnitS = pmProject
+        final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        TypeDeclaration classNode = PMASTQuery.classWithNameInCompilationUnit("A", 0,
+        final TypeDeclaration classNode = PMASTQuery.classWithNameInCompilationUnit("A", 0,
                 pmCompilationUnitS.getASTNode());
 
-        SimpleName className = classNode.getName();
+        final SimpleName className = classNode.getName();
 
-        PMRenameStep renameStep = new PMRenameStep(pmProject, className);
+        final PMRenameStep renameStep = new PMRenameStep(pmProject, className);
 
         renameStep.setNewName("T");
 
         renameStep.applyAllAtOnce();
 
-        String expectedNewSource = "public class T {protected int x; public T(int y) {x=y;} public T() {x = 0; T a = new T(); a = new T(x);} public static class InnerA extends T { } }";
+        final String expectedNewSource = "public class T {protected int x; public T(int y) {x=y;} public T() {x = 0; T a = new T(); a = new T(x);} public static class InnerA extends T { } }";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSource,
                 pmCompilationUnitS.getSource()));
@@ -172,27 +215,29 @@ public class PMRenameStepTest extends PMTest {
         // We expect the class and all other constructors and calls of that
         // construtor will also be renamed
 
-        String source = "public class A {protected int x; public A(int y) {x=y;} public A() {x = 0; A a = new A(); a = new A(x);} public static class InnerA extends A { } }";
+        final String source = "public class A {protected int x; public A(int y) {x=y;} public A() {x = 0; A a = new A(); a = new A(x);} public static class InnerA extends A { } }";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "A.java", source);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "A.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        PMCompilationUnit pmCompilationUnitS = pmProject
+        final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "A", 0, "A", 0, pmCompilationUnitS.getASTNode());
+        final MethodDeclaration methodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
+                        pmCompilationUnitS.getASTNode());
 
-        SimpleName methodName = methodDeclaration.getName();
+        final SimpleName methodName = methodDeclaration.getName();
 
-        PMRenameStep renameStep = new PMRenameStep(pmProject, methodName);
+        final PMRenameStep renameStep = new PMRenameStep(pmProject, methodName);
 
         renameStep.setNewName("x__5");
 
         renameStep.applyAllAtOnce();
 
-        String expectedNewSource = "public class x__5 {protected int x; public x__5(int y) {x=y;} public x__5() {x = 0; x__5 a = new x__5(); a = new x__5(x);} public static class InnerA extends x__5 { } }";
+        final String expectedNewSource = "public class x__5 {protected int x; public x__5(int y) {x=y;} public x__5() {x = 0; x__5 a = new x__5(); a = new x__5(x);} public static class InnerA extends x__5 { } }";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSource,
                 pmCompilationUnitS.getSource()));
@@ -202,43 +247,45 @@ public class PMRenameStepTest extends PMTest {
     @Test
     public void testRenameConstructorFollowedByRenameClass() {
 
-        String source = "class S {S() {}}";
+        final String source = "class S {S() {}}";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        PMCompilationUnit pmCompilationUnitS = pmProject
+        final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "S", 0, "S", 0, pmCompilationUnitS.getASTNode());
+        final MethodDeclaration methodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("S", 0, "S", 0,
+                        pmCompilationUnitS.getASTNode());
 
-        SimpleName methodName = methodDeclaration.getName();
+        final SimpleName methodName = methodDeclaration.getName();
 
-        PMRenameStep renameConstructorStep = new PMRenameStep(pmProject, methodName);
+        final PMRenameStep renameConstructorStep = new PMRenameStep(pmProject, methodName);
 
         renameConstructorStep.setNewName("T");
 
         renameConstructorStep.applyAllAtOnce();
 
-        String expectedNewSourceAfterRenameConstructor = "class T {T() {}}";
+        final String expectedNewSourceAfterRenameConstructor = "class T {T() {}}";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameConstructor,
                 pmCompilationUnitS.getSource()));
 
-        TypeDeclaration classNode = PMASTQuery.classWithNameInCompilationUnit("T", 0,
+        final TypeDeclaration classNode = PMASTQuery.classWithNameInCompilationUnit("T", 0,
                 pmCompilationUnitS.getASTNode());
 
-        SimpleName className = classNode.getName();
+        final SimpleName className = classNode.getName();
 
-        PMRenameStep renameClassStep = new PMRenameStep(pmProject, className);
+        final PMRenameStep renameClassStep = new PMRenameStep(pmProject, className);
 
         renameClassStep.setNewName("S");
 
         renameClassStep.applyAllAtOnce();
 
-        String expectedNewSourceAfterRenameClass = "class S {S() {}}";
+        final String expectedNewSourceAfterRenameClass = "class S {S() {}}";
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameClass,
                 pmCompilationUnitS.getSource()));
@@ -246,97 +293,97 @@ public class PMRenameStepTest extends PMTest {
     }
 
     @Test
-    public void testRenameClassFollowedByRenameConstructor() {
+    public void testRenameConstructorInClassInPackageWithSubclass() {
 
-        String source = "class S {S() {}}";
+        final String sourceA = "package testpackage; public class A {public A() {System.out.println(6);}}";
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnitA = createNewCompilationUnit("testpackage", "A.java",
+                sourceA);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final String sourceB = "public class B extends testpackage.A {}";
 
-        PMCompilationUnit pmCompilationUnitS = pmProject
-                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
+        final ICompilationUnit compilationUnitB = createNewCompilationUnit("", "B.java", sourceB);
 
-        TypeDeclaration classNode = PMASTQuery.classWithNameInCompilationUnit("S", 0,
-                pmCompilationUnitS.getASTNode());
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        SimpleName className = classNode.getName();
+        final PMCompilationUnit pmCompilationUnitA = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitA);
 
-        PMRenameStep renameClassStep = new PMRenameStep(pmProject, className);
+        final PMCompilationUnit pmCompilationUnitB = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitB);
 
-        renameClassStep.setNewName("T");
+        final MethodDeclaration methodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
+                        pmCompilationUnitA.getASTNode());
 
-        renameClassStep.applyAllAtOnce();
+        final SimpleName methodName = methodDeclaration.getName();
 
-        String expectedNewSourceAfterRenameClass = "class T {T() {}}";
+        final PMRenameStep renameStep = new PMRenameStep(pmProject, methodName);
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameClass,
-                pmCompilationUnitS.getSource()));
+        renameStep.setNewName("x__5");
 
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "T", 0, "T", 0, pmCompilationUnitS.getASTNode());
+        renameStep.applyAllAtOnce();
 
-        SimpleName methodName = methodDeclaration.getName();
+        final String expectedNewSourceA = "package testpackage; public class x__5 {public x__5() {System.out.println(6);}}";
 
-        PMRenameStep renameConstructorStep = new PMRenameStep(pmProject, methodName);
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceA,
+                pmCompilationUnitA.getSource()));
 
-        renameConstructorStep.setNewName("S");
+        final String expectedNewSourceB = "public class B extends testpackage.x__5 {}";
 
-        renameConstructorStep.applyAllAtOnce();
-
-        String expectedNewSourceAfterRenameConstructor = "class S {S() {}}";
-
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameConstructor,
-                pmCompilationUnitS.getSource()));
-
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceB,
+                pmCompilationUnitB.getSource()));
     }
 
     @Test
     public void testRenameConstructorInComplicatedClass() {
-        String sourceA = "package testpackage;" + "public class A {" + "protected int x;"
+        final String sourceA = "package testpackage;" + "public class A {" + "protected int x;"
                 + "protected int unused;" + "public A(int y){x = y;}"
                 + "public void f() { int z = x + 2; x = z; }"
                 + "public void g() { nop(); this.nop(); x *= 3; A instance = new A(7); }"
                 + "public void nop() {}" + "public int getX() { return x;}"
                 + "protected int log_count = 0;" + "protected void do_log(){++log_count;}" + "}";
 
-        String sourceB = "package testpackage;" + "public class B extends A {" + "int b = 7;"
+        final String sourceB = "package testpackage;" + "public class B extends A {" + "int b = 7;"
                 + "public B(int y) {super(y);}"
                 + "@Override public void f() { do_log(); nop(); this.other_nop(); x -= b;}"
                 + "protected void other_nop() {this.nop(); this.another_nop();}"
                 + "protected void another_nop(){}" + "}";
 
-        ICompilationUnit compilationUnitA = createNewCompilationUnit("testpackage", "A.java",
+        final ICompilationUnit compilationUnitA = createNewCompilationUnit("testpackage", "A.java",
                 sourceA);
-        ICompilationUnit compilationUnitB = createNewCompilationUnit("testpackage", "B.java",
+        final ICompilationUnit compilationUnitB = createNewCompilationUnit("testpackage", "B.java",
                 sourceB);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        PMCompilationUnit pmCompilationUnitA = pmProject
+        final PMCompilationUnit pmCompilationUnitA = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitA);
-        PMCompilationUnit pmCompilationUnitB = pmProject
+        final PMCompilationUnit pmCompilationUnitB = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitB);
 
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "A", 0, "A", 0, pmCompilationUnitA.getASTNode());
+        final MethodDeclaration methodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
+                        pmCompilationUnitA.getASTNode());
 
-        SimpleName methodName = methodDeclaration.getName();
+        final SimpleName methodName = methodDeclaration.getName();
 
-        PMRenameStep renameStep = new PMRenameStep(pmProject, methodName);
+        final PMRenameStep renameStep = new PMRenameStep(pmProject, methodName);
 
         renameStep.setNewName("x__5");
 
         renameStep.applyAllAtOnce();
 
-        String expectedTransformedSourceA = "package testpackage;" + "public class x__5 {"
+        final String expectedTransformedSourceA = "package testpackage;" + "public class x__5 {"
                 + "protected int x;" + "protected int unused;" + "public x__5(int y){x = y;}"
                 + "public void f() { int z = x + 2; x = z; }"
                 + "public void g() { nop(); this.nop(); x *= 3; x__5 instance = new x__5(7); }"
                 + "public void nop() {}" + "public int getX() { return x;}"
                 + "protected int log_count = 0;" + "protected void do_log(){++log_count;}" + "}";
 
-        String expectedTransformedSourceB = "package testpackage;"
+        final String expectedTransformedSourceB = "package testpackage;"
                 + "public class B extends x__5 {" + "int b = 7;" + "public B(int y) {super(y);}"
                 + "@Override public void f() { do_log(); nop(); this.other_nop(); x -= b;}"
                 + "protected void other_nop() {this.nop(); this.another_nop();}"
@@ -350,77 +397,43 @@ public class PMRenameStepTest extends PMTest {
     }
 
     @Test
-    public void testRenameConstructorInClassInPackageWithSubclass() {
+    public void testRenameLocalToShadowField() throws JavaModelException {
+        final String sourceS = "public class S {" + "String iVar;" + "void m() {" + "String lVar;"
+                + "iVar.length();" + "}" + "}";
 
-        String sourceA = "package testpackage; public class A {public A() {System.out.println(6);}}";
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
 
-        ICompilationUnit compilationUnitA = createNewCompilationUnit("testpackage", "A.java",
-                sourceA);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        String sourceB = "public class B extends testpackage.A {}";
+        final PMCompilationUnit pmCompilationUnitS = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        ICompilationUnit compilationUnitB = createNewCompilationUnit("", "B.java", sourceB);
+        final SimpleName name = PMASTQuery
+                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("lVar", 0, "m", 0, "S",
+                        0, pmCompilationUnitS.getASTNode());
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        final PMRenameStep step = new PMRenameStep(pmProject, name);
 
-        PMCompilationUnit pmCompilationUnitA = pmProject
-                .getPMCompilationUnitForICompilationUnit(compilationUnitA);
+        step.setNewName("iVar");
 
-        PMCompilationUnit pmCompilationUnitB = pmProject
-                .getPMCompilationUnitForICompilationUnit(compilationUnitB);
+        step.applyAllAtOnce();
 
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "A", 0, "A", 0, pmCompilationUnitA.getASTNode());
+        final String expectedNewSourceS = "public class S {" + "String iVar;" + "void m() {"
+                + "String iVar;" + "iVar.length();" + "}" + "}";
 
-        SimpleName methodName = methodDeclaration.getName();
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
+                compilationUnitS.getSource()));
 
-        PMRenameStep renameStep = new PMRenameStep(pmProject, methodName);
+        final Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
 
-        renameStep.setNewName("x__5");
+        // Inconsistencies are:
+        // [Definition (null) should be used by iVar,
+        // iVar was captured.,
+        // Unexpected definition (iVar) used by iVar]
 
-        renameStep.applyAllAtOnce();
+        assertEquals(3, inconsistencies.size());
 
-        String expectedNewSourceA = "package testpackage; public class x__5 {public x__5() {System.out.println(6);}}";
-
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceA,
-                pmCompilationUnitA.getSource()));
-
-        String expectedNewSourceB = "public class B extends testpackage.x__5 {}";
-
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceB,
-                pmCompilationUnitB.getSource()));
-    }
-
-    @Test
-    public void testRenameClassViaExtendsClause() {
-        String sourceA = "public class A {public A() {} public static class InnerA extends A {} }";
-
-        ICompilationUnit compilationUnitA = createNewCompilationUnit("", "A.java", sourceA);
-
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
-
-        PMCompilationUnit pmCompilationUnitA = pmProject
-                .getPMCompilationUnitForICompilationUnit(compilationUnitA);
-
-        TypeDeclaration outerClassDeclaration = PMASTQuery.classWithNameInCompilationUnit("A", 0,
-                pmCompilationUnitA.getASTNode());
-
-        TypeDeclaration innerAClassDeclaration = (TypeDeclaration) outerClassDeclaration
-                .bodyDeclarations().get(1);
-
-        SimpleName extendsClassName = (SimpleName) ((SimpleType) innerAClassDeclaration
-                .getSuperclassType()).getName();
-
-        PMRenameStep renameStep = new PMRenameStep(pmProject, extendsClassName);
-
-        renameStep.setNewName("x__5");
-
-        renameStep.applyAllAtOnce();
-
-        String expectedNewSourceA = "public class x__5 {public x__5() {} public static class InnerA extends x__5 {} }";
-
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceA,
-                pmCompilationUnitA.getSource()));
     }
 
     // Should also test via static class name like Foo.doSomething() and via

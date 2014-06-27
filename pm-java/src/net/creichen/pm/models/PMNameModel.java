@@ -9,12 +9,7 @@
 
 package net.creichen.pm.models;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import net.creichen.pm.PMCompilationUnit;
 import net.creichen.pm.PMProject;
@@ -23,18 +18,7 @@ import net.creichen.pm.inconsistencies.PMNameCapture;
 import net.creichen.pm.inconsistencies.PMNameConflict;
 import net.creichen.pm.inconsistencies.PMUnknownName;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 
 public class PMNameModel {
     private HashMap<Name, String> identifiersForNames;
@@ -216,13 +200,11 @@ public class PMNameModel {
                             simpleName, declaringSimpleName.getIdentifier()));
                 }
 
-            } else {
-                // FIXME(dcc)
-                // System.err.println("!!! ignoring inconsistencies for " +
-                // simpleName + "  in " + iCompilationUnit.getHandleIdentifier()
-                // + " because can't find declaring node");
-
             }
+            // FIXME(dcc)
+            // System.err.println("!!! ignoring inconsistencies for " +
+            // simpleName + "  in " + iCompilationUnit.getHandleIdentifier()
+            // + " because can't find declaring node");
 
         }
 

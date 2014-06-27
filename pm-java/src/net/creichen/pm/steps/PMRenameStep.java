@@ -25,52 +25,44 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMRenameStep extends PMStep {
-    SimpleName _nameNode;
+    private SimpleName nameNode;
 
-    String _newName;
+    private String newName;
 
-    List<SimpleName> _nameNodesToChange;
+    private List<SimpleName> nameNodesToChange;
 
-    public PMRenameStep(PMProject project, SimpleName nameNode) {
+    public PMRenameStep(final PMProject project, final SimpleName nameNode) {
         super(project);
 
         if (nameNode != null) {
-            _nameNode = nameNode;
-            _nameNodesToChange = new ArrayList<SimpleName>();
+            this.nameNode = nameNode;
+            this.nameNodesToChange = new ArrayList<SimpleName>();
         } else {
             throw new RuntimeException("Cannot create PMRenameStep with null nameNode");
         }
 
     }
 
-    public String getNewName() {
-        return _newName;
-    }
-
-    public void setNewName(String newName) {
-        _newName = newName;
-    }
-
-    // need method to test for errors before asking for changes
-
     @Override
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-        _project.syncSources();
+        this._project.syncSources();
 
-        PMNameModel nameModel = _project.getNameModel();
+        final PMNameModel nameModel = this._project.getNameModel();
 
-        ArrayList<SimpleName> nodesToRename = nameModel.nameNodesRelatedToNameNode(_nameNode);
+        final ArrayList<SimpleName> nodesToRename = nameModel
+                .nameNodesRelatedToNameNode(this.nameNode);
 
-        _nameNodesToChange.addAll(nodesToRename);
+        this.nameNodesToChange.addAll(nodesToRename);
 
-        HashMap<ICompilationUnit, List<SimpleName>> nodesByICompilationUnit = new HashMap<ICompilationUnit, List<SimpleName>>();
+        final HashMap<ICompilationUnit, List<SimpleName>> nodesByICompilationUnit = new HashMap<ICompilationUnit, List<SimpleName>>();
 
-        for (SimpleName nodeToRename : nodesToRename) {
-            CompilationUnit containingCompilationUnit = (CompilationUnit) nodeToRename.getRoot();
+        for (final SimpleName nodeToRename : nodesToRename) {
+            final CompilationUnit containingCompilationUnit = (CompilationUnit) nodeToRename
+                    .getRoot();
 
-            ICompilationUnit containingICompilationUnit = (ICompilationUnit) containingCompilationUnit
+            final ICompilationUnit containingICompilationUnit = (ICompilationUnit) containingCompilationUnit
                     .getJavaElement();
 
             List<SimpleName> namesForUnit = nodesByICompilationUnit.get(containingICompilationUnit);
@@ -84,17 +76,17 @@ public class PMRenameStep extends PMStep {
         }
 
         if (nodesByICompilationUnit.size() > 0) {
-            for (ICompilationUnit unitForRename : nodesByICompilationUnit.keySet()) {
+            for (final ICompilationUnit unitForRename : nodesByICompilationUnit.keySet()) {
 
-                List<SimpleName> nodesInUnit = nodesByICompilationUnit.get(unitForRename);
+                final List<SimpleName> nodesInUnit = nodesByICompilationUnit.get(unitForRename);
 
-                ASTRewrite astRewrite = ASTRewrite.create(nodesInUnit.get(0).getAST());
+                final ASTRewrite astRewrite = ASTRewrite.create(nodesInUnit.get(0).getAST());
 
                 result.put(unitForRename, astRewrite);
 
-                for (SimpleName sameNode : nodesInUnit) {
+                for (final SimpleName sameNode : nodesInUnit) {
 
-                    SimpleName newNode = _nameNode.getAST().newSimpleName(_newName);
+                    final SimpleName newNode = this.nameNode.getAST().newSimpleName(this.newName);
 
                     astRewrite.replace(sameNode, newNode, null);
 
@@ -106,34 +98,44 @@ public class PMRenameStep extends PMStep {
     }
 
     @Override
+    public void cleanup() {
+        // called regardless of whether updateAfterReparse() was called
+    }
+
+    // need method to test for errors before asking for changes
+
+    public String getNewName() {
+        return this.newName;
+    }
+
+    @Override
     public void performASTChange() {
-        for (SimpleName nameNode : _nameNodesToChange) {
-            nameNode.setIdentifier(_newName);
+        for (final SimpleName nameNode : this.nameNodesToChange) {
+            nameNode.setIdentifier(this.newName);
 
             // Need to rename file if this is the name of a class and it is the
             // highest level class in the compilation unit
             if (nameNode.getParent() instanceof TypeDeclaration
                     && nameNode.getParent().getParent() instanceof CompilationUnit) {
-                ICompilationUnit iCompilationUnitToRename = (ICompilationUnit) ((CompilationUnit) nameNode
+                final ICompilationUnit iCompilationUnitToRename = (ICompilationUnit) ((CompilationUnit) nameNode
                         .getParent().getParent()).getJavaElement();
 
-                PMCompilationUnit pmCompilationUnitToRename = _project
+                final PMCompilationUnit pmCompilationUnitToRename = this._project
                         .getPMCompilationUnitForICompilationUnit(iCompilationUnitToRename);
 
-                pmCompilationUnitToRename.rename(_newName);
+                pmCompilationUnitToRename.rename(this.newName);
 
             }
         }
 
     }
 
-    @Override
-    public void updateAfterReparse() {
-
+    public void setNewName(final String newName) {
+        this.newName = newName;
     }
 
     @Override
-    public void cleanup() {
-        // called regardless of whether updateAfterReparse() was called
+    public void updateAfterReparse() {
+
     }
 }

@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.PMASTNodeUtils;
+import net.creichen.pm.PMASTNodeUtil;
 import net.creichen.pm.PMProject;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -221,7 +221,7 @@ public class PMExtractMethodStep extends PMStep {
         this._project.recursivelyReplaceNodeWithCopy(this.originalExpression,
                 this.extractedExpression);
 
-        PMASTNodeUtils.replaceNodeInParent(this.originalExpression,
+        PMASTNodeUtil.replaceNodeInParent(this.originalExpression,
                 this.replacementMethodInvocation);
 
         performNameModelChange();

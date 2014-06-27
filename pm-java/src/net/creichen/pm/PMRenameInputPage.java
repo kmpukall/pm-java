@@ -23,14 +23,12 @@ import org.eclipse.swt.widgets.Text;
 public class PMRenameInputPage extends UserInputWizardPage {
     private Text fNameField;
 
-    private Label _warningLabel;
-
     private final PMRenameProcessor _processor;
 
     public PMRenameInputPage(final PMRenameProcessor processor) {
         super("PM Refactoring Input Page");
 
-        _processor = processor;
+        this._processor = processor;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class PMRenameInputPage extends UserInputWizardPage {
 
         label.setText("&New name:");
 
-        fNameField = createNameField(result);
+        this.fNameField = createNameField(result);
 
         final Composite composite = new Composite(result, SWT.NONE);
 
@@ -62,9 +60,7 @@ public class PMRenameInputPage extends UserInputWizardPage {
         composite.setLayout(layout);
         composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-        _warningLabel = createWarningLabel(composite);
-
-        fNameField.addModifyListener(new ModifyListener() {
+        this.fNameField.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(final ModifyEvent event) {
 
@@ -74,9 +70,9 @@ public class PMRenameInputPage extends UserInputWizardPage {
 
         });
 
-        fNameField.setFocus();
+        this.fNameField.setFocus();
 
-        fNameField.selectAll();
+        this.fNameField.selectAll();
 
         handleInputChanged();
 
@@ -88,22 +84,8 @@ public class PMRenameInputPage extends UserInputWizardPage {
         return field;
     }
 
-    private Label createWarningLabel(final Composite result) {
-        final Label warningLabel = new Label(result, SWT.NONE);
-
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                _processor.getICompilationUnit().getJavaProject());
-
-        if (project.sourcesAreOutOfSync()) {
-            warningLabel
-                    .setText("External change detected.\nContinuing will reset the program model.");
-        }
-
-        return warningLabel;
-    }
-
     void handleInputChanged() {
-        _processor.setNewName(fNameField.getText());
+        this._processor.setNewName(this.fNameField.getText());
 
         final RefactoringStatus status = new RefactoringStatus();
 

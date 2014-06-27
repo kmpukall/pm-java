@@ -9,55 +9,85 @@
 
 package net.creichen.pm.steps;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import net.creichen.pm.PMASTQuery;
 import net.creichen.pm.PMCompilationUnit;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
-import net.creichen.pm.steps.PMExtractMethodStep;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.SimpleName;
-
-import static org.junit.Assert.*;
-
+import org.eclipse.jdt.core.dom.*;
 import org.junit.Test;
 
 public class PMExtractMethodStepTest extends PMTest {
 
     @Test
-    public void testGetNamesToExtract() {
+    public void testExtractLocalVariableExpression() {
+        final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
 
-        String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
-
-        PMCompilationUnit pmCompilationUnitS = pmProject
+        final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0, pmCompilationUnitS.getASTNode());
+        final MethodDeclaration methodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+                        pmCompilationUnitS.getASTNode());
 
-        Block bodyBlock = methodDeclaration.getBody();
+        final Block bodyBlock = methodDeclaration.getBody();
 
-        ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);
+        final ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements()
+                .get(1);
 
-        MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
+        final MethodInvocation methodInvocation = (MethodInvocation) printlnStatement
+                .getExpression();
 
-        Expression expression = (Expression) methodInvocation.arguments().get(0);
+        final Expression expression = (Expression) methodInvocation.arguments().get(0);
 
-        PMExtractMethodStep step = new PMExtractMethodStep(pmProject, expression);
+        final PMExtractMethodStep step = new PMExtractMethodStep(pmProject, expression);
 
-        List<SimpleName> namesToExtract = step.getNamesToExtract();
+        step.applyAllAtOnce();
+
+        // assertEquals(new HashSet(), pmProject.allInconsistencies());
+    }
+
+    @Test
+    public void testGetNamesToExtract() {
+
+        final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
+
+        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
+
+        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                this.iJavaProject);
+
+        final PMCompilationUnit pmCompilationUnitS = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
+
+        final MethodDeclaration methodDeclaration = PMASTQuery
+                .methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+                        pmCompilationUnitS.getASTNode());
+
+        final Block bodyBlock = methodDeclaration.getBody();
+
+        final ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements()
+                .get(1);
+
+        final MethodInvocation methodInvocation = (MethodInvocation) printlnStatement
+                .getExpression();
+
+        final Expression expression = (Expression) methodInvocation.arguments().get(0);
+
+        final PMExtractMethodStep step = new PMExtractMethodStep(pmProject, expression);
+
+        final List<SimpleName> namesToExtract = step.getNamesToExtract();
 
         assertEquals(2, namesToExtract.size());
 
@@ -67,35 +97,6 @@ public class PMExtractMethodStepTest extends PMTest {
         assertEquals(PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("j", 1,
                 "m", 0, "S", 0, pmCompilationUnitS.getASTNode()), namesToExtract.get(1));
 
-    }
-
-    @Test
-    public void testExtractLocalVariableExpression() {
-        String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
-
-        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
-
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
-
-        PMCompilationUnit pmCompilationUnitS = pmProject
-                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
-
-        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0, pmCompilationUnitS.getASTNode());
-
-        Block bodyBlock = methodDeclaration.getBody();
-
-        ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);
-
-        MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
-
-        Expression expression = (Expression) methodInvocation.arguments().get(0);
-
-        PMExtractMethodStep step = new PMExtractMethodStep(pmProject, expression);
-
-        step.applyAllAtOnce();
-
-        // assertEquals(new HashSet(), pmProject.allInconsistencies());
     }
 
 }

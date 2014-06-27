@@ -29,7 +29,7 @@ public class PMNameModelTest extends PMTest {
 
         createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(iJavaProject);
 
         pmProject.rescanForInconsistencies();
 

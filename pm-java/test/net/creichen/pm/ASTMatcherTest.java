@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PMASTMatcherTest {
+public class ASTMatcherTest {
 
     private AST ast;
     private ASTParser parser;
@@ -41,7 +41,7 @@ public class PMASTMatcherTest {
         ASTNode foo1 = ast.newSimpleName("Foo");
         ASTNode foo2 = ast.newSimpleName("Foo");
 
-        PMASTMatcher matcher = new PMASTMatcher(foo1, foo2);
+        ASTMatcher matcher = new ASTMatcher(foo1, foo2);
 
         assertTrue(matcher.match());
         assertEquals(1, matcher.isomorphicNodes().size());
@@ -53,7 +53,7 @@ public class PMASTMatcherTest {
         ASTNode foo = ast.newSimpleName("Foo");
         ASTNode bar = ast.newSimpleName("Bar");
 
-        PMASTMatcher matcher = new PMASTMatcher(foo, bar);
+        ASTMatcher matcher = new ASTMatcher(foo, bar);
 
         assertFalse(matcher.match());
         assertEquals(0, matcher.isomorphicNodes().size());
@@ -66,7 +66,7 @@ public class PMASTMatcherTest {
         parser.setSource("public class S { void m() {int x; x++; int y; y++;} }".toCharArray());
         CompilationUnit compilationUnit2 = (CompilationUnit) parser.createAST(null);
 
-        PMASTMatcher matcher = new PMASTMatcher(compilationUnit1, compilationUnit2);
+        ASTMatcher matcher = new ASTMatcher(compilationUnit1, compilationUnit2);
 
         assertTrue(matcher.match());
         Map<ASTNode, ASTNode> isomorphicNodes = matcher.isomorphicNodes();
@@ -98,7 +98,7 @@ public class PMASTMatcherTest {
         parser.setSource("public class S { void m() {int x; x++; int y; x++;} }".toCharArray());
         CompilationUnit compilationUnit2 = (CompilationUnit) parser.createAST(null);
 
-        PMASTMatcher matcher = new PMASTMatcher(compilationUnit1, compilationUnit2);
+        ASTMatcher matcher = new ASTMatcher(compilationUnit1, compilationUnit2);
 
         assertFalse(matcher.match());
 
@@ -111,7 +111,7 @@ public class PMASTMatcherTest {
         parser.setSource("public class S { void m() {int x; x++; int y;} }".toCharArray());
         CompilationUnit compilationUnit2 = (CompilationUnit) parser.createAST(null);
 
-        PMASTMatcher matcher = new PMASTMatcher(compilationUnit1, compilationUnit2);
+        ASTMatcher matcher = new ASTMatcher(compilationUnit1, compilationUnit2);
 
         assertFalse(matcher.match());
     }

@@ -13,13 +13,8 @@ import net.creichen.pm.steps.PMSplitStep;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.NullChange;
@@ -43,13 +38,12 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
 
     @Override
     public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
-            final CheckConditionsContext context) throws CoreException, OperationCanceledException {
+            final CheckConditionsContext context) throws CoreException {
         return new RefactoringStatus();
     }
 
     @Override
-    public RefactoringStatus checkInitialConditions(final IProgressMonitor pm)
-            throws CoreException, OperationCanceledException {
+    public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
 
         final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 this.iCompilationUnit.getJavaProject());
@@ -86,13 +80,12 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
 
                         final SimpleName name = (SimpleName) assignmentExpression.getLeftHandSide();
 
-                        final VariableDeclaration declaration = PMASTNodeUtils
+                        final VariableDeclaration declaration = PMASTNodeUtil
                                 .localVariableDeclarationForSimpleName(name);
 
                         if (declaration != null
-                                && PMASTNodeUtils.variableDeclarationIsLocal(declaration)) {
-                            this.step = new PMSplitStep(project,
-                                    (ExpressionStatement) selectedNode);
+                                && PMASTNodeUtil.variableDeclarationIsLocal(declaration)) {
+                            this.step = new PMSplitStep(project, (ExpressionStatement) selectedNode);
 
                             return new RefactoringStatus();
                         }
@@ -112,8 +105,7 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
     }
 
     @Override
-    public Change createChange(final IProgressMonitor pm) throws CoreException,
-            OperationCanceledException {
+    public Change createChange(final IProgressMonitor pm) throws CoreException {
 
         Change result = new NullChange();
 

@@ -23,14 +23,12 @@ import org.eclipse.swt.widgets.Text;
 public class PMDelegateInputPage extends UserInputWizardPage {
     private Text fNameField;
 
-    private Label _warningLabel;
-
     private final PMDelegateProcessor _processor;
 
     public PMDelegateInputPage(final PMDelegateProcessor processor) {
         super("PM Delegate Input Page");
 
-        _processor = processor;
+        this._processor = processor;
     }
 
     @Override
@@ -46,7 +44,7 @@ public class PMDelegateInputPage extends UserInputWizardPage {
 
         label.setText("&Delegate to identifier:");
 
-        fNameField = createNameField(result);
+        this.fNameField = createNameField(result);
 
         final Composite composite = new Composite(result, SWT.NONE);
 
@@ -59,9 +57,7 @@ public class PMDelegateInputPage extends UserInputWizardPage {
         composite.setLayout(layout);
         composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-        _warningLabel = createWarningLabel(composite);
-
-        fNameField.addModifyListener(new ModifyListener() {
+        this.fNameField.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(final ModifyEvent event) {
 
@@ -71,9 +67,9 @@ public class PMDelegateInputPage extends UserInputWizardPage {
 
         });
 
-        fNameField.setFocus();
+        this.fNameField.setFocus();
 
-        fNameField.selectAll();
+        this.fNameField.selectAll();
 
         handleInputChanged();
 
@@ -85,22 +81,8 @@ public class PMDelegateInputPage extends UserInputWizardPage {
         return field;
     }
 
-    private Label createWarningLabel(final Composite result) {
-        final Label warningLabel = new Label(result, SWT.NONE);
-
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                _processor.getICompilationUnit().getJavaProject());
-
-        if (project.sourcesAreOutOfSync()) {
-            warningLabel
-                    .setText("External change detected.\nContinuing will reset the program model.");
-        }
-
-        return warningLabel;
-    }
-
     void handleInputChanged() {
-        _processor.setDelegateIdentifier(fNameField.getText());
+        this._processor.setDelegateIdentifier(this.fNameField.getText());
 
         final RefactoringStatus status = new RefactoringStatus();
 

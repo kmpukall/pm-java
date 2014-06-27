@@ -19,41 +19,31 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class PMNameCapture extends PMInconsistency {
 
-    protected ASTNode _expectedDeclaration;
-    protected ASTNode _actualDeclaration;
+    private final ASTNode expectedDeclaration;
+    private final ASTNode actualDeclaration;
 
-    public PMNameCapture(PMProject project, PMCompilationUnit iCompilationUnit,
-            ASTNode capturedNode, ASTNode expectedDeclaration, ASTNode actualDeclaration) {
+    public PMNameCapture(final PMProject project, final PMCompilationUnit iCompilationUnit,
+            final ASTNode capturedNode, final ASTNode expectedDeclaration,
+            final ASTNode actualDeclaration) {
         super(project, iCompilationUnit, capturedNode);
 
-        _expectedDeclaration = expectedDeclaration;
-        _actualDeclaration = actualDeclaration;
-    }
-
-    public ASTNode getCapturedNode() {
-        return _node;
-    }
-
-    public ASTNode getExpectedDeclaration() {
-        return _expectedDeclaration;
-    }
-
-    public ASTNode getActualDeclaration() {
-        return _actualDeclaration;
-    }
-
-    public String getCapturedNodeDescription() {
-
-        if (_node instanceof SimpleName) {
-            return ((SimpleName) _node).getIdentifier();
-        } else {
-            return "Unknown node";
-        }
+        this.expectedDeclaration = expectedDeclaration;
+        this.actualDeclaration = actualDeclaration;
     }
 
     @Override
-    public String getHumanReadableDescription() {
-        return getCapturedNodeDescription() + " was captured.";
+    public void acceptBehavioralChange() {
+        final Name capturedName = (Name) getCapturedNode();
+
+        final PMNameModel nameModel = this.getProject().getNameModel();
+
+        final Name capturingName = this.getProject().simpleNameForDeclaringNode(this.actualDeclaration);
+
+        final String capturingIdentifier = nameModel.identifierForName(capturingName);
+
+        nameModel.setIdentifierForName(capturingIdentifier, capturedName);
+
+        this.getProject().rescanForInconsistencies();
     }
 
     @Override
@@ -61,19 +51,30 @@ public class PMNameCapture extends PMInconsistency {
         return true;
     }
 
+    public ASTNode getActualDeclaration() {
+        return this.actualDeclaration;
+    }
+
+    public ASTNode getCapturedNode() {
+        return getNode();
+    }
+
+    public String getCapturedNodeDescription() {
+
+        if (getNode() instanceof SimpleName) {
+            return ((SimpleName) getNode()).getIdentifier();
+        } else {
+            return "Unknown node";
+        }
+    }
+
+    public ASTNode getExpectedDeclaration() {
+        return this.expectedDeclaration;
+    }
+
     @Override
-    public void acceptBehavioralChange() {
-        Name capturedName = (Name) getCapturedNode();
-
-        PMNameModel nameModel = _project.getNameModel();
-
-        Name capturingName = _project.simpleNameForDeclaringNode(_actualDeclaration);
-
-        String capturingIdentifier = nameModel.identifierForName(capturingName);
-
-        nameModel.setIdentifierForName(capturingIdentifier, capturedName);
-
-        _project.rescanForInconsistencies();
+    public String getHumanReadableDescription() {
+        return getCapturedNodeDescription() + " was captured.";
     }
 
 }

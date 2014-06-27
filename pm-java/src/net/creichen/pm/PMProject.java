@@ -429,7 +429,7 @@ public class PMProject {
 
         // It's kind of silly that we have to match twice
 
-        final PMASTMatcher astMatcher = new PMASTMatcher(node, copy);
+        final ASTMatcher astMatcher = new ASTMatcher(node, copy);
 
         final boolean matches = astMatcher.match();
 

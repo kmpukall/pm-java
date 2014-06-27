@@ -20,23 +20,23 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 //We move a field by PMCutting it from its old parent and PMPasteing it in its new parent
 
 public class PMMoveFieldRefactoring {
-    PMProject _project;
+    private final PMProject project;
 
-    PMNodeReference _fieldReference;
+    private final PMNodeReference fieldReference;
 
-    PMNodeReference _newParentReference;
+    private final PMNodeReference newParentReference;
 
-    public PMMoveFieldRefactoring(PMProject project, FieldDeclaration fieldDeclaration,
-            TypeDeclaration newParent) {
-        _project = project;
+    public PMMoveFieldRefactoring(final PMProject project, final FieldDeclaration fieldDeclaration,
+            final TypeDeclaration newParent) {
+        this.project = project;
 
-        _fieldReference = _project.getReferenceForNode(fieldDeclaration);
+        this.fieldReference = this.project.getReferenceForNode(fieldDeclaration);
 
-        _newParentReference = _project.getReferenceForNode(newParent);
+        this.newParentReference = this.project.getReferenceForNode(newParent);
     }
 
     public void apply() {
-        PMCutStep cutStep = new PMCutStep(_project, _fieldReference.getNode());
+        final PMCutStep cutStep = new PMCutStep(this.project, this.fieldReference.getNode());
 
         cutStep.applyAllAtOnce();
 
@@ -45,9 +45,9 @@ public class PMMoveFieldRefactoring {
         // But otherwise would be a problem
         // So: should node store hold strong refs to ast nodes???
 
-        TypeDeclaration newParent = (TypeDeclaration) _newParentReference.getNode();
+        final TypeDeclaration newParent = (TypeDeclaration) this.newParentReference.getNode();
 
-        PMPasteStep pasteStep = new PMPasteStep(_project, newParent,
+        final PMPasteStep pasteStep = new PMPasteStep(this.project, newParent,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, newParent.bodyDeclarations().size());
 
         pasteStep.applyAllAtOnce();

@@ -12,19 +12,7 @@ package net.creichen.pm;
 import static net.creichen.pm.utils.APIWrapperUtil.fragments;
 import static net.creichen.pm.utils.APIWrapperUtil.types;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.*;
 
 public class PMASTQuery {
 
@@ -87,13 +75,6 @@ public class PMASTQuery {
         }
     }
 
-    /*
-     * We use classNameOccurrence to distinguish between classes when there are two classes with the
-     * same name This is likely to be a common thing when testing rename
-     * 
-     * indexing starts are 0 (i.e. to find the first occurence, pass 0)
-     */
-
     public static Assignment assignmentInMethodInClassInCompilationUnit(
             final int assignmentOccurrence, final String methodName,
             final int methodNameOccurrence, final String className, final int classNameOccurrence,
@@ -108,7 +89,7 @@ public class PMASTQuery {
 
         methodDeclaration.getBody().accept(new ASTVisitor() {
 
-            int _assignmentOccurrence = assignmentOccurrence;
+            private int _assignmentOccurrence = assignmentOccurrence;
 
             @Override
             public boolean visit(final Assignment visitedAssignment) {
@@ -128,11 +109,12 @@ public class PMASTQuery {
         return result[0];
     }
 
-    // For now, we don't deal with the case where there are two classes with the
-    // same name and we need to
-    // provide an index to disambiguate
-    //
-    // This will come up a lot though, especially with testing rename
+    /*
+     * We use classNameOccurrence to distinguish between classes when there are two classes with the
+     * same name This is likely to be a common thing when testing rename
+     * 
+     * indexing starts are 0 (i.e. to find the first occurence, pass 0)
+     */
 
     public static TypeDeclaration classWithNameInCompilationUnit(final String className,
             int classNameOccurrence, final CompilationUnit compilationUnit) {
@@ -156,6 +138,12 @@ public class PMASTQuery {
 
         return null;
     }
+
+    // For now, we don't deal with the case where there are two classes with the
+    // same name and we need to
+    // provide an index to disambiguate
+    //
+    // This will come up a lot though, especially with testing rename
 
     public static VariableDeclarationFragment fieldWithNameInClassInCompilationUnit(
             final String fieldName, int fieldNameOccurrence, final String className,
@@ -265,5 +253,9 @@ public class PMASTQuery {
         });
 
         return result[0];
+    }
+
+    private PMASTQuery() {
+        // private utility class constructor
     }
 }

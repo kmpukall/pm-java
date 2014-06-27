@@ -13,7 +13,6 @@ import net.creichen.pm.steps.PMRenameStep;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -42,14 +41,13 @@ public class PMRenameProcessor extends RenameProcessor implements PMProcessor {
 
     @Override
     public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
-            final CheckConditionsContext context) throws CoreException, OperationCanceledException {
+            final CheckConditionsContext context) throws CoreException {
 
         return new RefactoringStatus();
     }
 
     @Override
-    public RefactoringStatus checkInitialConditions(final IProgressMonitor pm)
-            throws CoreException, OperationCanceledException {
+    public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
 
         PMTimer.sharedTimer().start("STEP");
 
@@ -81,8 +79,7 @@ public class PMRenameProcessor extends RenameProcessor implements PMProcessor {
     }
 
     @Override
-    public Change createChange(final IProgressMonitor pm) throws CoreException,
-            OperationCanceledException {
+    public Change createChange(final IProgressMonitor pm) throws CoreException {
 
         PMTimer.sharedTimer().start("STEP");
 
