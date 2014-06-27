@@ -9,6 +9,9 @@
 
 package net.creichen.pm.analysis;
 
+import static net.creichen.pm.utils.APIWrapperUtil.fragments;
+import static net.creichen.pm.utils.APIWrapperUtil.statements;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,19 +29,16 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
-
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
-import org.eclipse.jdt.core.dom.WhileStatement;
-
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
-
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.WhileStatement;
 
 public class PMRDefsAnalysis {
 	protected MethodDeclaration _methodDeclaration;
@@ -78,8 +78,7 @@ public class PMRDefsAnalysis {
 				return lhs instanceof SimpleName;
 			}
 
-			public boolean visit(
-					SingleVariableDeclaration singleVariableDeclaration) {
+			public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
 				// Used in parameter lists and catch clauses
 				// There is an implicit definition here
 
@@ -88,8 +87,7 @@ public class PMRDefsAnalysis {
 				return true;
 			}
 
-			public boolean visit(
-					VariableDeclarationFragment variableDeclarationFragment) {
+			public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
 				// int x, y, z = 7; //etc
 
 				result.add(variableDeclarationFragment);
@@ -153,8 +151,7 @@ public class PMRDefsAnalysis {
 		_definitions = new ArrayList<PMDef>();
 		_definitionsByDefiningNode = new HashMap<ASTNode, PMDef>();
 
-		List<ASTNode> definingNodes = findDefiningNodesUnderNode(_methodDeclaration
-				.getBody());
+		List<ASTNode> definingNodes = findDefiningNodesUnderNode(_methodDeclaration.getBody());
 
 		for (ASTNode definingNode : definingNodes) {
 			addDefinitionForNode(definingNode);
@@ -166,8 +163,7 @@ public class PMRDefsAnalysis {
 
 			IBinding binding = def.getBinding();
 
-			Set<PMDef> definitionsForBinding = _definitionsByBinding
-					.get(binding);
+			Set<PMDef> definitionsForBinding = _definitionsByBinding.get(binding);
 
 			if (definitionsForBinding == null) {
 				definitionsForBinding = new HashSet<PMDef>();
@@ -210,15 +206,13 @@ public class PMRDefsAnalysis {
 				return true;
 			}
 
-			public boolean visit(
-					SingleVariableDeclaration singleVariableDeclaration) {
+			public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
 				containsDefinition[0] = true;
 
 				return true;
 			}
 
-			public boolean visit(
-					VariableDeclarationFragment variableDeclarationFragment) {
+			public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
 				containsDefinition[0] = true;
 
 				return true;
@@ -229,8 +223,7 @@ public class PMRDefsAnalysis {
 		return containsDefinition[0];
 	}
 
-	protected void addSerialBlockToEndOfList(PMBlock block,
-			ArrayList<PMBlock> blockList) {
+	protected void addSerialBlockToEndOfList(PMBlock block, ArrayList<PMBlock> blockList) {
 		if (blockList.size() > 0) {
 			PMBlock lastBlock = blockList.get(blockList.size() - 1);
 
@@ -240,8 +233,7 @@ public class PMRDefsAnalysis {
 		blockList.add(block);
 	}
 
-	protected void mergeBlockLists(ArrayList<PMBlock> first,
-			ArrayList<PMBlock> second) {
+	protected void mergeBlockLists(ArrayList<PMBlock> first, ArrayList<PMBlock> second) {
 		// We assume the last block of the first list is followed sequentially
 		// by the first block of the second list
 
@@ -252,8 +244,7 @@ public class PMRDefsAnalysis {
 		first.addAll(second);
 	}
 
-	protected ArrayList<PMBlock> generateBlocksForExpression(
-			Expression expression) {
+	protected ArrayList<PMBlock> generateBlocksForExpression(Expression expression) {
 		ArrayList<PMBlock> result = new ArrayList<PMBlock>();
 
 		if (expression instanceof Assignment) {
@@ -261,9 +252,7 @@ public class PMRDefsAnalysis {
 
 			PMBlock block = new PMBlock();
 
-			mergeBlockLists(result,
-					generateBlocksForExpression(assignmentExpression
-							.getRightHandSide()));
+			mergeBlockLists(result, generateBlocksForExpression(assignmentExpression.getRightHandSide()));
 
 			block.addNode(expression);
 
@@ -274,8 +263,7 @@ public class PMRDefsAnalysis {
 
 			VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
 
-			for (VariableDeclarationFragment fragment : (List<VariableDeclarationFragment>) variableDeclarationExpression
-					.fragments()) {
+			for (VariableDeclarationFragment fragment : fragments(variableDeclarationExpression)) {
 				// really should generate blocks for fragment initializer
 
 				PMBlock block = new PMBlock();
@@ -302,13 +290,11 @@ public class PMRDefsAnalysis {
 		if (statement instanceof ExpressionStatement) {
 			ExpressionStatement expressionStatement = (ExpressionStatement) statement;
 
-			result.addAll(generateBlocksForExpression(expressionStatement
-					.getExpression()));
+			result.addAll(generateBlocksForExpression(expressionStatement.getExpression()));
 		} else if (statement instanceof Block) {
 			Block blockStatement = (Block) statement;
 
-			for (Statement subStatement : (List<Statement>) blockStatement
-					.statements()) {
+			for (Statement subStatement : statements(blockStatement)) {
 				ArrayList<PMBlock> blocksForSubStatement = generateBlocksForStatement(subStatement);
 
 				mergeBlockLists(result, blocksForSubStatement);
@@ -321,29 +307,24 @@ public class PMRDefsAnalysis {
 			 * - exit block to join then and else
 			 */
 
-			ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(ifStatement
-					.getExpression());
-			PMBlock endingGuardBlock = blocksForGuard
-					.get(blocksForGuard.size() - 1);
+			ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(ifStatement.getExpression());
+			PMBlock endingGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
 
 			PMBlock exitBlock = new PMBlock();
 
 			mergeBlockLists(result, blocksForGuard);
 
-			ArrayList<PMBlock> blocksForThen = generateBlocksForStatement(ifStatement
-					.getThenStatement());
+			ArrayList<PMBlock> blocksForThen = generateBlocksForStatement(ifStatement.getThenStatement());
 
 			// this will make a connection from the ending guard block to the
 			// first then block
 			mergeBlockLists(result, blocksForThen);
 
-			PMBlock endingThenBlock = (PMBlock) blocksForThen.get(blocksForThen
-					.size() - 1);
+			PMBlock endingThenBlock = (PMBlock) blocksForThen.get(blocksForThen.size() - 1);
 			endingThenBlock.addOutgoingBlock(exitBlock);
 
 			if (ifStatement.getElseStatement() != null) {
-				ArrayList<PMBlock> blocksForElse = generateBlocksForStatement(ifStatement
-						.getElseStatement());
+				ArrayList<PMBlock> blocksForElse = generateBlocksForStatement(ifStatement.getElseStatement());
 
 				// make connection from the ending guard block to the starting
 				// else block
@@ -353,8 +334,7 @@ public class PMRDefsAnalysis {
 
 				endingGuardBlock.addOutgoingBlock(startingElseBlock);
 
-				PMBlock endingElseBlock = (PMBlock) blocksForElse
-						.get(blocksForElse.size() - 1);
+				PMBlock endingElseBlock = (PMBlock) blocksForElse.get(blocksForElse.size() - 1);
 
 				endingElseBlock.addOutgoingBlock(exitBlock);
 
@@ -376,18 +356,15 @@ public class PMRDefsAnalysis {
 			 * - synthetic exit block
 			 */
 
-			ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(whileStatement
-					.getExpression());
+			ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(whileStatement.getExpression());
 			PMBlock startingGuardBlock = blocksForGuard.get(0);
-			PMBlock lastGuardBlock = blocksForGuard
-					.get(blocksForGuard.size() - 1);
+			PMBlock lastGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
 
 			PMBlock exitBlock = new PMBlock();
 
 			mergeBlockLists(result, blocksForGuard);
 
-			ArrayList<PMBlock> blocksForBody = generateBlocksForStatement(whileStatement
-					.getBody());
+			ArrayList<PMBlock> blocksForBody = generateBlocksForStatement(whileStatement.getBody());
 
 			mergeBlockLists(result, blocksForBody);
 
@@ -422,8 +399,7 @@ public class PMRDefsAnalysis {
 
 		_allBlocks.add(new PMBlock()); // synthetic initial block;
 
-		mergeBlockLists(_allBlocks,
-				generateBlocksForStatement(_methodDeclaration.getBody()));
+		mergeBlockLists(_allBlocks, generateBlocksForStatement(_methodDeclaration.getBody()));
 
 		// fill in _blocksByNode
 		// Every node should have at least one ancestor that has a block
@@ -456,8 +432,7 @@ public class PMRDefsAnalysis {
 
 		} while (node != null);
 
-		throw new RuntimeException("Couldn't find block for definingnode  "
-				+ originalNode);
+		throw new RuntimeException("Couldn't find block for definingnode  " + originalNode);
 
 	}
 
@@ -511,8 +486,7 @@ public class PMRDefsAnalysis {
 
 				for (PMDef otherDefinition : _definitionsByBinding.get(binding)) {
 					if (otherDefinition != definition) {
-						killSet.add(uniqueVariableAssignment(otherDefinition,
-								binding));
+						killSet.add(uniqueVariableAssignment(otherDefinition, binding));
 					}
 				}
 
@@ -538,11 +512,9 @@ public class PMRDefsAnalysis {
 
 		ASTNode parent = name.getParent();
 
-		if (parent instanceof Assignment
-				&& ((Assignment) parent).getLeftHandSide() == name)
+		if (parent instanceof Assignment && ((Assignment) parent).getLeftHandSide() == name)
 			return false;
-		else if (parent instanceof VariableDeclaration
-				&& ((VariableDeclaration) parent).getName() == name)
+		else if (parent instanceof VariableDeclaration && ((VariableDeclaration) parent).getName() == name)
 			return false;
 
 		return true;
@@ -560,8 +532,7 @@ public class PMRDefsAnalysis {
 
 				PMBlock block = getBlockForNode(name);
 
-				Set<VariableAssignment> reachingDefinitions = _reachingDefsOnEntry
-						.get(block);
+				Set<VariableAssignment> reachingDefinitions = _reachingDefsOnEntry.get(block);
 
 				if (simpleNameIsUse(name)) {
 					PMUse use = new PMUse(name);
@@ -572,8 +543,7 @@ public class PMRDefsAnalysis {
 
 					for (VariableAssignment reachingDefinition : reachingDefinitions) {
 						if (reachingDefinition.getVariableBinding() == variableBinding) {
-							use.addReachingDefinition(reachingDefinition
-									.getDefinition());
+							use.addReachingDefinition(reachingDefinition.getDefinition());
 						}
 					}
 				}
@@ -614,8 +584,7 @@ public class PMRDefsAnalysis {
 						// locals or fields)
 
 						if (binding instanceof IVariableBinding)
-							_reachingDefsOnEntry.get(block).add(
-									uniqueVariableAssignment(null, binding));
+							_reachingDefsOnEntry.get(block).add(uniqueVariableAssignment(null, binding));
 
 						return true;
 					}
@@ -640,16 +609,12 @@ public class PMRDefsAnalysis {
 
 					for (PMBlock incomingBlock : block.getIncomingBlocks()) {
 						if (_reachingDefsOnExit.get(incomingBlock) == null) {
-							System.out
-									.println("Coulding find reaching defs for block "
-											+ incomingBlock);
+							System.out.println("Coulding find reaching defs for block " + incomingBlock);
 						}
-						newEntryReachingDefs.addAll(_reachingDefsOnExit
-								.get(incomingBlock));
+						newEntryReachingDefs.addAll(_reachingDefsOnExit.get(incomingBlock));
 					}
 
-					if (!newEntryReachingDefs.equals(_reachingDefsOnEntry
-							.get(block))) {
+					if (!newEntryReachingDefs.equals(_reachingDefsOnEntry.get(block))) {
 						changed = true;
 						_reachingDefsOnEntry.put(block, newEntryReachingDefs);
 					}
@@ -747,27 +712,22 @@ public class PMRDefsAnalysis {
 		 */
 	}
 
-	VariableAssignment uniqueVariableAssignment(PMDef definition,
-			IBinding variableBinding) {
+	VariableAssignment uniqueVariableAssignment(PMDef definition, IBinding variableBinding) {
 
 		if (variableBinding == null)
-			throw new RuntimeException("variableBinding for " + definition
-					+ " is null!");
+			throw new RuntimeException("variableBinding for " + definition + " is null!");
 
-		HashMap<IBinding, VariableAssignment> assignmentsForLocation = _uniqueVariableAssigments
-				.get(definition);
+		HashMap<IBinding, VariableAssignment> assignmentsForLocation = _uniqueVariableAssigments.get(definition);
 
 		if (assignmentsForLocation == null) {
 			assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
 			_uniqueVariableAssigments.put(definition, assignmentsForLocation);
 		}
 
-		VariableAssignment variableAssignment = assignmentsForLocation
-				.get(variableBinding);
+		VariableAssignment variableAssignment = assignmentsForLocation.get(variableBinding);
 
 		if (variableAssignment == null) {
-			variableAssignment = new VariableAssignment(definition,
-					variableBinding);
+			variableAssignment = new VariableAssignment(definition, variableBinding);
 			assignmentsForLocation.put(variableBinding, variableAssignment);
 		}
 

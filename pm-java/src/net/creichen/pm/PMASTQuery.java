@@ -9,7 +9,8 @@
 
 package net.creichen.pm;
 
-import java.util.List;
+import static net.creichen.pm.utils.APIWrapperUtil.fragments;
+import static net.creichen.pm.utils.APIWrapperUtil.types;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -27,14 +28,12 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class PMASTQuery {
 
-	static public ASTNode nodeForSelectionInCompilationUnit(
-			int selectionOffset, int selectionLength,
+	static public ASTNode nodeForSelectionInCompilationUnit(int selectionOffset, int selectionLength,
 			CompilationUnit compilationUnit) {
 
 		// Should use PMSelection once it handles the generic case!!!
 
-		return org.eclipse.jdt.core.dom.NodeFinder.perform(compilationUnit,
-				selectionOffset, selectionLength);
+		return org.eclipse.jdt.core.dom.NodeFinder.perform(compilationUnit, selectionOffset, selectionLength);
 	}
 
 	/*
@@ -45,18 +44,15 @@ public class PMASTQuery {
 	 * indexing starts are 0 (i.e. to find the first occurence, pass 0)
 	 */
 
-	static public TypeDeclaration classWithNameInCompilationUnit(
-			String className, int classNameOccurrence,
+	static public TypeDeclaration classWithNameInCompilationUnit(String className, int classNameOccurrence,
 			CompilationUnit compilationUnit) {
 
-		for (AbstractTypeDeclaration abstractType : (List<AbstractTypeDeclaration>) compilationUnit
-				.types()) {
+		for (AbstractTypeDeclaration abstractType : types(compilationUnit)) {
 			if (abstractType instanceof TypeDeclaration) {
 				TypeDeclaration typeDeclaration = (TypeDeclaration) abstractType;
 
 				if (!typeDeclaration.isInterface()) {
-					if (typeDeclaration.getName().getIdentifier()
-							.equals(className)) {
+					if (typeDeclaration.getName().getIdentifier().equals(className)) {
 						if (classNameOccurrence == 0)
 							return typeDeclaration;
 						else
@@ -76,14 +72,12 @@ public class PMASTQuery {
 	//
 	// This will come up a lot though, especially with testing rename
 
-	static public MethodDeclaration methodWithNameInClassInCompilationUnit(
-			String methodName, int methodNameOccurrence, String className,
-			int classNameOccurrence, CompilationUnit compilationUnit) {
-		TypeDeclaration classDeclaration = classWithNameInCompilationUnit(
-				className, classNameOccurrence, compilationUnit);
+	static public MethodDeclaration methodWithNameInClassInCompilationUnit(String methodName, int methodNameOccurrence,
+			String className, int classNameOccurrence, CompilationUnit compilationUnit) {
+		TypeDeclaration classDeclaration = classWithNameInCompilationUnit(className, classNameOccurrence,
+				compilationUnit);
 
-		for (MethodDeclaration methodDeclaration : classDeclaration
-				.getMethods()) {
+		for (MethodDeclaration methodDeclaration : classDeclaration.getMethods()) {
 			if (methodDeclaration.getName().getIdentifier().equals(methodName)) {
 				if (methodNameOccurrence == 0)
 					return methodDeclaration;
@@ -95,18 +89,16 @@ public class PMASTQuery {
 		return null;
 	}
 
-	static public VariableDeclarationFragment fieldWithNameInClassInCompilationUnit(
-			String fieldName, int fieldNameOccurrence, String className,
-			int classNameOccurrence, CompilationUnit compilationUnit) {
-		TypeDeclaration classDeclaration = classWithNameInCompilationUnit(
-				className, classNameOccurrence, compilationUnit);
+	static public VariableDeclarationFragment fieldWithNameInClassInCompilationUnit(String fieldName,
+			int fieldNameOccurrence, String className, int classNameOccurrence, CompilationUnit compilationUnit) {
+		TypeDeclaration classDeclaration = classWithNameInCompilationUnit(className, classNameOccurrence,
+				compilationUnit);
 
 		// This is basically copied and pasted from
 		// methodWithNameInClassInCompilationUnit()
 
 		for (FieldDeclaration fieldDeclaration : classDeclaration.getFields()) {
-			for (VariableDeclarationFragment fragment : (List<VariableDeclarationFragment>) fieldDeclaration
-					.fragments()) {
+			for (VariableDeclarationFragment fragment : fragments(fieldDeclaration)) {
 				if (fragment.getName().getIdentifier().equals(fieldName)) {
 					if (fieldNameOccurrence == 0)
 						return fragment;
@@ -119,39 +111,32 @@ public class PMASTQuery {
 		return null;
 	}
 
-	static public VariableDeclaration localWithNameInMethodInClassInCompilationUnit(
-			String localName, int localNameOccurrence, String methodName,
-			int methodNameOccurrence, String className,
+	static public VariableDeclaration localWithNameInMethodInClassInCompilationUnit(String localName,
+			int localNameOccurrence, String methodName, int methodNameOccurrence, String className,
 			int classNameOccurrence, CompilationUnit compilationUnit) {
-		MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(
-				methodName, methodNameOccurrence, className,
-				classNameOccurrence, compilationUnit);
+		MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(methodName, methodNameOccurrence,
+				className, classNameOccurrence, compilationUnit);
 
 		// visit nodes in method body to find local vars
 
-		LocalFinderASTVisitor visitor = new LocalFinderASTVisitor(localName,
-				localNameOccurrence);
+		LocalFinderASTVisitor visitor = new LocalFinderASTVisitor(localName, localNameOccurrence);
 
 		methodDeclaration.getBody().accept(visitor);
 
 		return visitor.result();
 	}
 
-	static public SimpleName simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-			String simpleNameIdentifier, int simpleNameOccurrence,
-			String methodName, int methodNameOccurrence, String className,
+	static public SimpleName simpleNameWithIdentifierInMethodInClassInCompilationUnit(String simpleNameIdentifier,
+			int simpleNameOccurrence, String methodName, int methodNameOccurrence, String className,
 			int classNameOccurrence, CompilationUnit compilationUnit) {
-		MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(
-				methodName, methodNameOccurrence, className,
-				classNameOccurrence, compilationUnit);
+		MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(methodName, methodNameOccurrence,
+				className, classNameOccurrence, compilationUnit);
 
-		return simpleNameWithIdentifierInNode(simpleNameIdentifier,
-				simpleNameOccurrence, methodDeclaration.getBody());
+		return simpleNameWithIdentifierInNode(simpleNameIdentifier, simpleNameOccurrence, methodDeclaration.getBody());
 	}
 
-	static public SimpleName simpleNameWithIdentifierInNode(
-			final String simpleNameIdentifier, final int simpleNameOccurrence,
-			ASTNode node) {
+	static public SimpleName simpleNameWithIdentifierInNode(final String simpleNameIdentifier,
+			final int simpleNameOccurrence, ASTNode node) {
 		final SimpleName[] result = new SimpleName[1]; // use aray to be able to
 														// return result from
 														// anonymous class
@@ -163,9 +148,7 @@ public class PMASTQuery {
 
 			public boolean visit(SimpleName visitedSimpleName) {
 
-				if (result[0] == null
-						&& visitedSimpleName.getIdentifier().equals(
-								simpleNameIdentifier)) {
+				if (result[0] == null && visitedSimpleName.getIdentifier().equals(simpleNameIdentifier)) {
 					if (_simpleNameOccurrenceCount == 0)
 						result[0] = visitedSimpleName;
 					else
@@ -179,13 +162,11 @@ public class PMASTQuery {
 		return result[0];
 	}
 
-	static public Assignment assignmentInMethodInClassInCompilationUnit(
-			final int assignmentOccurrence, String methodName,
-			int methodNameOccurrence, String className,
-			int classNameOccurrence, CompilationUnit compilationUnit) {
-		MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(
-				methodName, methodNameOccurrence, className,
-				classNameOccurrence, compilationUnit);
+	static public Assignment assignmentInMethodInClassInCompilationUnit(final int assignmentOccurrence,
+			String methodName, int methodNameOccurrence, String className, int classNameOccurrence,
+			CompilationUnit compilationUnit) {
+		MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(methodName, methodNameOccurrence,
+				className, classNameOccurrence, compilationUnit);
 
 		final Assignment[] result = new Assignment[1]; // use array to be able
 														// to return result from
@@ -241,8 +222,7 @@ public class PMASTQuery {
 
 		public boolean visit(VariableDeclarationFragment fragment) {
 
-			if (_result == null
-					&& fragment.getName().getIdentifier().equals(_localName)) {
+			if (_result == null && fragment.getName().getIdentifier().equals(_localName)) {
 
 				if (_localNameOccurrenceCounter == 0) {
 					_result = fragment;
@@ -255,9 +235,7 @@ public class PMASTQuery {
 
 		public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
 
-			if (_result == null
-					&& singleVariableDeclaration.getName().getIdentifier()
-							.equals(_localName)) {
+			if (_result == null && singleVariableDeclaration.getName().getIdentifier().equals(_localName)) {
 				if (_localNameOccurrenceCounter == 0) {
 					_result = singleVariableDeclaration;
 				} else

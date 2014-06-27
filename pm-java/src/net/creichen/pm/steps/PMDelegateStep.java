@@ -61,11 +61,9 @@ public class PMDelegateStep extends PMStep {
 
 		_selectedNode = selectedNode;
 
-		CompilationUnit containingCompilationUnit = (CompilationUnit) _selectedNode
-				.getRoot();
+		CompilationUnit containingCompilationUnit = (CompilationUnit) _selectedNode.getRoot();
 
-		_iCompilationUnit = (ICompilationUnit) containingCompilationUnit
-				.getJavaElement();
+		_iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
 
 	}
 
@@ -77,14 +75,13 @@ public class PMDelegateStep extends PMStep {
 		_delegateIdentifier = delegateIdentifier;
 	}
 
-	void rewriteToDelegateMethodInvocationToIdentifier(ASTRewrite astRewrite,
-			MethodInvocation methodInvocation, Expression identifierNode) {
-		astRewrite.set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY,
-				identifierNode, null /* textEditGroup */);
+	void rewriteToDelegateMethodInvocationToIdentifier(ASTRewrite astRewrite, MethodInvocation methodInvocation,
+			Expression identifierNode) {
+		astRewrite
+				.set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
 	}
 
-	void rewriteToDelegateMethodInvocationToSuperInvocation(
-			ASTRewrite astRewrite, MethodInvocation methodInvocation,
+	void rewriteToDelegateMethodInvocationToSuperInvocation(ASTRewrite astRewrite, MethodInvocation methodInvocation,
 			Expression superInvocationNode) {
 		astRewrite.replace(methodInvocation, superInvocationNode, null /*
 																		 * edit
@@ -92,32 +89,21 @@ public class PMDelegateStep extends PMStep {
 																		 */);
 	}
 
-	SuperMethodInvocation superMethodDelegatingMethodInvocation(
-			MethodInvocation invocationToDelegate) {
+	SuperMethodInvocation superMethodDelegatingMethodInvocation(MethodInvocation invocationToDelegate) {
 
 		AST ast = invocationToDelegate.getAST();
 
-		SuperMethodInvocation superMethodInvocationNode = ast
-				.newSuperMethodInvocation();
+		SuperMethodInvocation superMethodInvocationNode = ast.newSuperMethodInvocation();
 
-		superMethodInvocationNode.setStructuralProperty(
-				SuperMethodInvocation.NAME_PROPERTY, ASTNode.copySubtree(
-						ast,
-						getStructuralProperty(MethodInvocation.NAME_PROPERTY,
-								invocationToDelegate)));
-		arguments(superMethodInvocationNode).addAll(
-				ASTNode.copySubtrees(
-						ast,
-						getStructuralProperty(
-								MethodInvocation.ARGUMENTS_PROPERTY,
-								invocationToDelegate)));
+		superMethodInvocationNode.setStructuralProperty(SuperMethodInvocation.NAME_PROPERTY,
+				ASTNode.copySubtree(ast, getStructuralProperty(MethodInvocation.NAME_PROPERTY, invocationToDelegate)));
+		List<ASTNode> argumentsProperty = getStructuralProperty(MethodInvocation.ARGUMENTS_PROPERTY,
+				invocationToDelegate);
+		arguments(superMethodInvocationNode).addAll(ASTNode.copySubtrees(ast, argumentsProperty));
 
-		arguments(superMethodInvocationNode).addAll(
-				ASTNode.copySubtrees(
-						ast,
-						getStructuralProperty(
-								MethodInvocation.TYPE_ARGUMENTS_PROPERTY,
-								invocationToDelegate)));
+		List<ASTNode> typeArgumentsProperty = getStructuralProperty(MethodInvocation.TYPE_ARGUMENTS_PROPERTY,
+				invocationToDelegate);
+		arguments(superMethodInvocationNode).addAll(ASTNode.copySubtrees(ast, typeArgumentsProperty));
 
 		return superMethodInvocationNode;
 	}
@@ -142,8 +128,8 @@ public class PMDelegateStep extends PMStep {
 
 				_newSuperInvocationNode = superMethodDelegatingMethodInvocation(_selectedMethodInvocation);
 
-				rewriteToDelegateMethodInvocationToSuperInvocation(astRewrite,
-						_selectedMethodInvocation, _newSuperInvocationNode);
+				rewriteToDelegateMethodInvocationToSuperInvocation(astRewrite, _selectedMethodInvocation,
+						_newSuperInvocationNode);
 
 			} else {
 				if (!_delegateIdentifier.equals("")) {
@@ -152,8 +138,7 @@ public class PMDelegateStep extends PMStep {
 					_newExpressionNode = null;
 				}
 
-				rewriteToDelegateMethodInvocationToIdentifier(astRewrite,
-						_selectedMethodInvocation, _newExpressionNode);
+				rewriteToDelegateMethodInvocationToIdentifier(astRewrite, _selectedMethodInvocation, _newExpressionNode);
 			}
 
 			result.put(_iCompilationUnit, astRewrite);
@@ -171,8 +156,7 @@ public class PMDelegateStep extends PMStep {
 			// match the copies up with the old versions so that we can update
 			// identifiers
 
-			_project.recursivelyReplaceNodeWithCopy(
-					_selectedMethodInvocation.getName(),
+			_project.recursivelyReplaceNodeWithCopy(_selectedMethodInvocation.getName(),
 					_newSuperInvocationNode.getName());
 
 			List<Expression> oldArguments = arguments(_selectedMethodInvocation);
@@ -180,32 +164,26 @@ public class PMDelegateStep extends PMStep {
 
 			if (oldArguments.size() == newArguments.size()) {
 				for (int i = 0; i < oldArguments.size(); i++) {
-					_project.recursivelyReplaceNodeWithCopy(
-							(Expression) oldArguments.get(i),
+					_project.recursivelyReplaceNodeWithCopy((Expression) oldArguments.get(i),
 							(Expression) newArguments.get(i));
 				}
 
 			} else {
-				throw new RuntimeException(
-						"oldArguments.size != newArguments.size()");
+				throw new RuntimeException("oldArguments.size != newArguments.size()");
 			}
 
 			// FIXME(dcc) Should use ASTNodeUtils.replaceNodeInParent()
 
-			StructuralPropertyDescriptor location = _selectedMethodInvocation
-					.getLocationInParent();
+			StructuralPropertyDescriptor location = _selectedMethodInvocation.getLocationInParent();
 
 			// replace the selected method invocation with the new invocation
 			if (location.isChildProperty()) {
-				_selectedMethodInvocation.getParent().setStructuralProperty(
-						location, _newSuperInvocationNode);
+				_selectedMethodInvocation.getParent().setStructuralProperty(location, _newSuperInvocationNode);
 			} else {
-				List<ASTNode> parentList = getStructuralProperty(
-						(ChildListPropertyDescriptor) location,
+				List<ASTNode> parentList = getStructuralProperty((ChildListPropertyDescriptor) location,
 						_selectedMethodInvocation.getParent());
 
-				parentList.set(parentList.indexOf(_selectedMethodInvocation),
-						_newSuperInvocationNode);
+				parentList.set(parentList.indexOf(_selectedMethodInvocation), _newSuperInvocationNode);
 			}
 
 		} else {
@@ -213,11 +191,9 @@ public class PMDelegateStep extends PMStep {
 			if (_newExpressionNode != null) {
 				if ((_newExpressionNode instanceof Name)) {
 
-					_newExpressionNodeReference = _project
-							.getReferenceForNode(_newExpressionNode);
+					_newExpressionNodeReference = _project.getReferenceForNode(_newExpressionNode);
 				} else
-					System.err.println("Unexpected new expression type "
-							+ _newExpressionNode.getClass());
+					System.err.println("Unexpected new expression type " + _newExpressionNode.getClass());
 
 			}
 
@@ -231,8 +207,7 @@ public class PMDelegateStep extends PMStep {
 	public void updateAfterReparse() {
 
 		if (_newExpressionNodeReference != null)
-			_newExpressionNode = (Expression) _newExpressionNodeReference
-					.getNode();
+			_newExpressionNode = (Expression) _newExpressionNodeReference.getNode();
 
 		if (_newExpressionNode instanceof SimpleName) {
 
@@ -243,11 +218,9 @@ public class PMDelegateStep extends PMStep {
 			ASTNode declaringNode = _project.findDeclaringNodeForName(name);
 
 			if (declaringNode != null) {
-				SimpleName simpleNameForDeclaringNode = _project
-						.simpleNameForDeclaringNode(declaringNode);
+				SimpleName simpleNameForDeclaringNode = _project.simpleNameForDeclaringNode(declaringNode);
 
-				String identifier = nameModel
-						.identifierForName(simpleNameForDeclaringNode);
+				String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);
 
 				nameModel.setIdentifierForName(identifier, name);
 
