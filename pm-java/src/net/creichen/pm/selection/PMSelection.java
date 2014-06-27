@@ -196,10 +196,6 @@ public class PMSelection {
         return this.childListPropertyOffset;
     }
 
-    public ASTNode[] selectedNodes() {
-        return new ASTNode[0];
-    }
-
     public ASTNode singleSelectedNode() {
         return this.singleSelectedNode;
     }

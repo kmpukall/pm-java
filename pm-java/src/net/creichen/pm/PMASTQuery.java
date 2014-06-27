@@ -123,15 +123,14 @@ public class PMASTQuery {
             if (abstractType instanceof TypeDeclaration) {
                 final TypeDeclaration typeDeclaration = (TypeDeclaration) abstractType;
 
-                if (!typeDeclaration.isInterface()) {
-                    if (typeDeclaration.getName().getIdentifier().equals(className)) {
-                        if (classNameOccurrence == 0) {
-                            return typeDeclaration;
-                        } else {
-                            classNameOccurrence--;
-                        }
-
+                if (!typeDeclaration.isInterface()
+                        && typeDeclaration.getName().getIdentifier().equals(className)) {
+                    if (classNameOccurrence == 0) {
+                        return typeDeclaration;
+                    } else {
+                        classNameOccurrence--;
                     }
+
                 }
             }
         }
