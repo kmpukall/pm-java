@@ -25,40 +25,36 @@ import org.junit.Test;
 
 public class PMMoveFieldRefactoringTest extends PMTest {
 
-	@Test
-	public void testMoveField() throws JavaModelException {
-		ICompilationUnit iCompilationUnitS = createNewCompilationUnit(
-				"",
-				"S.java",
-				"public class S { int _y; void m() {int x; _y = 7; x = 5; System.out.println(x);} }");
-		ICompilationUnit iCompilationUnitT = createNewCompilationUnit("",
-				"T.java", "public class T {  }");
+    @Test
+    public void testMoveField() throws JavaModelException {
+        ICompilationUnit iCompilationUnitS = createNewCompilationUnit("", "S.java",
+                "public class S { int _y; void m() {int x; _y = 7; x = 5; System.out.println(x);} }");
+        ICompilationUnit iCompilationUnitT = createNewCompilationUnit("", "T.java",
+                "public class T {  }");
 
-		PMProject project = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		CompilationUnit compilationUnitS = (CompilationUnit) project
-				.findASTRootForICompilationUnit(iCompilationUnitS);
-		CompilationUnit compilationUnitT = (CompilationUnit) project
-				.findASTRootForICompilationUnit(iCompilationUnitT);
+        CompilationUnit compilationUnitS = (CompilationUnit) project
+                .findASTRootForICompilationUnit(iCompilationUnitS);
+        CompilationUnit compilationUnitT = (CompilationUnit) project
+                .findASTRootForICompilationUnit(iCompilationUnitT);
 
-		FieldDeclaration yField = (FieldDeclaration) PMASTQuery
-				.fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,
-						compilationUnitS).getParent();
+        FieldDeclaration yField = (FieldDeclaration) PMASTQuery
+                .fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0, compilationUnitS)
+                .getParent();
 
-		TypeDeclaration classT = PMASTQuery.classWithNameInCompilationUnit("T",
-				0, compilationUnitT);
+        TypeDeclaration classT = PMASTQuery
+                .classWithNameInCompilationUnit("T", 0, compilationUnitT);
 
-		PMMoveFieldRefactoring refactoring = new PMMoveFieldRefactoring(
-				project, yField, classT);
+        PMMoveFieldRefactoring refactoring = new PMMoveFieldRefactoring(project, yField, classT);
 
-		refactoring.apply();
+        refactoring.apply();
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
-				iCompilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(
+                "public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
+                iCompilationUnitS.getSource()));
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class T { int _y;  }", iCompilationUnitT.getSource()));
-	}
+        assertTrue(compilationUnitSourceMatchesSource("public class T { int _y;  }",
+                iCompilationUnitT.getSource()));
+    }
 }

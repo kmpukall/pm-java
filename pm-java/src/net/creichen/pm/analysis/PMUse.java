@@ -16,33 +16,33 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class PMUse {
 
-	SimpleName _simpleName;
+    SimpleName _simpleName;
 
-	Set<PMDef> _reachingDefinitions;
+    Set<PMDef> _reachingDefinitions;
 
-	public PMUse(SimpleName simpleName) {
-		_simpleName = simpleName;
+    public PMUse(SimpleName simpleName) {
+        _simpleName = simpleName;
 
-		_reachingDefinitions = new HashSet<PMDef>();
-	}
+        _reachingDefinitions = new HashSet<PMDef>();
+    }
 
-	public void addReachingDefinition(PMDef reachingDef) {
-		if (!_reachingDefinitions.contains(reachingDef)) {
-			_reachingDefinitions.add(reachingDef);
+    public void addReachingDefinition(PMDef reachingDef) {
+        if (!_reachingDefinitions.contains(reachingDef)) {
+            _reachingDefinitions.add(reachingDef);
 
-			// not sure if we want reachingDef == null to mean unitialized or
-			// real reaching def object that is marked as unitialized
-			if (reachingDef != null)
-				reachingDef.addUse(this);
-		}
-	}
+            // not sure if we want reachingDef == null to mean unitialized or
+            // real reaching def object that is marked as unitialized
+            if (reachingDef != null)
+                reachingDef.addUse(this);
+        }
+    }
 
-	public SimpleName getSimpleName() {
-		return _simpleName;
-	}
+    public SimpleName getSimpleName() {
+        return _simpleName;
+    }
 
-	public Set<PMDef> getReachingDefinitions() {
-		return _reachingDefinitions;
-	}
+    public Set<PMDef> getReachingDefinitions() {
+        return _reachingDefinitions;
+    }
 
 }

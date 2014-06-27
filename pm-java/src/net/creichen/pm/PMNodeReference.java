@@ -13,5 +13,5 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 public interface PMNodeReference {
 
-	public ASTNode getNode();
+    public ASTNode getNode();
 }

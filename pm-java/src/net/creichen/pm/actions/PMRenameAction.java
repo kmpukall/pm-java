@@ -17,22 +17,20 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 /**
- * Our sample action implements workbench action delegate. The action proxy will
- * be created by the workbench and shown in the UI. When the user tries to use
- * the action, this delegate will be created and execution will be delegated to
- * it.
+ * Our sample action implements workbench action delegate. The action proxy will be created by the
+ * workbench and shown in the UI. When the user tries to use the action, this delegate will be
+ * created and execution will be delegated to it.
  * 
  * @see IWorkbenchWindowActionDelegate
  */
 public class PMRenameAction extends PMAction {
 
-	public RefactoringProcessor newProcessor() {
-		return new PMRenameProcessor((ITextSelection) getSelection(),
-				currentICompilationUnit());
-	}
+    public RefactoringProcessor newProcessor() {
+        return new PMRenameProcessor((ITextSelection) getSelection(), currentICompilationUnit());
+    }
 
-	public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
-		return new PMRenameInputPage((PMRenameProcessor) processor);
-	}
+    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
+        return new PMRenameInputPage((PMRenameProcessor) processor);
+    }
 
 }

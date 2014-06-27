@@ -26,27 +26,25 @@ import org.eclipse.jface.text.TextSelection;
 import org.junit.Test;
 
 public class PMSplitProcessorTest extends PMTest {
-	@Test
-	public void testStraightlineCode() throws JavaModelException {
-		String source = "public class S {void m(){int x;x = 1;x = x + 1;}}";
+    @Test
+    public void testStraightlineCode() throws JavaModelException {
+        String source = "public class S {void m(){int x;x = 1;x = x + 1;}}";
 
-		ICompilationUnit compilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMSplitProcessor splitTemporary = new PMSplitProcessor(
-				new TextSelection(57 - 26, 63 - 57), compilationUnit);
+        PMSplitProcessor splitTemporary = new PMSplitProcessor(new TextSelection(57 - 26, 63 - 57),
+                compilationUnit);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		PMProcessorDriver.drive(splitTemporary);
+        PMProcessorDriver.drive(splitTemporary);
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S {void m(){int x;int x = 1;x = x + 1;}}",
-				compilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(
+                "public class S {void m(){int x;int x = 1;x = x + 1;}}",
+                compilationUnit.getSource()));
 
-		Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
 
-		assertEquals(1, inconsistencies.size());
-	}
+        assertEquals(1, inconsistencies.size());
+    }
 }

@@ -33,97 +33,89 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PMCutAction extends PMAction {
 
-	@Override
-	public RefactoringProcessor newProcessor() {
+    @Override
+    public RefactoringProcessor newProcessor() {
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
-		return null;
-	}
+    @Override
+    public UserInputWizardPage newWizardInputPage(RefactoringProcessor processor) {
+        return null;
+    }
 
-	public void run(IAction action) {
-		System.err.println("In PMCutAction run()");
+    public void run(IAction action) {
+        System.err.println("In PMCutAction run()");
 
-		if (getSelection() instanceof ITextSelection) {
+        if (getSelection() instanceof ITextSelection) {
 
-			ICompilationUnit iCompilationUnit = currentICompilationUnit();
+            ICompilationUnit iCompilationUnit = currentICompilationUnit();
 
-			PMProject project = PMWorkspace.sharedWorkspace()
-					.projectForIJavaProject(iCompilationUnit.getJavaProject());
+            PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+                    iCompilationUnit.getJavaProject());
 
-			ITextSelection textSelection = (ITextSelection) getSelection();
+            ITextSelection textSelection = (ITextSelection) getSelection();
 
-			project.syncSources(); // in case they have changed behid our backs
+            project.syncSources(); // in case they have changed behid our backs
 
-			PMSelection selectionDescriptor = new PMSelection(
-					(CompilationUnit) project
-							.findASTRootForICompilationUnit(iCompilationUnit),
-					textSelection.getOffset(), textSelection.getLength());
+            PMSelection selectionDescriptor = new PMSelection(
+                    (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit),
+                    textSelection.getOffset(), textSelection.getLength());
 
-			if (selectionDescriptor.isSaneSelection()) {
-				List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
+            if (selectionDescriptor.isSaneSelection()) {
+                List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
 
-				if (!selectionDescriptor.isListSelection()) {
-					ASTNode selectedNode = selectionDescriptor
-							.singleSelectedNode(); // project.nodeForSelection((ITextSelection)getSelection(),
-													// iCompilationUnit);
+                if (!selectionDescriptor.isListSelection()) {
+                    ASTNode selectedNode = selectionDescriptor.singleSelectedNode(); // project.nodeForSelection((ITextSelection)getSelection(),
+                                                                                     // iCompilationUnit);
 
-					System.err.println("selected node is " + selectedNode + "["
-							+ selectedNode.getClass() + "]");
+                    System.err.println("selected node is " + selectedNode + "["
+                            + selectedNode.getClass() + "]");
 
-					if (selectedNode instanceof Statement
-							|| selectedNode instanceof FieldDeclaration
-							|| selectedNode instanceof MethodDeclaration) {
-						nodesToCut.add(selectedNode);
-					} else {
-						System.err
-								.println("PMCutAction must be run on a selected statement or method or field");
+                    if (selectedNode instanceof Statement
+                            || selectedNode instanceof FieldDeclaration
+                            || selectedNode instanceof MethodDeclaration) {
+                        nodesToCut.add(selectedNode);
+                    } else {
+                        System.err
+                                .println("PMCutAction must be run on a selected statement or method or field");
 
-						showErrorDialog(
-								"PM Cut Error",
-								"We currently only support PM Cut on statements, methods, and fields -- you've selected a "
-										+ selectedNode.getClass());
-					}
-				} else {
+                        showErrorDialog("PM Cut Error",
+                                "We currently only support PM Cut on statements, methods, and fields -- you've selected a "
+                                        + selectedNode.getClass());
+                    }
+                } else {
 
-					List<ASTNode> propertyList = getStructuralProperty(
-							(ChildListPropertyDescriptor) selectionDescriptor
-									.selectedNodeParentProperty(),
-							selectionDescriptor.selectedNodeParent());
+                    List<ASTNode> propertyList = getStructuralProperty(
+                            (ChildListPropertyDescriptor) selectionDescriptor
+                                    .selectedNodeParentProperty(),
+                            selectionDescriptor.selectedNodeParent());
 
-					for (int i = selectionDescriptor
-							.selectedNodeParentPropertyListOffset(); i < selectionDescriptor
-							.selectedNodeParentPropertyListOffset()
-							+ selectionDescriptor
-									.selectedNodeParentPropertyListLength(); i++) {
-						nodesToCut.add(propertyList.get(i));
-					}
+                    for (int i = selectionDescriptor.selectedNodeParentPropertyListOffset(); i < selectionDescriptor
+                            .selectedNodeParentPropertyListOffset()
+                            + selectionDescriptor.selectedNodeParentPropertyListLength(); i++) {
+                        nodesToCut.add(propertyList.get(i));
+                    }
 
-				}
+                }
 
-				if (nodesToCut.size() > 0) {
-					PMCutStep cutStep = new PMCutStep(project, nodesToCut);
+                if (nodesToCut.size() > 0) {
+                    PMCutStep cutStep = new PMCutStep(project, nodesToCut);
 
-					cutStep.applyAllAtOnce();
-				}
+                    cutStep.applyAllAtOnce();
+                }
 
-			} else {
-				System.err
-						.println("PMRCutAction: this selection is not PM-Cuttable");
+            } else {
+                System.err.println("PMRCutAction: this selection is not PM-Cuttable");
 
-				showErrorDialog("PM Cut Error",
-						"PMCut cannot be applied to this selection");
-			}
+                showErrorDialog("PM Cut Error", "PMCut cannot be applied to this selection");
+            }
 
-		} else {
-			System.err.println("PMRCutAction must be run on a text selection.");
+        } else {
+            System.err.println("PMRCutAction must be run on a text selection.");
 
-			showErrorDialog("PM Cut Error",
-					"PM Cut must be run on a text selection.");
-		}
-	}
+            showErrorDialog("PM Cut Error", "PM Cut must be run on a text selection.");
+        }
+    }
 
 }

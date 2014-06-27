@@ -25,169 +25,162 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 public class PMASTMatcher {
 
-	ASTNode _oldNode;
+    ASTNode _oldNode;
 
-	ASTNode _newNode;
+    ASTNode _newNode;
 
-	ASTMatcher _builtInMatcher;
+    ASTMatcher _builtInMatcher;
 
-	Map<ASTNode, ASTNode> _isomorphicNodes;
+    Map<ASTNode, ASTNode> _isomorphicNodes;
 
-	List<ASTNode> _newlyAddedNodes;
+    List<ASTNode> _newlyAddedNodes;
 
-	public PMASTMatcher(ASTNode oldNode, ASTNode newNode) {
-		_builtInMatcher = new ASTMatcher();
+    public PMASTMatcher(ASTNode oldNode, ASTNode newNode) {
+        _builtInMatcher = new ASTMatcher();
 
-		_isomorphicNodes = new HashMap<ASTNode, ASTNode>();
+        _isomorphicNodes = new HashMap<ASTNode, ASTNode>();
 
-		_newlyAddedNodes = new ArrayList<ASTNode>();
+        _newlyAddedNodes = new ArrayList<ASTNode>();
 
-		_newNode = newNode;
-		_oldNode = oldNode;
-	}
+        _newNode = newNode;
+        _oldNode = oldNode;
+    }
 
-	public boolean match() {
+    public boolean match() {
 
-		boolean result = recursiveMatch(_oldNode, _newNode);
+        boolean result = recursiveMatch(_oldNode, _newNode);
 
-		if (!result) {
-			_isomorphicNodes.clear();
-			_newlyAddedNodes.clear();
-		}
+        if (!result) {
+            _isomorphicNodes.clear();
+            _newlyAddedNodes.clear();
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public boolean recursiveMatch(ASTNode oldNode, ASTNode newNode) {
+    public boolean recursiveMatch(ASTNode oldNode, ASTNode newNode) {
 
-		// eventually we'll get smarter here and detect new nodes, etc.
-		final int old_type = oldNode.getNodeType();
-		final int new_type = newNode.getNodeType();
+        // eventually we'll get smarter here and detect new nodes, etc.
+        final int old_type = oldNode.getNodeType();
+        final int new_type = newNode.getNodeType();
 
-		if ((old_type == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
-				|| old_type == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || old_type == org.eclipse.jdt.core.dom.ASTNode.JAVADOC)
-				&& (new_type == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
-						|| new_type == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || new_type == org.eclipse.jdt.core.dom.ASTNode.JAVADOC))
-			return true; // Nothing to do for comments, really
+        if ((old_type == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
+                || old_type == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || old_type == org.eclipse.jdt.core.dom.ASTNode.JAVADOC)
+                && (new_type == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
+                        || new_type == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || new_type == org.eclipse.jdt.core.dom.ASTNode.JAVADOC))
+            return true; // Nothing to do for comments, really
 
-		if (oldNode instanceof MethodDeclaration
-				&& newNode instanceof MethodDeclaration) {
+        if (oldNode instanceof MethodDeclaration && newNode instanceof MethodDeclaration) {
 
-			MethodDeclaration oldMethodDeclaration = (MethodDeclaration) oldNode;
-			MethodDeclaration newMethodDeclaration = (MethodDeclaration) newNode;
+            MethodDeclaration oldMethodDeclaration = (MethodDeclaration) oldNode;
+            MethodDeclaration newMethodDeclaration = (MethodDeclaration) newNode;
 
-			// fixup method declarations
-			// if the old declaration is a constructor and the new one is a
-			// method with the same name then
-			// we set the new one to be a constructor too.
-			// We do this because if we rename a class or constructor, the old
-			// ast will think the constructor
-			// is a constructor while the new one will think it is just a method
-			// with a missing return type.
+            // fixup method declarations
+            // if the old declaration is a constructor and the new one is a
+            // method with the same name then
+            // we set the new one to be a constructor too.
+            // We do this because if we rename a class or constructor, the old
+            // ast will think the constructor
+            // is a constructor while the new one will think it is just a method
+            // with a missing return type.
 
-			if (oldMethodDeclaration.isConstructor()) {
-				newMethodDeclaration.setConstructor(true);
-			}
-		}
+            if (oldMethodDeclaration.isConstructor()) {
+                newMethodDeclaration.setConstructor(true);
+            }
+        }
 
-		List<StructuralPropertyDescriptor> oldStructuralProperties = APIWrapperUtil
-				.structuralPropertiesForType(oldNode);
+        List<StructuralPropertyDescriptor> oldStructuralProperties = APIWrapperUtil
+                .structuralPropertiesForType(oldNode);
 
-		if (oldStructuralProperties.size() == APIWrapperUtil
-				.structuralPropertiesForType(newNode).size()) {
-			for (StructuralPropertyDescriptor structuralPropertyDescriptor : oldStructuralProperties) {
+        if (oldStructuralProperties.size() == APIWrapperUtil.structuralPropertiesForType(newNode)
+                .size()) {
+            for (StructuralPropertyDescriptor structuralPropertyDescriptor : oldStructuralProperties) {
 
-				Object oldPropertyValue = oldNode
-						.getStructuralProperty(structuralPropertyDescriptor);
+                Object oldPropertyValue = oldNode
+                        .getStructuralProperty(structuralPropertyDescriptor);
 
-				Object newPropertyValue = newNode
-						.getStructuralProperty(structuralPropertyDescriptor);
+                Object newPropertyValue = newNode
+                        .getStructuralProperty(structuralPropertyDescriptor);
 
-				if ((oldPropertyValue == null && newPropertyValue != null)
-						|| (newPropertyValue != null && newPropertyValue == null))
-					return false;
+                if ((oldPropertyValue == null && newPropertyValue != null)
+                        || (newPropertyValue != null && newPropertyValue == null))
+                    return false;
 
-				if (oldPropertyValue == null && newPropertyValue == null)
-					continue;
-				else {
-					// property values are ptr different and not null
+                if (oldPropertyValue == null && newPropertyValue == null)
+                    continue;
+                else {
+                    // property values are ptr different and not null
 
-					if (structuralPropertyDescriptor.isSimpleProperty()) {
-						if (oldPropertyValue.equals(newPropertyValue))
-							continue;
-						else
-							return false;
-					} else if (structuralPropertyDescriptor.isChildProperty()) {
-						ASTNode oldChild = APIWrapperUtil
-								.getStructuralProperty(
-										(ChildPropertyDescriptor) structuralPropertyDescriptor,
-										oldNode);
-						ASTNode newChild = APIWrapperUtil
-								.getStructuralProperty(
-										(ChildPropertyDescriptor) structuralPropertyDescriptor,
-										newNode);
+                    if (structuralPropertyDescriptor.isSimpleProperty()) {
+                        if (oldPropertyValue.equals(newPropertyValue))
+                            continue;
+                        else
+                            return false;
+                    } else if (structuralPropertyDescriptor.isChildProperty()) {
+                        ASTNode oldChild = APIWrapperUtil.getStructuralProperty(
+                                (ChildPropertyDescriptor) structuralPropertyDescriptor, oldNode);
+                        ASTNode newChild = APIWrapperUtil.getStructuralProperty(
+                                (ChildPropertyDescriptor) structuralPropertyDescriptor, newNode);
 
-						if (!recursiveMatch(oldChild, newChild))
-							return false;
-						else
-							continue;
+                        if (!recursiveMatch(oldChild, newChild))
+                            return false;
+                        else
+                            continue;
 
-					} else if (structuralPropertyDescriptor
-							.isChildListProperty()) {
+                    } else if (structuralPropertyDescriptor.isChildListProperty()) {
 
-						List<ASTNode> oldList = APIWrapperUtil
-								.getStructuralProperty(
-										(ChildListPropertyDescriptor) structuralPropertyDescriptor,
-										oldNode);
-						List<ASTNode> newList = APIWrapperUtil
-								.getStructuralProperty(
-										(ChildListPropertyDescriptor) structuralPropertyDescriptor,
-										newNode);
+                        List<ASTNode> oldList = APIWrapperUtil
+                                .getStructuralProperty(
+                                        (ChildListPropertyDescriptor) structuralPropertyDescriptor,
+                                        oldNode);
+                        List<ASTNode> newList = APIWrapperUtil
+                                .getStructuralProperty(
+                                        (ChildListPropertyDescriptor) structuralPropertyDescriptor,
+                                        newNode);
 
-						if (oldList.size() == newList.size()) {
+                        if (oldList.size() == newList.size()) {
 
-							for (int i = 0; i < oldList.size(); i++) {
-								ASTNode oldChildNode = oldList.get(i);
+                            for (int i = 0; i < oldList.size(); i++) {
+                                ASTNode oldChildNode = oldList.get(i);
 
-								ASTNode newChildNode = newList.get(i);
+                                ASTNode newChildNode = newList.get(i);
 
-								if (recursiveMatch(oldChildNode, newChildNode))
-									continue;
-								else
-									return false;
-							}
+                                if (recursiveMatch(oldChildNode, newChildNode))
+                                    continue;
+                                else
+                                    return false;
+                            }
 
-						} else
-							return false;
+                        } else
+                            return false;
 
-					} else {
+                    } else {
 
-						throw new RuntimeException(
-								"Unknown kind of structuralPropertyDescriptor");
-					}
-				}
+                        throw new RuntimeException("Unknown kind of structuralPropertyDescriptor");
+                    }
+                }
 
-			}
-		} else
-			return false;
+            }
+        } else
+            return false;
 
-		// if we've gotten this far then all the structural properties match, so
-		// we
-		// add to the isomorphism map
+        // if we've gotten this far then all the structural properties match, so
+        // we
+        // add to the isomorphism map
 
-		_isomorphicNodes.put(oldNode, newNode);
+        _isomorphicNodes.put(oldNode, newNode);
 
-		return true;
-	}
+        return true;
+    }
 
-	public List<ASTNode> newlyAddedNodes() {
-		// We don't actually handle non isomorphic graphs yet, so this is always
-		// empty
-		return _newlyAddedNodes;
-	}
+    public List<ASTNode> newlyAddedNodes() {
+        // We don't actually handle non isomorphic graphs yet, so this is always
+        // empty
+        return _newlyAddedNodes;
+    }
 
-	public Map<ASTNode, ASTNode> isomorphicNodes() {
-		return _isomorphicNodes;
-	}
+    public Map<ASTNode, ASTNode> isomorphicNodes() {
+        return _isomorphicNodes;
+    }
 
 }

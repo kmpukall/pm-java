@@ -30,257 +30,236 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMCopyStep extends PMStep {
-	List<ASTNode> _selectedNodes;
-
-	public PMCopyStep(PMProject project, List<ASTNode> selectedNodes) {
-		super(project);
+    List<ASTNode> _selectedNodes;
 
-		initWithSelectedNodes(selectedNodes);
-	}
+    public PMCopyStep(PMProject project, List<ASTNode> selectedNodes) {
+        super(project);
 
-	public PMCopyStep(PMProject project, ASTNode node) {
-		super(project);
+        initWithSelectedNodes(selectedNodes);
+    }
 
-		List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
+    public PMCopyStep(PMProject project, ASTNode node) {
+        super(project);
 
-		selectedNodes.add(node);
+        List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
 
-		initWithSelectedNodes(selectedNodes);
-	}
+        selectedNodes.add(node);
 
-	private void initWithSelectedNodes(List<ASTNode> selectedNodes) {
-		_selectedNodes = selectedNodes;
-	}
+        initWithSelectedNodes(selectedNodes);
+    }
 
-	// need method to test for errors before asking for changes
+    private void initWithSelectedNodes(List<ASTNode> selectedNodes) {
+        _selectedNodes = selectedNodes;
+    }
 
-	public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-		Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+    // need method to test for errors before asking for changes
 
-		return result;
-	}
+    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+        Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-	public void copyNameModel(List<ASTNode> originalRootNodes,
-			List<ASTNode> copiedRootNodes) {
-		/*
-		 * Generate fresh identifiers for all copied declarations (and
-		 * definitions) and keep a mapping from the original identifiers to the
-		 * new ones so we can later fix up references. We have to do this in two
-		 * passes because a reference may come before a declaration in the AST.
-		 */
+        return result;
+    }
 
-		final PMNameModel nameModel = _project.getNameModel();
+    public void copyNameModel(List<ASTNode> originalRootNodes, List<ASTNode> copiedRootNodes) {
+        /*
+         * Generate fresh identifiers for all copied declarations (and definitions) and keep a
+         * mapping from the original identifiers to the new ones so we can later fix up references.
+         * We have to do this in two passes because a reference may come before a declaration in the
+         * AST.
+         */
 
-		final Map<String, String> copyNameIdentifiersForOriginals = new HashMap<String, String>();
+        final PMNameModel nameModel = _project.getNameModel();
 
-		ASTMatcher matcher = new ASTMatcher() {
-			public boolean match(SimpleName originalName, Object copyNameObject) {
-				SimpleName copyName = (SimpleName) copyNameObject;
+        final Map<String, String> copyNameIdentifiersForOriginals = new HashMap<String, String>();
 
-				if (_project.nameNodeIsDeclaring(originalName)) {
-					// Generate fresh identifier for node with name model
-
-					String freshNameModelIdentifier = nameModel
-							.generateNewIdentifierForName(copyName);
-					nameModel.setIdentifierForName(freshNameModelIdentifier,
-							copyName);
-
-					copyNameIdentifiersForOriginals.put(
-							nameModel.identifierForName(originalName),
-							freshNameModelIdentifier);
-				} else {
-					nameModel
-							.setIdentifierForName(
-									nameModel.identifierForName(originalName),
-									copyName);
-				}
+        ASTMatcher matcher = new ASTMatcher() {
+            public boolean match(SimpleName originalName, Object copyNameObject) {
+                SimpleName copyName = (SimpleName) copyNameObject;
 
-				return true;
-			}
-		};
-
-		for (int i = 0; i < originalRootNodes.size(); i++) {
-			ASTNode original = originalRootNodes.get(i);
-			ASTNode copy = copiedRootNodes.get(i);
-
-			original.subtreeMatch(matcher, copy);
-
-		}
-
-		/*
-		 * Now that we've generated fresh identifiers for all copied
-		 * declarations, we go through and fix up references to the old
-		 * identifiers in the copies to now point to the new identifiers
-		 */
-
-		ASTVisitor fixupReferenceVisitor = new ASTVisitor() {
-			@Override
-			public boolean visit(SimpleName name) {
-				String nameIdentifier = nameModel.identifierForName(name);
-
-				if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier))
-					nameModel
-							.setIdentifierForName(
-									copyNameIdentifiersForOriginals
-											.get(nameIdentifier), name);
-				return true;
-			}
-		};
-
-		for (ASTNode copiedPasteboardRoot : copiedRootNodes) {
-			copiedPasteboardRoot.accept(fixupReferenceVisitor);
-		}
-	}
-
-	public void copyUDModel(List<ASTNode> originalRootNodes,
-			List<ASTNode> copiedRootNodes) {
-		// find all definitions in the copy
-		// and keep a mapping from the new definition to the old
-
-		// find all uses in the copy and keep a mapping from the new use to the
-		// old
-
-		// for each each in the copy, if it's definition is internal,
-
-		final PMUDModel udModel = _project.getUDModel();
-
-		final Map<ASTNode, ASTNode> originalUsingNodesForCopiedUsingNodes = new HashMap<ASTNode, ASTNode>();
-		final Map<ASTNode, ASTNode> copiedUsingNodesForOriginalUsingNodes = new HashMap<ASTNode, ASTNode>();
-
-		ASTMatcher nameMatcher = new ASTMatcher() {
-			public boolean match(SimpleName originalName, Object copyNameObject) {
-				SimpleName copyName = (SimpleName) copyNameObject;
-
-				if (udModel.nameIsUse(originalName)) {
-					originalUsingNodesForCopiedUsingNodes.put(copyName,
-							originalName);
-					copiedUsingNodesForOriginalUsingNodes.put(originalName,
-							copyName);
-				}
-
-				return true;
-			}
-		};
-
-		Map<ASTNode, ASTNode> originalDefiningNodesForCopiedDefiningNodes = new HashMap<ASTNode, ASTNode>();
-		Map<ASTNode, ASTNode> copiedDefiningNodesForCopiedOriginalDefiningNodes = new HashMap<ASTNode, ASTNode>();
-
-		for (int rootNodeIndex = 0; rootNodeIndex < originalRootNodes.size(); rootNodeIndex++) {
-			ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
-			ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
+                if (_project.nameNodeIsDeclaring(originalName)) {
+                    // Generate fresh identifier for node with name model
 
-			List<ASTNode> originalDefiningNodes = PMRDefsAnalysis
-					.findDefiningNodesUnderNode(originalRootNode);
-			List<ASTNode> copyDefiningNodes = PMRDefsAnalysis
-					.findDefiningNodesUnderNode(copyRootNode);
+                    String freshNameModelIdentifier = nameModel
+                            .generateNewIdentifierForName(copyName);
+                    nameModel.setIdentifierForName(freshNameModelIdentifier, copyName);
 
-			for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes
-					.size(); definingNodeIndex++) {
-				ASTNode originalDefiningNode = originalDefiningNodes
-						.get(definingNodeIndex);
-				ASTNode copyDefiningNode = copyDefiningNodes
-						.get(definingNodeIndex);
+                    copyNameIdentifiersForOriginals.put(nameModel.identifierForName(originalName),
+                            freshNameModelIdentifier);
+                } else {
+                    nameModel.setIdentifierForName(nameModel.identifierForName(originalName),
+                            copyName);
+                }
 
-				originalDefiningNodesForCopiedDefiningNodes.put(
-						copyDefiningNode, originalDefiningNode);
-				copiedDefiningNodesForCopiedOriginalDefiningNodes.put(
-						originalDefiningNode, copyDefiningNode);
-			}
+                return true;
+            }
+        };
 
-			originalRootNode.subtreeMatch(nameMatcher, copyRootNode);
+        for (int i = 0; i < originalRootNodes.size(); i++) {
+            ASTNode original = originalRootNodes.get(i);
+            ASTNode copy = copiedRootNodes.get(i);
 
-		}
+            original.subtreeMatch(matcher, copy);
 
-		/*
-		 * Now that we have the mappings:
-		 * 
-		 * For each copied definition, find the original definition and get the
-		 * original uses for it for each original use, if it is external add it
-		 * as a use for the copy if it is internal, generate a new identifier
-		 * for the copy use and add it to the uses for the copied definition
-		 */
+        }
 
-		for (ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes
-				.keySet()) {
-			ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes
-					.get(copiedDefinition);
+        /*
+         * Now that we've generated fresh identifiers for all copied declarations, we go through and
+         * fix up references to the old identifiers in the copies to now point to the new
+         * identifiers
+         */
 
-			Set<PMNodeReference> originalUses = udModel
-					.usesForDefinition(_project
-							.getReferenceForNode(originalDefinition));
+        ASTVisitor fixupReferenceVisitor = new ASTVisitor() {
+            @Override
+            public boolean visit(SimpleName name) {
+                String nameIdentifier = nameModel.identifierForName(name);
 
-			Set<PMNodeReference> copyUses = udModel.usesForDefinition(_project
-					.getReferenceForNode(copiedDefinition));
+                if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier))
+                    nameModel.setIdentifierForName(
+                            copyNameIdentifiersForOriginals.get(nameIdentifier), name);
+                return true;
+            }
+        };
 
-			for (PMNodeReference originalUseReference : originalUses) {
-				ASTNode originalUseNode = originalUseReference.getNode();
+        for (ASTNode copiedPasteboardRoot : copiedRootNodes) {
+            copiedPasteboardRoot.accept(fixupReferenceVisitor);
+        }
+    }
 
-				ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes
-						.get(originalUseNode);
+    public void copyUDModel(List<ASTNode> originalRootNodes, List<ASTNode> copiedRootNodes) {
+        // find all definitions in the copy
+        // and keep a mapping from the new definition to the old
 
-				if (copyUseNode != null) { /* use is internal */
-					copyUses.add(_project.getReferenceForNode(copyUseNode));
-				} else { /* Use is external, so the original reference is fine */
-					copyUses.add(originalUseReference);
-				}
-			}
-		}
+        // find all uses in the copy and keep a mapping from the new use to the
+        // old
 
-		for (ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
-			ASTNode originalUse = originalUsingNodesForCopiedUsingNodes
-					.get(copiedUse);
+        // for each each in the copy, if it's definition is internal,
 
-			Set<PMNodeReference> originalDefinitions = udModel
-					.definitionIdentifiersForName(_project
-							.getReferenceForNode(originalUse));
+        final PMUDModel udModel = _project.getUDModel();
 
-			Set<PMNodeReference> copyDefinitions = udModel
-					.definitionIdentifiersForName(_project
-							.getReferenceForNode(copiedUse));
+        final Map<ASTNode, ASTNode> originalUsingNodesForCopiedUsingNodes = new HashMap<ASTNode, ASTNode>();
+        final Map<ASTNode, ASTNode> copiedUsingNodesForOriginalUsingNodes = new HashMap<ASTNode, ASTNode>();
 
-			for (PMNodeReference originalDefinitionReference : originalDefinitions) {
-				ASTNode originalDefinitionNode = originalDefinitionReference
-						.getNode();
+        ASTMatcher nameMatcher = new ASTMatcher() {
+            public boolean match(SimpleName originalName, Object copyNameObject) {
+                SimpleName copyName = (SimpleName) copyNameObject;
 
-				ASTNode copyDefinitionNode = copiedDefiningNodesForCopiedOriginalDefiningNodes
-						.get(originalDefinitionNode);
+                if (udModel.nameIsUse(originalName)) {
+                    originalUsingNodesForCopiedUsingNodes.put(copyName, originalName);
+                    copiedUsingNodesForOriginalUsingNodes.put(originalName, copyName);
+                }
 
-				if (copyDefinitionNode != null) { /* def is internal */
-					copyDefinitions.add(_project
-							.getReferenceForNode(copyDefinitionNode));
-				} else { /* Use is external, so the original reference is fine */
-					copyDefinitions.add(originalDefinitionReference);
-				}
-			}
-		}
+                return true;
+            }
+        };
 
-	}
+        Map<ASTNode, ASTNode> originalDefiningNodesForCopiedDefiningNodes = new HashMap<ASTNode, ASTNode>();
+        Map<ASTNode, ASTNode> copiedDefiningNodesForCopiedOriginalDefiningNodes = new HashMap<ASTNode, ASTNode>();
 
-	public void performASTChange() {
+        for (int rootNodeIndex = 0; rootNodeIndex < originalRootNodes.size(); rootNodeIndex++) {
+            ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
+            ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
 
-		List<ASTNode> copiedPasteboardRootNodes = new ArrayList<ASTNode>();
+            List<ASTNode> originalDefiningNodes = PMRDefsAnalysis
+                    .findDefiningNodesUnderNode(originalRootNode);
+            List<ASTNode> copyDefiningNodes = PMRDefsAnalysis
+                    .findDefiningNodesUnderNode(copyRootNode);
 
-		for (ASTNode original : _selectedNodes) {
-			ASTNode copy = ASTNode.copySubtree(original.getAST(), original);
+            for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes.size(); definingNodeIndex++) {
+                ASTNode originalDefiningNode = originalDefiningNodes.get(definingNodeIndex);
+                ASTNode copyDefiningNode = copyDefiningNodes.get(definingNodeIndex);
 
-			copiedPasteboardRootNodes.add(copy);
-		}
+                originalDefiningNodesForCopiedDefiningNodes.put(copyDefiningNode,
+                        originalDefiningNode);
+                copiedDefiningNodesForCopiedOriginalDefiningNodes.put(originalDefiningNode,
+                        copyDefiningNode);
+            }
 
-		copyNameModel(_selectedNodes, copiedPasteboardRootNodes);
+            originalRootNode.subtreeMatch(nameMatcher, copyRootNode);
 
-		copyUDModel(_selectedNodes, copiedPasteboardRootNodes);
+        }
 
-		PMPasteboard pasteboard = _project.getPasteboard();
+        /*
+         * Now that we have the mappings:
+         * 
+         * For each copied definition, find the original definition and get the original uses for it
+         * for each original use, if it is external add it as a use for the copy if it is internal,
+         * generate a new identifier for the copy use and add it to the uses for the copied
+         * definition
+         */
 
-		pasteboard.setPasteboardRoots(copiedPasteboardRootNodes);
-	}
+        for (ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes.keySet()) {
+            ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes
+                    .get(copiedDefinition);
 
-	public void updateAfterReparse() {
+            Set<PMNodeReference> originalUses = udModel.usesForDefinition(_project
+                    .getReferenceForNode(originalDefinition));
 
-	}
+            Set<PMNodeReference> copyUses = udModel.usesForDefinition(_project
+                    .getReferenceForNode(copiedDefinition));
 
-	public void cleanup() {
+            for (PMNodeReference originalUseReference : originalUses) {
+                ASTNode originalUseNode = originalUseReference.getNode();
 
-	}
+                ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes.get(originalUseNode);
+
+                if (copyUseNode != null) { /* use is internal */
+                    copyUses.add(_project.getReferenceForNode(copyUseNode));
+                } else { /* Use is external, so the original reference is fine */
+                    copyUses.add(originalUseReference);
+                }
+            }
+        }
+
+        for (ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
+            ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
+
+            Set<PMNodeReference> originalDefinitions = udModel
+                    .definitionIdentifiersForName(_project.getReferenceForNode(originalUse));
+
+            Set<PMNodeReference> copyDefinitions = udModel.definitionIdentifiersForName(_project
+                    .getReferenceForNode(copiedUse));
+
+            for (PMNodeReference originalDefinitionReference : originalDefinitions) {
+                ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
+
+                ASTNode copyDefinitionNode = copiedDefiningNodesForCopiedOriginalDefiningNodes
+                        .get(originalDefinitionNode);
+
+                if (copyDefinitionNode != null) { /* def is internal */
+                    copyDefinitions.add(_project.getReferenceForNode(copyDefinitionNode));
+                } else { /* Use is external, so the original reference is fine */
+                    copyDefinitions.add(originalDefinitionReference);
+                }
+            }
+        }
+
+    }
+
+    public void performASTChange() {
+
+        List<ASTNode> copiedPasteboardRootNodes = new ArrayList<ASTNode>();
+
+        for (ASTNode original : _selectedNodes) {
+            ASTNode copy = ASTNode.copySubtree(original.getAST(), original);
+
+            copiedPasteboardRootNodes.add(copy);
+        }
+
+        copyNameModel(_selectedNodes, copiedPasteboardRootNodes);
+
+        copyUDModel(_selectedNodes, copiedPasteboardRootNodes);
+
+        PMPasteboard pasteboard = _project.getPasteboard();
+
+        pasteboard.setPasteboardRoots(copiedPasteboardRootNodes);
+    }
+
+    public void updateAfterReparse() {
+
+    }
+
+    public void cleanup() {
+
+    }
 
 }

@@ -26,128 +26,125 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.TextEdit;
 
 public class PMStep {
-	PMProject _project;
+    PMProject _project;
 
-	PMStep(PMProject project) {
-		_project = project;
-	}
+    PMStep(PMProject project) {
+        _project = project;
+    }
 
-	// need method to test for errors before asking for changes
+    // need method to test for errors before asking for changes
 
-	public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-		return null;
-	}
+    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+        return null;
+    }
 
-	public void performASTChange() {
+    public void performASTChange() {
 
-	}
+    }
 
-	public void updateAfterReparse() {
+    public void updateAfterReparse() {
 
-	}
+    }
 
-	public void cleanup() {
-		// called regardless of whether updateAfterReparse() was called
-	}
+    public void cleanup() {
+        // called regardless of whether updateAfterReparse() was called
+    }
 
-	public void applyAllAtOnce() {
+    public void applyAllAtOnce() {
 
-		Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
+        Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
-		for (ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
-			PMWorkspace.applyRewrite(rewrites.get(compilationUnitToRewrite),
-					compilationUnitToRewrite);
-		}
+        for (ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
+            PMWorkspace.applyRewrite(rewrites.get(compilationUnitToRewrite),
+                    compilationUnitToRewrite);
+        }
 
-		performASTChange();
+        performASTChange();
 
-		_project.updateToNewVersionsOfICompilationUnits();
+        _project.updateToNewVersionsOfICompilationUnits();
 
-		updateAfterReparse();
+        updateAfterReparse();
 
-		cleanup();
+        cleanup();
 
-		_project.rescanForInconsistencies();
-	}
+        _project.rescanForInconsistencies();
+    }
 
-	public Change createCompositeChange(String changeDescription) {
+    public Change createCompositeChange(String changeDescription) {
 
-		Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
+        Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
-		Change result = new NullChange();
+        Change result = new NullChange();
 
-		try {
-			if (rewrites.size() > 0) {
-				CompositeChange combinedChange = new PMCompositeChange(
-						changeDescription);
+        try {
+            if (rewrites.size() > 0) {
+                CompositeChange combinedChange = new PMCompositeChange(changeDescription);
 
-				for (ICompilationUnit compilationUnitToChange : rewrites
-						.keySet()) {
-					ASTRewrite rewrite = rewrites.get(compilationUnitToChange);
+                for (ICompilationUnit compilationUnitToChange : rewrites.keySet()) {
+                    ASTRewrite rewrite = rewrites.get(compilationUnitToChange);
 
-					TextEdit astEdit = rewrite.rewriteAST();
+                    TextEdit astEdit = rewrite.rewriteAST();
 
-					TextFileChange localChange = new PMTextFileChange(
-							changeDescription,
-							(IFile) compilationUnitToChange.getResource());
+                    TextFileChange localChange = new PMTextFileChange(changeDescription,
+                            (IFile) compilationUnitToChange.getResource());
 
-					localChange.setTextType("java");
-					localChange.setEdit(astEdit);
+                    localChange.setTextType("java");
+                    localChange.setEdit(astEdit);
 
-					combinedChange.add(localChange);
-				}
+                    combinedChange.add(localChange);
+                }
 
-				result = combinedChange;
-			}
+                result = combinedChange;
+            }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public class PMCompositeChange extends CompositeChange {
-		public PMCompositeChange(String name) {
-			super(name);
-		}
+    public class PMCompositeChange extends CompositeChange {
+        public PMCompositeChange(String name) {
+            super(name);
+        }
 
-		public Change perform(IProgressMonitor pm) throws CoreException {
+        public Change perform(IProgressMonitor pm) throws CoreException {
 
-			Change result = super.perform(pm);
+            Change result = super.perform(pm);
 
-			performASTChange();
+            performASTChange();
 
-			_project.updateToNewVersionsOfICompilationUnits();
+            _project.updateToNewVersionsOfICompilationUnits();
 
-			updateAfterReparse();
+            updateAfterReparse();
 
-			cleanup();
+            cleanup();
 
-			_project.rescanForInconsistencies();
+            _project.rescanForInconsistencies();
 
-			return result;
-		}
+            return result;
+        }
 
-	}
+    }
 
-	public class PMTextFileChange extends TextFileChange {
-		public PMTextFileChange(String name, IFile file) {
-			super(name, file);
-		}
+    public class PMTextFileChange extends TextFileChange {
+        public PMTextFileChange(String name, IFile file) {
+            super(name, file);
+        }
 
-		// This will do the text change but not the ast changes
+        // This will do the text change but not the ast changes
 
-		public Change perform(IProgressMonitor pm) throws CoreException {
+        public Change perform(IProgressMonitor pm) throws CoreException {
 
-			// In future, we might as well do the text replacement parts of the
-			// change ourselves, too (since this will make sure that we do the
-			// same thing in all situations), but for now we let the superclass
-			// do it
-			Change result = super.perform(pm);
+            // In future, we might as well do the text replacement parts of the
+            // change ourselves, too (since this will make sure that we do the
+            // same thing in all situations), but for now we let the superclass
+            // do it
+            Change result = super.perform(pm);
 
-			return result;
-		}
+            return result;
+        }
 
-	}
+    }
 }

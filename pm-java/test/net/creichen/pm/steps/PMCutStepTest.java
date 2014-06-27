@@ -33,227 +33,174 @@ import org.junit.Test;
 
 public class PMCutStepTest extends PMTest {
 
-	@Test
-	public void testInstantiation() {
+    @Test
+    public void testInstantiation() {
 
-		String source = "public class S {S s; void m(){s.getClass(); m();}}";
+        String source = "public class S {S s; void m(){s.getClass(); m();}}";
 
-		ICompilationUnit compilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		MethodDeclaration methodDeclaration = PMASTQuery
-				.methodWithNameInClassInCompilationUnit(
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) pmProject
-								.findASTRootForICompilationUnit(compilationUnit));
+        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
+                "m", 0, "S", 0,
+                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
-		PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
+        PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
 
-		assertTrue(cutStep != null);// just to make warning go away
-	}
+        assertTrue(cutStep != null);// just to make warning go away
+    }
 
-	// None of these tests non-textual side effects of cut method
+    // None of these tests non-textual side effects of cut method
 
-	@Test
-	public void testCutMethod() throws JavaModelException {
-		String source = "public class S {S s; void m(){System.out.println(s);}}";
+    @Test
+    public void testCutMethod() throws JavaModelException {
+        String source = "public class S {S s; void m(){System.out.println(s);}}";
 
-		ICompilationUnit compilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		MethodDeclaration methodDeclaration = PMASTQuery
-				.methodWithNameInClassInCompilationUnit(
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) pmProject
-								.findASTRootForICompilationUnit(compilationUnit));
+        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
+                "m", 0, "S", 0,
+                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
-		PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
+        PMCutStep cutStep = new PMCutStep(pmProject, methodDeclaration);
 
-		cutStep.applyAllAtOnce();
+        cutStep.applyAllAtOnce();
 
-		assertTrue(compilationUnitSourceMatchesSource("public class S {S s;}",
-				compilationUnit.getSource()));
-	}
+        assertTrue(compilationUnitSourceMatchesSource("public class S {S s;}",
+                compilationUnit.getSource()));
+    }
 
-	@Test
-	public void testCutStatement() throws JavaModelException {
-		String source = "public class S {S s; void m(){System.out.println(s);}}";
+    @Test
+    public void testCutStatement() throws JavaModelException {
+        String source = "public class S {S s; void m(){System.out.println(s);}}";
 
-		ICompilationUnit compilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		MethodDeclaration methodDeclaration = PMASTQuery
-				.methodWithNameInClassInCompilationUnit(
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) pmProject
-								.findASTRootForICompilationUnit(compilationUnit));
+        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
+                "m", 0, "S", 0,
+                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
-		Statement firstStatement = (Statement) methodDeclaration.getBody()
-				.statements().get(0);
+        Statement firstStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
-		PMCutStep cutStep = new PMCutStep(pmProject, firstStatement);
+        PMCutStep cutStep = new PMCutStep(pmProject, firstStatement);
 
-		cutStep.applyAllAtOnce();
+        cutStep.applyAllAtOnce();
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S {S s; void m(){}}", compilationUnit.getSource()));
-	}
+        assertTrue(compilationUnitSourceMatchesSource("public class S {S s; void m(){}}",
+                compilationUnit.getSource()));
+    }
 
-	@Test
-	public void testCutField() throws JavaModelException {
-		String source = "public class S {S s; void m(){System.out.println(s);}}";
+    @Test
+    public void testCutField() throws JavaModelException {
+        String source = "public class S {S s; void m(){System.out.println(s);}}";
 
-		ICompilationUnit compilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
-				.fieldWithNameInClassInCompilationUnit(
-						"s",
-						0,
-						"S",
-						0,
-						(CompilationUnit) pmProject
-								.findASTRootForICompilationUnit(compilationUnit));
+        VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
+                .fieldWithNameInClassInCompilationUnit("s", 0, "S", 0,
+                        (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment
-				.getParent();
+        FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
-		PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
 
-		cutStep.applyAllAtOnce();
+        cutStep.applyAllAtOnce();
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S {void m(){System.out.println(s);}}",
-				compilationUnit.getSource()));
-	}
+        assertTrue(compilationUnitSourceMatchesSource(
+                "public class S {void m(){System.out.println(s);}}", compilationUnit.getSource()));
+    }
 
-	@Test
-	public void testCutMultipleStatements() throws JavaModelException {
-		String source = "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}";
+    @Test
+    public void testCutMultipleStatements() throws JavaModelException {
+        String source = "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}";
 
-		ICompilationUnit iCompilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		CompilationUnit compilationUnit = (CompilationUnit) pmProject
-				.findASTRootForICompilationUnit(iCompilationUnit);
+        CompilationUnit compilationUnit = (CompilationUnit) pmProject
+                .findASTRootForICompilationUnit(iCompilationUnit);
 
-		MethodDeclaration methodDeclaration = PMASTQuery
-				.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-						compilationUnit);
+        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
+                "m", 0, "S", 0, compilationUnit);
 
-		Statement thirdStatement = (Statement) methodDeclaration.getBody()
-				.statements().get(2);
-		Statement fourthStatement = (Statement) methodDeclaration.getBody()
-				.statements().get(3);
+        Statement thirdStatement = (Statement) methodDeclaration.getBody().statements().get(2);
+        Statement fourthStatement = (Statement) methodDeclaration.getBody().statements().get(3);
 
-		List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
-		nodesToCut.add(thirdStatement);
-		nodesToCut.add(fourthStatement);
+        List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
+        nodesToCut.add(thirdStatement);
+        nodesToCut.add(fourthStatement);
 
-		PMCutStep cutStep = new PMCutStep(pmProject, nodesToCut);
+        PMCutStep cutStep = new PMCutStep(pmProject, nodesToCut);
 
-		cutStep.applyAllAtOnce();
+        cutStep.applyAllAtOnce();
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S {void m(){int x,y; int a; x = 2;}}",
-				iCompilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(
+                "public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
 
-		assertEquals(pmProject.getPasteboard().getPasteboardRoots().size(),
-				(int) 2);
-		assertTrue(pmProject.getPasteboard().containsOnlyNodesOfClass(
-				Statement.class));
-	}
+        assertEquals(pmProject.getPasteboard().getPasteboardRoots().size(), (int) 2);
+        assertTrue(pmProject.getPasteboard().containsOnlyNodesOfClass(Statement.class));
+    }
 
-	@Test
-	public void testCutDeclarationButNotReference() throws JavaModelException {
-		String source = "public class S {void m(){int x; x = 1;}}";
+    @Test
+    public void testCutDeclarationButNotReference() throws JavaModelException {
+        String source = "public class S {void m(){int x; x = 1;}}";
 
-		ICompilationUnit iCompilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		CompilationUnit compilationUnit = (CompilationUnit) pmProject
-				.findASTRootForICompilationUnit(iCompilationUnit);
+        CompilationUnit compilationUnit = (CompilationUnit) pmProject
+                .findASTRootForICompilationUnit(iCompilationUnit);
 
-		MethodDeclaration methodDeclaration = PMASTQuery
-				.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-						compilationUnit);
+        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
+                "m", 0, "S", 0, compilationUnit);
 
-		Statement secondStatement = (Statement) methodDeclaration.getBody()
-				.statements().get(0);
+        Statement secondStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
-		try {
-			PMCutStep cutStep = new PMCutStep(pmProject, secondStatement);
+        try {
+            PMCutStep cutStep = new PMCutStep(pmProject, secondStatement);
 
-			cutStep.applyAllAtOnce();
-		} catch (RuntimeException e) {
+            cutStep.applyAllAtOnce();
+        } catch (RuntimeException e) {
 
-			System.out.println("Shouldn't throw exception");
+            System.out.println("Shouldn't throw exception");
 
-			org.junit.Assert.fail("Shouldn't throw exception");
-		}
+            org.junit.Assert.fail("Shouldn't throw exception");
+        }
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S {void m(){x = 1;}}",
-				iCompilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){x = 1;}}",
+                iCompilationUnit.getSource()));
 
-	}
+    }
 
-	@Test
-	public void testCutFieldWithReference() throws JavaModelException {
-		String source = "public class S {int x; void m(){x = 1;}}";
+    @Test
+    public void testCutFieldWithReference() throws JavaModelException {
+        String source = "public class S {int x; void m(){x = 1;}}";
 
-		ICompilationUnit iCompilationUnit = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
-				.fieldWithNameInClassInCompilationUnit(
-						"x",
-						0,
-						"S",
-						0,
-						(CompilationUnit) pmProject
-								.findASTRootForICompilationUnit(iCompilationUnit));
+        VariableDeclarationFragment fieldDeclarationFragment = PMASTQuery
+                .fieldWithNameInClassInCompilationUnit("x", 0, "S", 0, (CompilationUnit) pmProject
+                        .findASTRootForICompilationUnit(iCompilationUnit));
 
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment
-				.getParent();
+        FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
-		PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
+        PMCutStep cutStep = new PMCutStep(pmProject, fieldDeclaration);
 
-		cutStep.applyAllAtOnce();
+        cutStep.applyAllAtOnce();
 
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S {void m(){x = 1;}}",
-				iCompilationUnit.getSource()));
-	}
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){x = 1;}}",
+                iCompilationUnit.getSource()));
+    }
 
 }

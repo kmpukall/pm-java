@@ -15,22 +15,20 @@ import net.creichen.pm.PMProject;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class PMMissingDefinition extends PMInconsistency {
-	protected ASTNode _definingNode;
+    protected ASTNode _definingNode;
 
-	public PMMissingDefinition(PMProject project,
-			PMCompilationUnit iCompilationUnit, ASTNode usingNode,
-			ASTNode definingNode) {
-		super(project, iCompilationUnit, usingNode);
+    public PMMissingDefinition(PMProject project, PMCompilationUnit iCompilationUnit,
+            ASTNode usingNode, ASTNode definingNode) {
+        super(project, iCompilationUnit, usingNode);
 
-		_definingNode = definingNode;
-	}
+        _definingNode = definingNode;
+    }
 
-	public String getHumanReadableDescription() {
-		return "Definition (" + _definingNode + ") should be used by "
-				+ getNode();
-	}
+    public String getHumanReadableDescription() {
+        return "Definition (" + _definingNode + ") should be used by " + getNode();
+    }
 
-	public ASTNode getDefiningNode() {
-		return _definingNode;
-	}
+    public ASTNode getDefiningNode() {
+        return _definingNode;
+    }
 }

@@ -48,214 +48,195 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMSplitStep extends PMStep {
 
-	ICompilationUnit _iCompilationUnit;
+    ICompilationUnit _iCompilationUnit;
 
-	ExpressionStatement _assignmentStatement;
+    ExpressionStatement _assignmentStatement;
 
-	// These keep state between text and ast change
-	VariableDeclarationStatement _replacementDeclarationStatement;
+    // These keep state between text and ast change
+    VariableDeclarationStatement _replacementDeclarationStatement;
 
-	Expression _initializer;
-	Expression _initializerCopy;
+    Expression _initializer;
+    Expression _initializerCopy;
 
-	// This keeps state between reparses
-	PMNodeReference _replacementDeclarationReference;
+    // This keeps state between reparses
+    PMNodeReference _replacementDeclarationReference;
 
-	public PMSplitStep(PMProject project,
-			ExpressionStatement assignmentStatement) {
-		super(project);
+    public PMSplitStep(PMProject project, ExpressionStatement assignmentStatement) {
+        super(project);
 
-		_assignmentStatement = assignmentStatement;
+        _assignmentStatement = assignmentStatement;
 
-		CompilationUnit containingCompilationUnit = (CompilationUnit) _assignmentStatement
-				.getRoot();
+        CompilationUnit containingCompilationUnit = (CompilationUnit) _assignmentStatement
+                .getRoot();
 
-		_iCompilationUnit = (ICompilationUnit) containingCompilationUnit
-				.getJavaElement();
+        _iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
 
-	}
+    }
 
-	public VariableDeclarationStatement getReplacementDeclarationStatement() {
-		return (VariableDeclarationStatement) _replacementDeclarationReference
-				.getNode();
-	}
+    public VariableDeclarationStatement getReplacementDeclarationStatement() {
+        return (VariableDeclarationStatement) _replacementDeclarationReference.getNode();
+    }
 
-	public void rewriteToReplaceAssignmentStatementWithDeclaration(
-			ASTRewrite rewrite, Assignment assignment) {
+    public void rewriteToReplaceAssignmentStatementWithDeclaration(ASTRewrite rewrite,
+            Assignment assignment) {
 
-		SimpleName lhs = (SimpleName) assignment.getLeftHandSide();
+        SimpleName lhs = (SimpleName) assignment.getLeftHandSide();
 
-		AST ast = assignment.getAST();
+        AST ast = assignment.getAST();
 
-		_initializer = assignment.getRightHandSide();
-		_initializerCopy = (Expression) ASTNode.copySubtree(ast, _initializer);
+        _initializer = assignment.getRightHandSide();
+        _initializerCopy = (Expression) ASTNode.copySubtree(ast, _initializer);
 
-		VariableDeclarationFragment fragment = ast
-				.newVariableDeclarationFragment();
-		fragment.setInitializer(_initializerCopy);
+        VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+        fragment.setInitializer(_initializerCopy);
 
-		fragment.setName(ast.newSimpleName(lhs.getIdentifier()));
+        fragment.setName(ast.newSimpleName(lhs.getIdentifier()));
 
-		_replacementDeclarationStatement = ast
-				.newVariableDeclarationStatement(fragment);
+        _replacementDeclarationStatement = ast.newVariableDeclarationStatement(fragment);
 
-		VariableDeclaration originalVariableDeclaration = PMASTNodeUtils
-				.localVariableDeclarationForSimpleName(lhs);
+        VariableDeclaration originalVariableDeclaration = PMASTNodeUtils
+                .localVariableDeclarationForSimpleName(lhs);
 
-		Type type = null;
+        Type type = null;
 
-		// AAAAAAGH
-		// It's hard to get a type from a variable declaration
-		// This an instance where strong typing really gets in the way
+        // AAAAAAGH
+        // It's hard to get a type from a variable declaration
+        // This an instance where strong typing really gets in the way
 
-		if (originalVariableDeclaration instanceof VariableDeclarationFragment) {
-			ASTNode parent = originalVariableDeclaration.getParent();
+        if (originalVariableDeclaration instanceof VariableDeclarationFragment) {
+            ASTNode parent = originalVariableDeclaration.getParent();
 
-			if (parent instanceof VariableDeclarationStatement) {
-				type = ((VariableDeclarationStatement) parent).getType();
-			} else if (parent instanceof VariableDeclarationExpression) {
-				type = ((VariableDeclarationExpression) parent).getType();
-			}
-		} else if (originalVariableDeclaration instanceof SingleVariableDeclaration)
-			type = ((SingleVariableDeclaration) originalVariableDeclaration)
-					.getType();
+            if (parent instanceof VariableDeclarationStatement) {
+                type = ((VariableDeclarationStatement) parent).getType();
+            } else if (parent instanceof VariableDeclarationExpression) {
+                type = ((VariableDeclarationExpression) parent).getType();
+            }
+        } else if (originalVariableDeclaration instanceof SingleVariableDeclaration)
+            type = ((SingleVariableDeclaration) originalVariableDeclaration).getType();
 
-		_replacementDeclarationStatement.setType((Type) ASTNode.copySubtree(
-				ast, type));
+        _replacementDeclarationStatement.setType((Type) ASTNode.copySubtree(ast, type));
 
-		rewrite.replace(_assignmentStatement, _replacementDeclarationStatement,
-				null /* edit group */);
-	}
+        rewrite.replace(_assignmentStatement, _replacementDeclarationStatement, null /* edit group */);
+    }
 
-	public void rewriteToRenameSimpleNameToIdentifier(ASTRewrite rewrite,
-			SimpleName simpleName, String identifier) {
-		rewrite.set(simpleName, SimpleName.IDENTIFIER_PROPERTY, identifier,
-				null /* edit group */);
-	}
+    public void rewriteToRenameSimpleNameToIdentifier(ASTRewrite rewrite, SimpleName simpleName,
+            String identifier) {
+        rewrite.set(simpleName, SimpleName.IDENTIFIER_PROPERTY, identifier, null /* edit group */);
+    }
 
-	public MethodDeclaration findContainingMethodDeclaration(ASTNode node) {
-		MethodDeclaration containingMethodDeclaration = null;
+    public MethodDeclaration findContainingMethodDeclaration(ASTNode node) {
+        MethodDeclaration containingMethodDeclaration = null;
 
-		ASTNode iterator = node;
-		while ((iterator = iterator.getParent()) != null) {
+        ASTNode iterator = node;
+        while ((iterator = iterator.getParent()) != null) {
 
-			if (iterator instanceof MethodDeclaration) {
-				containingMethodDeclaration = (MethodDeclaration) iterator;
-			}
-		}
+            if (iterator instanceof MethodDeclaration) {
+                containingMethodDeclaration = (MethodDeclaration) iterator;
+            }
+        }
 
-		return containingMethodDeclaration;
-	}
+        return containingMethodDeclaration;
+    }
 
-	public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-		ASTRewrite astRewrite = ASTRewrite
-				.create(_assignmentStatement.getAST());
+    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+        ASTRewrite astRewrite = ASTRewrite.create(_assignmentStatement.getAST());
 
-		Assignment assignmentExpression = (Assignment) _assignmentStatement
-				.getExpression();
+        Assignment assignmentExpression = (Assignment) _assignmentStatement.getExpression();
 
-		rewriteToReplaceAssignmentStatementWithDeclaration(astRewrite,
-				assignmentExpression);
+        rewriteToReplaceAssignmentStatementWithDeclaration(astRewrite, assignmentExpression);
 
-		Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+        Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-		result.put(_iCompilationUnit, astRewrite);
+        result.put(_iCompilationUnit, astRewrite);
 
-		return result;
-	}
+        return result;
+    }
 
-	public void performASTChange() {
+    public void performASTChange() {
 
-		Assignment oldAssignmentExpression = (Assignment) _assignmentStatement
-				.getExpression();
+        Assignment oldAssignmentExpression = (Assignment) _assignmentStatement.getExpression();
 
-		MethodDeclaration containingMethodDeclaration = findContainingMethodDeclaration(oldAssignmentExpression);
+        MethodDeclaration containingMethodDeclaration = findContainingMethodDeclaration(oldAssignmentExpression);
 
-		PMRDefsAnalysis reachingDefsAnalysis = new PMRDefsAnalysis(
-				containingMethodDeclaration);
+        PMRDefsAnalysis reachingDefsAnalysis = new PMRDefsAnalysis(containingMethodDeclaration);
 
-		PMDef definitionForAssignment = reachingDefsAnalysis
-				.getDefinitionForDefiningNode(oldAssignmentExpression);
+        PMDef definitionForAssignment = reachingDefsAnalysis
+                .getDefinitionForDefiningNode(oldAssignmentExpression);
 
-		Set<SimpleName> uses = new HashSet<SimpleName>();
+        Set<SimpleName> uses = new HashSet<SimpleName>();
 
-		for (PMUse use : definitionForAssignment.getUses()) {
-			SimpleName usingSimpleName = use.getSimpleName();
+        for (PMUse use : definitionForAssignment.getUses()) {
+            SimpleName usingSimpleName = use.getSimpleName();
 
-			uses.add(usingSimpleName);
-		}
+            uses.add(usingSimpleName);
+        }
 
-		VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) _replacementDeclarationStatement
-				.fragments().get(0);
-		;
+        VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) _replacementDeclarationStatement
+                .fragments().get(0);
+        ;
 
-		PMNodeReference identifierForOldAssignment = _project
-				.getReferenceForNode(oldAssignmentExpression);
+        PMNodeReference identifierForOldAssignment = _project
+                .getReferenceForNode(oldAssignmentExpression);
 
-		_project.recursivelyReplaceNodeWithCopy(_initializer, _initializerCopy);
+        _project.recursivelyReplaceNodeWithCopy(_initializer, _initializerCopy);
 
-		// !!!_project.removeNode(oldAssignmentExpression);
-		// !!!_project.addNode(_replacementDeclarationStatement);
+        // !!!_project.removeNode(oldAssignmentExpression);
+        // !!!_project.addNode(_replacementDeclarationStatement);
 
-		PMNodeReference identifierForNewVariableDeclaration = _project
-				.getReferenceForNode(newVariableDeclarationFragment);
+        PMNodeReference identifierForNewVariableDeclaration = _project
+                .getReferenceForNode(newVariableDeclarationFragment);
 
-		SimpleName oldLHS = (SimpleName) oldAssignmentExpression
-				.getLeftHandSide();
-		SimpleName newLHS = newVariableDeclarationFragment.getName();
+        SimpleName oldLHS = (SimpleName) oldAssignmentExpression.getLeftHandSide();
+        SimpleName newLHS = newVariableDeclarationFragment.getName();
 
-		// Need to update UDModel to replace assignment definition with variable
-		// declaration fragment definition
+        // Need to update UDModel to replace assignment definition with variable
+        // declaration fragment definition
 
-		PMUDModel udModel = _project.getUDModel();
+        PMUDModel udModel = _project.getUDModel();
 
-		// for each use of the assignment, replace the use of the assignment
-		// with the use of the declaration
+        // for each use of the assignment, replace the use of the assignment
+        // with the use of the declaration
 
-		for (PMNodeReference useIdentifier : new HashSet<PMNodeReference>(
-				udModel.usesForDefinition(identifierForOldAssignment))) {
-			udModel.removeDefinitionIdentifierForName(
-					identifierForOldAssignment, useIdentifier);
-			udModel.addDefinitionIdentifierForName(
-					identifierForNewVariableDeclaration, useIdentifier);
-		}
+        for (PMNodeReference useIdentifier : new HashSet<PMNodeReference>(
+                udModel.usesForDefinition(identifierForOldAssignment))) {
+            udModel.removeDefinitionIdentifierForName(identifierForOldAssignment, useIdentifier);
+            udModel.addDefinitionIdentifierForName(identifierForNewVariableDeclaration,
+                    useIdentifier);
+        }
 
-		udModel.deleteDefinition(identifierForOldAssignment);
+        udModel.deleteDefinition(identifierForOldAssignment);
 
-		PMNameModel nameModel = _project.getNameModel();
+        PMNameModel nameModel = _project.getNameModel();
 
-		nameModel.removeIdentifierForName(oldLHS);
+        nameModel.removeIdentifierForName(oldLHS);
 
-		String freshIdentifier = UUID.randomUUID().toString();
+        String freshIdentifier = UUID.randomUUID().toString();
 
-		nameModel.setIdentifierForName(freshIdentifier, newLHS);
+        nameModel.setIdentifierForName(freshIdentifier, newLHS);
 
-		for (SimpleName use : uses) {
+        for (SimpleName use : uses) {
 
-			nameModel.setIdentifierForName(freshIdentifier, use);
-		}
+            nameModel.setIdentifierForName(freshIdentifier, use);
+        }
 
-		StructuralPropertyDescriptor location = _assignmentStatement
-				.getLocationInParent();
+        StructuralPropertyDescriptor location = _assignmentStatement.getLocationInParent();
 
-		List<ASTNode> parentList = getStructuralProperty(
-				(ChildListPropertyDescriptor) location,
-				_assignmentStatement.getParent());
+        List<ASTNode> parentList = getStructuralProperty((ChildListPropertyDescriptor) location,
+                _assignmentStatement.getParent());
 
-		parentList.set(parentList.indexOf(_assignmentStatement),
-				_replacementDeclarationStatement);
+        parentList.set(parentList.indexOf(_assignmentStatement), _replacementDeclarationStatement);
 
-		_replacementDeclarationReference = _project
-				.getReferenceForNode(_replacementDeclarationStatement);
+        _replacementDeclarationReference = _project
+                .getReferenceForNode(_replacementDeclarationStatement);
 
-	}
+    }
 
-	public void updateAfterReparse() {
+    public void updateAfterReparse() {
 
-	}
+    }
 
-	public void cleanup() {
+    public void cleanup() {
 
-	}
+    }
 
 }

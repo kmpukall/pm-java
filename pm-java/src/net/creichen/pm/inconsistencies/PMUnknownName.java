@@ -16,16 +16,16 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class PMUnknownName extends PMInconsistency {
 
-	SimpleName _unknownName;
+    SimpleName _unknownName;
 
-	public PMUnknownName(PMProject project, PMCompilationUnit iCompilationUnit,
-			SimpleName unknownName) {
-		super(project, iCompilationUnit, unknownName);
+    public PMUnknownName(PMProject project, PMCompilationUnit iCompilationUnit,
+            SimpleName unknownName) {
+        super(project, iCompilationUnit, unknownName);
 
-		_unknownName = unknownName;
-	}
+        _unknownName = unknownName;
+    }
 
-	public String getHumanReadableDescription() {
-		return "Unknown name " + _unknownName;
-	}
+    public String getHumanReadableDescription() {
+        return "Unknown name " + _unknownName;
+    }
 }

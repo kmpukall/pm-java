@@ -24,42 +24,41 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class PMSplitTemporaryRefactoring {
 
-	PMProject _project;
+    PMProject _project;
 
-	PMSplitStep _splitStep;
+    PMSplitStep _splitStep;
 
-	PMRenameStep _renameStep;
+    PMRenameStep _renameStep;
 
-	String _newVariableName;
+    String _newVariableName;
 
-	public PMSplitTemporaryRefactoring(PMProject project,
-			ExpressionStatement assignmentExpressionStatement,
-			String newVariableName) {
+    public PMSplitTemporaryRefactoring(PMProject project,
+            ExpressionStatement assignmentExpressionStatement, String newVariableName) {
 
-		_project = project;
+        _project = project;
 
-		_splitStep = new PMSplitStep(project, assignmentExpressionStatement);
+        _splitStep = new PMSplitStep(project, assignmentExpressionStatement);
 
-		_newVariableName = newVariableName;
-	}
+        _newVariableName = newVariableName;
+    }
 
-	public void apply() {
+    public void apply() {
 
-		_splitStep.applyAllAtOnce();
+        _splitStep.applyAllAtOnce();
 
-		// now find the name for the new declaration and rename it
+        // now find the name for the new declaration and rename it
 
-		VariableDeclarationStatement newlyCreatedDeclaration = _splitStep
-				.getReplacementDeclarationStatement();
+        VariableDeclarationStatement newlyCreatedDeclaration = _splitStep
+                .getReplacementDeclarationStatement();
 
-		SimpleName simpleNameToRename = ((VariableDeclarationFragment) newlyCreatedDeclaration
-				.fragments().get(0)).getName();
+        SimpleName simpleNameToRename = ((VariableDeclarationFragment) newlyCreatedDeclaration
+                .fragments().get(0)).getName();
 
-		_renameStep = new PMRenameStep(_project, simpleNameToRename);
+        _renameStep = new PMRenameStep(_project, simpleNameToRename);
 
-		_renameStep.setNewName(_newVariableName);
+        _renameStep.setNewName(_newVariableName);
 
-		_renameStep.applyAllAtOnce();
+        _renameStep.applyAllAtOnce();
 
-	}
+    }
 }

@@ -19,60 +19,58 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class PMNameCapture extends PMInconsistency {
 
-	protected ASTNode _expectedDeclaration;
-	protected ASTNode _actualDeclaration;
+    protected ASTNode _expectedDeclaration;
+    protected ASTNode _actualDeclaration;
 
-	public PMNameCapture(PMProject project, PMCompilationUnit iCompilationUnit,
-			ASTNode capturedNode, ASTNode expectedDeclaration,
-			ASTNode actualDeclaration) {
-		super(project, iCompilationUnit, capturedNode);
+    public PMNameCapture(PMProject project, PMCompilationUnit iCompilationUnit,
+            ASTNode capturedNode, ASTNode expectedDeclaration, ASTNode actualDeclaration) {
+        super(project, iCompilationUnit, capturedNode);
 
-		_expectedDeclaration = expectedDeclaration;
-		_actualDeclaration = actualDeclaration;
-	}
+        _expectedDeclaration = expectedDeclaration;
+        _actualDeclaration = actualDeclaration;
+    }
 
-	public ASTNode getCapturedNode() {
-		return _node;
-	}
+    public ASTNode getCapturedNode() {
+        return _node;
+    }
 
-	public ASTNode getExpectedDeclaration() {
-		return _expectedDeclaration;
-	}
+    public ASTNode getExpectedDeclaration() {
+        return _expectedDeclaration;
+    }
 
-	public ASTNode getActualDeclaration() {
-		return _actualDeclaration;
-	}
+    public ASTNode getActualDeclaration() {
+        return _actualDeclaration;
+    }
 
-	public String getCapturedNodeDescription() {
+    public String getCapturedNodeDescription() {
 
-		if (_node instanceof SimpleName) {
-			return ((SimpleName) _node).getIdentifier();
-		} else
-			return "Unknown node";
-	}
+        if (_node instanceof SimpleName) {
+            return ((SimpleName) _node).getIdentifier();
+        } else
+            return "Unknown node";
+    }
 
-	@Override
-	public String getHumanReadableDescription() {
-		return getCapturedNodeDescription() + " was captured.";
-	}
+    @Override
+    public String getHumanReadableDescription() {
+        return getCapturedNodeDescription() + " was captured.";
+    }
 
-	public boolean allowsAcceptBehavioralChange() {
-		return true;
-	}
+    public boolean allowsAcceptBehavioralChange() {
+        return true;
+    }
 
-	public void acceptBehavioralChange() {
-		Name capturedName = (Name) getCapturedNode();
+    public void acceptBehavioralChange() {
+        Name capturedName = (Name) getCapturedNode();
 
-		PMNameModel nameModel = _project.getNameModel();
+        PMNameModel nameModel = _project.getNameModel();
 
-		Name capturingName = _project
-				.simpleNameForDeclaringNode(_actualDeclaration);
+        Name capturingName = _project.simpleNameForDeclaringNode(_actualDeclaration);
 
-		String capturingIdentifier = nameModel.identifierForName(capturingName);
+        String capturingIdentifier = nameModel.identifierForName(capturingName);
 
-		nameModel.setIdentifierForName(capturingIdentifier, capturedName);
+        nameModel.setIdentifierForName(capturingIdentifier, capturedName);
 
-		_project.rescanForInconsistencies();
-	}
+        _project.rescanForInconsistencies();
+    }
 
 }

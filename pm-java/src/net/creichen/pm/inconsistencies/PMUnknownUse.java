@@ -15,16 +15,15 @@ import net.creichen.pm.PMProject;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 public class PMUnknownUse extends PMInconsistency {
-	SimpleName _unknownUse;
+    SimpleName _unknownUse;
 
-	public PMUnknownUse(PMProject project, PMCompilationUnit iCompilationUnit,
-			SimpleName unknownUse) {
-		super(project, iCompilationUnit, unknownUse);
+    public PMUnknownUse(PMProject project, PMCompilationUnit iCompilationUnit, SimpleName unknownUse) {
+        super(project, iCompilationUnit, unknownUse);
 
-		_unknownUse = unknownUse;
-	}
+        _unknownUse = unknownUse;
+    }
 
-	public String getHumanReadableDescription() {
-		return "Unknown use " + _unknownUse;
-	}
+    public String getHumanReadableDescription() {
+        return "Unknown use " + _unknownUse;
+    }
 }

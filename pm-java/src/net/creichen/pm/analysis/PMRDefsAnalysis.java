@@ -41,716 +41,722 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
 public class PMRDefsAnalysis {
-	protected MethodDeclaration _methodDeclaration;
+    protected MethodDeclaration _methodDeclaration;
 
-	protected ArrayList<PMDef> _definitions;
-	protected Map<IBinding, Set<PMDef>> _definitionsByBinding;
+    protected ArrayList<PMDef> _definitions;
+    protected Map<IBinding, Set<PMDef>> _definitionsByBinding;
 
-	protected Map<ASTNode, PMDef> _definitionsByDefiningNode;
+    protected Map<ASTNode, PMDef> _definitionsByDefiningNode;
 
-	protected Map<SimpleName, PMUse> _usesByName;
+    protected Map<SimpleName, PMUse> _usesByName;
 
-	protected ArrayList<PMBlock> _allBlocks;
+    protected ArrayList<PMBlock> _allBlocks;
 
-	protected Map<ASTNode, PMBlock> _blocksByNode;
+    protected Map<ASTNode, PMBlock> _blocksByNode;
 
-	protected ArrayList<VariableDeclaration> _declarations;
+    protected ArrayList<VariableDeclaration> _declarations;
 
-	protected Map<PMBlock, Set<VariableAssignment>> _reachingDefsOnEntry;
-	protected Map<PMBlock, Set<VariableAssignment>> _reachingDefsOnExit;
+    protected Map<PMBlock, Set<VariableAssignment>> _reachingDefsOnEntry;
+    protected Map<PMBlock, Set<VariableAssignment>> _reachingDefsOnExit;
 
-	HashMap<PMDef, HashMap<IBinding, VariableAssignment>> _uniqueVariableAssigments = new HashMap<PMDef, HashMap<IBinding, VariableAssignment>>();
+    HashMap<PMDef, HashMap<IBinding, VariableAssignment>> _uniqueVariableAssigments = new HashMap<PMDef, HashMap<IBinding, VariableAssignment>>();
 
-	public PMRDefsAnalysis(MethodDeclaration methodDeclaration) {
-		_methodDeclaration = methodDeclaration;
+    public PMRDefsAnalysis(MethodDeclaration methodDeclaration) {
+        _methodDeclaration = methodDeclaration;
 
-		runAnalysis(); // may wish to do this lazily
-	}
+        runAnalysis(); // may wish to do this lazily
+    }
 
-	public static List<ASTNode> findDefiningNodesUnderNode(ASTNode rootNode) {
-		final List<ASTNode> result = new ArrayList<ASTNode>();
+    public static List<ASTNode> findDefiningNodesUnderNode(ASTNode rootNode) {
+        final List<ASTNode> result = new ArrayList<ASTNode>();
 
-		ASTVisitor visitor = new ASTVisitor() {
+        ASTVisitor visitor = new ASTVisitor() {
 
-			boolean isAnalyzableLeftHandSide(ASTNode lhs) {
-				// for now we only support assignments to simple names
+            boolean isAnalyzableLeftHandSide(ASTNode lhs) {
+                // for now we only support assignments to simple names
 
-				return lhs instanceof SimpleName;
-			}
+                return lhs instanceof SimpleName;
+            }
 
-			public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
-				// Used in parameter lists and catch clauses
-				// There is an implicit definition here
+            public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
+                // Used in parameter lists and catch clauses
+                // There is an implicit definition here
 
-				result.add(singleVariableDeclaration);
+                result.add(singleVariableDeclaration);
 
-				return true;
-			}
+                return true;
+            }
 
-			public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
-				// int x, y, z = 7; //etc
+            public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
+                // int x, y, z = 7; //etc
 
-				result.add(variableDeclarationFragment);
+                result.add(variableDeclarationFragment);
 
-				return true;
-			}
+                return true;
+            }
 
-			public boolean visit(Assignment assignment) {
-				// plain-old x = y + 1
+            public boolean visit(Assignment assignment) {
+                // plain-old x = y + 1
 
-				if (isAnalyzableLeftHandSide(assignment.getLeftHandSide()))
-					result.add(assignment);
+                if (isAnalyzableLeftHandSide(assignment.getLeftHandSide()))
+                    result.add(assignment);
 
-				return true;
-			}
+                return true;
+            }
 
-			public boolean visit(PrefixExpression prefixExpression) {
-				// Can't have things like ! being definitions
-				if (prefixExpression.getOperator() == PrefixExpression.Operator.INCREMENT
-						|| prefixExpression.getOperator() == PrefixExpression.Operator.DECREMENT) {
+            public boolean visit(PrefixExpression prefixExpression) {
+                // Can't have things like ! being definitions
+                if (prefixExpression.getOperator() == PrefixExpression.Operator.INCREMENT
+                        || prefixExpression.getOperator() == PrefixExpression.Operator.DECREMENT) {
 
-					// ++x
+                    // ++x
 
-					if (isAnalyzableLeftHandSide(prefixExpression.getOperand()))
-						result.add(prefixExpression);
-				}
+                    if (isAnalyzableLeftHandSide(prefixExpression.getOperand()))
+                        result.add(prefixExpression);
+                }
 
-				return true;
-			}
+                return true;
+            }
 
-			public boolean visit(PostfixExpression postfixExpression) {
-				// all postfix operators are definitions
-				// x++
-				if (isAnalyzableLeftHandSide(postfixExpression.getOperand()))
-					result.add(postfixExpression);
-				return true;
-			}
+            public boolean visit(PostfixExpression postfixExpression) {
+                // all postfix operators are definitions
+                // x++
+                if (isAnalyzableLeftHandSide(postfixExpression.getOperand()))
+                    result.add(postfixExpression);
+                return true;
+            }
 
-		};
+        };
 
-		rootNode.accept(visitor);
+        rootNode.accept(visitor);
 
-		return result;
-	}
+        return result;
+    }
 
-	private void addDefinitionForNode(ASTNode node) {
+    private void addDefinitionForNode(ASTNode node) {
 
-		PMDef definition = new PMDef(node);
+        PMDef definition = new PMDef(node);
 
-		_definitions.add(definition);
-		_definitionsByDefiningNode.put(node, definition);
-	}
+        _definitions.add(definition);
+        _definitionsByDefiningNode.put(node, definition);
+    }
 
-	boolean isAnalyzableLeftHandSide(ASTNode lhs) {
-		// for now we only support assignments to simple names
+    boolean isAnalyzableLeftHandSide(ASTNode lhs) {
+        // for now we only support assignments to simple names
 
-		return lhs instanceof SimpleName;
-	}
+        return lhs instanceof SimpleName;
+    }
 
-	void findDefinitions() {
-		_definitions = new ArrayList<PMDef>();
-		_definitionsByDefiningNode = new HashMap<ASTNode, PMDef>();
+    void findDefinitions() {
+        _definitions = new ArrayList<PMDef>();
+        _definitionsByDefiningNode = new HashMap<ASTNode, PMDef>();
 
-		List<ASTNode> definingNodes = findDefiningNodesUnderNode(_methodDeclaration.getBody());
+        List<ASTNode> definingNodes = findDefiningNodesUnderNode(_methodDeclaration.getBody());
 
-		for (ASTNode definingNode : definingNodes) {
-			addDefinitionForNode(definingNode);
-		}
+        for (ASTNode definingNode : definingNodes) {
+            addDefinitionForNode(definingNode);
+        }
 
-		_definitionsByBinding = new HashMap<IBinding, Set<PMDef>>();
+        _definitionsByBinding = new HashMap<IBinding, Set<PMDef>>();
 
-		for (PMDef def : _definitions) {
+        for (PMDef def : _definitions) {
 
-			IBinding binding = def.getBinding();
+            IBinding binding = def.getBinding();
 
-			Set<PMDef> definitionsForBinding = _definitionsByBinding.get(binding);
+            Set<PMDef> definitionsForBinding = _definitionsByBinding.get(binding);
 
-			if (definitionsForBinding == null) {
-				definitionsForBinding = new HashSet<PMDef>();
-				_definitionsByBinding.put(binding, definitionsForBinding);
-			}
+            if (definitionsForBinding == null) {
+                definitionsForBinding = new HashSet<PMDef>();
+                _definitionsByBinding.put(binding, definitionsForBinding);
+            }
 
-			definitionsForBinding.add(def);
-		}
-	}
+            definitionsForBinding.add(def);
+        }
+    }
 
-	public ArrayList<PMDef> getDefinitions() {
-		return _definitions;
-	}
+    public ArrayList<PMDef> getDefinitions() {
+        return _definitions;
+    }
 
-	public PMDef getDefinitionForDefiningNode(ASTNode definingNode) {
-		return _definitionsByDefiningNode.get(definingNode);
-	}
+    public PMDef getDefinitionForDefiningNode(ASTNode definingNode) {
+        return _definitionsByDefiningNode.get(definingNode);
+    }
 
-	public Collection<PMUse> getUses() {
-		return _usesByName.values();
-	}
+    public Collection<PMUse> getUses() {
+        return _usesByName.values();
+    }
 
-	// return PMUse object for a simple name, or null if the simpleName does not
-	// represent a use
-	public PMUse useForSimpleName(SimpleName name) {
-		return _usesByName.get(name);
-	}
+    // return PMUse object for a simple name, or null if the simpleName does not
+    // represent a use
+    public PMUse useForSimpleName(SimpleName name) {
+        return _usesByName.get(name);
+    }
 
-	protected boolean astNodeContainsDefinition(ASTNode node) {
+    protected boolean astNodeContainsDefinition(ASTNode node) {
 
-		// could do this more efficiently
+        // could do this more efficiently
 
-		final boolean[] containsDefinition = new boolean[1];
-		containsDefinition[0] = false; // to get around final problem
+        final boolean[] containsDefinition = new boolean[1];
+        containsDefinition[0] = false; // to get around final problem
 
-		node.accept(new ASTVisitor() {
-			public boolean visit(Assignment assignment) {
-				containsDefinition[0] = true;
+        node.accept(new ASTVisitor() {
+            public boolean visit(Assignment assignment) {
+                containsDefinition[0] = true;
 
-				return true;
-			}
+                return true;
+            }
 
-			public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
-				containsDefinition[0] = true;
+            public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
+                containsDefinition[0] = true;
 
-				return true;
-			}
+                return true;
+            }
 
-			public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
-				containsDefinition[0] = true;
+            public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
+                containsDefinition[0] = true;
 
-				return true;
-			}
+                return true;
+            }
 
-		});
+        });
 
-		return containsDefinition[0];
-	}
+        return containsDefinition[0];
+    }
 
-	protected void addSerialBlockToEndOfList(PMBlock block, ArrayList<PMBlock> blockList) {
-		if (blockList.size() > 0) {
-			PMBlock lastBlock = blockList.get(blockList.size() - 1);
+    protected void addSerialBlockToEndOfList(PMBlock block, ArrayList<PMBlock> blockList) {
+        if (blockList.size() > 0) {
+            PMBlock lastBlock = blockList.get(blockList.size() - 1);
 
-			lastBlock.addOutgoingBlock(block);
-		}
+            lastBlock.addOutgoingBlock(block);
+        }
 
-		blockList.add(block);
-	}
+        blockList.add(block);
+    }
 
-	protected void mergeBlockLists(ArrayList<PMBlock> first, ArrayList<PMBlock> second) {
-		// We assume the last block of the first list is followed sequentially
-		// by the first block of the second list
+    protected void mergeBlockLists(ArrayList<PMBlock> first, ArrayList<PMBlock> second) {
+        // We assume the last block of the first list is followed sequentially
+        // by the first block of the second list
 
-		if (first.size() > 0) {
-			first.get(first.size() - 1).addOutgoingBlock(second.get(0));
-		}
+        if (first.size() > 0) {
+            first.get(first.size() - 1).addOutgoingBlock(second.get(0));
+        }
 
-		first.addAll(second);
-	}
+        first.addAll(second);
+    }
 
-	protected ArrayList<PMBlock> generateBlocksForExpression(Expression expression) {
-		ArrayList<PMBlock> result = new ArrayList<PMBlock>();
+    protected ArrayList<PMBlock> generateBlocksForExpression(Expression expression) {
+        ArrayList<PMBlock> result = new ArrayList<PMBlock>();
 
-		if (expression instanceof Assignment) {
-			Assignment assignmentExpression = (Assignment) expression;
+        if (expression instanceof Assignment) {
+            Assignment assignmentExpression = (Assignment) expression;
 
-			PMBlock block = new PMBlock();
+            PMBlock block = new PMBlock();
 
-			mergeBlockLists(result, generateBlocksForExpression(assignmentExpression.getRightHandSide()));
+            mergeBlockLists(result,
+                    generateBlocksForExpression(assignmentExpression.getRightHandSide()));
 
-			block.addNode(expression);
+            block.addNode(expression);
 
-			addSerialBlockToEndOfList(block, result);
-		} else if (expression instanceof VariableDeclarationExpression) {
-			// add a block for reach fragment
-			// don't currently handle complex code in initializers
+            addSerialBlockToEndOfList(block, result);
+        } else if (expression instanceof VariableDeclarationExpression) {
+            // add a block for reach fragment
+            // don't currently handle complex code in initializers
 
-			VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
+            VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
 
-			for (VariableDeclarationFragment fragment : fragments(variableDeclarationExpression)) {
-				// really should generate blocks for fragment initializer
+            for (VariableDeclarationFragment fragment : fragments(variableDeclarationExpression)) {
+                // really should generate blocks for fragment initializer
 
-				PMBlock block = new PMBlock();
+                PMBlock block = new PMBlock();
 
-				block.addNode(fragment);
+                block.addNode(fragment);
 
-				addSerialBlockToEndOfList(block, result);
-			}
-		} else {
-			PMBlock block = new PMBlock();
+                addSerialBlockToEndOfList(block, result);
+            }
+        } else {
+            PMBlock block = new PMBlock();
 
-			block.addNode(expression);
+            block.addNode(expression);
 
-			addSerialBlockToEndOfList(block, result);
+            addSerialBlockToEndOfList(block, result);
 
-		}
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	protected ArrayList<PMBlock> generateBlocksForStatement(Statement statement) {
-		ArrayList<PMBlock> result = new ArrayList<PMBlock>();
+    protected ArrayList<PMBlock> generateBlocksForStatement(Statement statement) {
+        ArrayList<PMBlock> result = new ArrayList<PMBlock>();
 
-		if (statement instanceof ExpressionStatement) {
-			ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+        if (statement instanceof ExpressionStatement) {
+            ExpressionStatement expressionStatement = (ExpressionStatement) statement;
 
-			result.addAll(generateBlocksForExpression(expressionStatement.getExpression()));
-		} else if (statement instanceof Block) {
-			Block blockStatement = (Block) statement;
+            result.addAll(generateBlocksForExpression(expressionStatement.getExpression()));
+        } else if (statement instanceof Block) {
+            Block blockStatement = (Block) statement;
 
-			for (Statement subStatement : statements(blockStatement)) {
-				ArrayList<PMBlock> blocksForSubStatement = generateBlocksForStatement(subStatement);
+            for (Statement subStatement : statements(blockStatement)) {
+                ArrayList<PMBlock> blocksForSubStatement = generateBlocksForStatement(subStatement);
 
-				mergeBlockLists(result, blocksForSubStatement);
-			}
-		} else if (statement instanceof IfStatement) {
-			IfStatement ifStatement = (IfStatement) statement;
-			/*
-			 * three components: - guard block - then block - else block
-			 * 
-			 * - exit block to join then and else
-			 */
+                mergeBlockLists(result, blocksForSubStatement);
+            }
+        } else if (statement instanceof IfStatement) {
+            IfStatement ifStatement = (IfStatement) statement;
+            /*
+             * three components: - guard block - then block - else block
+             * 
+             * - exit block to join then and else
+             */
 
-			ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(ifStatement.getExpression());
-			PMBlock endingGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
+            ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(ifStatement
+                    .getExpression());
+            PMBlock endingGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
 
-			PMBlock exitBlock = new PMBlock();
+            PMBlock exitBlock = new PMBlock();
 
-			mergeBlockLists(result, blocksForGuard);
+            mergeBlockLists(result, blocksForGuard);
 
-			ArrayList<PMBlock> blocksForThen = generateBlocksForStatement(ifStatement.getThenStatement());
+            ArrayList<PMBlock> blocksForThen = generateBlocksForStatement(ifStatement
+                    .getThenStatement());
 
-			// this will make a connection from the ending guard block to the
-			// first then block
-			mergeBlockLists(result, blocksForThen);
+            // this will make a connection from the ending guard block to the
+            // first then block
+            mergeBlockLists(result, blocksForThen);
 
-			PMBlock endingThenBlock = (PMBlock) blocksForThen.get(blocksForThen.size() - 1);
-			endingThenBlock.addOutgoingBlock(exitBlock);
+            PMBlock endingThenBlock = (PMBlock) blocksForThen.get(blocksForThen.size() - 1);
+            endingThenBlock.addOutgoingBlock(exitBlock);
 
-			if (ifStatement.getElseStatement() != null) {
-				ArrayList<PMBlock> blocksForElse = generateBlocksForStatement(ifStatement.getElseStatement());
+            if (ifStatement.getElseStatement() != null) {
+                ArrayList<PMBlock> blocksForElse = generateBlocksForStatement(ifStatement
+                        .getElseStatement());
 
-				// make connection from the ending guard block to the starting
-				// else block
-				// and from the ending else block to the exitBlock
+                // make connection from the ending guard block to the starting
+                // else block
+                // and from the ending else block to the exitBlock
 
-				PMBlock startingElseBlock = (PMBlock) blocksForElse.get(0);
+                PMBlock startingElseBlock = (PMBlock) blocksForElse.get(0);
 
-				endingGuardBlock.addOutgoingBlock(startingElseBlock);
+                endingGuardBlock.addOutgoingBlock(startingElseBlock);
 
-				PMBlock endingElseBlock = (PMBlock) blocksForElse.get(blocksForElse.size() - 1);
+                PMBlock endingElseBlock = (PMBlock) blocksForElse.get(blocksForElse.size() - 1);
 
-				endingElseBlock.addOutgoingBlock(exitBlock);
+                endingElseBlock.addOutgoingBlock(exitBlock);
 
-				result.addAll(blocksForElse);
-			} else {
-				// No else block, so guard block may flow directly to exit block
+                result.addAll(blocksForElse);
+            } else {
+                // No else block, so guard block may flow directly to exit block
 
-				endingGuardBlock.addOutgoingBlock(exitBlock);
-			}
+                endingGuardBlock.addOutgoingBlock(exitBlock);
+            }
 
-			result.add(exitBlock);
+            result.add(exitBlock);
 
-		} else if (statement instanceof WhileStatement) {
-			WhileStatement whileStatement = (WhileStatement) statement;
+        } else if (statement instanceof WhileStatement) {
+            WhileStatement whileStatement = (WhileStatement) statement;
 
-			/*
-			 * while statements consist of: - guard condition - body
-			 * 
-			 * - synthetic exit block
-			 */
+            /*
+             * while statements consist of: - guard condition - body
+             * 
+             * - synthetic exit block
+             */
 
-			ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(whileStatement.getExpression());
-			PMBlock startingGuardBlock = blocksForGuard.get(0);
-			PMBlock lastGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
+            ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(whileStatement
+                    .getExpression());
+            PMBlock startingGuardBlock = blocksForGuard.get(0);
+            PMBlock lastGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
 
-			PMBlock exitBlock = new PMBlock();
+            PMBlock exitBlock = new PMBlock();
 
-			mergeBlockLists(result, blocksForGuard);
+            mergeBlockLists(result, blocksForGuard);
 
-			ArrayList<PMBlock> blocksForBody = generateBlocksForStatement(whileStatement.getBody());
+            ArrayList<PMBlock> blocksForBody = generateBlocksForStatement(whileStatement.getBody());
 
-			mergeBlockLists(result, blocksForBody);
+            mergeBlockLists(result, blocksForBody);
 
-			// last block of body always flows to guard
+            // last block of body always flows to guard
 
-			PMBlock lastBodyBlock = blocksForBody.get(blocksForBody.size() - 1);
-			lastBodyBlock.addOutgoingBlock(startingGuardBlock);
+            PMBlock lastBodyBlock = blocksForBody.get(blocksForBody.size() - 1);
+            lastBodyBlock.addOutgoingBlock(startingGuardBlock);
 
-			// guard may fail and flow to exit
-			lastGuardBlock.addOutgoingBlock(exitBlock);
+            // guard may fail and flow to exit
+            lastGuardBlock.addOutgoingBlock(exitBlock);
 
-			result.add(exitBlock);
+            result.add(exitBlock);
 
-		}
+        }
 
-		// we need to add the statement itself to a block to maintain the
-		// invariant that
-		// every node has some ancestor that is in a block
+        // we need to add the statement itself to a block to maintain the
+        // invariant that
+        // every node has some ancestor that is in a block
 
-		PMBlock statementBlock = new PMBlock();
+        PMBlock statementBlock = new PMBlock();
 
-		statementBlock.addNode(statement);
+        statementBlock.addNode(statement);
 
-		addSerialBlockToEndOfList(statementBlock, result);
+        addSerialBlockToEndOfList(statementBlock, result);
 
-		return result;
-	}
+        return result;
+    }
 
-	void findAllBlocks() {
+    void findAllBlocks() {
 
-		_allBlocks = new ArrayList<PMBlock>();
+        _allBlocks = new ArrayList<PMBlock>();
 
-		_allBlocks.add(new PMBlock()); // synthetic initial block;
+        _allBlocks.add(new PMBlock()); // synthetic initial block;
 
-		mergeBlockLists(_allBlocks, generateBlocksForStatement(_methodDeclaration.getBody()));
+        mergeBlockLists(_allBlocks, generateBlocksForStatement(_methodDeclaration.getBody()));
 
-		// fill in _blocksByNode
-		// Every node should have at least one ancestor that has a block
-		// according to this hash
+        // fill in _blocksByNode
+        // Every node should have at least one ancestor that has a block
+        // according to this hash
 
-		_blocksByNode = new HashMap<ASTNode, PMBlock>();
+        _blocksByNode = new HashMap<ASTNode, PMBlock>();
 
-		for (PMBlock block : _allBlocks) {
-			for (ASTNode node : block.getNodes()) {
-				_blocksByNode.put(node, block);
-			}
+        for (PMBlock block : _allBlocks) {
+            for (ASTNode node : block.getNodes()) {
+                _blocksByNode.put(node, block);
+            }
 
-		}
-	}
+        }
+    }
 
-	public ArrayList<PMBlock> getAllBlocks() {
-		return _allBlocks;
-	}
+    public ArrayList<PMBlock> getAllBlocks() {
+        return _allBlocks;
+    }
 
-	protected PMBlock getBlockForNode(ASTNode node) {
-		ASTNode originalNode = node;
+    protected PMBlock getBlockForNode(ASTNode node) {
+        ASTNode originalNode = node;
 
-		do {
-			PMBlock block = _blocksByNode.get(node);
+        do {
+            PMBlock block = _blocksByNode.get(node);
 
-			if (block == null)
-				node = node.getParent();
-			else
-				return block;
+            if (block == null)
+                node = node.getParent();
+            else
+                return block;
 
-		} while (node != null);
+        } while (node != null);
 
-		throw new RuntimeException("Couldn't find block for definingnode  " + originalNode);
+        throw new RuntimeException("Couldn't find block for definingnode  " + originalNode);
 
-	}
+    }
 
-	HashMap<PMBlock, HashSet<VariableAssignment>> findGenSets() {
+    HashMap<PMBlock, HashSet<VariableAssignment>> findGenSets() {
 
-		HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
+        HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
 
-		for (PMDef definition : _definitions) {
+        for (PMDef definition : _definitions) {
 
-			// Create singleton set for gen set (could probably dispense w/
-			// containing set)
-			HashSet<VariableAssignment> genSet = new HashSet<VariableAssignment>();
+            // Create singleton set for gen set (could probably dispense w/
+            // containing set)
+            HashSet<VariableAssignment> genSet = new HashSet<VariableAssignment>();
 
-			IBinding binding = definition.getBinding();
+            IBinding binding = definition.getBinding();
 
-			// The binding could be null if the declaration for the lhs no
-			// longer exists
+            // The binding could be null if the declaration for the lhs no
+            // longer exists
 
-			if (binding != null) {
-				genSet.add(uniqueVariableAssignment(definition, binding));
+            if (binding != null) {
+                genSet.add(uniqueVariableAssignment(definition, binding));
 
-				PMBlock block = getBlockForNode(definition.getDefiningNode());
+                PMBlock block = getBlockForNode(definition.getDefiningNode());
 
-				result.put(block, genSet);
-			}
-		}
+                result.put(block, genSet);
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	HashMap<PMBlock, HashSet<VariableAssignment>> findKillSets() {
+    HashMap<PMBlock, HashSet<VariableAssignment>> findKillSets() {
 
-		HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
+        HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
 
-		// Note: we populate the killsets by iterating through definitions
-		// this means there will be no killset for a block with no definitions
-		//
-		for (PMDef definition : _definitions) {
-			IBinding binding = definition.getBinding();
+        // Note: we populate the killsets by iterating through definitions
+        // this means there will be no killset for a block with no definitions
+        //
+        for (PMDef definition : _definitions) {
+            IBinding binding = definition.getBinding();
 
-			// Binding may be null if the declaring node for our lhs no longer
-			// exists
-			if (binding != null) {
-				HashSet<VariableAssignment> killSet = new HashSet<VariableAssignment>();
+            // Binding may be null if the declaring node for our lhs no longer
+            // exists
+            if (binding != null) {
+                HashSet<VariableAssignment> killSet = new HashSet<VariableAssignment>();
 
-				// killset for an assignment is the "undefined" assignment plus
-				// all the other assignments than this one
+                // killset for an assignment is the "undefined" assignment plus
+                // all the other assignments than this one
 
-				killSet.add(uniqueVariableAssignment(null, binding)); // "undefined"
-																		// assignment
+                killSet.add(uniqueVariableAssignment(null, binding)); // "undefined"
+                                                                      // assignment
 
-				for (PMDef otherDefinition : _definitionsByBinding.get(binding)) {
-					if (otherDefinition != definition) {
-						killSet.add(uniqueVariableAssignment(otherDefinition, binding));
-					}
-				}
+                for (PMDef otherDefinition : _definitionsByBinding.get(binding)) {
+                    if (otherDefinition != definition) {
+                        killSet.add(uniqueVariableAssignment(otherDefinition, binding));
+                    }
+                }
 
-				PMBlock block = getBlockForNode(definition.getDefiningNode());
+                PMBlock block = getBlockForNode(definition.getDefiningNode());
 
-				result.put(block, killSet);
-			}
+                result.put(block, killSet);
+            }
 
-		}
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	protected boolean simpleNameIsUse(SimpleName name) {
-		/*
-		 * we assume all simple names are uses except:
-		 * 
-		 * the lhs of Assignment expressions the name of a
-		 * VariableDeclarationFragment the name of a SingleVariableDeclaration
-		 * 
-		 * There are probably more cases (i.e. method names in invocations?)
-		 */
+    protected boolean simpleNameIsUse(SimpleName name) {
+        /*
+         * we assume all simple names are uses except:
+         * 
+         * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
+         * SingleVariableDeclaration
+         * 
+         * There are probably more cases (i.e. method names in invocations?)
+         */
 
-		ASTNode parent = name.getParent();
+        ASTNode parent = name.getParent();
 
-		if (parent instanceof Assignment && ((Assignment) parent).getLeftHandSide() == name)
-			return false;
-		else if (parent instanceof VariableDeclaration && ((VariableDeclaration) parent).getName() == name)
-			return false;
+        if (parent instanceof Assignment && ((Assignment) parent).getLeftHandSide() == name)
+            return false;
+        else if (parent instanceof VariableDeclaration
+                && ((VariableDeclaration) parent).getName() == name)
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	protected void findUses() {
+    protected void findUses() {
 
-		_usesByName = new HashMap<SimpleName, PMUse>();
+        _usesByName = new HashMap<SimpleName, PMUse>();
 
-		Block body = _methodDeclaration.getBody();
+        Block body = _methodDeclaration.getBody();
 
-		ASTVisitor visitor = new ASTVisitor() {
+        ASTVisitor visitor = new ASTVisitor() {
 
-			public boolean visit(SimpleName name) {
+            public boolean visit(SimpleName name) {
 
-				PMBlock block = getBlockForNode(name);
+                PMBlock block = getBlockForNode(name);
 
-				Set<VariableAssignment> reachingDefinitions = _reachingDefsOnEntry.get(block);
+                Set<VariableAssignment> reachingDefinitions = _reachingDefsOnEntry.get(block);
 
-				if (simpleNameIsUse(name)) {
-					PMUse use = new PMUse(name);
+                if (simpleNameIsUse(name)) {
+                    PMUse use = new PMUse(name);
 
-					_usesByName.put(name, use);
+                    _usesByName.put(name, use);
 
-					IBinding variableBinding = name.resolveBinding();
+                    IBinding variableBinding = name.resolveBinding();
 
-					for (VariableAssignment reachingDefinition : reachingDefinitions) {
-						if (reachingDefinition.getVariableBinding() == variableBinding) {
-							use.addReachingDefinition(reachingDefinition.getDefinition());
-						}
-					}
-				}
+                    for (VariableAssignment reachingDefinition : reachingDefinitions) {
+                        if (reachingDefinition.getVariableBinding() == variableBinding) {
+                            use.addReachingDefinition(reachingDefinition.getDefinition());
+                        }
+                    }
+                }
 
-				return true;
-			}
-		};
+                return true;
+            }
+        };
 
-		body.accept(visitor);
+        body.accept(visitor);
 
-	}
+    }
 
-	void runAnalysis() {
-		findDefinitions();
-		findAllBlocks();
+    void runAnalysis() {
+        findDefinitions();
+        findAllBlocks();
 
-		HashMap<PMBlock, HashSet<VariableAssignment>> genSets = findGenSets();
-		HashMap<PMBlock, HashSet<VariableAssignment>> killSets = findKillSets();
+        HashMap<PMBlock, HashSet<VariableAssignment>> genSets = findGenSets();
+        HashMap<PMBlock, HashSet<VariableAssignment>> killSets = findKillSets();
 
-		// Forward analysis
+        // Forward analysis
 
-		_reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
-		_reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
+        _reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
+        _reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
 
-		PMBlock initialBlock = _allBlocks.get(0);
+        PMBlock initialBlock = _allBlocks.get(0);
 
-		for (final PMBlock block : _allBlocks) {
-			_reachingDefsOnEntry.put(block, new HashSet<VariableAssignment>());
+        for (final PMBlock block : _allBlocks) {
+            _reachingDefsOnEntry.put(block, new HashSet<VariableAssignment>());
 
-			if (block == initialBlock) {
-				// add "undefined" assignments for all free variables in method
+            if (block == initialBlock) {
+                // add "undefined" assignments for all free variables in method
 
-				_methodDeclaration.accept(new ASTVisitor() {
-					public boolean visit(SimpleName name) {
+                _methodDeclaration.accept(new ASTVisitor() {
+                    public boolean visit(SimpleName name) {
 
-						IBinding binding = name.resolveBinding();
-						// We only care about names if they are variables (i.e.
-						// locals or fields)
+                        IBinding binding = name.resolveBinding();
+                        // We only care about names if they are variables (i.e.
+                        // locals or fields)
 
-						if (binding instanceof IVariableBinding)
-							_reachingDefsOnEntry.get(block).add(uniqueVariableAssignment(null, binding));
+                        if (binding instanceof IVariableBinding)
+                            _reachingDefsOnEntry.get(block).add(
+                                    uniqueVariableAssignment(null, binding));
 
-						return true;
-					}
+                        return true;
+                    }
 
-				});
+                });
 
-			}
+            }
 
-			_reachingDefsOnExit.put(block, new HashSet<VariableAssignment>());
-		}
-		boolean changed = false;
-		do {
-			// ?? do we need to make a copy of the entry/exit info and use these
-			// or can we update in place??
-			changed = false;
+            _reachingDefsOnExit.put(block, new HashSet<VariableAssignment>());
+        }
+        boolean changed = false;
+        do {
+            // ?? do we need to make a copy of the entry/exit info and use these
+            // or can we update in place??
+            changed = false;
 
-			for (PMBlock block : _allBlocks) {
+            for (PMBlock block : _allBlocks) {
 
-				// entry prop
-				if (block != initialBlock) {
-					Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
+                // entry prop
+                if (block != initialBlock) {
+                    Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
 
-					for (PMBlock incomingBlock : block.getIncomingBlocks()) {
-						if (_reachingDefsOnExit.get(incomingBlock) == null) {
-							System.out.println("Coulding find reaching defs for block " + incomingBlock);
-						}
-						newEntryReachingDefs.addAll(_reachingDefsOnExit.get(incomingBlock));
-					}
+                    for (PMBlock incomingBlock : block.getIncomingBlocks()) {
+                        if (_reachingDefsOnExit.get(incomingBlock) == null) {
+                            System.out.println("Coulding find reaching defs for block "
+                                    + incomingBlock);
+                        }
+                        newEntryReachingDefs.addAll(_reachingDefsOnExit.get(incomingBlock));
+                    }
 
-					if (!newEntryReachingDefs.equals(_reachingDefsOnEntry.get(block))) {
-						changed = true;
-						_reachingDefsOnEntry.put(block, newEntryReachingDefs);
-					}
+                    if (!newEntryReachingDefs.equals(_reachingDefsOnEntry.get(block))) {
+                        changed = true;
+                        _reachingDefsOnEntry.put(block, newEntryReachingDefs);
+                    }
 
-				}
+                }
 
-				// exit prop
+                // exit prop
 
-				Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
+                Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
 
-				newExitReachingDefs.addAll(_reachingDefsOnEntry.get(block));
+                newExitReachingDefs.addAll(_reachingDefsOnEntry.get(block));
 
-				HashSet<VariableAssignment> killSet = killSets.get(block);
+                HashSet<VariableAssignment> killSet = killSets.get(block);
 
-				if (killSet != null)
-					newExitReachingDefs.removeAll(killSet);
+                if (killSet != null)
+                    newExitReachingDefs.removeAll(killSet);
 
-				HashSet<VariableAssignment> genSet = genSets.get(block);
+                HashSet<VariableAssignment> genSet = genSets.get(block);
 
-				if (genSet != null)
-					newExitReachingDefs.addAll(genSet);
+                if (genSet != null)
+                    newExitReachingDefs.addAll(genSet);
 
-				if (!newExitReachingDefs.equals(_reachingDefsOnExit.get(block))) {
-					changed = true;
-					_reachingDefsOnExit.put(block, newExitReachingDefs);
-				}
+                if (!newExitReachingDefs.equals(_reachingDefsOnExit.get(block))) {
+                    changed = true;
+                    _reachingDefsOnExit.put(block, newExitReachingDefs);
+                }
 
-			}
+            }
 
-		} while (changed == true);
+        } while (changed == true);
 
-		/*
-		 * for (PMBlock block: _allBlocks) {
-		 * 
-		 * String output = "For [" + block + "]:\n";
-		 * 
-		 * output += "\tGen Set is:\n";
-		 * 
-		 * if (genSets.get(block) != null) { for (VariableAssignment
-		 * variableAssignment:genSets.get(block)) { output += "\t\t" +
-		 * variableAssignment.getDefinition().getDefiningNode() + " for [" +
-		 * variableAssignment.getVariableBinding() + "]\n"; } }
-		 * 
-		 * 
-		 * output += "\tKill Set is:\n";
-		 * 
-		 * if (killSets.get(block) != null) { for (VariableAssignment
-		 * variableAssignment:killSets.get(block)) { ASTNode definingNode =
-		 * null;
-		 * 
-		 * if (variableAssignment.getDefinition() != null) definingNode =
-		 * variableAssignment.getDefinition().getDefiningNode();
-		 * 
-		 * output += "\t\t" + definingNode + " for [" +
-		 * variableAssignment.getVariableBinding() + "]\n"; } }
-		 * 
-		 * output += "\tReaching defs are:\n";
-		 * 
-		 * for (VariableAssignment variableAssignment:
-		 * _reachingDefsOnEntry.get(block)) { ASTNode definingNode = null;
-		 * 
-		 * if (variableAssignment.getDefinition() != null) definingNode =
-		 * variableAssignment.getDefinition().getDefiningNode();
-		 * 
-		 * output += "\t\t" + definingNode + " for [" +
-		 * variableAssignment.getVariableBinding() + "]\n"; }
-		 * 
-		 * 
-		 * 
-		 * System.out.println(output);
-		 * 
-		 * 
-		 * }
-		 */
+        /*
+         * for (PMBlock block: _allBlocks) {
+         * 
+         * String output = "For [" + block + "]:\n";
+         * 
+         * output += "\tGen Set is:\n";
+         * 
+         * if (genSets.get(block) != null) { for (VariableAssignment
+         * variableAssignment:genSets.get(block)) { output += "\t\t" +
+         * variableAssignment.getDefinition().getDefiningNode() + " for [" +
+         * variableAssignment.getVariableBinding() + "]\n"; } }
+         * 
+         * 
+         * output += "\tKill Set is:\n";
+         * 
+         * if (killSets.get(block) != null) { for (VariableAssignment
+         * variableAssignment:killSets.get(block)) { ASTNode definingNode = null;
+         * 
+         * if (variableAssignment.getDefinition() != null) definingNode =
+         * variableAssignment.getDefinition().getDefiningNode();
+         * 
+         * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() +
+         * "]\n"; } }
+         * 
+         * output += "\tReaching defs are:\n";
+         * 
+         * for (VariableAssignment variableAssignment: _reachingDefsOnEntry.get(block)) { ASTNode
+         * definingNode = null;
+         * 
+         * if (variableAssignment.getDefinition() != null) definingNode =
+         * variableAssignment.getDefinition().getDefiningNode();
+         * 
+         * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() +
+         * "]\n"; }
+         * 
+         * 
+         * 
+         * System.out.println(output);
+         * 
+         * 
+         * }
+         */
 
-		findUses();
+        findUses();
 
-		/*
-		 * System.out.println("Uses:");
-		 * 
-		 * 
-		 * for (PMUse use: _usesByName.values()) { String output = "" +
-		 * use.getSimpleName() + "\n";
-		 * 
-		 * for (PMDef reachingDefinition: use.getReachingDefinitions()) {
-		 * 
-		 * ASTNode definingNode = null;
-		 * 
-		 * if (reachingDefinition != null) definingNode =
-		 * reachingDefinition.getDefiningNode();
-		 * 
-		 * output += "\t" + definingNode; }
-		 * 
-		 * System.out.println(output); }
-		 */
-	}
+        /*
+         * System.out.println("Uses:");
+         * 
+         * 
+         * for (PMUse use: _usesByName.values()) { String output = "" + use.getSimpleName() + "\n";
+         * 
+         * for (PMDef reachingDefinition: use.getReachingDefinitions()) {
+         * 
+         * ASTNode definingNode = null;
+         * 
+         * if (reachingDefinition != null) definingNode = reachingDefinition.getDefiningNode();
+         * 
+         * output += "\t" + definingNode; }
+         * 
+         * System.out.println(output); }
+         */
+    }
 
-	VariableAssignment uniqueVariableAssignment(PMDef definition, IBinding variableBinding) {
+    VariableAssignment uniqueVariableAssignment(PMDef definition, IBinding variableBinding) {
 
-		if (variableBinding == null)
-			throw new RuntimeException("variableBinding for " + definition + " is null!");
+        if (variableBinding == null)
+            throw new RuntimeException("variableBinding for " + definition + " is null!");
 
-		HashMap<IBinding, VariableAssignment> assignmentsForLocation = _uniqueVariableAssigments.get(definition);
+        HashMap<IBinding, VariableAssignment> assignmentsForLocation = _uniqueVariableAssigments
+                .get(definition);
 
-		if (assignmentsForLocation == null) {
-			assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
-			_uniqueVariableAssigments.put(definition, assignmentsForLocation);
-		}
+        if (assignmentsForLocation == null) {
+            assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
+            _uniqueVariableAssigments.put(definition, assignmentsForLocation);
+        }
 
-		VariableAssignment variableAssignment = assignmentsForLocation.get(variableBinding);
+        VariableAssignment variableAssignment = assignmentsForLocation.get(variableBinding);
 
-		if (variableAssignment == null) {
-			variableAssignment = new VariableAssignment(definition, variableBinding);
-			assignmentsForLocation.put(variableBinding, variableAssignment);
-		}
+        if (variableAssignment == null) {
+            variableAssignment = new VariableAssignment(definition, variableBinding);
+            assignmentsForLocation.put(variableBinding, variableAssignment);
+        }
 
-		return variableAssignment;
-	}
+        return variableAssignment;
+    }
 
-	protected static class VariableAssignment {
+    protected static class VariableAssignment {
 
-		protected PMDef _definition;
+        protected PMDef _definition;
 
-		protected IBinding _variableBinding;
+        protected IBinding _variableBinding;
 
-		public VariableAssignment(PMDef definition, IBinding variableBinding) {
-			_definition = definition;
-			_variableBinding = variableBinding;
-		}
+        public VariableAssignment(PMDef definition, IBinding variableBinding) {
+            _definition = definition;
+            _variableBinding = variableBinding;
+        }
 
-		public PMDef getDefinition() {
-			return _definition;
-		}
+        public PMDef getDefinition() {
+            return _definition;
+        }
 
-		public IBinding getVariableBinding() {
-			return _variableBinding;
-		}
-	}
+        public IBinding getVariableBinding() {
+            return _variableBinding;
+        }
+    }
 }

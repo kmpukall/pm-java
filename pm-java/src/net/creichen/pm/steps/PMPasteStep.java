@@ -29,107 +29,104 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class PMPasteStep extends PMStep {
 
-	ASTNode _parent;
+    ASTNode _parent;
 
-	ChildListPropertyDescriptor _property;
-	int _index;
+    ChildListPropertyDescriptor _property;
+    int _index;
 
-	public PMPasteStep(PMProject project, ASTNode parent,
-			ChildListPropertyDescriptor property, int index) {
-		super(project);
+    public PMPasteStep(PMProject project, ASTNode parent, ChildListPropertyDescriptor property,
+            int index) {
+        super(project);
 
-		_parent = parent;
-		_property = property;
+        _parent = parent;
+        _property = property;
 
-		_index = index;
-	}
+        _index = index;
+    }
 
-	public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
 
-		PMPasteboard pasteboard = _project.getPasteboard();
+        PMPasteboard pasteboard = _project.getPasteboard();
 
-		List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
+        List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
 
-		Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+        Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-		ASTRewrite astRewrite = ASTRewrite.create(_parent.getAST());
+        ASTRewrite astRewrite = ASTRewrite.create(_parent.getAST());
 
-		int index = _index;
+        int index = _index;
 
-		for (ASTNode nodeToPaste : nodesToPaste) {
-			ASTNode copiedNode = (ASTNode) ASTNode.copySubtree(
-					_parent.getAST(), nodeToPaste);
+        for (ASTNode nodeToPaste : nodesToPaste) {
+            ASTNode copiedNode = (ASTNode) ASTNode.copySubtree(_parent.getAST(), nodeToPaste);
 
-			ListRewrite lrw = astRewrite.getListRewrite(_parent, _property);
-			lrw.insertAt(copiedNode, index++, null /* textEditGroup */);
+            ListRewrite lrw = astRewrite.getListRewrite(_parent, _property);
+            lrw.insertAt(copiedNode, index++, null /* textEditGroup */);
 
-			result.put(_project.findPMCompilationUnitForNode(_parent)
-					.getICompilationUnit(), astRewrite);
-		}
+            result.put(_project.findPMCompilationUnitForNode(_parent).getICompilationUnit(),
+                    astRewrite);
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public void performASTChange() {
+    public void performASTChange() {
 
-		PMPasteboard pasteboard = _project.getPasteboard();
+        PMPasteboard pasteboard = _project.getPasteboard();
 
-		List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
+        List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
 
-		final PMNameModel nameModel = _project.getNameModel();
+        final PMNameModel nameModel = _project.getNameModel();
 
-		for (int i = 0; i < nodesToPaste.size(); i++) {
-			ASTNode node = nodesToPaste.get(i);
-			int insertionIndex = i + _index;
+        for (int i = 0; i < nodesToPaste.size(); i++) {
+            ASTNode node = nodesToPaste.get(i);
+            int insertionIndex = i + _index;
 
-			List<ASTNode> childList = getStructuralProperty(_property, _parent);
+            List<ASTNode> childList = getStructuralProperty(_property, _parent);
 
-			ASTNode copiedNode = ASTNode.copySubtree(_parent.getAST(), node);
-			childList.add(insertionIndex, copiedNode);
+            ASTNode copiedNode = ASTNode.copySubtree(_parent.getAST(), node);
+            childList.add(insertionIndex, copiedNode);
 
-			ASTMatcher identifierMatcher = new ASTMatcher() {
+            ASTMatcher identifierMatcher = new ASTMatcher() {
 
-				public boolean match(SimpleName pasteboardName, Object other) {
-					if (super.match(pasteboardName, other)) {
+                public boolean match(SimpleName pasteboardName, Object other) {
+                    if (super.match(pasteboardName, other)) {
 
-						SimpleName copyName = (SimpleName) other;
+                        SimpleName copyName = (SimpleName) other;
 
-						String identifier = nameModel
-								.identifierForName(pasteboardName);
+                        String identifier = nameModel.identifierForName(pasteboardName);
 
-						// System.out.println("Identifier for " + copyName +
-						// " is " + identifier);
+                        // System.out.println("Identifier for " + copyName +
+                        // " is " + identifier);
 
-						nameModel.setIdentifierForName(identifier, copyName);
+                        nameModel.setIdentifierForName(identifier, copyName);
 
-						return true;
-					} else
-						return false;
-				}
-			};
+                        return true;
+                    } else
+                        return false;
+                }
+            };
 
-			if (node.subtreeMatch(identifierMatcher, copiedNode)) {
-				_project.recursivelyReplaceNodeWithCopy(node, copiedNode);
+            if (node.subtreeMatch(identifierMatcher, copiedNode)) {
+                _project.recursivelyReplaceNodeWithCopy(node, copiedNode);
 
-			} else {
-				System.err
-						.println("Couldn't match copied statement to original");
+            } else {
+                System.err.println("Couldn't match copied statement to original");
 
-				throw new RuntimeException(
-						"PM Paste Error: Couldn't match copied statement to original");
-			}
-		}
+                throw new RuntimeException(
+                        "PM Paste Error: Couldn't match copied statement to original");
+            }
+        }
 
-		// FIXME(dcc) is this update necessary?
-		_project.updateToNewVersionsOfICompilationUnits();
-	}
+        // FIXME(dcc) is this update necessary?
+        _project.updateToNewVersionsOfICompilationUnits();
+    }
 
-	public void updateAfterReparse() {
+    public void updateAfterReparse() {
 
-	}
+    }
 
-	public void cleanup() {
-		// called regardless of whether updateAfterReparse() was called
-	}
+    public void cleanup() {
+        // called regardless of whether updateAfterReparse() was called
+    }
 
 }

@@ -25,68 +25,63 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 public class PMWorkspace {
-	private static PMWorkspace _sharedWorkspace = null;
+    private static PMWorkspace _sharedWorkspace = null;
 
-	public static synchronized PMWorkspace sharedWorkspace() {
+    public static synchronized PMWorkspace sharedWorkspace() {
 
-		if (_sharedWorkspace == null)
-			_sharedWorkspace = new PMWorkspace();
+        if (_sharedWorkspace == null)
+            _sharedWorkspace = new PMWorkspace();
 
-		return _sharedWorkspace;
-	}
+        return _sharedWorkspace;
+    }
 
-	private PMWorkspace() {
-		_projectMapping = new HashMap<IJavaProject, PMProject>();
+    private PMWorkspace() {
+        _projectMapping = new HashMap<IJavaProject, PMProject>();
 
-	}
+    }
 
-	private HashMap<IJavaProject, PMProject> _projectMapping;
+    private HashMap<IJavaProject, PMProject> _projectMapping;
 
-	public synchronized PMProject projectForIJavaProject(
-			IJavaProject iJavaProject) {
+    public synchronized PMProject projectForIJavaProject(IJavaProject iJavaProject) {
 
-		PMProject result = _projectMapping.get(iJavaProject);
+        PMProject result = _projectMapping.get(iJavaProject);
 
-		if (result == null) {
-			result = new PMProject(iJavaProject);
-			_projectMapping.put(iJavaProject, result);
+        if (result == null) {
+            result = new PMProject(iJavaProject);
+            _projectMapping.put(iJavaProject, result);
 
-		}
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public synchronized void removeProjectForIJavaProject(
-			IJavaProject iJavaProject) {
-		_projectMapping.remove(iJavaProject);
-	}
+    public synchronized void removeProjectForIJavaProject(IJavaProject iJavaProject) {
+        _projectMapping.remove(iJavaProject);
+    }
 
-	static public void applyRewrite(ASTRewrite rewrite,
-			ICompilationUnit iCompilationUnit) {
-		try {
-			TextEdit astEdit = rewrite.rewriteAST();
+    static public void applyRewrite(ASTRewrite rewrite, ICompilationUnit iCompilationUnit) {
+        try {
+            TextEdit astEdit = rewrite.rewriteAST();
 
-			ITextFileBufferManager bufferManager = FileBuffers
-					.getTextFileBufferManager();
-			IPath path = iCompilationUnit.getPath();
-			try {
-				bufferManager.connect(path, LocationKind.IFILE, null);
-				ITextFileBuffer textFileBuffer = bufferManager
-						.getTextFileBuffer(path, LocationKind.IFILE);
+            ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
+            IPath path = iCompilationUnit.getPath();
+            try {
+                bufferManager.connect(path, LocationKind.IFILE, null);
+                ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path,
+                        LocationKind.IFILE);
 
-				IDocument document = textFileBuffer.getDocument();
+                IDocument document = textFileBuffer.getDocument();
 
-				astEdit.apply(document);
+                astEdit.apply(document);
 
-				textFileBuffer
-						.commit(null /* ProgressMonitor */, false /* Overwrite */);
-			} finally {
-				bufferManager.disconnect(path, LocationKind.IFILE, null);
-			}
+                textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */);
+            } finally {
+                bufferManager.disconnect(path, LocationKind.IFILE, null);
+            }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

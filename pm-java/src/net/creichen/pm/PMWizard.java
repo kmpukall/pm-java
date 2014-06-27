@@ -16,58 +16,54 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PMWizard extends RefactoringWizard {
 
-	protected UserInputWizardPage _wizardPage;
+    protected UserInputWizardPage _wizardPage;
 
-	public PMWizard(RefactoringProcessor processor,
-			UserInputWizardPage wizardPage) {
-		super(new PMProcessorBasedRefactoring(processor),
-				CHECK_INITIAL_CONDITIONS_ON_OPEN);
+    public PMWizard(RefactoringProcessor processor, UserInputWizardPage wizardPage) {
+        super(new PMProcessorBasedRefactoring(processor), CHECK_INITIAL_CONDITIONS_ON_OPEN);
 
-		_wizardPage = wizardPage;
-	}
+        _wizardPage = wizardPage;
+    }
 
-	protected void addUserInputPages() {
-		if (_wizardPage != null)
-			addPage(_wizardPage);
-	}
+    protected void addUserInputPages() {
+        if (_wizardPage != null)
+            addPage(_wizardPage);
+    }
 
-	public RefactoringProcessor getProcessor() {
-		return ((ProcessorBasedRefactoring) getRefactoring()).getProcessor();
-	}
+    public RefactoringProcessor getProcessor() {
+        return ((ProcessorBasedRefactoring) getRefactoring()).getProcessor();
+    }
 
-	public boolean performFinish() {
+    public boolean performFinish() {
 
-		boolean result = super.performFinish();
+        boolean result = super.performFinish();
 
-		/*
-		 * if (result) {
-		 * 
-		 * ((PMProcessor)getProcessor()).textChangeWasApplied();
-		 * 
-		 * PMProject project =
-		 * PMWorkspace.sharedWorkspace().projectForIJavaProject
-		 * (((PMProcessor)getProcessor
-		 * ()).getICompilationUnit().getJavaProject());
-		 * 
-		 * project.updateToNewVersionsOfICompilationUnits();
-		 * 
-		 * 
-		 * } else { ((PMProcessor)getProcessor()).textChangeWasNotApplied(); }
-		 * 
-		 * System.out.println("STEP time is " +
-		 * PMTimer.sharedTimer().accumulatedSecondsForKey("STEP"));
-		 * PMTimer.sharedTimer().clear("STEP");
-		 */
-		return result;
-	}
+        /*
+         * if (result) {
+         * 
+         * ((PMProcessor)getProcessor()).textChangeWasApplied();
+         * 
+         * PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject
+         * (((PMProcessor)getProcessor ()).getICompilationUnit().getJavaProject());
+         * 
+         * project.updateToNewVersionsOfICompilationUnits();
+         * 
+         * 
+         * } else { ((PMProcessor)getProcessor()).textChangeWasNotApplied(); }
+         * 
+         * System.out.println("STEP time is " +
+         * PMTimer.sharedTimer().accumulatedSecondsForKey("STEP"));
+         * PMTimer.sharedTimer().clear("STEP");
+         */
+        return result;
+    }
 
-	public boolean performCancel() {
-		super.performCancel();
+    public boolean performCancel() {
+        super.performCancel();
 
-		/*
-		 * ((PMProcessor)getProcessor()).textChangeWasNotApplied();
-		 */
+        /*
+         * ((PMProcessor)getProcessor()).textChangeWasNotApplied();
+         */
 
-		return true;
-	}
+        return true;
+    }
 }

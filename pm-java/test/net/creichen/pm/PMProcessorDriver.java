@@ -17,39 +17,38 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 public class PMProcessorDriver {
 
-	static RefactoringStatus drive(RefactoringProcessor eclipseProcessor) {
+    static RefactoringStatus drive(RefactoringProcessor eclipseProcessor) {
 
-		IProgressMonitor pm = new NullProgressMonitor();
+        IProgressMonitor pm = new NullProgressMonitor();
 
-		RefactoringStatus status = new RefactoringStatus();
+        RefactoringStatus status = new RefactoringStatus();
 
-		try {
+        try {
 
-			status = eclipseProcessor.checkInitialConditions(pm); // technically,
-																	// this
-																	// should be
-																	// called
-																	// before
-																	// drive()
-																	// is even
-																	// called
+            status = eclipseProcessor.checkInitialConditions(pm); // technically,
+                                                                  // this
+                                                                  // should be
+                                                                  // called
+                                                                  // before
+                                                                  // drive()
+                                                                  // is even
+                                                                  // called
 
-			if (status.getSeverity() < RefactoringStatus.ERROR) {
-				Change change = eclipseProcessor.createChange(pm);
+            if (status.getSeverity() < RefactoringStatus.ERROR) {
+                Change change = eclipseProcessor.createChange(pm);
 
-				change.perform(pm);
+                change.perform(pm);
 
-			} else {
+            } else {
 
-				System.err.println("Error in inital conditions for "
-						+ eclipseProcessor.getClass().getName() + " : "
-						+ status);
-			}
+                System.err.println("Error in inital conditions for "
+                        + eclipseProcessor.getClass().getName() + " : " + status);
+            }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		return status;
-	}
+        return status;
+    }
 }

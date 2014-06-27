@@ -34,147 +34,106 @@ import org.junit.Test;
 
 public class PMSplitStepTest extends PMTest {
 
-	@Test
-	public void testSimplestCase() throws JavaModelException {
-		ICompilationUnit iCompilationUnit = createNewCompilationUnit("",
-				"S.java",
-				"public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
+    @Test
+    public void testSimplestCase() throws JavaModelException {
+        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java",
+                "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-		PMProject project = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		Assignment secondAssignment = PMASTQuery
-				.assignmentInMethodInClassInCompilationUnit(
-						1,
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) project
-								.findASTRootForICompilationUnit(iCompilationUnit));
+        Assignment secondAssignment = PMASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m",
+                0, "S", 0,
+                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
 
-		ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment
-				.getParent();
+        ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment
+                .getParent();
 
-		PMSplitStep step = new PMSplitStep(project, assignmentStatement);
+        PMSplitStep step = new PMSplitStep(project, assignmentStatement);
 
-		step.applyAllAtOnce();
+        step.applyAllAtOnce();
 
-		// We have five outputs that we care about: the source, the updated name
-		// model,
-		// the DU/UD model, replacement declaration statement node, and the
-		// inconsistencies
+        // We have five outputs that we care about: the source, the updated name
+        // model,
+        // the DU/UD model, replacement declaration statement node, and the
+        // inconsistencies
 
-		// Source test
-		assertTrue(compilationUnitSourceMatchesSource(
-				"public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
-				iCompilationUnit.getSource()));
+        // Source test
+        assertTrue(compilationUnitSourceMatchesSource(
+                "public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
+                iCompilationUnit.getSource()));
 
-		// Name model test
+        // Name model test
 
-		PMNameModel nameModel = project.getNameModel();
+        PMNameModel nameModel = project.getNameModel();
 
-		// First two occurrences of x should have same identifier
-		// Second two occurrences of x should have same identifier (different
-		// from first identifier)
+        // First two occurrences of x should have same identifier
+        // Second two occurrences of x should have same identifier (different
+        // from first identifier)
 
-		SimpleName firstX = PMASTQuery
-				.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-						"x",
-						0,
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) project
-								.findASTRootForICompilationUnit(iCompilationUnit));
-		SimpleName secondX = PMASTQuery
-				.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-						"x",
-						1,
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) project
-								.findASTRootForICompilationUnit(iCompilationUnit));
+        SimpleName firstX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+                "x", 0, "m", 0, "S", 0,
+                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        SimpleName secondX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+                "x", 1, "m", 0, "S", 0,
+                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
 
-		assertNotNull(nameModel.identifierForName(firstX));
-		assertNotNull(nameModel.identifierForName(secondX));
+        assertNotNull(nameModel.identifierForName(firstX));
+        assertNotNull(nameModel.identifierForName(secondX));
 
-		assertEquals(nameModel.identifierForName(firstX),
-				nameModel.identifierForName(secondX));
+        assertEquals(nameModel.identifierForName(firstX), nameModel.identifierForName(secondX));
 
-		SimpleName thirdX = PMASTQuery
-				.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-						"x",
-						2,
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) project
-								.findASTRootForICompilationUnit(iCompilationUnit));
-		SimpleName fourthX = PMASTQuery
-				.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-						"x",
-						3,
-						"m",
-						0,
-						"S",
-						0,
-						(CompilationUnit) project
-								.findASTRootForICompilationUnit(iCompilationUnit));
+        SimpleName thirdX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+                "x", 2, "m", 0, "S", 0,
+                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        SimpleName fourthX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+                "x", 3, "m", 0, "S", 0,
+                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
 
-		assertNotNull(nameModel.identifierForName(thirdX));
-		assertNotNull(nameModel.identifierForName(fourthX));
+        assertNotNull(nameModel.identifierForName(thirdX));
+        assertNotNull(nameModel.identifierForName(fourthX));
 
-		assertEquals(nameModel.identifierForName(thirdX),
-				nameModel.identifierForName(fourthX));
+        assertEquals(nameModel.identifierForName(thirdX), nameModel.identifierForName(fourthX));
 
-		assertTrue(!nameModel.identifierForName(firstX).equals(
-				nameModel.identifierForName(thirdX)));
+        assertTrue(!nameModel.identifierForName(firstX).equals(nameModel.identifierForName(thirdX)));
 
-		// now test reverse mapping interface
+        // now test reverse mapping interface
 
-		List<SimpleName> nodesRelatedToFirstDeclaration = nameModel
-				.nameNodesRelatedToNameNode(firstX);
+        List<SimpleName> nodesRelatedToFirstDeclaration = nameModel
+                .nameNodesRelatedToNameNode(firstX);
 
-		assertEquals(2, nodesRelatedToFirstDeclaration.size());
-		assertTrue(nodesRelatedToFirstDeclaration.contains(firstX));
-		assertTrue(nodesRelatedToFirstDeclaration.contains(secondX));
+        assertEquals(2, nodesRelatedToFirstDeclaration.size());
+        assertTrue(nodesRelatedToFirstDeclaration.contains(firstX));
+        assertTrue(nodesRelatedToFirstDeclaration.contains(secondX));
 
-		List<SimpleName> nodesRelatedToSecondDeclaration = nameModel
-				.nameNodesRelatedToNameNode(thirdX);
+        List<SimpleName> nodesRelatedToSecondDeclaration = nameModel
+                .nameNodesRelatedToNameNode(thirdX);
 
-		assertEquals(2, nodesRelatedToSecondDeclaration.size());
-		assertTrue(nodesRelatedToSecondDeclaration.contains(thirdX));
-		assertTrue(nodesRelatedToSecondDeclaration.contains(fourthX));
+        assertEquals(2, nodesRelatedToSecondDeclaration.size());
+        assertTrue(nodesRelatedToSecondDeclaration.contains(thirdX));
+        assertTrue(nodesRelatedToSecondDeclaration.contains(fourthX));
 
-		// DU/UD test
+        // DU/UD test
 
-		PMUDModel udModel = project.getUDModel();
+        PMUDModel udModel = project.getUDModel();
 
-		// The use for the second declaration should be the fourthX
+        // The use for the second declaration should be the fourthX
 
-		VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX
-				.getParent();
+        VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX
+                .getParent();
 
-		Set<PMNodeReference> usesOfSecondDeclaration = udModel
-				.usesForDefinition(project
-						.getReferenceForNode(secondXDeclaration));
+        Set<PMNodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(project
+                .getReferenceForNode(secondXDeclaration));
 
-		assertEquals(1, usesOfSecondDeclaration.size());
+        assertEquals(1, usesOfSecondDeclaration.size());
 
-		// Replacement Declaration Node test
-		// Make sure the node we report back is exactly equal to the one in the
-		// AST
+        // Replacement Declaration Node test
+        // Make sure the node we report back is exactly equal to the one in the
+        // AST
 
-		VariableDeclarationStatement expectedReplacementDeclaration = (VariableDeclarationStatement) secondXDeclaration
-				.getParent();
+        VariableDeclarationStatement expectedReplacementDeclaration = (VariableDeclarationStatement) secondXDeclaration
+                .getParent();
 
-		assertTrue(expectedReplacementDeclaration == step
-				.getReplacementDeclarationStatement());
-	}
+        assertTrue(expectedReplacementDeclaration == step.getReplacementDeclarationStatement());
+    }
 
 }

@@ -29,146 +29,139 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class PMDef {
 
-	protected ASTNode _definingNode;
+    protected ASTNode _definingNode;
 
-	protected Set<PMUse> _uses;
+    protected Set<PMUse> _uses;
 
-	public PMDef(ASTNode definingNode) {
-		_definingNode = definingNode;
+    public PMDef(ASTNode definingNode) {
+        _definingNode = definingNode;
 
-		_uses = new HashSet<PMUse>();
-	}
+        _uses = new HashSet<PMUse>();
+    }
 
-	public String toString() {
+    public String toString() {
 
-		return "PMDef: " + _definingNode + " [ " + _uses.size() + " uses]";
-	}
+        return "PMDef: " + _definingNode + " [ " + _uses.size() + " uses]";
+    }
 
-	public void addUse(PMUse use) {
-		if (!_uses.contains(use)) {
-			_uses.add(use);
+    public void addUse(PMUse use) {
+        if (!_uses.contains(use)) {
+            _uses.add(use);
 
-			use.addReachingDefinition(this);
-		}
-	}
+            use.addReachingDefinition(this);
+        }
+    }
 
-	public Set<PMUse> getUses() {
-		return _uses;
-	}
+    public Set<PMUse> getUses() {
+        return _uses;
+    }
 
-	public ASTNode getDefiningNode() {
-		return _definingNode;
-	}
+    public ASTNode getDefiningNode() {
+        return _definingNode;
+    }
 
-	public IBinding findBindingForLHS(Expression lhs) {
-		IBinding binding = null;
+    public IBinding findBindingForLHS(Expression lhs) {
+        IBinding binding = null;
 
-		if (lhs instanceof Name) {
-			Name assignmentName = (Name) lhs;
-			binding = assignmentName.resolveBinding();
-		} else if (lhs instanceof FieldAccess) {
-			FieldAccess fieldAccess = (FieldAccess) lhs;
+        if (lhs instanceof Name) {
+            Name assignmentName = (Name) lhs;
+            binding = assignmentName.resolveBinding();
+        } else if (lhs instanceof FieldAccess) {
+            FieldAccess fieldAccess = (FieldAccess) lhs;
 
-			binding = fieldAccess.resolveFieldBinding();
-		} else {
-			throw new RuntimeException("Don't know how to find binding for "
-					+ lhs.getClass().getCanonicalName() + " [" + lhs + "]");
-		}
+            binding = fieldAccess.resolveFieldBinding();
+        } else {
+            throw new RuntimeException("Don't know how to find binding for "
+                    + lhs.getClass().getCanonicalName() + " [" + lhs + "]");
+        }
 
-		return binding;
-	}
+        return binding;
+    }
 
-	public IBinding getBinding() {
-		IBinding result = null;
+    public IBinding getBinding() {
+        IBinding result = null;
 
-		if (_definingNode instanceof Assignment) {
-			Assignment assignment = (Assignment) _definingNode;
+        if (_definingNode instanceof Assignment) {
+            Assignment assignment = (Assignment) _definingNode;
 
-			result = findBindingForLHS(assignment.getLeftHandSide());
-		} else if (_definingNode instanceof SingleVariableDeclaration) {
-			SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) _definingNode;
+            result = findBindingForLHS(assignment.getLeftHandSide());
+        } else if (_definingNode instanceof SingleVariableDeclaration) {
+            SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) _definingNode;
 
-			result = findBindingForLHS(singleVariableDeclaration.getName());
+            result = findBindingForLHS(singleVariableDeclaration.getName());
 
-		} else if (_definingNode instanceof VariableDeclarationFragment) {
-			VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) _definingNode;
+        } else if (_definingNode instanceof VariableDeclarationFragment) {
+            VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) _definingNode;
 
-			result = findBindingForLHS(variableDeclarationFragment.getName());
-		} else if (_definingNode instanceof PostfixExpression) {
-			PostfixExpression postfixExpression = (PostfixExpression) _definingNode;
+            result = findBindingForLHS(variableDeclarationFragment.getName());
+        } else if (_definingNode instanceof PostfixExpression) {
+            PostfixExpression postfixExpression = (PostfixExpression) _definingNode;
 
-			result = findBindingForLHS(postfixExpression.getOperand());
-		} else if (_definingNode instanceof PrefixExpression) {
-			PrefixExpression prefixExpression = (PrefixExpression) _definingNode;
+            result = findBindingForLHS(postfixExpression.getOperand());
+        } else if (_definingNode instanceof PrefixExpression) {
+            PrefixExpression prefixExpression = (PrefixExpression) _definingNode;
 
-			result = findBindingForLHS(prefixExpression.getOperand());
-		} else {
-			throw new RuntimeException("Un-handled _definingNode type "
-					+ _definingNode.getClass());
-		}
+            result = findBindingForLHS(prefixExpression.getOperand());
+        } else {
+            throw new RuntimeException("Un-handled _definingNode type " + _definingNode.getClass());
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	// Not all declaring nodes are VariableDeclarations; they could be
-	// FieldDeclarations
-	// Should probably create a PMDeclaration type that combines these two.
-	// For now, we just return VariableDeclaration, though
+    // Not all declaring nodes are VariableDeclarations; they could be
+    // FieldDeclarations
+    // Should probably create a PMDeclaration type that combines these two.
+    // For now, we just return VariableDeclaration, though
 
-	/*
-	 * public VariableDeclaration getDeclaringNode() { VariableDeclaration
-	 * result = null;
-	 * 
-	 * if (_definingNode instanceof Assignment) { Assignment assignment =
-	 * (Assignment)_definingNode;
-	 * 
-	 * 
-	 * Expression lhs = assignment.getLeftHandSide();
-	 * 
-	 * if (lhs instanceof SimpleName) { SimpleName assignmentName =
-	 * (SimpleName)lhs;
-	 * 
-	 * result = localDeclarationForSimpleName(assignmentName);
-	 * 
-	 * 
-	 * } } else if (_definingNode instanceof SingleVariableDeclaration) {
-	 * SingleVariableDeclaration singleVariableDeclaration =
-	 * (SingleVariableDeclaration)_definingNode;
-	 * 
-	 * result = singleVariableDeclaration; //the declaring node for a
-	 * SingleVariableDeclaration IS that declaration } else if (_definingNode
-	 * instanceof VariableDeclarationFragment) { VariableDeclarationFragment
-	 * variableDeclarationFragment = (VariableDeclarationFragment)_definingNode;
-	 * 
-	 * result = variableDeclarationFragment; //the declaring node for a
-	 * VariableDeclarationFragment IS that declaration } else if (_definingNode
-	 * instanceof PostfixExpression) { PostfixExpression postfixExpression =
-	 * (PostfixExpression)_definingNode;
-	 * 
-	 * Expression operand = postfixExpression.getOperand();
-	 * 
-	 * 
-	 * if (operand instanceof SimpleName) { result =
-	 * localDeclarationForSimpleName((SimpleName)operand);
-	 * 
-	 * 
-	 * } } else if (_definingNode instanceof PrefixExpression) {
-	 * PrefixExpression prefixExpression = (PrefixExpression)_definingNode;
-	 * 
-	 * Expression operand = prefixExpression.getOperand();
-	 * 
-	 * if (operand instanceof SimpleName) { result =
-	 * localDeclarationForSimpleName((SimpleName)operand);
-	 * 
-	 * } }else { throw new RuntimeException("Un-handled _definingNode type " +
-	 * _definingNode.getClass()); }
-	 * 
-	 * return result; }
-	 */
+    /*
+     * public VariableDeclaration getDeclaringNode() { VariableDeclaration result = null;
+     * 
+     * if (_definingNode instanceof Assignment) { Assignment assignment = (Assignment)_definingNode;
+     * 
+     * 
+     * Expression lhs = assignment.getLeftHandSide();
+     * 
+     * if (lhs instanceof SimpleName) { SimpleName assignmentName = (SimpleName)lhs;
+     * 
+     * result = localDeclarationForSimpleName(assignmentName);
+     * 
+     * 
+     * } } else if (_definingNode instanceof SingleVariableDeclaration) { SingleVariableDeclaration
+     * singleVariableDeclaration = (SingleVariableDeclaration)_definingNode;
+     * 
+     * result = singleVariableDeclaration; //the declaring node for a SingleVariableDeclaration IS
+     * that declaration } else if (_definingNode instanceof VariableDeclarationFragment) {
+     * VariableDeclarationFragment variableDeclarationFragment =
+     * (VariableDeclarationFragment)_definingNode;
+     * 
+     * result = variableDeclarationFragment; //the declaring node for a VariableDeclarationFragment
+     * IS that declaration } else if (_definingNode instanceof PostfixExpression) {
+     * PostfixExpression postfixExpression = (PostfixExpression)_definingNode;
+     * 
+     * Expression operand = postfixExpression.getOperand();
+     * 
+     * 
+     * if (operand instanceof SimpleName) { result =
+     * localDeclarationForSimpleName((SimpleName)operand);
+     * 
+     * 
+     * } } else if (_definingNode instanceof PrefixExpression) { PrefixExpression prefixExpression =
+     * (PrefixExpression)_definingNode;
+     * 
+     * Expression operand = prefixExpression.getOperand();
+     * 
+     * if (operand instanceof SimpleName) { result =
+     * localDeclarationForSimpleName((SimpleName)operand);
+     * 
+     * } }else { throw new RuntimeException("Un-handled _definingNode type " +
+     * _definingNode.getClass()); }
+     * 
+     * return result; }
+     */
 
-	public static VariableDeclaration localDeclarationForSimpleName(
-			SimpleName simpleName) {
-		return (VariableDeclaration) ((CompilationUnit) simpleName.getRoot())
-				.findDeclaringNode(simpleName.resolveBinding());
-	}
+    public static VariableDeclaration localDeclarationForSimpleName(SimpleName simpleName) {
+        return (VariableDeclaration) ((CompilationUnit) simpleName.getRoot())
+                .findDeclaringNode(simpleName.resolveBinding());
+    }
 }

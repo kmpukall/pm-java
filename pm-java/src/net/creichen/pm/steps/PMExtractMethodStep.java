@@ -46,198 +46,188 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class PMExtractMethodStep extends PMStep {
 
-	MethodDeclaration _extractedMethodDeclaration;
+    MethodDeclaration _extractedMethodDeclaration;
 
-	MethodInvocation _replacementMethodInvocation;
+    MethodInvocation _replacementMethodInvocation;
 
-	List<SimpleName> _namesToExtract;
+    List<SimpleName> _namesToExtract;
 
-	Expression _originalExpression;
+    Expression _originalExpression;
 
-	Expression _extractedExpression;
+    Expression _extractedExpression;
 
-	public PMExtractMethodStep(PMProject project, Expression expression) {
-		super(project);
+    public PMExtractMethodStep(PMProject project, Expression expression) {
+        super(project);
 
-		_namesToExtract = PMExtractMethodStep
-				.variablesReferredToInExpression(expression);
+        _namesToExtract = PMExtractMethodStep.variablesReferredToInExpression(expression);
 
-		_originalExpression = expression;
+        _originalExpression = expression;
 
-		_extractedMethodDeclaration = newMethodDeclaration();
+        _extractedMethodDeclaration = newMethodDeclaration();
 
-		_replacementMethodInvocation = newMethodInvocation();
+        _replacementMethodInvocation = newMethodInvocation();
 
-		// System.err.println("_extractedMethodDeclaration is " +
-		// _extractedMethodDeclaration);
+        // System.err.println("_extractedMethodDeclaration is " +
+        // _extractedMethodDeclaration);
 
-		// System.err.println("_replacementMethodInvocation is " +
-		// _replacementMethodInvocation);
-	}
+        // System.err.println("_replacementMethodInvocation is " +
+        // _replacementMethodInvocation);
+    }
 
-	public List<SimpleName> getNamesToExtract() {
-		return new ArrayList<SimpleName>(_namesToExtract);
-	}
+    public List<SimpleName> getNamesToExtract() {
+        return new ArrayList<SimpleName>(_namesToExtract);
+    }
 
-	protected MethodDeclaration newMethodDeclaration() {
+    protected MethodDeclaration newMethodDeclaration() {
 
-		AST ast = _originalExpression.getAST();
+        AST ast = _originalExpression.getAST();
 
-		MethodDeclaration newMethodDeclaration = ast.newMethodDeclaration();
+        MethodDeclaration newMethodDeclaration = ast.newMethodDeclaration();
 
-		newMethodDeclaration.setName(ast.newSimpleName("extractedMethod"));
+        newMethodDeclaration.setName(ast.newSimpleName("extractedMethod"));
 
-		newMethodDeclaration.setReturnType2(PMExtractMethodStep
-				.newTypeASTNodeForTypeBinding(ast,
-						_originalExpression.resolveTypeBinding()));
+        newMethodDeclaration.setReturnType2(PMExtractMethodStep.newTypeASTNodeForTypeBinding(ast,
+                _originalExpression.resolveTypeBinding()));
 
-		modifiers(newMethodDeclaration).add(
-				ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD));
+        modifiers(newMethodDeclaration)
+                .add(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD));
 
-		for (SimpleName nameToExtract : _namesToExtract) {
-			SingleVariableDeclaration parameter = ast
-					.newSingleVariableDeclaration();
+        for (SimpleName nameToExtract : _namesToExtract) {
+            SingleVariableDeclaration parameter = ast.newSingleVariableDeclaration();
 
-			parameter.setName(ast.newSimpleName(nameToExtract.getIdentifier()));
+            parameter.setName(ast.newSimpleName(nameToExtract.getIdentifier()));
 
-			parameter.setType(PMExtractMethodStep.newTypeASTNodeForTypeBinding(
-					ast, nameToExtract.resolveTypeBinding()));
+            parameter.setType(PMExtractMethodStep.newTypeASTNodeForTypeBinding(ast,
+                    nameToExtract.resolveTypeBinding()));
 
-			parameters(newMethodDeclaration).add(parameter);
-		}
+            parameters(newMethodDeclaration).add(parameter);
+        }
 
-		Block methodBody = ast.newBlock();
+        Block methodBody = ast.newBlock();
 
-		newMethodDeclaration.setBody(methodBody);
+        newMethodDeclaration.setBody(methodBody);
 
-		ReturnStatement returnStatement = ast.newReturnStatement();
+        ReturnStatement returnStatement = ast.newReturnStatement();
 
-		_extractedExpression = (Expression) ASTNode.copySubtree(ast,
-				_originalExpression);
+        _extractedExpression = (Expression) ASTNode.copySubtree(ast, _originalExpression);
 
-		returnStatement.setExpression(_extractedExpression);
+        returnStatement.setExpression(_extractedExpression);
 
-		statements(methodBody).add(returnStatement);
+        statements(methodBody).add(returnStatement);
 
-		return newMethodDeclaration;
-	}
+        return newMethodDeclaration;
+    }
 
-	protected MethodInvocation newMethodInvocation() {
-		AST ast = _originalExpression.getAST();
+    protected MethodInvocation newMethodInvocation() {
+        AST ast = _originalExpression.getAST();
 
-		MethodInvocation newMethodInvocation = ast.newMethodInvocation();
+        MethodInvocation newMethodInvocation = ast.newMethodInvocation();
 
-		newMethodInvocation.setName(ast
-				.newSimpleName(_extractedMethodDeclaration.getName()
-						.getIdentifier()));
+        newMethodInvocation.setName(ast.newSimpleName(_extractedMethodDeclaration.getName()
+                .getIdentifier()));
 
-		for (SimpleName nameToExtract : _namesToExtract) {
-			arguments(newMethodInvocation).add(
-					ast.newSimpleName(nameToExtract.getIdentifier()));
-		}
+        for (SimpleName nameToExtract : _namesToExtract) {
+            arguments(newMethodInvocation).add(ast.newSimpleName(nameToExtract.getIdentifier()));
+        }
 
-		return newMethodInvocation;
-	}
+        return newMethodInvocation;
+    }
 
-	private static Type newTypeASTNodeForTypeBinding(AST ast,
-			ITypeBinding typeBinding) {
-		// for now we only support simple types and primitive types
+    private static Type newTypeASTNodeForTypeBinding(AST ast, ITypeBinding typeBinding) {
+        // for now we only support simple types and primitive types
 
-		if (typeBinding.isPrimitive()) {
-			return ast.newPrimitiveType(PrimitiveType.toCode(typeBinding
-					.getName()));
-		} else if (typeBinding.isClass() || typeBinding.isInterface()) {
-			return ast.newSimpleType(ast.newSimpleName(typeBinding.getName()));
-		}
+        if (typeBinding.isPrimitive()) {
+            return ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName()));
+        } else if (typeBinding.isClass() || typeBinding.isInterface()) {
+            return ast.newSimpleType(ast.newSimpleName(typeBinding.getName()));
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private static List<SimpleName> variablesReferredToInExpression(Expression e) {
-		final List<SimpleName> result = new ArrayList<SimpleName>();
+    private static List<SimpleName> variablesReferredToInExpression(Expression e) {
+        final List<SimpleName> result = new ArrayList<SimpleName>();
 
-		// we find all simple names and get their bindings
-		// if their binding is a variable binding and it's getDeclaringMethod()
-		// returns non-null, we assume it is a local variable
+        // we find all simple names and get their bindings
+        // if their binding is a variable binding and it's getDeclaringMethod()
+        // returns non-null, we assume it is a local variable
 
-		e.accept(new ASTVisitor() {
-			public boolean visit(SimpleName simpleName) {
-				IBinding nameBinding = simpleName.resolveBinding();
+        e.accept(new ASTVisitor() {
+            public boolean visit(SimpleName simpleName) {
+                IBinding nameBinding = simpleName.resolveBinding();
 
-				if (nameBinding instanceof IVariableBinding) {
-					IVariableBinding variableNameBinding = (IVariableBinding) nameBinding;
+                if (nameBinding instanceof IVariableBinding) {
+                    IVariableBinding variableNameBinding = (IVariableBinding) nameBinding;
 
-					if (variableNameBinding.getDeclaringMethod() != null)
-						result.add(simpleName);
-				}
+                    if (variableNameBinding.getDeclaringMethod() != null)
+                        result.add(simpleName);
+                }
 
-				return false; // Simple names don't have any children
-			}
-		});
+                return false; // Simple names don't have any children
+            }
+        });
 
-		return result;
-	}
+        return result;
+    }
 
-	private TypeDeclaration containingClass(ASTNode node) {
+    private TypeDeclaration containingClass(ASTNode node) {
 
-		ASTNode iterator = node;
+        ASTNode iterator = node;
 
-		while (iterator != null) {
-			if (iterator instanceof TypeDeclaration)
-				return (TypeDeclaration) iterator;
-			else
-				iterator = iterator.getParent();
-		}
+        while (iterator != null) {
+            if (iterator instanceof TypeDeclaration)
+                return (TypeDeclaration) iterator;
+            else
+                iterator = iterator.getParent();
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-		Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+        Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-		AST ast = _originalExpression.getAST();
+        AST ast = _originalExpression.getAST();
 
-		ASTRewrite astRewrite = ASTRewrite.create(ast);
+        ASTRewrite astRewrite = ASTRewrite.create(ast);
 
-		TypeDeclaration containingClass = containingClass(_originalExpression);
+        TypeDeclaration containingClass = containingClass(_originalExpression);
 
-		int insertionIndex = containingClass.bodyDeclarations().size();
+        int insertionIndex = containingClass.bodyDeclarations().size();
 
-		ListRewrite lrw = astRewrite.getListRewrite(containingClass,
-				TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+        ListRewrite lrw = astRewrite.getListRewrite(containingClass,
+                TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 
-		lrw.insertAt(_extractedMethodDeclaration, insertionIndex, null /* textEditGroup */);
+        lrw.insertAt(_extractedMethodDeclaration, insertionIndex, null /* textEditGroup */);
 
-		astRewrite.replace(_originalExpression, _replacementMethodInvocation,
-				null);
+        astRewrite.replace(_originalExpression, _replacementMethodInvocation, null);
 
-		result.put(_project.findPMCompilationUnitForNode(_originalExpression)
-				.getICompilationUnit(), astRewrite);
+        result.put(
+                _project.findPMCompilationUnitForNode(_originalExpression).getICompilationUnit(),
+                astRewrite);
 
-		return result;
-	}
+        return result;
+    }
 
-	public void performNameModelChange() {
+    public void performNameModelChange() {
 
-	}
+    }
 
-	public void performUDModelChange() {
+    public void performUDModelChange() {
 
-	}
+    }
 
-	public void performASTChange() {
-		TypeDeclaration containingClass = containingClass(_originalExpression);
+    public void performASTChange() {
+        TypeDeclaration containingClass = containingClass(_originalExpression);
 
-		bodyDeclarations(containingClass).add(_extractedMethodDeclaration);
+        bodyDeclarations(containingClass).add(_extractedMethodDeclaration);
 
-		_project.recursivelyReplaceNodeWithCopy(_originalExpression,
-				_extractedExpression);
+        _project.recursivelyReplaceNodeWithCopy(_originalExpression, _extractedExpression);
 
-		PMASTNodeUtils.replaceNodeInParent(_originalExpression,
-				_replacementMethodInvocation);
+        PMASTNodeUtils.replaceNodeInParent(_originalExpression, _replacementMethodInvocation);
 
-		performNameModelChange();
-		performUDModelChange();
+        performNameModelChange();
+        performUDModelChange();
 
-	}
+    }
 }

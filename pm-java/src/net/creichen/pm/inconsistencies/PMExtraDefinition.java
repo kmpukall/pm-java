@@ -15,18 +15,16 @@ import net.creichen.pm.PMProject;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class PMExtraDefinition extends PMInconsistency {
-	protected ASTNode _definingNode;
+    protected ASTNode _definingNode;
 
-	public PMExtraDefinition(PMProject project,
-			PMCompilationUnit iCompilationUnit, ASTNode usingNode,
-			ASTNode definingNode) {
-		super(project, iCompilationUnit, usingNode);
+    public PMExtraDefinition(PMProject project, PMCompilationUnit iCompilationUnit,
+            ASTNode usingNode, ASTNode definingNode) {
+        super(project, iCompilationUnit, usingNode);
 
-		_definingNode = definingNode;
-	}
+        _definingNode = definingNode;
+    }
 
-	public String getHumanReadableDescription() {
-		return "Unexpected definition (" + _definingNode + ") used by "
-				+ getNode();
-	}
+    public String getHumanReadableDescription() {
+        return "Unexpected definition (" + _definingNode + ") used by " + getNode();
+    }
 }

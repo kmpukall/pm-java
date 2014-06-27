@@ -32,92 +32,70 @@ import org.junit.Test;
 
 public class PMExtractMethodStepTest extends PMTest {
 
-	@Test
-	public void testGetNamesToExtract() {
+    @Test
+    public void testGetNamesToExtract() {
 
-		String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
+        String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
 
-		ICompilationUnit compilationUnitS = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		PMCompilationUnit pmCompilationUnitS = pmProject
-				.getPMCompilationUnitForICompilationUnit(compilationUnitS);
+        PMCompilationUnit pmCompilationUnitS = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-		MethodDeclaration methodDeclaration = PMASTQuery
-				.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-						pmCompilationUnitS.getASTNode());
+        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
+                "m", 0, "S", 0, pmCompilationUnitS.getASTNode());
 
-		Block bodyBlock = methodDeclaration.getBody();
+        Block bodyBlock = methodDeclaration.getBody();
 
-		ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock
-				.statements().get(1);
+        ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);
 
-		MethodInvocation methodInvocation = (MethodInvocation) printlnStatement
-				.getExpression();
+        MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
 
-		Expression expression = (Expression) methodInvocation.arguments()
-				.get(0);
+        Expression expression = (Expression) methodInvocation.arguments().get(0);
 
-		PMExtractMethodStep step = new PMExtractMethodStep(pmProject,
-				expression);
+        PMExtractMethodStep step = new PMExtractMethodStep(pmProject, expression);
 
-		List<SimpleName> namesToExtract = step.getNamesToExtract();
+        List<SimpleName> namesToExtract = step.getNamesToExtract();
 
-		assertEquals(2, namesToExtract.size());
+        assertEquals(2, namesToExtract.size());
 
-		assertEquals(
-				PMASTQuery
-						.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-								"i", 0, "m", 0, "S", 0,
-								pmCompilationUnitS.getASTNode()),
-				namesToExtract.get(0));
+        assertEquals(PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("i", 0,
+                "m", 0, "S", 0, pmCompilationUnitS.getASTNode()), namesToExtract.get(0));
 
-		assertEquals(
-				PMASTQuery
-						.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
-								"j", 1, "m", 0, "S", 0,
-								pmCompilationUnitS.getASTNode()),
-				namesToExtract.get(1));
+        assertEquals(PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("j", 1,
+                "m", 0, "S", 0, pmCompilationUnitS.getASTNode()), namesToExtract.get(1));
 
-	}
+    }
 
-	@Test
-	public void testExtractLocalVariableExpression() {
-		String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
+    @Test
+    public void testExtractLocalVariableExpression() {
+        String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
 
-		ICompilationUnit compilationUnitS = createNewCompilationUnit("",
-				"S.java", source);
+        ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-		PMProject pmProject = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(_iJavaProject);
+        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(_iJavaProject);
 
-		PMCompilationUnit pmCompilationUnitS = pmProject
-				.getPMCompilationUnitForICompilationUnit(compilationUnitS);
+        PMCompilationUnit pmCompilationUnitS = pmProject
+                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-		MethodDeclaration methodDeclaration = PMASTQuery
-				.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-						pmCompilationUnitS.getASTNode());
+        MethodDeclaration methodDeclaration = PMASTQuery.methodWithNameInClassInCompilationUnit(
+                "m", 0, "S", 0, pmCompilationUnitS.getASTNode());
 
-		Block bodyBlock = methodDeclaration.getBody();
+        Block bodyBlock = methodDeclaration.getBody();
 
-		ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock
-				.statements().get(1);
+        ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);
 
-		MethodInvocation methodInvocation = (MethodInvocation) printlnStatement
-				.getExpression();
+        MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
 
-		Expression expression = (Expression) methodInvocation.arguments()
-				.get(0);
+        Expression expression = (Expression) methodInvocation.arguments().get(0);
 
-		PMExtractMethodStep step = new PMExtractMethodStep(pmProject,
-				expression);
+        PMExtractMethodStep step = new PMExtractMethodStep(pmProject, expression);
 
-		step.applyAllAtOnce();
+        step.applyAllAtOnce();
 
-		// assertEquals(new HashSet(), pmProject.allInconsistencies());
-	}
+        // assertEquals(new HashSet(), pmProject.allInconsistencies());
+    }
 
 }

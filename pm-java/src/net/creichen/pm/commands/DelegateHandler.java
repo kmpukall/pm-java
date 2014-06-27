@@ -5,10 +5,10 @@ import net.creichen.pm.actions.PMDelegateAction;
 
 public class DelegateHandler extends AbstractActionWrapper {
 
-	private PMAction action = new PMDelegateAction();
+    private PMAction action = new PMDelegateAction();
 
-	protected PMAction getAction() {
-		return action;
-	}
+    protected PMAction getAction() {
+        return action;
+    }
 
 }

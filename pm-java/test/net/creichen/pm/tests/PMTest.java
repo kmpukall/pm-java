@@ -32,121 +32,113 @@ import org.junit.Assert;
 import org.junit.Before;
 
 public class PMTest {
-	protected IProject _iProject = null;
-	protected IJavaProject _iJavaProject = null;
+    protected IProject _iProject = null;
+    protected IJavaProject _iJavaProject = null;
 
-	@After
-	public void deleteProject() {
-		try {
+    @After
+    public void deleteProject() {
+        try {
 
-			PMWorkspace.sharedWorkspace().removeProjectForIJavaProject(
-					_iJavaProject);
+            PMWorkspace.sharedWorkspace().removeProjectForIJavaProject(_iJavaProject);
 
-			_iProject.delete(true, null);
-		} catch (Exception e) {
-			e.printStackTrace();
+            _iProject.delete(true, null);
+        } catch (Exception e) {
+            e.printStackTrace();
 
-			throw new RuntimeException(e);
-		}
+            throw new RuntimeException(e);
+        }
 
-		_iProject = null;
-		_iJavaProject = null;
-	}
+        _iProject = null;
+        _iJavaProject = null;
+    }
 
-	@Before
-	public void createProject() {
-		try {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			_iProject = root.getProject("pm_test_project_name");
+    @Before
+    public void createProject() {
+        try {
+            IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+            _iProject = root.getProject("pm_test_project_name");
 
-			if (_iProject.exists()) {
-				_iProject.delete(true, null);
-			}
+            if (_iProject.exists()) {
+                _iProject.delete(true, null);
+            }
 
-			_iProject.create(null);
-			_iProject.open(null);
+            _iProject.create(null);
+            _iProject.open(null);
 
-			IProjectDescription description = _iProject.getDescription();
-			description.setNatureIds(new String[] { JavaCore.NATURE_ID });
-			_iProject.setDescription(description, null);
+            IProjectDescription description = _iProject.getDescription();
+            description.setNatureIds(new String[] { JavaCore.NATURE_ID });
+            _iProject.setDescription(description, null);
 
-			_iJavaProject = JavaCore.create(_iProject);
+            _iJavaProject = JavaCore.create(_iProject);
 
-			IClasspathEntry[] buildPath = {
-					JavaCore.newSourceEntry(_iProject.getFullPath().append(
-							"src")), JavaRuntime.getDefaultJREContainerEntry() };
+            IClasspathEntry[] buildPath = {
+                    JavaCore.newSourceEntry(_iProject.getFullPath().append("src")),
+                    JavaRuntime.getDefaultJREContainerEntry() };
 
-			_iJavaProject.setRawClasspath(buildPath, _iProject.getFullPath()
-					.append("bin"), null);
+            _iJavaProject.setRawClasspath(buildPath, _iProject.getFullPath().append("bin"), null);
 
-		} catch (Exception e) {
-			e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
 
-			throw new RuntimeException(e);
-		}
-	}
+            throw new RuntimeException(e);
+        }
+    }
 
-	public ICompilationUnit createNewCompilationUnit(
-			String packageFragmentName, String fileName, String sourceText) {
+    public ICompilationUnit createNewCompilationUnit(String packageFragmentName, String fileName,
+            String sourceText) {
 
-		ICompilationUnit result = null;
+        ICompilationUnit result = null;
 
-		try {
-			IFolder folder = _iProject.getFolder("src");
+        try {
+            IFolder folder = _iProject.getFolder("src");
 
-			if (!folder.exists())
-				folder.create(true, true, null);
+            if (!folder.exists())
+                folder.create(true, true, null);
 
-			IPackageFragmentRoot srcFolder = _iJavaProject
-					.getPackageFragmentRoot(folder);
+            IPackageFragmentRoot srcFolder = _iJavaProject.getPackageFragmentRoot(folder);
 
-			Assert.assertTrue(srcFolder.exists());
+            Assert.assertTrue(srcFolder.exists());
 
-			IPackageFragment fragment = srcFolder.createPackageFragment(
-					packageFragmentName, true, null);
+            IPackageFragment fragment = srcFolder.createPackageFragment(packageFragmentName, true,
+                    null);
 
-			result = fragment.createCompilationUnit(fileName, sourceText,
-					false, null);
+            result = fragment.createCompilationUnit(fileName, sourceText, false, null);
 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public CompilationUnit parseCompilationUnitFromSource(String source,
-			String unitName) {
+    public CompilationUnit parseCompilationUnitFromSource(String source, String unitName) {
 
-		ASTParser parser = ASTParser.newParser(AST.JLS4);
+        ASTParser parser = ASTParser.newParser(AST.JLS4);
 
-		if (unitName != null) {
-			ICompilationUnit iCompilationUnit = createNewCompilationUnit("",
-					unitName, source);
+        if (unitName != null) {
+            ICompilationUnit iCompilationUnit = createNewCompilationUnit("", unitName, source);
 
-			parser.setSource(iCompilationUnit);
-		} else {
-			parser.setSource(source.toCharArray());
-		}
+            parser.setSource(iCompilationUnit);
+        } else {
+            parser.setSource(source.toCharArray());
+        }
 
-		parser.setResolveBindings(true);
-		parser.setUnitName(unitName);
-		parser.setProject(_iJavaProject);
+        parser.setResolveBindings(true);
+        parser.setUnitName(unitName);
+        parser.setProject(_iJavaProject);
 
-		return (CompilationUnit) parser.createAST(null);
-	}
+        return (CompilationUnit) parser.createAST(null);
+    }
 
-	public CompilationUnit parseCompilationUnitFromSource(String source) {
-		return parseCompilationUnitFromSource(source, null);
-	}
+    public CompilationUnit parseCompilationUnitFromSource(String source) {
+        return parseCompilationUnitFromSource(source, null);
+    }
 
-	public boolean compilationUnitSourceMatchesSource(String source1,
-			String source2) {
-		CompilationUnit compilationUnit1 = parseCompilationUnitFromSource(source1);
-		CompilationUnit compilationUnit2 = parseCompilationUnitFromSource(source2);
+    public boolean compilationUnitSourceMatchesSource(String source1, String source2) {
+        CompilationUnit compilationUnit1 = parseCompilationUnitFromSource(source1);
+        CompilationUnit compilationUnit2 = parseCompilationUnitFromSource(source2);
 
-		return compilationUnit1
-				.subtreeMatch(new ASTMatcher(), compilationUnit2);
-	}
+        return compilationUnit1.subtreeMatch(new ASTMatcher(), compilationUnit2);
+    }
 
 }
