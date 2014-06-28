@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 public class PMSelection {
 
     @SuppressWarnings("restriction")
-    protected static class PMExactSelectionVisitor extends
+    private static class PMExactSelectionVisitor extends
             org.eclipse.jdt.internal.corext.dom.GenericVisitor {
 
         private final int _offset;

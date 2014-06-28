@@ -9,11 +9,7 @@
 
 package net.creichen.pm.models;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import net.creichen.pm.PMNodeReference;
 import net.creichen.pm.PMProject;
@@ -26,11 +22,7 @@ import net.creichen.pm.inconsistencies.PMInconsistency;
 import net.creichen.pm.inconsistencies.PMMissingDefinition;
 import net.creichen.pm.inconsistencies.PMUnknownUse;
 
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.*;
 
 public class PMUDModel {
     private final PMProject project;
@@ -73,12 +65,12 @@ public class PMUDModel {
 
     }
 
-    public void addUseForDefinition(final PMNodeReference useIdentifier,
+    private void addUseForDefinition(final PMNodeReference useIdentifier,
             final PMNodeReference definitionIdentifier) {
         usesForDefinition(definitionIdentifier).add(useIdentifier);
     }
 
-    protected void addUsesToModel(final Collection<PMUse> uses) {
+    private void addUsesToModel(final Collection<PMUse> uses) {
         for (final PMUse use : uses) {
             addUseToModel(use);
         }
@@ -154,9 +146,9 @@ public class PMUDModel {
 
                         if (!currentDefiningNodes.contains(desiredDefiningNode)) {
 
-                            inconsistencies.add(new PMMissingDefinition(this.project,
-                                    this.project.findPMCompilationUnitForNode(usingNode),
-                                    usingNode, desiredDefiningNode));
+                            inconsistencies.add(new PMMissingDefinition(this.project, this.project
+                                    .findPMCompilationUnitForNode(usingNode), usingNode,
+                                    desiredDefiningNode));
 
                         }
                     }
@@ -210,7 +202,7 @@ public class PMUDModel {
         return inconsistencies;
     }
 
-    protected Collection<ASTNode> definingNodesForUse(final PMUse use) {
+    private Collection<ASTNode> definingNodesForUse(final PMUse use) {
         final HashSet<ASTNode> definingNodes = new HashSet<ASTNode>();
 
         for (final PMDef definition : use.getReachingDefinitions()) {
@@ -249,7 +241,7 @@ public class PMUDModel {
         this.useIdentifiersByDefinitionIdentifier.remove(definition);
     }
 
-    protected Collection<PMUse> getCurrentUses() {
+    private Collection<PMUse> getCurrentUses() {
 
         PMTimer.sharedTimer().start("DUUD_CHAINS");
 
@@ -279,7 +271,7 @@ public class PMUDModel {
         return uses;
     }
 
-    protected void initializeModel() {
+    private void initializeModel() {
         addUsesToModel(getCurrentUses());
 
     }
@@ -296,7 +288,7 @@ public class PMUDModel {
         removeUseForDefinition(nameIdentifier, definitionIdentifier);
     }
 
-    public void removeUseForDefinition(final PMNodeReference useIdentifier,
+    private void removeUseForDefinition(final PMNodeReference useIdentifier,
             final PMNodeReference definitionIdentifier) {
         usesForDefinition(definitionIdentifier).remove(useIdentifier);
     }

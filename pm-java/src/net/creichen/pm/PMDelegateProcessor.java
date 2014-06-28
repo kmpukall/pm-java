@@ -25,8 +25,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
-public class PMDelegateProcessor extends RefactoringProcessor implements PMProcessor,
-        PMProjectListener {
+public class PMDelegateProcessor extends RefactoringProcessor implements PMProjectListener {
 
     private final ICompilationUnit iCompilationUnit;
     private final ITextSelection textSelection;
@@ -99,11 +98,6 @@ public class PMDelegateProcessor extends RefactoringProcessor implements PMProce
     }
 
     @Override
-    public ICompilationUnit getICompilationUnit() {
-        return this.iCompilationUnit;
-    }
-
-    @Override
     public String getIdentifier() {
         return "edu.colorado.plan.PMRDelegateRefactoring";
     }
@@ -133,26 +127,6 @@ public class PMDelegateProcessor extends RefactoringProcessor implements PMProce
 
     public void setDelegateIdentifier(final String delegateIdentifier) {
         this.delegateIdentifier = delegateIdentifier;
-    }
-
-    @Override
-    public void textChangeWasApplied() {
-        // this is after the text change was applied but before the model
-        // has sync'd itself to the new text
-
-        this.step.performASTChange();
-
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iCompilationUnit.getJavaProject());
-
-        project.addProjectListener(this);
-    }
-
-    @Override
-    public void textChangeWasNotApplied() {
-
-        this.step.cleanup();
-
     }
 
 }

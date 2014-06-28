@@ -14,7 +14,6 @@ import net.creichen.pm.PMWizard;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -24,7 +23,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 public abstract class PMAction implements IWorkbenchWindowActionDelegate {
     private IWorkbenchWindow window;
@@ -43,23 +41,6 @@ public abstract class PMAction implements IWorkbenchWindowActionDelegate {
 
             return (ICompilationUnit) org.eclipse.jdt.ui.JavaUI.getEditorInputJavaElement(editor
                     .getEditorInput());
-        } else {
-            return null;
-        }
-
-    }
-
-    public IDocument currentIDocument() {
-        final IWorkbenchPage activePage = this.window.getActivePage();
-
-        if (activePage != null) {
-            final IEditorPart editor = activePage.getActiveEditor();
-
-            final IDocument document = (((ITextEditor) editor).getDocumentProvider())
-                    .getDocument(editor.getEditorInput());
-
-            return document;
-
         } else {
             return null;
         }

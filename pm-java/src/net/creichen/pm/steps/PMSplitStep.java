@@ -11,12 +11,7 @@ package net.creichen.pm.steps;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import net.creichen.pm.PMASTNodeUtil;
 import net.creichen.pm.PMNodeReference;
@@ -28,22 +23,7 @@ import net.creichen.pm.models.PMNameModel;
 import net.creichen.pm.models.PMUDModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class PMSplitStep extends PMStep {
@@ -94,7 +74,7 @@ public class PMSplitStep extends PMStep {
 
     }
 
-    public MethodDeclaration findContainingMethodDeclaration(final ASTNode node) {
+    private MethodDeclaration findContainingMethodDeclaration(final ASTNode node) {
         MethodDeclaration containingMethodDeclaration = null;
 
         ASTNode iterator = node;
@@ -137,15 +117,15 @@ public class PMSplitStep extends PMStep {
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
 
-        final PMNodeReference identifierForOldAssignment = this.getProject()
-                .getReferenceForNode(oldAssignmentExpression);
+        final PMNodeReference identifierForOldAssignment = getProject().getReferenceForNode(
+                oldAssignmentExpression);
 
-        this.getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
+        getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
 
         // !!!_project.removeNode(oldAssignmentExpression);
         // !!!_project.addNode(_replacementDeclarationStatement);
 
-        final PMNodeReference identifierForNewVariableDeclaration = this.getProject()
+        final PMNodeReference identifierForNewVariableDeclaration = getProject()
                 .getReferenceForNode(newVariableDeclarationFragment);
 
         final SimpleName oldLHS = (SimpleName) oldAssignmentExpression.getLeftHandSide();
@@ -154,7 +134,7 @@ public class PMSplitStep extends PMStep {
         // Need to update UDModel to replace assignment definition with variable
         // declaration fragment definition
 
-        final PMUDModel udModel = this.getProject().getUDModel();
+        final PMUDModel udModel = getProject().getUDModel();
 
         // for each use of the assignment, replace the use of the assignment
         // with the use of the declaration
@@ -168,7 +148,7 @@ public class PMSplitStep extends PMStep {
 
         udModel.deleteDefinition(identifierForOldAssignment);
 
-        final PMNameModel nameModel = this.getProject().getNameModel();
+        final PMNameModel nameModel = getProject().getNameModel();
 
         nameModel.removeIdentifierForName(oldLHS);
 
@@ -190,17 +170,12 @@ public class PMSplitStep extends PMStep {
         parentList.set(parentList.indexOf(this.assignmentStatement),
                 this.replacementDeclarationStatement);
 
-        this.replacementDeclarationReference = this.getProject()
-                .getReferenceForNode(this.replacementDeclarationStatement);
+        this.replacementDeclarationReference = getProject().getReferenceForNode(
+                this.replacementDeclarationStatement);
 
     }
 
-    public void rewriteToRenameSimpleNameToIdentifier(final ASTRewrite rewrite,
-            final SimpleName simpleName, final String identifier) {
-        rewrite.set(simpleName, SimpleName.IDENTIFIER_PROPERTY, identifier, null /* edit group */);
-    }
-
-    public void rewriteToReplaceAssignmentStatementWithDeclaration(final ASTRewrite rewrite,
+    private void rewriteToReplaceAssignmentStatementWithDeclaration(final ASTRewrite rewrite,
             final Assignment assignment) {
 
         final SimpleName lhs = (SimpleName) assignment.getLeftHandSide();
@@ -241,9 +216,9 @@ public class PMSplitStep extends PMStep {
         this.replacementDeclarationStatement.setType((Type) ASTNode.copySubtree(ast, type));
 
         rewrite.replace(this.assignmentStatement, this.replacementDeclarationStatement, null /*
-                                                                                                * edit
-                                                                                                * group
-                                                                                                */);
+                                                                                              * edit
+                                                                                              * group
+                                                                                              */);
     }
 
     @Override

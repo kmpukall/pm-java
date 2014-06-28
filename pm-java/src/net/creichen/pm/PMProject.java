@@ -184,31 +184,6 @@ public class PMProject {
         return result;
     }
 
-    public ASTNode declaringNodeForTypeName(final String fullyQualifiedTypeName) {
-
-        ASTNode declaringNode = null;
-
-        try {
-            final IType type = this.iJavaProject.findType(fullyQualifiedTypeName);
-
-            if (type != null) {
-                final ICompilationUnit declaringIComputationUnit = (ICompilationUnit) type
-                        .getAncestor(IJavaElement.COMPILATION_UNIT);
-
-                final CompilationUnit declaringCompilationUnit = parsedCompilationUnitForICompilationUnit(declaringIComputationUnit);
-
-                if (declaringCompilationUnit != null) {
-                    declaringNode = declaringCompilationUnit.findDeclaringNode(type.getKey());
-                }
-            }
-
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-
-        return declaringNode;
-    }
-
     public ASTNode findASTRootForICompilationUnit(final ICompilationUnit iCompilationUnit) {
         return parsedCompilationUnitForICompilationUnit(iCompilationUnit);
     }
@@ -396,7 +371,7 @@ public class PMProject {
         return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getASTNode();
     }
 
-    public ArrayList<PMProjectListener> projectListeners() {
+    private ArrayList<PMProjectListener> projectListeners() {
         return new ArrayList<PMProjectListener>(this.projectListeners);
     }
 
@@ -437,15 +412,7 @@ public class PMProject {
         return matches;
     }
 
-    public Set<SimpleName> relatedNodesForSimpleName(final SimpleName simpleName) {
-        final Set<SimpleName> result = new HashSet<SimpleName>();
-
-        result.addAll(this.nameModel.nameNodesRelatedToNameNode(simpleName));
-
-        return result;
-    }
-
-    public void replaceNodeWithNode(final ASTNode oldNode, final ASTNode newNode) {
+    private void replaceNodeWithNode(final ASTNode oldNode, final ASTNode newNode) {
         this.nodeReferenceStore.replaceOldNodeVersionWithNewVersion(oldNode, newNode);
     }
 
@@ -535,7 +502,7 @@ public class PMProject {
 
     }
 
-    public boolean sourceIsUpToDateForICompilationUnit(final ICompilationUnit iCompilationUnit) {
+    private boolean sourceIsUpToDateForICompilationUnit(final ICompilationUnit iCompilationUnit) {
         final PMCompilationUnitImplementation pmCompilationUnit = (PMCompilationUnitImplementation) getPMCompilationUnitForICompilationUnit(iCompilationUnit);
 
         return pmCompilationUnit.textHasChanged();
@@ -561,7 +528,7 @@ public class PMProject {
         updateToNewVersionsOfICompilationUnits(false);
     }
 
-    public void updateToNewVersionsOfICompilationUnits(boolean firstTime) {
+    private void updateToNewVersionsOfICompilationUnits(boolean firstTime) {
 
         final Set<ICompilationUnit> iCompilationUnits = getSourceFilesForProject(this.iJavaProject);
 

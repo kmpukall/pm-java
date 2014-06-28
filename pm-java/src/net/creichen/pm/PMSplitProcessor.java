@@ -24,7 +24,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
-public class PMSplitProcessor extends RefactoringProcessor implements PMProcessor {
+public class PMSplitProcessor extends RefactoringProcessor {
 
     private final ICompilationUnit iCompilationUnit;
     private final ITextSelection textSelection;
@@ -121,11 +121,6 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
     }
 
     @Override
-    public ICompilationUnit getICompilationUnit() {
-        return this.iCompilationUnit;
-    }
-
-    @Override
     public String getIdentifier() {
         return "edu.colorado.plan.PMSplitTemporaryRefactoring";
     }
@@ -145,20 +140,6 @@ public class PMSplitProcessor extends RefactoringProcessor implements PMProcesso
     public RefactoringParticipant[] loadParticipants(final RefactoringStatus status,
             final SharableParticipants sharedParticipants) throws CoreException {
         return new RefactoringParticipant[0];
-    }
-
-    @Override
-    public void textChangeWasApplied() {
-        // this is after the text change was applied but before the model
-        // has sync'd itself to the new text
-
-        this.step.performASTChange();
-
-    }
-
-    @Override
-    public void textChangeWasNotApplied() {
-        this.step.cleanup();
     }
 
 }

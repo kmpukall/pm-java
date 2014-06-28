@@ -26,8 +26,8 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.TextEdit;
 
 public class PMStep {
-    public class PMCompositeChange extends CompositeChange {
-        public PMCompositeChange(final String name) {
+    private class PMCompositeChange extends CompositeChange {
+        private PMCompositeChange(final String name) {
             super(name);
         }
 
@@ -51,8 +51,8 @@ public class PMStep {
 
     }
 
-    public class PMTextFileChange extends TextFileChange {
-        public PMTextFileChange(final String name, final IFile file) {
+    private class PMTextFileChange extends TextFileChange {
+        private PMTextFileChange(final String name, final IFile file) {
             super(name, file);
         }
 

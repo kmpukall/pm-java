@@ -19,10 +19,10 @@ import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator;
 
 public class PMMarkerResolutionGenerator implements IMarkerResolutionGenerator {
-    public static class AcceptBehavioralChangeQuickFix implements IMarkerResolution {
+    private static class AcceptBehavioralChangeQuickFix implements IMarkerResolution {
         private final PMInconsistency inconsistency;
 
-        AcceptBehavioralChangeQuickFix(final PMInconsistency inconsistency) {
+        private AcceptBehavioralChangeQuickFix(final PMInconsistency inconsistency) {
             this.inconsistency = inconsistency;
         }
 

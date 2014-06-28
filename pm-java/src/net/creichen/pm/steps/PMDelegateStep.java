@@ -113,7 +113,7 @@ public class PMDelegateStep extends PMStep {
             // match the copies up with the old versions so that we can update
             // identifiers
 
-            this.getProject().recursivelyReplaceNodeWithCopy(this.selectedMethodInvocation.getName(),
+            getProject().recursivelyReplaceNodeWithCopy(this.selectedMethodInvocation.getName(),
                     this.newSuperInvocationNode.getName());
 
             final List<Expression> oldArguments = arguments(this.selectedMethodInvocation);
@@ -121,7 +121,7 @@ public class PMDelegateStep extends PMStep {
 
             if (oldArguments.size() == newArguments.size()) {
                 for (int i = 0; i < oldArguments.size(); i++) {
-                    this.getProject().recursivelyReplaceNodeWithCopy(oldArguments.get(i),
+                    getProject().recursivelyReplaceNodeWithCopy(oldArguments.get(i),
                             newArguments.get(i));
                 }
 
@@ -152,8 +152,8 @@ public class PMDelegateStep extends PMStep {
             if (this.newExpressionNode != null) {
                 if ((this.newExpressionNode instanceof Name)) {
 
-                    this.newExpressionNodeReference = this.getProject()
-                            .getReferenceForNode(this.newExpressionNode);
+                    this.newExpressionNodeReference = getProject().getReferenceForNode(
+                            this.newExpressionNode);
                 } else {
                     System.err.println("Unexpected new expression type "
                             + this.newExpressionNode.getClass());
@@ -168,13 +168,13 @@ public class PMDelegateStep extends PMStep {
 
     }
 
-    void rewriteToDelegateMethodInvocationToIdentifier(final ASTRewrite astRewrite,
+    private void rewriteToDelegateMethodInvocationToIdentifier(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression identifierNode) {
         astRewrite
                 .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
     }
 
-    void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
+    private void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression superInvocationNode) {
         astRewrite.replace(methodInvocation, superInvocationNode, null /*
                                                                         * edit group
@@ -185,7 +185,7 @@ public class PMDelegateStep extends PMStep {
         this.delegateIdentifier = delegateIdentifier;
     }
 
-    SuperMethodInvocation superMethodDelegatingMethodInvocation(
+    private SuperMethodInvocation superMethodDelegatingMethodInvocation(
             final MethodInvocation invocationToDelegate) {
 
         final AST ast = invocationToDelegate.getAST();
@@ -221,12 +221,12 @@ public class PMDelegateStep extends PMStep {
 
             final SimpleName name = (SimpleName) this.newExpressionNode;
 
-            final PMNameModel nameModel = this.getProject().getNameModel();
+            final PMNameModel nameModel = getProject().getNameModel();
 
-            final ASTNode declaringNode = this.getProject().findDeclaringNodeForName(name);
+            final ASTNode declaringNode = getProject().findDeclaringNodeForName(name);
 
             if (declaringNode != null) {
-                final SimpleName simpleNameForDeclaringNode = this.getProject()
+                final SimpleName simpleNameForDeclaringNode = getProject()
                         .simpleNameForDeclaringNode(declaringNode);
 
                 final String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);
@@ -254,7 +254,7 @@ public class PMDelegateStep extends PMStep {
 
             final PMUse use = analysis.useForSimpleName(name);
 
-            final PMUDModel udModel = this.getProject().getUDModel();
+            final PMUDModel udModel = getProject().getUDModel();
 
             udModel.addUseToModel(use);
 

@@ -24,7 +24,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
-public class PMRenameProcessor extends RenameProcessor implements PMProcessor {
+public class PMRenameProcessor extends RenameProcessor {
 
     private final ICompilationUnit iCompilationUnit;
     private final ITextSelection textSelection;
@@ -106,11 +106,6 @@ public class PMRenameProcessor extends RenameProcessor implements PMProcessor {
     }
 
     @Override
-    public ICompilationUnit getICompilationUnit() {
-        return this.iCompilationUnit;
-    }
-
-    @Override
     public String getIdentifier() {
         return "edu.colorado.plan.PMRenameRefactoring";
     }
@@ -146,20 +141,6 @@ public class PMRenameProcessor extends RenameProcessor implements PMProcessor {
 
     public void setNewName(final String newName) {
         this.newName = newName;
-    }
-
-    @Override
-    public void textChangeWasApplied() {
-        PMTimer.sharedTimer().start("STEP");
-
-        this.renameStep.performASTChange();
-
-        PMTimer.sharedTimer().stop("STEP");
-    }
-
-    @Override
-    public void textChangeWasNotApplied() {
-
     }
 
 }

@@ -28,7 +28,7 @@ public class PMBlock {
         this.outgoingBlocks = new HashSet<PMBlock>();
     }
 
-    public void addIncomingBlock(final PMBlock block) {
+    private void addIncomingBlock(final PMBlock block) {
 
         if (this.incomingBlocks.add(block)) {
             block.addOutgoingBlock(this);

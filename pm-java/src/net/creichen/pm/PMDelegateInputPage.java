@@ -81,7 +81,7 @@ public class PMDelegateInputPage extends UserInputWizardPage {
         return field;
     }
 
-    void handleInputChanged() {
+    private void handleInputChanged() {
         this.processor.setDelegateIdentifier(this.fNameField.getText());
 
         final RefactoringStatus status = new RefactoringStatus();

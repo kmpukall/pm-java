@@ -9,11 +9,7 @@
 
 package net.creichen.pm.steps;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import net.creichen.pm.PMNodeReference;
 import net.creichen.pm.PMPasteboard;
@@ -62,7 +58,7 @@ public class PMCopyStep extends PMStep {
 
     }
 
-    public void copyNameModel(final List<ASTNode> originalRootNodes,
+    private void copyNameModel(final List<ASTNode> originalRootNodes,
             final List<ASTNode> copiedRootNodes) {
         /*
          * Generate fresh identifiers for all copied declarations (and definitions) and keep a
@@ -130,7 +126,7 @@ public class PMCopyStep extends PMStep {
         }
     }
 
-    public void copyUDModel(final List<ASTNode> originalRootNodes,
+    private void copyUDModel(final List<ASTNode> originalRootNodes,
             final List<ASTNode> copiedRootNodes) {
         // find all definitions in the copy
         // and keep a mapping from the new definition to the old
@@ -252,15 +248,15 @@ public class PMCopyStep extends PMStep {
 
         final List<ASTNode> copiedPasteboardRootNodes = new ArrayList<ASTNode>();
 
-        for (final ASTNode original : selectedNodes) {
+        for (final ASTNode original : this.selectedNodes) {
             final ASTNode copy = ASTNode.copySubtree(original.getAST(), original);
 
             copiedPasteboardRootNodes.add(copy);
         }
 
-        copyNameModel(selectedNodes, copiedPasteboardRootNodes);
+        copyNameModel(this.selectedNodes, copiedPasteboardRootNodes);
 
-        copyUDModel(selectedNodes, copiedPasteboardRootNodes);
+        copyUDModel(this.selectedNodes, copiedPasteboardRootNodes);
 
         final PMPasteboard pasteboard = getProject().getPasteboard();
 

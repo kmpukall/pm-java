@@ -18,9 +18,9 @@ import org.eclipse.jdt.core.dom.*;
 //This class is a mess
 
 public class PMInsertionPoint {
-    protected static class PMContainingBlockVisitor extends PMContainingNodeVisitor {
+    private static class PMContainingBlockVisitor extends PMContainingNodeVisitor {
 
-        public PMContainingBlockVisitor(final int offset, final int length) {
+        private PMContainingBlockVisitor(final int offset, final int length) {
             super(offset, length);
         }
 
@@ -30,13 +30,13 @@ public class PMInsertionPoint {
         }
     }
 
-    protected static class PMContainingNodeVisitor extends ASTVisitor {
+    private static class PMContainingNodeVisitor extends ASTVisitor {
         private final int _offset;
         private final int length;
 
         private ASTNode containingNode = null;
 
-        public PMContainingNodeVisitor(final int offset, final int length) {
+        private PMContainingNodeVisitor(final int offset, final int length) {
             this._offset = offset;
             this.length = length;
         }
@@ -47,8 +47,7 @@ public class PMInsertionPoint {
 
         public boolean visitContainingNode(final ASTNode node) {
             if (node.getStartPosition() + 1 <= this._offset
-                    && this._offset + this.length <= node.getStartPosition() + node.getLength()
-                            - 1) {
+                    && this._offset + this.length <= node.getStartPosition() + node.getLength() - 1) {
 
                 this.containingNode = node;
                 return true;
@@ -58,9 +57,9 @@ public class PMInsertionPoint {
         }
     }
 
-    protected static class PMContainingTypeDeclarationVisitor extends PMContainingNodeVisitor {
+    private static class PMContainingTypeDeclarationVisitor extends PMContainingNodeVisitor {
 
-        public PMContainingTypeDeclarationVisitor(final int offset, final int length) {
+        private PMContainingTypeDeclarationVisitor(final int offset, final int length) {
             super(offset, length);
         }
 

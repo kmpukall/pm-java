@@ -23,7 +23,7 @@ public class PMNodeReferenceStore {
     // as long as we make sure that there are no cycles from the node to
     // the store (such as, perhaps, via the node's properties)
 
-    public final class PMUUIDNodeReference implements PMNodeReference {
+    private final class PMUUIDNodeReference implements PMNodeReference {
 
         // This provides a way of referring to nodes without using the node ptr
         // This is useful to maintain references across reparses (which will

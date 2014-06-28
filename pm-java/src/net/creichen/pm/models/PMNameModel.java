@@ -114,7 +114,7 @@ public class PMNameModel {
         return inconsistencies;
     }
 
-    protected List<MethodDeclaration> constructorsForClass(final TypeDeclaration classDeclaration) {
+    private List<MethodDeclaration> constructorsForClass(final TypeDeclaration classDeclaration) {
         final List<MethodDeclaration> constructors = new ArrayList<MethodDeclaration>();
 
         for (final MethodDeclaration method : classDeclaration.getMethods()) {
@@ -219,7 +219,7 @@ public class PMNameModel {
         return new ArrayList<SimpleName>(allRelatedNodes);
     }
 
-    protected ArrayList<SimpleName> nameNodesRelatedToNameNodeWithIdentifier(final String identifier) {
+    private ArrayList<SimpleName> nameNodesRelatedToNameNodeWithIdentifier(final String identifier) {
         final String identifierCopy = identifier;
 
         final ArrayList<SimpleName> result = new ArrayList<SimpleName>();
@@ -246,7 +246,7 @@ public class PMNameModel {
         return result;
     }
 
-    protected void recursiveAddNameNodesRelatedToNameNode(final SimpleName name,
+    private void recursiveAddNameNodesRelatedToNameNode(final SimpleName name,
             final Set<SimpleName> visitedNodes) {
 
         final String identifier = this.identifiersForNames.get(name);
@@ -271,18 +271,6 @@ public class PMNameModel {
         this.identifiersForNames.remove(name);
     }
 
-    public void removeIdentifiersForTreeStartingAtNode(final ASTNode rootNode) {
-        rootNode.accept(new ASTVisitor() {
-            @Override
-            public boolean visit(final SimpleName simpleName) {
-                removeIdentifierForName(simpleName);
-
-                return true;
-            }
-        });
-
-    }
-
     public void replaceNameWithName(final Name oldName, final Name newName) {
         final String identifier = identifierForName(oldName);
 
@@ -293,7 +281,7 @@ public class PMNameModel {
 
     }
 
-    protected Set<SimpleName> representativeNameNodesIndirectlyRelatedToNameNode(
+    private Set<SimpleName> representativeNameNodesIndirectlyRelatedToNameNode(
             final SimpleName nameNode) {
         final Set<SimpleName> result = new HashSet<SimpleName>();
 

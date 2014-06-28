@@ -12,6 +12,7 @@ package net.creichen.pm;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -112,12 +113,9 @@ public class PMNodeReferenceStoreTest {
         final PMNodeReference reference = store.getReferenceForNode(node);
 
         assertNotNull(reference);
-
-        assert (store.getReferenceForNode(node) == reference);
-
-        assert (store.getNodeForReference(reference) == reference);
-
-        assert (reference.getNode() == node);
+        assertTrue(store.getReferenceForNode(node) == reference);
+        assertTrue(store.getNodeForReference(reference) == node);
+        assertTrue(reference.getNode() == node);
 
     }
 

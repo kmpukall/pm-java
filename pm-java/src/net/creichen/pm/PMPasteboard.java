@@ -22,7 +22,7 @@ public class PMPasteboard {
         this.pasteboardRoots = null;
     }
 
-    public void clearPasteboard() {
+    private void clearPasteboard() {
         // clear model information via _project
 
         this.pasteboardRoots = null;

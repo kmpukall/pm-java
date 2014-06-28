@@ -12,26 +12,9 @@ package net.creichen.pm.analysis;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.*;
 
 public class PMDef {
-
-    public static VariableDeclaration localDeclarationForSimpleName(final SimpleName simpleName) {
-        return (VariableDeclaration) ((CompilationUnit) simpleName.getRoot())
-                .findDeclaringNode(simpleName.resolveBinding());
-    }
 
     private final ASTNode definingNode;
 
@@ -51,7 +34,7 @@ public class PMDef {
         }
     }
 
-    public IBinding findBindingForLHS(final Expression lhs) {
+    private IBinding findBindingForLHS(final Expression lhs) {
         IBinding binding = null;
 
         if (lhs instanceof Name) {

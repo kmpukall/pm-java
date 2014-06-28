@@ -17,13 +17,13 @@ import java.util.*;
 import org.eclipse.jdt.core.dom.*;
 
 public class PMRDefsAnalysis {
-    protected static class VariableAssignment {
+    private static class VariableAssignment {
 
         private final PMDef definition;
 
         private final IBinding variableBinding;
 
-        public VariableAssignment(final PMDef definition, final IBinding variableBinding) {
+        private VariableAssignment(final PMDef definition, final IBinding variableBinding) {
             this.definition = definition;
             this.variableBinding = variableBinding;
         }
@@ -145,7 +145,7 @@ public class PMRDefsAnalysis {
         this.definitionsByDefiningNode.put(node, definition);
     }
 
-    protected void addSerialBlockToEndOfList(final PMBlock block, final ArrayList<PMBlock> blockList) {
+    private void addSerialBlockToEndOfList(final PMBlock block, final ArrayList<PMBlock> blockList) {
         if (blockList.size() > 0) {
             final PMBlock lastBlock = blockList.get(blockList.size() - 1);
 
@@ -155,41 +155,7 @@ public class PMRDefsAnalysis {
         blockList.add(block);
     }
 
-    protected boolean astNodeContainsDefinition(final ASTNode node) {
-
-        // could do this more efficiently
-
-        final boolean[] containsDefinition = new boolean[1];
-        containsDefinition[0] = false; // to get around final problem
-
-        node.accept(new ASTVisitor() {
-            @Override
-            public boolean visit(final Assignment assignment) {
-                containsDefinition[0] = true;
-
-                return true;
-            }
-
-            @Override
-            public boolean visit(final SingleVariableDeclaration singleVariableDeclaration) {
-                containsDefinition[0] = true;
-
-                return true;
-            }
-
-            @Override
-            public boolean visit(final VariableDeclarationFragment variableDeclarationFragment) {
-                containsDefinition[0] = true;
-
-                return true;
-            }
-
-        });
-
-        return containsDefinition[0];
-    }
-
-    void findAllBlocks() {
+    private void findAllBlocks() {
 
         this.allBlocks = new ArrayList<PMBlock>();
 
@@ -212,7 +178,7 @@ public class PMRDefsAnalysis {
         }
     }
 
-    void findDefinitions() {
+    private void findDefinitions() {
         this.definitions = new ArrayList<PMDef>();
         this.definitionsByDefiningNode = new HashMap<ASTNode, PMDef>();
 
@@ -240,7 +206,7 @@ public class PMRDefsAnalysis {
         }
     }
 
-    HashMap<PMBlock, HashSet<VariableAssignment>> findGenSets() {
+    private HashMap<PMBlock, HashSet<VariableAssignment>> findGenSets() {
 
         final HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
 
@@ -267,7 +233,7 @@ public class PMRDefsAnalysis {
         return result;
     }
 
-    HashMap<PMBlock, HashSet<VariableAssignment>> findKillSets() {
+    private HashMap<PMBlock, HashSet<VariableAssignment>> findKillSets() {
 
         final HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
 
@@ -304,7 +270,7 @@ public class PMRDefsAnalysis {
         return result;
     }
 
-    protected void findUses() {
+    private void findUses() {
 
         this.usesByName = new HashMap<SimpleName, PMUse>();
 
@@ -342,7 +308,7 @@ public class PMRDefsAnalysis {
 
     }
 
-    protected ArrayList<PMBlock> generateBlocksForExpression(final Expression expression) {
+    private ArrayList<PMBlock> generateBlocksForExpression(final Expression expression) {
         final ArrayList<PMBlock> result = new ArrayList<PMBlock>();
 
         if (expression instanceof Assignment) {
@@ -383,7 +349,7 @@ public class PMRDefsAnalysis {
         return result;
     }
 
-    protected ArrayList<PMBlock> generateBlocksForStatement(final Statement statement) {
+    private ArrayList<PMBlock> generateBlocksForStatement(final Statement statement) {
         final ArrayList<PMBlock> result = new ArrayList<PMBlock>();
 
         if (statement instanceof ExpressionStatement) {
@@ -501,7 +467,7 @@ public class PMRDefsAnalysis {
         return this.allBlocks;
     }
 
-    protected PMBlock getBlockForNode(ASTNode node) {
+    private PMBlock getBlockForNode(ASTNode node) {
         final ASTNode originalNode = node;
 
         do {
@@ -537,7 +503,7 @@ public class PMRDefsAnalysis {
         return lhs instanceof SimpleName;
     }
 
-    protected void mergeBlockLists(final ArrayList<PMBlock> first, final ArrayList<PMBlock> second) {
+    private void mergeBlockLists(final ArrayList<PMBlock> first, final ArrayList<PMBlock> second) {
         // We assume the last block of the first list is followed sequentially
         // by the first block of the second list
 
@@ -548,7 +514,7 @@ public class PMRDefsAnalysis {
         first.addAll(second);
     }
 
-    void runAnalysis() {
+    private void runAnalysis() {
         findDefinitions();
         findAllBlocks();
 
@@ -707,7 +673,7 @@ public class PMRDefsAnalysis {
          */
     }
 
-    protected boolean simpleNameIsUse(final SimpleName name) {
+    private boolean simpleNameIsUse(final SimpleName name) {
         /*
          * we assume all simple names are uses except:
          * 
@@ -729,7 +695,7 @@ public class PMRDefsAnalysis {
         return true;
     }
 
-    VariableAssignment uniqueVariableAssignment(final PMDef definition,
+    private VariableAssignment uniqueVariableAssignment(final PMDef definition,
             final IBinding variableBinding) {
 
         if (variableBinding == null) {

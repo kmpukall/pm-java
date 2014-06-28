@@ -84,7 +84,7 @@ public class PMRenameInputPage extends UserInputWizardPage {
         return field;
     }
 
-    void handleInputChanged() {
+    private void handleInputChanged() {
         this.processor.setNewName(this.fNameField.getText());
 
         final RefactoringStatus status = new RefactoringStatus();

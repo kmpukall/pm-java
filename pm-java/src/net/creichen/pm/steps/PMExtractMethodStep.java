@@ -9,11 +9,7 @@
 
 package net.creichen.pm.steps;
 
-import static net.creichen.pm.utils.APIWrapperUtil.arguments;
-import static net.creichen.pm.utils.APIWrapperUtil.bodyDeclarations;
-import static net.creichen.pm.utils.APIWrapperUtil.modifiers;
-import static net.creichen.pm.utils.APIWrapperUtil.parameters;
-import static net.creichen.pm.utils.APIWrapperUtil.statements;
+import static net.creichen.pm.utils.APIWrapperUtil.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,23 +20,7 @@ import net.creichen.pm.PMASTNodeUtil;
 import net.creichen.pm.PMProject;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.ReturnStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
@@ -132,7 +112,7 @@ public class PMExtractMethodStep extends PMStep {
 
         astRewrite.replace(this.originalExpression, this.replacementMethodInvocation, null);
 
-        result.put(this.getProject().findPMCompilationUnitForNode(this.originalExpression)
+        result.put(getProject().findPMCompilationUnitForNode(this.originalExpression)
                 .getICompilationUnit(), astRewrite);
 
         return result;
@@ -157,7 +137,7 @@ public class PMExtractMethodStep extends PMStep {
         return new ArrayList<SimpleName>(this.namesToExtract);
     }
 
-    protected MethodDeclaration newMethodDeclaration() {
+    private MethodDeclaration newMethodDeclaration() {
 
         final AST ast = this.originalExpression.getAST();
 
@@ -197,7 +177,7 @@ public class PMExtractMethodStep extends PMStep {
         return newMethodDeclaration;
     }
 
-    protected MethodInvocation newMethodInvocation() {
+    private MethodInvocation newMethodInvocation() {
         final AST ast = this.originalExpression.getAST();
 
         final MethodInvocation newMethodInvocation = ast.newMethodInvocation();
@@ -218,22 +198,22 @@ public class PMExtractMethodStep extends PMStep {
 
         bodyDeclarations(containingClass).add(this.extractedMethodDeclaration);
 
-        this.getProject().recursivelyReplaceNodeWithCopy(this.originalExpression,
+        getProject().recursivelyReplaceNodeWithCopy(this.originalExpression,
                 this.extractedExpression);
 
-        PMASTNodeUtil.replaceNodeInParent(this.originalExpression,
-                this.replacementMethodInvocation);
+        PMASTNodeUtil
+                .replaceNodeInParent(this.originalExpression, this.replacementMethodInvocation);
 
         performNameModelChange();
         performUDModelChange();
 
     }
 
-    public void performNameModelChange() {
+    private void performNameModelChange() {
 
     }
 
-    public void performUDModelChange() {
+    private void performUDModelChange() {
 
     }
 }

@@ -9,18 +9,13 @@
 
 package net.creichen.pm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.utils.APIWrapperUtil;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.*;
 
 public class ASTMatcher {
 
@@ -30,12 +25,8 @@ public class ASTMatcher {
 
     private final Map<ASTNode, ASTNode> isomorphicNodes;
 
-    private final List<ASTNode> newlyAddedNodes;
-
     public ASTMatcher(final ASTNode oldNode, final ASTNode newNode) {
         this.isomorphicNodes = new HashMap<ASTNode, ASTNode>();
-
-        this.newlyAddedNodes = new ArrayList<ASTNode>();
 
         this.newNode = newNode;
         this.oldNode = oldNode;
@@ -51,19 +42,12 @@ public class ASTMatcher {
 
         if (!result) {
             this.isomorphicNodes.clear();
-            this.newlyAddedNodes.clear();
         }
 
         return result;
     }
 
-    public List<ASTNode> newlyAddedNodes() {
-        // We don't actually handle non isomorphic graphs yet, so this is always
-        // empty
-        return this.newlyAddedNodes;
-    }
-
-    public boolean recursiveMatch(final ASTNode oldNode, final ASTNode newNode) {
+    private boolean recursiveMatch(final ASTNode oldNode, final ASTNode newNode) {
 
         // eventually we'll get smarter here and detect new nodes, etc.
         final int oldType = oldNode.getNodeType();
