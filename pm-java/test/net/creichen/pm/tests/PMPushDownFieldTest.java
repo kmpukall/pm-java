@@ -12,13 +12,13 @@ package net.creichen.pm.tests;
 import java.util.HashSet;
 
 import static org.junit.Assert.*;
-import net.creichen.pm.PMASTQuery;
+import net.creichen.pm.ASTQuery;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
-import net.creichen.pm.inconsistencies.PMInconsistency;
-import net.creichen.pm.steps.PMCopyStep;
-import net.creichen.pm.steps.PMCutStep;
-import net.creichen.pm.steps.PMPasteStep;
+import net.creichen.pm.inconsistencies.Inconsistency;
+import net.creichen.pm.steps.CopyStep;
+import net.creichen.pm.steps.CutStep;
+import net.creichen.pm.steps.PasteStep;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -40,56 +40,56 @@ public class PMPushDownFieldTest extends PMTest {
 
         PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        FieldDeclaration yField = (FieldDeclaration) PMASTQuery
+        FieldDeclaration yField = (FieldDeclaration) ASTQuery
                 .fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,
                         (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnitS))
                 .getParent();
-        PMCopyStep copyStep1 = new PMCopyStep(project, yField);
+        CopyStep copyStep1 = new CopyStep(project, yField);
         yField = null;
         copyStep1.applyAllAtOnce();
 
         CompilationUnit compilationUnitT1 = (CompilationUnit) project
                 .findASTRootForICompilationUnit(iCompilationUnitT1);
-        TypeDeclaration classT1 = PMASTQuery.classWithNameInCompilationUnit("T1", 0,
+        TypeDeclaration classT1 = ASTQuery.classWithNameInCompilationUnit("T1", 0,
                 compilationUnitT1);
 
-        PMPasteStep pasteStep1 = new PMPasteStep(project, classT1,
+        PasteStep pasteStep1 = new PasteStep(project, classT1,
                 classT1.getBodyDeclarationsProperty(), classT1.bodyDeclarations().size());
         classT1 = null;
 
         pasteStep1.applyAllAtOnce();
 
-        assertEquals(new HashSet<PMInconsistency>(), project.allInconsistencies());
+        assertEquals(new HashSet<Inconsistency>(), project.allInconsistencies());
 
-        yField = (FieldDeclaration) PMASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S",
+        yField = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S",
                 0, (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnitS))
                 .getParent();
-        PMCopyStep copyStep2 = new PMCopyStep(project, yField);
+        CopyStep copyStep2 = new CopyStep(project, yField);
         yField = null;
         copyStep2.applyAllAtOnce();
 
         CompilationUnit compilationUnitT2 = (CompilationUnit) project
                 .findASTRootForICompilationUnit(iCompilationUnitT2);
-        TypeDeclaration classT2 = PMASTQuery.classWithNameInCompilationUnit("T2", 0,
+        TypeDeclaration classT2 = ASTQuery.classWithNameInCompilationUnit("T2", 0,
                 compilationUnitT2);
 
-        PMPasteStep pasteStep2 = new PMPasteStep(project, classT2,
+        PasteStep pasteStep2 = new PasteStep(project, classT2,
                 classT2.getBodyDeclarationsProperty(), classT2.bodyDeclarations().size());
         classT2 = null;
 
         pasteStep2.applyAllAtOnce();
 
-        yField = (FieldDeclaration) PMASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S",
+        yField = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S",
                 0, (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnitS))
                 .getParent();
-        PMCutStep cutStep = new PMCutStep(project, yField); // We use cut to
+        CutStep cutStep = new CutStep(project, yField); // We use cut to
                                                             // delete the
                                                             // original field
 
         yField = null;
         cutStep.applyAllAtOnce();
 
-        assertEquals(new HashSet<PMInconsistency>(), project.allInconsistencies());
+        assertEquals(new HashSet<Inconsistency>(), project.allInconsistencies());
 
         assertTrue(compilationUnitSourceMatchesSource("public class S {} }",
                 iCompilationUnitS.getSource()));

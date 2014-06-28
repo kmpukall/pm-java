@@ -8,14 +8,14 @@
             visible="true">
          <action
                label="PM Cut"
-               class="net.creichen.pm.actions.PMCutAction"
+               class="net.creichen.pm.actions.CutAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.CutAction">
          </action>
          <action
                label="PM Paste"
-               class="net.creichen.pm.actions.PMPasteAction"
+               class="net.creichen.pm.actions.PasteAction"
                tooltip="Hello, Eclipse world"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
                id="pm_rename_refactoring.actions.PasteAction">
@@ -38,7 +38,7 @@
    </extension>
    <extension point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="net.creichen.pm.inconsistencies.PMMarkerResolutionGenerator"
+            class="net.creichen.pm.inconsistencies.MarkerResolutionGenerator"
             markerType="org.eclipse.core.resources.problemmarker">
       </markerResolutionGenerator>
    </extension>

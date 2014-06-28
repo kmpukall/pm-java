@@ -9,22 +9,29 @@
 
 package net.creichen.pm.actions;
 
-import net.creichen.pm.SplitProcessor;
+import net.creichen.pm.RenameInputPage;
+import net.creichen.pm.PMRenameProcessor;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
-public class PMSplitAction extends Action {
+/**
+ * Our sample action implements workbench action delegate. The action proxy will be created by the
+ * workbench and shown in the UI. When the user tries to use the action, this delegate will be
+ * created and execution will be delegated to it.
+ * 
+ */
+public class RenameAction extends Action {
 
     @Override
     public RefactoringProcessor newProcessor() {
-        return new SplitProcessor((ITextSelection) getSelection(), currentICompilationUnit());
+        return new PMRenameProcessor((ITextSelection) getSelection(), currentICompilationUnit());
     }
 
     @Override
     public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
-        return null; // No input page currently needed for split temporary
+        return new RenameInputPage((PMRenameProcessor) processor);
     }
 
 }

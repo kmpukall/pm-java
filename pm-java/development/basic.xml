@@ -7,6 +7,8 @@
   <description>
 The Basic ruleset contains a collection of good practices which should be followed.
   </description>
+  <exclude-pattern>.*/eclipse-comparison/.*</exclude-pattern>
+  <exclude-pattern>.*/runtime-testing-src/.*</exclude-pattern>
 
 	<rule name="JumbledIncrementer"
     	  language="java"

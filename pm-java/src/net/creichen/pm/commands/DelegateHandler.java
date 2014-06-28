@@ -1,13 +1,13 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.actions.PMAction;
-import net.creichen.pm.actions.PMDelegateAction;
+import net.creichen.pm.actions.Action;
+import net.creichen.pm.actions.DelegateAction;
 
 public class DelegateHandler extends AbstractActionWrapper {
 
-    private PMAction action = new PMDelegateAction();
+    private Action action = new DelegateAction();
 
-    protected PMAction getAction() {
+    protected Action getAction() {
         return action;
     }
 

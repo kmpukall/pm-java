@@ -1,6 +1,6 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.actions.PMAction;
+import net.creichen.pm.actions.Action;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -17,6 +17,6 @@ public abstract class AbstractActionWrapper extends AbstractHandler {
         return null;
     }
 
-    protected abstract PMAction getAction();
+    protected abstract Action getAction();
 
 }

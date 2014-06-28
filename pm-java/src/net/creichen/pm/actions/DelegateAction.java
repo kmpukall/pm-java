@@ -9,22 +9,23 @@
 
 package net.creichen.pm.actions;
 
-import net.creichen.pm.SplitProcessor;
+import net.creichen.pm.DelegateInputPage;
+import net.creichen.pm.DelegateProcessor;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
-public class PMSplitAction extends Action {
+public class DelegateAction extends Action {
 
     @Override
     public RefactoringProcessor newProcessor() {
-        return new SplitProcessor((ITextSelection) getSelection(), currentICompilationUnit());
+        return new DelegateProcessor((ITextSelection) getSelection(), currentICompilationUnit());
     }
 
     @Override
     public UserInputWizardPage newWizardInputPage(final RefactoringProcessor processor) {
-        return null; // No input page currently needed for split temporary
+        return new DelegateInputPage((DelegateProcessor) processor);
     }
 
 }

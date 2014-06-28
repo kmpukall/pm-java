@@ -93,7 +93,7 @@ public class ASTMatcher {
                         .getStructuralProperty(structuralPropertyDescriptor);
 
                 if ((oldPropertyValue == null && newPropertyValue != null)
-                        || (newPropertyValue != null && newPropertyValue == null)) {
+                        || (oldPropertyValue != null && newPropertyValue == null)) {
                     return false;
                 }
 

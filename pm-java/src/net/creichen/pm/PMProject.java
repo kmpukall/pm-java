@@ -12,10 +12,10 @@ package net.creichen.pm;
 import java.security.MessageDigest;
 import java.util.*;
 
-import net.creichen.pm.inconsistencies.PMInconsistency;
-import net.creichen.pm.inconsistencies.PMMarkerResolutionGenerator;
-import net.creichen.pm.models.PMNameModel;
-import net.creichen.pm.models.PMUDModel;
+import net.creichen.pm.inconsistencies.Inconsistency;
+import net.creichen.pm.inconsistencies.MarkerResolutionGenerator;
+import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.DefUseModel;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -128,46 +128,46 @@ public class PMProject {
 
     private final IJavaProject iJavaProject;
 
-    private final Map<String, PMInconsistency> currentInconsistencies;
+    private final Map<String, Inconsistency> currentInconsistencies;
 
     private final HashMap<String, PMCompilationUnitImplementation> pmCompilationUnits; // keyed
     // off
     // ICompilationUnit.getHandleIdentifier
 
-    private final ArrayList<PMProjectListener> projectListeners;
+    private final ArrayList<ProjectListener> projectListeners;
 
-    private PMUDModel udModel;
+    private DefUseModel udModel;
 
-    private PMNameModel nameModel;
+    private NameModel nameModel;
 
-    private final PMPasteboard pasteboard;
+    private final Pasteboard pasteboard;
 
-    private final PMNodeReferenceStore nodeReferenceStore;
+    private final NodeReferenceStore nodeReferenceStore;
 
     protected PMProject(final IJavaProject iJavaProject) {
 
-        this.nodeReferenceStore = new PMNodeReferenceStore();
+        this.nodeReferenceStore = new NodeReferenceStore();
 
         this.iJavaProject = iJavaProject;
 
-        this.currentInconsistencies = new HashMap<String, PMInconsistency>();
+        this.currentInconsistencies = new HashMap<String, Inconsistency>();
 
         this.pmCompilationUnits = new HashMap<String, PMCompilationUnitImplementation>();
 
-        this.projectListeners = new ArrayList<PMProjectListener>();
+        this.projectListeners = new ArrayList<ProjectListener>();
 
-        this.pasteboard = new PMPasteboard(this);
+        this.pasteboard = new Pasteboard(this);
 
         updateToNewVersionsOfICompilationUnits(true);
 
     }
 
-    public void addProjectListener(final PMProjectListener listener) {
+    public void addProjectListener(final ProjectListener listener) {
         this.projectListeners.add(listener);
     }
 
-    public Set<PMInconsistency> allInconsistencies() {
-        final HashSet<PMInconsistency> result = new HashSet<PMInconsistency>();
+    public Set<Inconsistency> allInconsistencies() {
+        final HashSet<Inconsistency> result = new HashSet<Inconsistency>();
 
         result.addAll(this.currentInconsistencies.values());
 
@@ -276,15 +276,15 @@ public class PMProject {
         return this.iJavaProject;
     }
 
-    public PMInconsistency getInconsistencyWithKey(final String key) {
+    public Inconsistency getInconsistencyWithKey(final String key) {
         return this.currentInconsistencies.get(key);
     }
 
-    public PMNameModel getNameModel() {
+    public NameModel getNameModel() {
         return this.nameModel;
     }
 
-    public PMPasteboard getPasteboard() {
+    public Pasteboard getPasteboard() {
         return this.pasteboard;
     }
 
@@ -327,7 +327,7 @@ public class PMProject {
         return result;
     }
 
-    public PMUDModel getUDModel() {
+    public DefUseModel getUDModel() {
         return this.udModel;
     }
 
@@ -360,7 +360,7 @@ public class PMProject {
 
         final CompilationUnit compilationUnit = (CompilationUnit) findASTRootForICompilationUnit(iCompilationUnit);
 
-        final ASTNode selectedNode = PMASTQuery.nodeForSelectionInCompilationUnit(
+        final ASTNode selectedNode = ASTQuery.nodeForSelectionInCompilationUnit(
                 selection.getOffset(), selection.getLength(), compilationUnit);
 
         return selectedNode;
@@ -371,13 +371,13 @@ public class PMProject {
         return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getASTNode();
     }
 
-    private ArrayList<PMProjectListener> projectListeners() {
-        return new ArrayList<PMProjectListener>(this.projectListeners);
+    private ArrayList<ProjectListener> projectListeners() {
+        return new ArrayList<ProjectListener>(this.projectListeners);
     }
 
     public boolean recursivelyReplaceNodeWithCopy(final ASTNode node, final ASTNode copy) {
 
-        PMTimer.sharedTimer().start("NODE_REPLACEMENT");
+        Timer.sharedTimer().start("NODE_REPLACEMENT");
 
         // It's kind of silly that we have to match twice
 
@@ -407,7 +407,7 @@ public class PMProject {
             throw new RuntimeException("Copy not does structurally match original");
         }
 
-        PMTimer.sharedTimer().stop("NODE_REPLACEMENT");
+        Timer.sharedTimer().stop("NODE_REPLACEMENT");
 
         return matches;
     }
@@ -422,14 +422,14 @@ public class PMProject {
 
             this.currentInconsistencies.clear();
 
-            PMTimer.sharedTimer().start("INCONSISTENCIES");
+            Timer.sharedTimer().start("INCONSISTENCIES");
 
-            final Set<PMInconsistency> inconsistencySet = new HashSet<PMInconsistency>();
+            final Set<Inconsistency> inconsistencySet = new HashSet<Inconsistency>();
 
             inconsistencySet.addAll(this.nameModel.calculateInconsistencies());
             inconsistencySet.addAll(this.udModel.calculateInconsistencies());
 
-            PMTimer.sharedTimer().stop("INCONSISTENCIES");
+            Timer.sharedTimer().stop("INCONSISTENCIES");
 
             // delete previous markers
             for (final ICompilationUnit iCompilationUnit : getICompilationUnits()) {
@@ -438,19 +438,19 @@ public class PMProject {
                         "org.eclipse.core.resources.problemmarker", false, IResource.DEPTH_ZERO);
             }
 
-            for (final PMInconsistency inconsistency : inconsistencySet) {
+            for (final Inconsistency inconsistency : inconsistencySet) {
                 final IResource resource = findPMCompilationUnitForNode(inconsistency.getNode())
                         .getICompilationUnit().getResource();
 
                 final IMarker marker = resource
                         .createMarker("org.eclipse.core.resources.problemmarker");
 
-                marker.setAttribute(PMMarkerResolutionGenerator.INCONSISTENCY_ID,
+                marker.setAttribute(MarkerResolutionGenerator.INCONSISTENCY_ID,
                         inconsistency.getID());
-                marker.setAttribute(PMMarkerResolutionGenerator.PROJECT_ID,
+                marker.setAttribute(MarkerResolutionGenerator.PROJECT_ID,
                         this.iJavaProject.getHandleIdentifier());
 
-                marker.setAttribute(PMMarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
+                marker.setAttribute(MarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
                         inconsistency.allowsAcceptBehavioralChange());
 
                 marker.setAttribute(IMarker.MESSAGE, inconsistency.getHumanReadableDescription());
@@ -472,8 +472,8 @@ public class PMProject {
     }
 
     private void resetModel() {
-        this.udModel = new PMUDModel(this);
-        this.nameModel = new PMNameModel(this);
+        this.udModel = new DefUseModel(this);
+        this.nameModel = new NameModel(this);
     }
 
     // Hmmm, this assumes there is only one simple name for a given declaring
@@ -558,7 +558,7 @@ public class PMProject {
             public void acceptAST(final ICompilationUnit source,
                     final CompilationUnit newCompilationUnit) {
 
-                PMTimer.sharedTimer().start("PARSE_INTERNAL");
+                Timer.sharedTimer().start("PARSE_INTERNAL");
 
                 PMCompilationUnitImplementation pmCompilationUnit = PMProject.this.pmCompilationUnits
                         .get(source.getHandleIdentifier());
@@ -591,7 +591,7 @@ public class PMProject {
 
                 }
 
-                PMTimer.sharedTimer().stop("PARSE_INTERNAL");
+                Timer.sharedTimer().stop("PARSE_INTERNAL");
             }
         };
 
@@ -603,7 +603,7 @@ public class PMProject {
             resetModel();
         }
 
-        for (final PMProjectListener listener : projectListeners()) {
+        for (final ProjectListener listener : projectListeners()) {
             listener.projectDidReparse(this);
         }
 

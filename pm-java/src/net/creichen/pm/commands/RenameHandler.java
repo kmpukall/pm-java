@@ -1,13 +1,13 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.actions.PMAction;
-import net.creichen.pm.actions.PMRenameAction;
+import net.creichen.pm.actions.Action;
+import net.creichen.pm.actions.RenameAction;
 
 public class RenameHandler extends AbstractActionWrapper {
 
-    private PMAction action = new PMRenameAction();
+    private Action action = new RenameAction();
 
-    protected PMAction getAction() {
+    protected Action getAction() {
         return action;
     }
 

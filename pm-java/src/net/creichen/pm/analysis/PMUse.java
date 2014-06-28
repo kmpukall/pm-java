@@ -18,15 +18,15 @@ public class PMUse {
 
     private final SimpleName simpleName;
 
-    private final Set<PMDef> reachingDefinitions;
+    private final Set<Def> reachingDefinitions;
 
     public PMUse(final SimpleName simpleName) {
         this.simpleName = simpleName;
 
-        this.reachingDefinitions = new HashSet<PMDef>();
+        this.reachingDefinitions = new HashSet<Def>();
     }
 
-    public void addReachingDefinition(final PMDef reachingDef) {
+    public void addReachingDefinition(final Def reachingDef) {
         if (!this.reachingDefinitions.contains(reachingDef)) {
             this.reachingDefinitions.add(reachingDef);
 
@@ -38,7 +38,7 @@ public class PMUse {
         }
     }
 
-    public Set<PMDef> getReachingDefinitions() {
+    public Set<Def> getReachingDefinitions() {
         return this.reachingDefinitions;
     }
 

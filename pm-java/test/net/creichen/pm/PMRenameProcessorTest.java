@@ -14,9 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import net.creichen.pm.inconsistencies.PMInconsistency;
-import net.creichen.pm.inconsistencies.PMMissingDefinition;
-import net.creichen.pm.inconsistencies.PMNameCapture;
+import net.creichen.pm.inconsistencies.Inconsistency;
+import net.creichen.pm.inconsistencies.MissingDefinition;
+import net.creichen.pm.inconsistencies.NameCapture;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -113,16 +113,16 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(1, inconsistencies.size());
 
-        PMNameCapture nameCapture = (PMNameCapture) inconsistencies.toArray()[0];
+        NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
         CompilationUnit parsedCompilationUnit = pmProject
                 .parsedCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        ASTNode expectedCapturedNode = PMASTQuery
+        ASTNode expectedCapturedNode = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1, "method", 0,
                         "Foo", 0, parsedCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
@@ -139,7 +139,7 @@ public class PMRenameProcessorTest extends PMTest {
         // assertEquals(expectedExpectedDeclaringNode,
         // actualExpectedDeclaringNode);
 
-        ASTNode expectedCapturingNode = PMASTQuery
+        ASTNode expectedCapturingNode = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 0, "method", 0,
                         "Foo", 0, parsedCompilationUnit).getParent();
 
@@ -166,11 +166,11 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("public class Foo {void method() {int bar; int bar; bar = 5; bar = 6;} }",
                 iCompilationUnit.getSource());
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertTrue(inconsistencies.size() == 1);
 
-        PMNameCapture nameCapture = (PMNameCapture) inconsistencies.toArray()[0];
+        NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
         CompilationUnit parsedCompilationUnit = pmProject
                 .parsedCompilationUnitForICompilationUnit(iCompilationUnit);
@@ -179,7 +179,7 @@ public class PMRenameProcessorTest extends PMTest {
                 iCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
-        ASTNode expectedCapturingNode = PMASTQuery
+        ASTNode expectedCapturingNode = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1, "method", 0,
                         "Foo", 0, parsedCompilationUnit).getParent();
 
@@ -224,12 +224,12 @@ public class PMRenameProcessorTest extends PMTest {
                 "public class Unit2 { void method() {Unit1 unit1 = new Unit1(); unit1.y--;} }",
                 unit2.getSource());
 
-        for (PMInconsistency inconsistency : pmProject.allInconsistencies()) {
+        for (Inconsistency inconsistency : pmProject.allInconsistencies()) {
             System.out.println(inconsistency.getHumanReadableDescription());
 
-            if (inconsistency instanceof PMMissingDefinition) {
+            if (inconsistency instanceof MissingDefinition) {
                 System.out.println("For definition of class: "
-                        + ((PMMissingDefinition) inconsistency).getDefiningNode().getClass());
+                        + ((MissingDefinition) inconsistency).getDefiningNode().getClass());
             }
         }
 
@@ -254,23 +254,23 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());
 
-        Set<PMInconsistency> inconsistencies = pmProject.allInconsistencies();
+        Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertTrue(inconsistencies.size() == 1);
 
-        PMNameCapture nameCapture = (PMNameCapture) inconsistencies.toArray()[0];
+        NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
         CompilationUnit parsedCompilationUnit = pmProject
                 .parsedCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        ASTNode expectedCapturedNode = PMASTQuery
+        ASTNode expectedCapturedNode = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1, "method", 0,
                         "Foo", 0, parsedCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
         nameCapture.acceptBehavioralChange();
 
-        Set<PMInconsistency> newInconsistencies = pmProject.allInconsistencies();
+        Set<Inconsistency> newInconsistencies = pmProject.allInconsistencies();
 
         assertEquals(0, newInconsistencies.size());
     }

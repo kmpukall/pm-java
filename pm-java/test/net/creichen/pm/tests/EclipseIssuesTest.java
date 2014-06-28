@@ -9,7 +9,7 @@
 
 package net.creichen.pm.tests;
 
-import net.creichen.pm.PMASTQuery;
+import net.creichen.pm.ASTQuery;
 
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -32,14 +32,14 @@ public class EclipseIssuesTest extends PMTest {
 
         CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        SimpleName firstX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
                 "x", 0, "m", 0, "S", 0, compilationUnit);
-        SimpleName secondX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName secondX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
                 "x", 1, "m", 0, "S", 0, compilationUnit);
 
-        SimpleName thirdX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
                 "x", 2, "m", 0, "S", 0, compilationUnit);
-        SimpleName fourthX = PMASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName fourthX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
                 "x", 3, "m", 0, "S", 0, compilationUnit);
 
         /*
@@ -82,11 +82,11 @@ public class EclipseIssuesTest extends PMTest {
 
         CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        VariableDeclarationFragment firstXField = PMASTQuery.fieldWithNameInClassInCompilationUnit(
+        VariableDeclarationFragment firstXField = ASTQuery.fieldWithNameInClassInCompilationUnit(
                 "x", 0, "S", 0, compilationUnit);
         assertTrue(firstXField != null);
 
-        VariableDeclarationFragment secondXField = PMASTQuery
+        VariableDeclarationFragment secondXField = ASTQuery
                 .fieldWithNameInClassInCompilationUnit("x", 1, "S", 0, compilationUnit);
         assertTrue(secondXField != null);
 
@@ -100,7 +100,7 @@ public class EclipseIssuesTest extends PMTest {
         // System.out.println("secondFieldX binding hash is " +
         // secondXField.resolveBinding().hashCode());
 
-        SimpleName firstLocalX = PMASTQuery
+        SimpleName firstLocalX = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0, "S", 0,
                         compilationUnit);
 
