@@ -1,15 +1,23 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.actions.Action;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.handlers.HandlerUtil;
+
 import net.creichen.pm.actions.DelegateAction;
 
 public class DelegateHandler extends AbstractActionWrapper {
 
-    private final Action action = new DelegateAction();
+    public DelegateHandler() {
+        setAction(new DelegateAction());
+    }
 
     @Override
-    protected final Action getAction() {
-        return this.action;
+    public final Object execute(final ExecutionEvent event) throws ExecutionException {
+        this.getAction().init(HandlerUtil.getActiveWorkbenchWindow(event));
+        this.getAction().selectionChanged(null, HandlerUtil.getCurrentSelection(event));
+        this.getAction().run(null);
+        return null;
     }
 
 }

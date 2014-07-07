@@ -15,7 +15,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
-public class PMSplitAction extends Action {
+public class SplitAction extends Action {
 
     @Override
     public RefactoringProcessor newProcessor() {

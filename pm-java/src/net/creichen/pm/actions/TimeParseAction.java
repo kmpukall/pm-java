@@ -17,7 +17,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
-public class PMTimeParseAction extends Action {
+public class TimeParseAction extends Action {
 
     @Override
     public RefactoringProcessor newProcessor() {

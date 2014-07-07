@@ -73,7 +73,7 @@ public abstract class Action implements IWorkbenchWindowActionDelegate {
      * @see IWorkbenchWindowActionDelegate#init
      */
     @Override
-    public void init(final IWorkbenchWindow window) {
+    public final void init(final IWorkbenchWindow window) {
         this.window = window;
     }
 
@@ -113,7 +113,7 @@ public abstract class Action implements IWorkbenchWindowActionDelegate {
      * @see IWorkbenchWindowActionDelegate#selectionChanged
      */
     @Override
-    public void selectionChanged(final IAction action, final ISelection selection) {
+    public final void selectionChanged(final IAction action, final ISelection selection) {
 
         // For performance sake, we should stash the selection
         // and only get selected ast node in run()
