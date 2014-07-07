@@ -8,7 +8,7 @@ public class TimeParseHandler extends AbstractActionWrapper {
     private final Action action = new PMTimeParseAction();
 
     @Override
-    protected Action getAction() {
+    protected final Action getAction() {
         return this.action;
     }
 

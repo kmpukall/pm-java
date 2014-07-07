@@ -8,7 +8,7 @@ public class PasteHandler extends AbstractActionWrapper {
     private final Action action = new PasteAction();
 
     @Override
-    protected Action getAction() {
+    protected final Action getAction() {
         return this.action;
     }
 

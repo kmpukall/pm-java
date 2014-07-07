@@ -5,10 +5,11 @@ import net.creichen.pm.actions.DelegateAction;
 
 public class DelegateHandler extends AbstractActionWrapper {
 
-    private Action action = new DelegateAction();
+    private final Action action = new DelegateAction();
 
-    protected Action getAction() {
-        return action;
+    @Override
+    protected final Action getAction() {
+        return this.action;
     }
 
 }

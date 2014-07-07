@@ -5,10 +5,11 @@ import net.creichen.pm.actions.RenameAction;
 
 public class RenameHandler extends AbstractActionWrapper {
 
-    private Action action = new RenameAction();
+    private final Action action = new RenameAction();
 
-    protected Action getAction() {
-        return action;
+    @Override
+    protected final Action getAction() {
+        return this.action;
     }
 
 }

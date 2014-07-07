@@ -10,7 +10,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public abstract class AbstractActionWrapper extends AbstractHandler {
 
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
+    public final Object execute(final ExecutionEvent event) throws ExecutionException {
         getAction().init(HandlerUtil.getActiveWorkbenchWindow(event));
         getAction().selectionChanged(null, HandlerUtil.getCurrentSelection(event));
         getAction().run(null);

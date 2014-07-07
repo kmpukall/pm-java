@@ -8,7 +8,7 @@ public class SplitHandler extends AbstractActionWrapper {
     private final PMSplitAction action = new PMSplitAction();
 
     @Override
-    protected Action getAction() {
+    protected final Action getAction() {
         return this.action;
     }
 
