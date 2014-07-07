@@ -2,40 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-   <extension point="org.eclipse.ui.actionSets">
-      <actionSet id="pm_rename_refactoring.actionSet"
-            label="Sample Action Set"
-            visible="true">
-         <action
-               label="PM Cut"
-               class="net.creichen.pm.actions.CutAction"
-               tooltip="Hello, Eclipse world"
-               menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
-               id="pm_rename_refactoring.actions.CutAction">
-         </action>
-         <action
-               label="PM Paste"
-               class="net.creichen.pm.actions.PasteAction"
-               tooltip="Hello, Eclipse world"
-               menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
-               id="pm_rename_refactoring.actions.PasteAction">
-         </action>
-          <action
-               label="PM Split Temporary..."
-               class="net.creichen.pm.actions.PMSplitAction"
-               tooltip="Hello, Eclipse world"
-               menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
-               id="pm_rename_refactoring.actions.SplitTemporaryAction">
-         </action>
-         <action
-               label="PM Time Parse"
-               class="net.creichen.pm.actions.PMTimeParseAction"
-               tooltip="Hello, Eclipse world"
-               menubarPath="org.eclipse.jdt.ui.refactoring.menu/ProgramMetamorphosis"
-               id="pm_rename_refactoring.actions.TimeParseAction">
-         </action>
-	  </actionSet>
-   </extension>
    <extension point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
             class="net.creichen.pm.inconsistencies.MarkerResolutionGenerator"
@@ -52,6 +18,26 @@
             defaultHandler="net.creichen.pm.commands.DelegateHandler"
             id="pm_rename_refactoring.actions.DelegateAction"
             name="PM Delegate...">
+      </command>
+      <command
+            defaultHandler="net.creichen.pm.commands.CutHandler"
+            id="pm_rename_refactoring.actions.CutAction"
+            name="PM Cut">
+      </command>
+      <command
+            defaultHandler="net.creichen.pm.commands.PasteHandler"
+            id="pm_rename_refactoring.actions.PasteAction"
+            name="PM Paste">
+      </command>
+      <command
+            defaultHandler="net.creichen.pm.commands.SplitHandler"
+            id="pm_rename_refactoring.actions.SplitTemporaryAction"
+            name="PM Split Temporary...">
+      </command>
+      <command
+            defaultHandler="net.creichen.pm.commands.TimeParseHandler"
+            id="pm_rename_refactoring.actions.TimeParseAction"
+            name="PM Time Parse">
       </command>
    </extension>
    <extension
@@ -77,6 +63,30 @@
                   label="PM Delegate..."
                   style="push"
                   tooltip="Delegate a method call">
+            </command>
+            <command
+                  commandId="pm_rename_refactoring.actions.CutAction"
+                  label="PM Cut"
+                  style="push"
+                  tooltip="Cut this element and move it to the paste board">
+            </command>
+            <command
+                  commandId="pm_rename_refactoring.actions.PasteAction"
+                  label="PM Paste"
+                  style="push"
+                  tooltip="Paste an element from the paste board">
+            </command>
+            <command
+                  commandId="pm_rename_refactoring.actions.SplitTemporaryAction"
+                  label="PM Split Temporary..."
+                  style="push"
+                  tooltip="Split usage of this variable by introducing a new variable here.">
+            </command>
+            <command
+                  commandId="pm_rename_refactoring.actions.TimeParseAction"
+                  label="PM Time Parse"
+                  style="push"
+                  tooltip="Used in benchmarking situations.">
             </command>
          </menu>
       </menuContribution>
