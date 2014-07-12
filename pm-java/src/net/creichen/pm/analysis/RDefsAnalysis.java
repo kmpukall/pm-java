@@ -463,8 +463,8 @@ public class RDefsAnalysis {
         return this.allBlocks;
     }
 
-    private PMBlock getBlockForNode(ASTNode node) {
-        final ASTNode originalNode = node;
+    private PMBlock getBlockForNode(final ASTNode originalNode) {
+        ASTNode node = originalNode;
 
         do {
             final PMBlock block = this.blocksByNode.get(node);

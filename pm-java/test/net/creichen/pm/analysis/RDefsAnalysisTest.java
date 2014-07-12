@@ -141,7 +141,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         assertEquals(2, thirdYUse.getReachingDefinitions().size());
 
-        final Object definitions[] = thirdYUse.getReachingDefinitions().toArray();
+        final Object[] definitions = thirdYUse.getReachingDefinitions().toArray();
 
         final Def definition1 = (Def) definitions[0];
         final Def definition2 = (Def) definitions[1];
@@ -149,8 +149,8 @@ public class RDefsAnalysisTest extends PMTest {
         final VariableDeclaration yEquals1 = ASTQuery
                 .localWithNameInMethodInClassInCompilationUnit("y", 0, "m", 0, "S", 0,
                         compilationUnit);
-        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
-                0, "S", 0, compilationUnit);
+        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0,
+                "S", 0, compilationUnit);
 
         assertTrue(definition1.getDefiningNode() == yEquals1
                 && definition2.getDefiningNode() == yEquals5
@@ -179,15 +179,15 @@ public class RDefsAnalysisTest extends PMTest {
 
         assertEquals(2, fourthYUse.getReachingDefinitions().size());
 
-        final Object definitions[] = fourthYUse.getReachingDefinitions().toArray();
+        final Object[] definitions = fourthYUse.getReachingDefinitions().toArray();
 
         final Def definition1 = (Def) definitions[0];
         final Def definition2 = (Def) definitions[1];
 
-        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals6 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m",
-                0, "S", 0, compilationUnit);
+        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals6 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0,
+                "S", 0, compilationUnit);
 
         assertTrue(definition1.getDefiningNode() == yEquals5
                 && definition2.getDefiningNode() == yEquals6
@@ -219,14 +219,14 @@ public class RDefsAnalysisTest extends PMTest {
         final Set<ASTNode> definingNodes = definingNodesFromDefinitions(sixthYUse
                 .getReachingDefinitions());
 
-        final Assignment yEquals2 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals3 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals4 = ASTQuery.assignmentInMethodInClassInCompilationUnit(2, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(3, "m",
-                0, "S", 0, compilationUnit);
+        final Assignment yEquals2 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals3 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals4 = ASTQuery.assignmentInMethodInClassInCompilationUnit(2, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(3, "m", 0,
+                "S", 0, compilationUnit);
 
         assertTrue(definingNodes.contains(yEquals2));
         assertTrue(definingNodes.contains(yEquals3));
@@ -418,8 +418,8 @@ public class RDefsAnalysisTest extends PMTest {
 
         assertEquals(1, thirdXUse.getReachingDefinitions().size());
 
-        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0,
-                "m", 0, "S", 0, compilationUnit);
+        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
+                0, "S", 0, compilationUnit);
 
         final Def xAssignmentDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
 
@@ -452,8 +452,8 @@ public class RDefsAnalysisTest extends PMTest {
 
         assertEquals(1, thirdXUse.getReachingDefinitions().size());
 
-        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0,
-                "m", 0, "S", 0, compilationUnit);
+        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
+                0, "S", 0, compilationUnit);
 
         final Def xAssignmentDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
 
