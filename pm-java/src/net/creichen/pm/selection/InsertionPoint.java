@@ -11,6 +11,7 @@ package net.creichen.pm.selection;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
@@ -37,58 +38,11 @@ public class InsertionPoint {
          * the first/last character of such a child
          */
 
-        if (!findInsertionPointInBlock()) {
-            findInsertionPointInTypeDeclaration();
-        }
-    }
-
-    public int getInsertionIndex() {
-        return this.insertionIndex;
-    }
-
-    public ASTNode getInsertionParent() {
-        return this.insertionParent;
-    }
-
-    public ChildListPropertyDescriptor getInsertionProperty() {
-        return this.insertionProperty;
-    }
-
-    public boolean isValid() {
-        return this.insertionIndex != -1;
-    }
-
-    private boolean findInsertionPointInBlock() {
-        final Block containingBlock = BlockFinder.findOn(this.compilationUnit, this.offset);
-        if (containingBlock != null) {
-            return findInsertionPointUnderNode(containingBlock, Block.STATEMENTS_PROPERTY);
-        } else {
-            this.insertionIndex = -1;
-            return false;
-        }
-    }
-
-    private boolean findInsertionPointInTypeDeclaration() {
-        final TypeDeclaration typeDeclaration = TypeDeclarationFinder.findOn(this.compilationUnit,
-                this.offset);
-        if (typeDeclaration != null) {
-            return findInsertionPointUnderNode(typeDeclaration,
-                    TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-        } else {
-            System.err.println("Couldn't find containing type declaration");
-            this.insertionIndex = -1;
-            return false;
-        }
-    }
-
-    private boolean findInsertionPointUnderNode(final ASTNode parentNode,
-            final ChildListPropertyDescriptor property) {
-        final List<ASTNode> statements = getStructuralProperty(property, parentNode);
-
-        final int statementCount = statements.size();
-
-        if (statementCount > 0) {
-            if (this.offset <= statements.get(0).getStartPosition()) {
+        final ASTNode node = new SurroundingNodeFinder(offset).findOn(this.compilationUnit);
+        if (node != null) {
+            final List<ASTNode> statements = getStatements(node);
+            final int statementCount = statements.size();
+            if (statementCount == 0 || this.offset <= statements.get(0).getStartPosition()) {
                 this.insertionIndex = 0;
             } else {
                 final ASTNode lastStatement = statements.get(statementCount - 1);
@@ -112,86 +66,81 @@ public class InsertionPoint {
                     }
                 }
             }
-        } else {
-            this.insertionIndex = 0;
-        }
 
-        if (this.insertionIndex != -1) {
-            this.insertionParent = parentNode;
-            this.insertionProperty = property;
-            return true;
-        } else {
-            this.insertionParent = null;
-            this.insertionProperty = null;
-
-            return false;
-        }
-
-    }
-
-    private static final class BlockFinder extends SurroundingNodeFinder<Block> {
-
-        private BlockFinder(final int position) {
-            super(position);
-        }
-
-        @Override
-        public boolean visit(final Block block) {
-            if (isContainingNode(block)) {
-                setContainingNode(block);
-                return true;
+            if (isValid()) {
+                this.insertionParent = node;
+                this.insertionProperty = getProperty(node);
             }
-            return false;
-        }
-
-        public static Block findOn(final ASTNode node, final int position) {
-            final BlockFinder finder = new BlockFinder(position);
-            node.accept(finder);
-            return finder.getContainingNode();
         }
     }
 
-    private static final class TypeDeclarationFinder extends SurroundingNodeFinder<TypeDeclaration> {
+    public int getInsertionIndex() {
+        return this.insertionIndex;
+    }
 
-        private TypeDeclarationFinder(final int position) {
-            super(position);
+    public ASTNode getInsertionParent() {
+        return this.insertionParent;
+    }
+
+    public ChildListPropertyDescriptor getInsertionProperty() {
+        return this.insertionProperty;
+    }
+
+    public boolean isValid() {
+        return this.insertionIndex != -1;
+    }
+
+    private List<ASTNode> getStatements(final ASTNode parentNode) {
+        switch (parentNode.getNodeType()) {
+            case ASTNode.BLOCK:
+            case ASTNode.TYPE_DECLARATION:
+                final ChildListPropertyDescriptor property = getProperty(parentNode);
+                return getStructuralProperty(property, parentNode);
+            default:
+                return Collections.emptyList();
         }
 
-        @Override
-        public boolean visit(final TypeDeclaration typeDeclaration) {
-            if (isContainingNode(typeDeclaration)) {
-                setContainingNode(typeDeclaration);
-                return true;
-            }
-            return false;
-        }
+    }
 
-        public static TypeDeclaration findOn(final ASTNode node, final int position) {
-            final TypeDeclarationFinder finder = new TypeDeclarationFinder(position);
-            node.accept(finder);
-            return finder.getContainingNode();
+    private ChildListPropertyDescriptor getProperty(final ASTNode node) {
+        if (node.getNodeType() == ASTNode.TYPE_DECLARATION) {
+            return TypeDeclaration.BODY_DECLARATIONS_PROPERTY;
+        } else {
+            return Block.STATEMENTS_PROPERTY;
         }
     }
 
-    private abstract static class SurroundingNodeFinder<E extends ASTNode> extends ASTVisitor {
+    private static final class SurroundingNodeFinder extends ASTVisitor {
         private final int position;
-        private E containingNode;
+        private ASTNode containingNode;
 
-        public SurroundingNodeFinder(final int position) {
+        private SurroundingNodeFinder(final int position) {
             this.position = position;
         }
 
-        public E getContainingNode() {
-            return this.containingNode;
+        @Override
+        public boolean visit(final Block node) {
+            return visitInternal(node);
         }
 
-        protected boolean isContainingNode(final ASTNode node) {
-            return node.getStartPosition() < this.position
-                    && this.position < node.getStartPosition() + node.getLength();
+        @Override
+        public boolean visit(final TypeDeclaration node) {
+            return visitInternal(node);
         }
 
-        protected void setContainingNode(final E containingNode) {
-            this.containingNode = containingNode;
+        private boolean visitInternal(final ASTNode node) {
+            if (node.getStartPosition() < this.position
+                    && this.position < node.getStartPosition() + node.getLength()) {
+                this.containingNode = node;
+                return true;
+            }
+            return false;
+        }
+
+        public ASTNode findOn(final ASTNode node) {
+            final SurroundingNodeFinder finder = new SurroundingNodeFinder(this.position);
+            node.accept(finder);
+            return finder.containingNode;
         }
     }
 }
