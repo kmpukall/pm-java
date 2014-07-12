@@ -14,19 +14,19 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public class Use {
+public class PMUse {
 
     private final SimpleName simpleName;
 
     private final Set<Def> reachingDefinitions;
 
-    Use(final SimpleName simpleName) {
+    public PMUse(final SimpleName simpleName) {
         this.simpleName = simpleName;
 
         this.reachingDefinitions = new HashSet<Def>();
     }
 
-    void addReachingDefinition(final Def reachingDef) {
+    public void addReachingDefinition(final Def reachingDef) {
         if (!this.reachingDefinitions.contains(reachingDef)) {
             this.reachingDefinitions.add(reachingDef);
 

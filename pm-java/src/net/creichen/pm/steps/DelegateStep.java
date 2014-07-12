@@ -18,7 +18,7 @@ import java.util.Map;
 
 import net.creichen.pm.PMNodeReference;
 import net.creichen.pm.PMProject;
-import net.creichen.pm.analysis.Use;
+import net.creichen.pm.analysis.PMUse;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -255,7 +255,7 @@ public class DelegateStep extends PMStep {
 
             final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
 
-            final Use use = analysis.useForSimpleName(name);
+            final PMUse use = analysis.useForSimpleName(name);
 
             final DefUseModel udModel = getProject().getUDModel();
 
