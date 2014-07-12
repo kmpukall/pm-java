@@ -11,9 +11,9 @@ package net.creichen.pm.actions;
 
 import java.util.List;
 
-import net.creichen.pm.Pasteboard;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.Pasteboard;
 import net.creichen.pm.selection.InsertionPoint;
 import net.creichen.pm.steps.PasteStep;
 
@@ -77,10 +77,9 @@ public class PasteAction extends Action {
             final Pasteboard pasteboard = project.getPasteboard();
 
             if (insertionPoint.isSaneInsertionPoint()
-                    && (selectedNode instanceof Block && pasteboard
-                            .containsOnlyNodesOfClass(Statement.class))
-                    || (selectedNode instanceof TypeDeclaration && pasteboard
-                            .containsOnlyNodesOfClass(BodyDeclaration.class))) {
+                    && (selectedNode instanceof Block
+                            && pasteboard.containsOnlyNodesOfClass(Statement.class) || selectedNode instanceof TypeDeclaration
+                            && pasteboard.containsOnlyNodesOfClass(BodyDeclaration.class))) {
 
                 final ChildListPropertyDescriptor childProperty = insertionPoint
                         .insertionProperty();
