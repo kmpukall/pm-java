@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.dom.*;
 //This class is a mess
 
 public class InsertionPoint {
-    private static class PMContainingBlockVisitor extends PMContainingNodeVisitor {
+    private static final class PMContainingBlockVisitor extends PMContainingNodeVisitor {
 
         private PMContainingBlockVisitor(final int offset, final int length) {
             super(offset, length);
@@ -31,13 +31,13 @@ public class InsertionPoint {
     }
 
     private static class PMContainingNodeVisitor extends ASTVisitor {
-        private final int _offset;
+        private final int offset;
         private final int length;
 
         private ASTNode containingNode = null;
 
         private PMContainingNodeVisitor(final int offset, final int length) {
-            this._offset = offset;
+            this.offset = offset;
             this.length = length;
         }
 
@@ -46,8 +46,8 @@ public class InsertionPoint {
         }
 
         public boolean visitContainingNode(final ASTNode node) {
-            if (node.getStartPosition() + 1 <= this._offset
-                    && this._offset + this.length <= node.getStartPosition() + node.getLength() - 1) {
+            if (node.getStartPosition() + 1 <= this.offset
+                    && this.offset + this.length <= node.getStartPosition() + node.getLength() - 1) {
 
                 this.containingNode = node;
                 return true;
@@ -57,7 +57,7 @@ public class InsertionPoint {
         }
     }
 
-    private static class PMContainingTypeDeclarationVisitor extends PMContainingNodeVisitor {
+    private static final class PMContainingTypeDeclarationVisitor extends PMContainingNodeVisitor {
 
         private PMContainingTypeDeclarationVisitor(final int offset, final int length) {
             super(offset, length);

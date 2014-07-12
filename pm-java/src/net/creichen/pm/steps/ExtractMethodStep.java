@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
-public class ExtractMethodStep extends PMStep {
+class ExtractMethodStep extends PMStep {
 
     private static Type newTypeASTNodeForTypeBinding(final AST ast, final ITypeBinding typeBinding) {
         // for now we only support simple types and primitive types

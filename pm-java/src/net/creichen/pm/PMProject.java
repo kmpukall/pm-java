@@ -14,8 +14,8 @@ import java.util.*;
 
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MarkerResolutionGenerator;
-import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.models.NameModel;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -160,10 +160,6 @@ public class PMProject {
 
         updateToNewVersionsOfICompilationUnits(true);
 
-    }
-
-    public void addProjectListener(final ProjectListener listener) {
-        this.projectListeners.add(listener);
     }
 
     public Set<Inconsistency> allInconsistencies() {
@@ -355,8 +351,7 @@ public class PMProject {
         return simpleNameForDeclaringNode(findDeclaringNodeForName(name)) == name;
     }
 
-    public ASTNode nodeForSelection(final ITextSelection selection,
-            final ICompilationUnit iCompilationUnit) {
+    ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
 
         final CompilationUnit compilationUnit = (CompilationUnit) findASTRootForICompilationUnit(iCompilationUnit);
 
@@ -366,8 +361,7 @@ public class PMProject {
         return selectedNode;
     }
 
-    public CompilationUnit parsedCompilationUnitForICompilationUnit(
-            final ICompilationUnit iCompilationUnit) {
+    CompilationUnit parsedCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
         return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getASTNode();
     }
 
@@ -508,7 +502,7 @@ public class PMProject {
         return pmCompilationUnit.textHasChanged();
     }
 
-    public boolean sourcesAreOutOfSync() {
+    boolean sourcesAreOutOfSync() {
         for (final ICompilationUnit iCompilationUnit : getSourceFilesForProject(this.iJavaProject)) {
             if (!sourceIsUpToDateForICompilationUnit(iCompilationUnit)) {
                 return true;
@@ -528,12 +522,13 @@ public class PMProject {
         updateToNewVersionsOfICompilationUnits(false);
     }
 
-    private void updateToNewVersionsOfICompilationUnits(boolean firstTime) {
+    private void updateToNewVersionsOfICompilationUnits(final boolean firstTime) {
 
         final Set<ICompilationUnit> iCompilationUnits = getSourceFilesForProject(this.iJavaProject);
 
         final Set<ICompilationUnit> previouslyKnownCompilationUnits = allKnownICompilationUnits();
 
+        final boolean finalFirstTime;
         // In future we will be smarter about detecting add/remove of
         // compilation units
         // and updating the models accordingly
@@ -543,10 +538,10 @@ public class PMProject {
                     .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
-            firstTime = true;
+            finalFirstTime = true;
+        } else {
+            finalFirstTime = firstTime;
         }
-
-        final boolean finalFirstTime = firstTime;
 
         final ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setProject(this.iJavaProject);

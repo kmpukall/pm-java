@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 //We use weak references to store references to nodes
 //that will automatically disappear if no one holds the reference object any more
 
-public class NodeReferenceStore {
+class NodeReferenceStore {
 
     // Strictly speaking, we don't need to have the node in a weak reference
     // as long as we make sure that there are no cycles from the node to

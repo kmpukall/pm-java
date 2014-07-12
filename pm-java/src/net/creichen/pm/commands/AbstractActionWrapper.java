@@ -8,7 +8,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
-public abstract class AbstractActionWrapper extends AbstractHandler {
+abstract class AbstractActionWrapper extends AbstractHandler {
 
     private Action action;
 

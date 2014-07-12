@@ -16,7 +16,7 @@ import net.creichen.pm.PMProject;
 import net.creichen.pm.Timer;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
-import net.creichen.pm.analysis.PMUse;
+import net.creichen.pm.analysis.Use;
 import net.creichen.pm.inconsistencies.ExtraDefinition;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
@@ -70,13 +70,13 @@ public class DefUseModel {
         usesForDefinition(definitionIdentifier).add(useIdentifier);
     }
 
-    private void addUsesToModel(final Collection<PMUse> uses) {
-        for (final PMUse use : uses) {
+    private void addUsesToModel(final Collection<Use> uses) {
+        for (final Use use : uses) {
             addUseToModel(use);
         }
     }
 
-    public void addUseToModel(final PMUse use) {
+    public void addUseToModel(final Use use) {
         final SimpleName name = use.getSimpleName();
 
         final PMNodeReference nameIdentifier = this.project.getReferenceForNode(name);
@@ -108,11 +108,11 @@ public class DefUseModel {
 
         final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
-        final Collection<PMUse> uses = getCurrentUses();
+        final Collection<Use> uses = getCurrentUses();
 
         Timer.sharedTimer().start("INCONSISTENCIES");
 
-        for (final PMUse use : uses) {
+        for (final Use use : uses) {
 
             final ASTNode usingNode = use.getSimpleName();
 
@@ -202,7 +202,7 @@ public class DefUseModel {
         return inconsistencies;
     }
 
-    private Collection<ASTNode> definingNodesForUse(final PMUse use) {
+    private Collection<ASTNode> definingNodesForUse(final Use use) {
         final HashSet<ASTNode> definingNodes = new HashSet<ASTNode>();
 
         for (final Def definition : use.getReachingDefinitions()) {
@@ -241,11 +241,11 @@ public class DefUseModel {
         this.useIdentifiersByDefinitionIdentifier.remove(definition);
     }
 
-    private Collection<PMUse> getCurrentUses() {
+    private Collection<Use> getCurrentUses() {
 
         Timer.sharedTimer().start("DUUD_CHAINS");
 
-        final Collection<PMUse> uses = new HashSet<PMUse>();
+        final Collection<Use> uses = new HashSet<Use>();
 
         for (final ASTNode root : this.project.getASTRoots()) {
 

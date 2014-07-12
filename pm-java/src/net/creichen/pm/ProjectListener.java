@@ -9,6 +9,6 @@
 
 package net.creichen.pm;
 
-public interface ProjectListener {
+interface ProjectListener {
     void projectDidReparse(PMProject project);
 }

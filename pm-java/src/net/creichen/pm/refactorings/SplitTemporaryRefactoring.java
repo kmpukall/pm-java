@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 // on an assignment statement by first applying the PMSplit step
 // and then the PMRename step
 
-public class SplitTemporaryRefactoring {
+class SplitTemporaryRefactoring {
 
     private final PMProject project;
 

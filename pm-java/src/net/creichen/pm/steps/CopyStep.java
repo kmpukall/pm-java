@@ -12,11 +12,11 @@ package net.creichen.pm.steps;
 import java.util.*;
 
 import net.creichen.pm.PMNodeReference;
-import net.creichen.pm.Pasteboard;
 import net.creichen.pm.PMProject;
+import net.creichen.pm.Pasteboard;
 import net.creichen.pm.analysis.RDefsAnalysis;
-import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.models.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -38,7 +38,7 @@ public class CopyStep extends PMStep {
         initWithSelectedNodes(selectedNodes);
     }
 
-    public CopyStep(final PMProject project, final List<ASTNode> selectedNodes) {
+    CopyStep(final PMProject project, final List<ASTNode> selectedNodes) {
         super(project);
 
         initWithSelectedNodes(selectedNodes);

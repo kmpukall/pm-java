@@ -17,7 +17,7 @@ import net.creichen.pm.utils.APIWrapperUtil;
 
 import org.eclipse.jdt.core.dom.*;
 
-public class ASTMatcher {
+class ASTMatcher {
 
     private final ASTNode oldNode;
 

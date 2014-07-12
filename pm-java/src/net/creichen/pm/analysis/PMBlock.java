@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
-public class PMBlock {
+class PMBlock {
     private final ArrayList<ASTNode> nodes;
 
     private final Set<PMBlock> incomingBlocks;
@@ -35,11 +35,11 @@ public class PMBlock {
         }
     }
 
-    public void addNode(final ASTNode node) {
+    void addNode(final ASTNode node) {
         this.nodes.add(node);
     }
 
-    public void addOutgoingBlock(final PMBlock block) {
+    void addOutgoingBlock(final PMBlock block) {
         if (this.outgoingBlocks.add(block)) {
             block.addIncomingBlock(this);
         }

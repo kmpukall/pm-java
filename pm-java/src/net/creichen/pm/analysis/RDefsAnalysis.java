@@ -17,7 +17,7 @@ import java.util.*;
 import org.eclipse.jdt.core.dom.*;
 
 public class RDefsAnalysis {
-    private static class VariableAssignment {
+    private static final class VariableAssignment {
 
         private final Def definition;
 
@@ -115,7 +115,7 @@ public class RDefsAnalysis {
 
     private Map<ASTNode, Def> definitionsByDefiningNode;
 
-    private Map<SimpleName, PMUse> usesByName;
+    private Map<SimpleName, Use> usesByName;
 
     private ArrayList<PMBlock> allBlocks;
 
@@ -268,7 +268,7 @@ public class RDefsAnalysis {
 
     private void findUses() {
 
-        this.usesByName = new HashMap<SimpleName, PMUse>();
+        this.usesByName = new HashMap<SimpleName, Use>();
 
         final Block body = this.methodDeclaration.getBody();
 
@@ -283,7 +283,7 @@ public class RDefsAnalysis {
                         .get(block);
 
                 if (simpleNameIsUse(name)) {
-                    final PMUse use = new PMUse(name);
+                    final Use use = new Use(name);
 
                     RDefsAnalysis.this.usesByName.put(name, use);
 
@@ -463,14 +463,14 @@ public class RDefsAnalysis {
         return this.allBlocks;
     }
 
-    private PMBlock getBlockForNode(ASTNode node) {
-        final ASTNode originalNode = node;
+    private PMBlock getBlockForNode(final ASTNode originalNode) {
+        ASTNode node = originalNode;
 
         do {
-            final PMBlock block = this.blocksByNode.get(node);
+            final PMBlock block = this.blocksByNode.get(originalNode);
 
             if (block == null) {
-                node = node.getParent();
+                node = originalNode.getParent();
             } else {
                 return block;
             }
@@ -489,7 +489,7 @@ public class RDefsAnalysis {
         return this.definitions;
     }
 
-    public Collection<PMUse> getUses() {
+    public Collection<Use> getUses() {
         return this.usesByName.values();
     }
 
@@ -718,7 +718,7 @@ public class RDefsAnalysis {
 
     // return PMUse object for a simple name, or null if the simpleName does not
     // represent a use
-    public PMUse useForSimpleName(final SimpleName name) {
+    public Use useForSimpleName(final SimpleName name) {
         return this.usesByName.get(name);
     }
 }

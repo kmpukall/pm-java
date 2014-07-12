@@ -22,14 +22,14 @@ public class Selection {
     private static class PMExactSelectionVisitor extends
             org.eclipse.jdt.internal.corext.dom.GenericVisitor {
 
-        private final int _offset;
-        private final int _length;
+        private final int offset;
+        private final int length;
 
         private ASTNode containingNode;
 
         public PMExactSelectionVisitor(final int offset, final int length) {
-            this._offset = offset;
-            this._length = length;
+            this.offset = offset;
+            this.length = length;
         }
 
         public ASTNode getContainingNode() {
@@ -37,8 +37,8 @@ public class Selection {
         }
 
         private boolean nodeContainsSelection(final ASTNode node) {
-            return this._offset >= node.getStartPosition()
-                    && this._offset + this._length <= node.getStartPosition() + node.getLength();
+            return this.offset >= node.getStartPosition()
+                    && this.offset + this.length <= node.getStartPosition() + node.getLength();
         }
 
         @Override

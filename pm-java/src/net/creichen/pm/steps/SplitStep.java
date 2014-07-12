@@ -18,7 +18,7 @@ import net.creichen.pm.PMNodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
-import net.creichen.pm.analysis.PMUse;
+import net.creichen.pm.analysis.Use;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
 
@@ -108,7 +108,7 @@ public class SplitStep extends PMStep {
 
         final Set<SimpleName> uses = new HashSet<SimpleName>();
 
-        for (final PMUse use : definitionForAssignment.getUses()) {
+        for (final Use use : definitionForAssignment.getUses()) {
             final SimpleName usingSimpleName = use.getSimpleName();
 
             uses.add(usingSimpleName);

@@ -14,7 +14,7 @@ import static net.creichen.pm.utils.APIWrapperUtil.types;
 
 import org.eclipse.jdt.core.dom.*;
 
-public class ASTQuery {
+public final class ASTQuery {
 
     private static class LocalFinderASTVisitor extends ASTVisitor {
         private final String localName;
@@ -89,16 +89,16 @@ public class ASTQuery {
 
         methodDeclaration.getBody().accept(new ASTVisitor() {
 
-            private int _assignmentOccurrence = assignmentOccurrence;
+            private int occurrence = assignmentOccurrence;
 
             @Override
             public boolean visit(final Assignment visitedAssignment) {
 
                 if (result[0] == null) {
-                    if (this._assignmentOccurrence == 0) {
+                    if (this.occurrence == 0) {
                         result[0] = visitedAssignment;
                     } else {
-                        this._assignmentOccurrence--;
+                        this.occurrence--;
                     }
                 }
 
@@ -117,18 +117,19 @@ public class ASTQuery {
      */
 
     public static TypeDeclaration classWithNameInCompilationUnit(final String className,
-            int classNameOccurrence, final CompilationUnit compilationUnit) {
+            final int classNameOccurrence, final CompilationUnit compilationUnit) {
 
+        int occurrence = classNameOccurrence;
         for (final AbstractTypeDeclaration abstractType : types(compilationUnit)) {
             if (abstractType instanceof TypeDeclaration) {
                 final TypeDeclaration typeDeclaration = (TypeDeclaration) abstractType;
 
                 if (!typeDeclaration.isInterface()
                         && typeDeclaration.getName().getIdentifier().equals(className)) {
-                    if (classNameOccurrence == 0) {
+                    if (occurrence == 0) {
                         return typeDeclaration;
                     } else {
-                        classNameOccurrence--;
+                        occurrence--;
                     }
 
                 }
@@ -145,7 +146,7 @@ public class ASTQuery {
     // This will come up a lot though, especially with testing rename
 
     public static VariableDeclarationFragment fieldWithNameInClassInCompilationUnit(
-            final String fieldName, int fieldNameOccurrence, final String className,
+            final String fieldName, final int fieldNameOccurrence, final String className,
             final int classNameOccurrence, final CompilationUnit compilationUnit) {
         final TypeDeclaration classDeclaration = classWithNameInCompilationUnit(className,
                 classNameOccurrence, compilationUnit);
@@ -153,13 +154,14 @@ public class ASTQuery {
         // This is basically copied and pasted from
         // methodWithNameInClassInCompilationUnit()
 
+        int occurrence = fieldNameOccurrence;
         for (final FieldDeclaration fieldDeclaration : classDeclaration.getFields()) {
             for (final VariableDeclarationFragment fragment : fragments(fieldDeclaration)) {
                 if (fragment.getName().getIdentifier().equals(fieldName)) {
-                    if (fieldNameOccurrence == 0) {
+                    if (occurrence == 0) {
                         return fragment;
                     } else {
-                        fieldNameOccurrence--;
+                        occurrence--;
                     }
                 }
             }
@@ -186,17 +188,18 @@ public class ASTQuery {
     }
 
     public static MethodDeclaration methodWithNameInClassInCompilationUnit(final String methodName,
-            int methodNameOccurrence, final String className, final int classNameOccurrence,
+            final int methodNameOccurrence, final String className, final int classNameOccurrence,
             final CompilationUnit compilationUnit) {
         final TypeDeclaration classDeclaration = classWithNameInCompilationUnit(className,
                 classNameOccurrence, compilationUnit);
 
+        int occurrence = methodNameOccurrence;
         for (final MethodDeclaration methodDeclaration : classDeclaration.getMethods()) {
             if (methodDeclaration.getName().getIdentifier().equals(methodName)) {
-                if (methodNameOccurrence == 0) {
+                if (occurrence == 0) {
                     return methodDeclaration;
                 } else {
-                    methodNameOccurrence--;
+                    occurrence--;
                 }
             }
         }
@@ -204,7 +207,7 @@ public class ASTQuery {
         return null;
     }
 
-    public static ASTNode nodeForSelectionInCompilationUnit(final int selectionOffset,
+    static ASTNode nodeForSelectionInCompilationUnit(final int selectionOffset,
             final int selectionLength, final CompilationUnit compilationUnit) {
 
         // Should use PMSelection once it handles the generic case!!!

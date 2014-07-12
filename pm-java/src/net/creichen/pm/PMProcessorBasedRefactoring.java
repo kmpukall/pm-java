@@ -14,7 +14,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 //Needed because ProcessorBasedRefactoring is abstract and stupid
 
-public class PMProcessorBasedRefactoring extends ProcessorBasedRefactoring {
+class PMProcessorBasedRefactoring extends ProcessorBasedRefactoring {
 
     private final RefactoringProcessor processor;
 

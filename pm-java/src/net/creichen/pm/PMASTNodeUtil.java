@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 
-public class PMASTNodeUtil {
+public final class PMASTNodeUtil {
 
     public static VariableDeclaration localVariableDeclarationForSimpleName(final SimpleName name) {
         return (VariableDeclaration) ((CompilationUnit) name.getRoot()).findDeclaringNode(name
@@ -38,7 +38,7 @@ public class PMASTNodeUtil {
 
     // We also consider parameters, for statement vars, and catch vars to be
     // local
-    public static boolean variableDeclarationIsLocal(final VariableDeclaration declaration) {
+    static boolean variableDeclarationIsLocal(final VariableDeclaration declaration) {
 
         final ASTNode parent = declaration.getParent();
 

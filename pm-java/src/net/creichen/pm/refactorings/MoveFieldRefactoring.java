@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 //We move a field by PMCutting it from its old parent and PMPasteing it in its new parent
 
-public class MoveFieldRefactoring {
+class MoveFieldRefactoring {
     private final PMProject project;
 
     private final PMNodeReference fieldReference;

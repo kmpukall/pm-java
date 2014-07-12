@@ -77,7 +77,7 @@ public class RDefsAnalysisTest extends PMTest {
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0, "S", 0,
                         compilationUnit);
 
-        final PMUse thirdXUse = rdefs.useForSimpleName(thirdX);
+        final Use thirdXUse = rdefs.useForSimpleName(thirdX);
 
         assertTrue(thirdXUse != null);
 
@@ -106,7 +106,7 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName thirdY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 2, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse thirdYUse = rdefs.useForSimpleName(thirdY);
+        final Use thirdYUse = rdefs.useForSimpleName(thirdY);
 
         assertTrue(thirdYUse != null);
 
@@ -135,13 +135,13 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName thirdY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 2, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse thirdYUse = rdefs.useForSimpleName(thirdY);
+        final Use thirdYUse = rdefs.useForSimpleName(thirdY);
 
         assertTrue(thirdYUse != null);
 
         assertEquals(2, thirdYUse.getReachingDefinitions().size());
 
-        final Object definitions[] = thirdYUse.getReachingDefinitions().toArray();
+        final Object[] definitions = thirdYUse.getReachingDefinitions().toArray();
 
         final Def definition1 = (Def) definitions[0];
         final Def definition2 = (Def) definitions[1];
@@ -149,8 +149,8 @@ public class RDefsAnalysisTest extends PMTest {
         final VariableDeclaration yEquals1 = ASTQuery
                 .localWithNameInMethodInClassInCompilationUnit("y", 0, "m", 0, "S", 0,
                         compilationUnit);
-        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
-                0, "S", 0, compilationUnit);
+        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0,
+                "S", 0, compilationUnit);
 
         assertTrue(definition1.getDefiningNode() == yEquals1
                 && definition2.getDefiningNode() == yEquals5
@@ -173,21 +173,21 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName fourthY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 3, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse fourthYUse = rdefs.useForSimpleName(fourthY);
+        final Use fourthYUse = rdefs.useForSimpleName(fourthY);
 
         assertTrue(fourthYUse != null);
 
         assertEquals(2, fourthYUse.getReachingDefinitions().size());
 
-        final Object definitions[] = fourthYUse.getReachingDefinitions().toArray();
+        final Object[] definitions = fourthYUse.getReachingDefinitions().toArray();
 
         final Def definition1 = (Def) definitions[0];
         final Def definition2 = (Def) definitions[1];
 
-        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals6 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m",
-                0, "S", 0, compilationUnit);
+        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals6 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0,
+                "S", 0, compilationUnit);
 
         assertTrue(definition1.getDefiningNode() == yEquals5
                 && definition2.getDefiningNode() == yEquals6
@@ -210,7 +210,7 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName sixthY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 5, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse sixthYUse = rdefs.useForSimpleName(sixthY);
+        final Use sixthYUse = rdefs.useForSimpleName(sixthY);
 
         assertTrue(sixthYUse != null);
 
@@ -219,14 +219,14 @@ public class RDefsAnalysisTest extends PMTest {
         final Set<ASTNode> definingNodes = definingNodesFromDefinitions(sixthYUse
                 .getReachingDefinitions());
 
-        final Assignment yEquals2 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals3 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals4 = ASTQuery.assignmentInMethodInClassInCompilationUnit(2, "m",
-                0, "S", 0, compilationUnit);
-        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(3, "m",
-                0, "S", 0, compilationUnit);
+        final Assignment yEquals2 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals3 = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals4 = ASTQuery.assignmentInMethodInClassInCompilationUnit(2, "m", 0,
+                "S", 0, compilationUnit);
+        final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(3, "m", 0,
+                "S", 0, compilationUnit);
 
         assertTrue(definingNodes.contains(yEquals2));
         assertTrue(definingNodes.contains(yEquals3));
@@ -248,7 +248,7 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName fourthY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 3, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse fourthYUse = rdefs.useForSimpleName(fourthY);
+        final Use fourthYUse = rdefs.useForSimpleName(fourthY);
 
         assertTrue(fourthYUse != null);
 
@@ -270,7 +270,7 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName fifthY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 4, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse fifthYUse = rdefs.useForSimpleName(fifthY);
+        final Use fifthYUse = rdefs.useForSimpleName(fifthY);
 
         assertTrue(fifthYUse != null);
         assertEquals(2, fifthYUse.getReachingDefinitions().size());
@@ -343,7 +343,7 @@ public class RDefsAnalysisTest extends PMTest {
                         compilationUnit);
         assertTrue(firstX != null);
 
-        final PMUse firstXUse = rdefs.useForSimpleName(firstX);
+        final Use firstXUse = rdefs.useForSimpleName(firstX);
 
         assertEquals(1, firstXUse.getReachingDefinitions().size());
 
@@ -412,14 +412,14 @@ public class RDefsAnalysisTest extends PMTest {
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0, "S", 0,
                         compilationUnit);
 
-        final PMUse thirdXUse = rdefs.useForSimpleName(thirdX);
+        final Use thirdXUse = rdefs.useForSimpleName(thirdX);
 
         assertTrue(thirdXUse != null);
 
         assertEquals(1, thirdXUse.getReachingDefinitions().size());
 
-        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0,
-                "m", 0, "S", 0, compilationUnit);
+        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
+                0, "S", 0, compilationUnit);
 
         final Def xAssignmentDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
 
@@ -446,14 +446,14 @@ public class RDefsAnalysisTest extends PMTest {
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0, "S", 0,
                         compilationUnit);
 
-        final PMUse thirdXUse = rdefs.useForSimpleName(thirdX);
+        final Use thirdXUse = rdefs.useForSimpleName(thirdX);
 
         assertTrue(thirdXUse != null);
 
         assertEquals(1, thirdXUse.getReachingDefinitions().size());
 
-        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0,
-                "m", 0, "S", 0, compilationUnit);
+        final Assignment xAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m",
+                0, "S", 0, compilationUnit);
 
         final Def xAssignmentDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
 
@@ -486,7 +486,7 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName secondY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 1, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse secondYUse = rdefs.useForSimpleName(secondY);
+        final Use secondYUse = rdefs.useForSimpleName(secondY);
 
         assertTrue(secondYUse != null);
 
@@ -515,7 +515,7 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName secondY = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 1, "m", 0, "S", 0,
                         compilationUnit);
-        final PMUse secondYUse = rdefs.useForSimpleName(secondY);
+        final Use secondYUse = rdefs.useForSimpleName(secondY);
 
         assertTrue(secondYUse != null);
 
@@ -546,7 +546,7 @@ public class RDefsAnalysisTest extends PMTest {
                         compilationUnit);
         assertTrue(secondY != null);
 
-        final PMUse secondYUse = rdefs.useForSimpleName(secondY);
+        final Use secondYUse = rdefs.useForSimpleName(secondY);
 
         assertEquals(1, secondYUse.getReachingDefinitions().size());
 
@@ -569,7 +569,7 @@ public class RDefsAnalysisTest extends PMTest {
                         compilationUnit);
         assertTrue(secondY != null);
 
-        final PMUse secondYUse = rdefs.useForSimpleName(secondY);
+        final Use secondYUse = rdefs.useForSimpleName(secondY);
 
         assertEquals(1, secondYUse.getReachingDefinitions().size());
 

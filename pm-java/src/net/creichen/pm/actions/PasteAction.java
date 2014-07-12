@@ -9,8 +9,6 @@
 
 package net.creichen.pm.actions;
 
-import java.util.List;
-
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.Pasteboard;
@@ -25,23 +23,6 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class PasteAction extends Action {
-
-    protected int insertIndexOfSelectionInList(final ITextSelection textSelection,
-            final List<ASTNode> list) {
-        int insertIndex = list.size();
-
-        for (int i = 0; i < list.size(); i++) {
-            final ASTNode child = list.get(i);
-
-            if (textSelection.getOffset() <= child.getStartPosition()) {
-                insertIndex = i;
-            }
-        }
-
-        System.out.println("insertIndex is " + insertIndex);
-
-        return insertIndex;
-    }
 
     @Override
     public RefactoringProcessor newProcessor() {

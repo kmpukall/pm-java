@@ -18,15 +18,15 @@ public class Def {
 
     private final ASTNode definingNode;
 
-    private final Set<PMUse> uses;
+    private final Set<Use> uses;
 
-    public Def(final ASTNode definingNode) {
+    Def(final ASTNode definingNode) {
         this.definingNode = definingNode;
 
-        this.uses = new HashSet<PMUse>();
+        this.uses = new HashSet<Use>();
     }
 
-    public void addUse(final PMUse use) {
+    void addUse(final Use use) {
         if (!this.uses.contains(use)) {
             this.uses.add(use);
 
@@ -88,7 +88,7 @@ public class Def {
         return this.definingNode;
     }
 
-    public Set<PMUse> getUses() {
+    public Set<Use> getUses() {
         return this.uses;
     }
 

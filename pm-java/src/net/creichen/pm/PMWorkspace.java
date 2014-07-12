@@ -22,10 +22,10 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
-public class PMWorkspace {
+public final class PMWorkspace {
     private static PMWorkspace sharedWorkspace = null;
 
-    static public void applyRewrite(final ASTRewrite rewrite,
+    public static void applyRewrite(final ASTRewrite rewrite,
             final ICompilationUnit iCompilationUnit) {
         try {
             final TextEdit astEdit = rewrite.rewriteAST();

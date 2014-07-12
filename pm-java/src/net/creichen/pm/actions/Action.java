@@ -33,7 +33,7 @@ public abstract class Action implements IWorkbenchWindowActionDelegate {
 
     }
 
-    public ICompilationUnit currentICompilationUnit() {
+    ICompilationUnit currentICompilationUnit() {
         final IWorkbenchPage activePage = this.window.getActivePage();
 
         if (activePage != null) {
@@ -122,7 +122,7 @@ public abstract class Action implements IWorkbenchWindowActionDelegate {
         this.selection = selection;
     }
 
-    public void showErrorDialog(final String dialogTitle, final String errorExplanation) {
+    void showErrorDialog(final String dialogTitle, final String errorExplanation) {
         MessageDialog.openError(this.window.getShell(), dialogTitle, errorExplanation);
     }
 }

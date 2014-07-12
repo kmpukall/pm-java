@@ -20,7 +20,7 @@ public class Inconsistency {
     private final ASTNode node;
     private final String id;
 
-    public Inconsistency(final PMProject project, final PMCompilationUnit pmCompilationUnit,
+    Inconsistency(final PMProject project, final PMCompilationUnit pmCompilationUnit,
             final ASTNode node) {
         this.project = project;
         this.node = node;
@@ -52,7 +52,7 @@ public class Inconsistency {
     }
 
     /**
-     * Determine all quick fixes for this inconsistency
+     * Determine all quick fixes for this inconsistency.
      * 
      * @return The relevant quick fixes. The default implementation returns none.
      */
