@@ -23,7 +23,7 @@ public class ASTQueryTest extends PMTest {
 
         final String source = "class S {int x; int f() {} } class T {} class S {int y; int f() {} }";
 
-        final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
+        final CompilationUnit compilationUnit = toCompilationUnit(source);
 
         final ASTNode secondS = ASTQuery.nodeForSelectionInCompilationUnit(40, 28,
                 compilationUnit);
@@ -37,7 +37,7 @@ public class ASTQueryTest extends PMTest {
 
         final String source = "class S {int x,y; int f() {} int y; int x,y,x; int y; int y,x; int x; }";
 
-        final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
+        final CompilationUnit compilationUnit = toCompilationUnit(source);
 
         final ASTNode field = ASTQuery.nodeForSelectionInCompilationUnit(60, 1, compilationUnit)
                 .getParent(); // the finder finds the
@@ -55,7 +55,7 @@ public class ASTQueryTest extends PMTest {
 
         final String source = "class S {int x,y; int f() {int x,y; try {} catch(Exception x){} while(1) {int y,x;} } }";
 
-        final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
+        final CompilationUnit compilationUnit = toCompilationUnit(source);
 
         final ASTNode local = ASTQuery.nodeForSelectionInCompilationUnit(80, 1, compilationUnit)
                 .getParent(); // the finder finds the
@@ -73,7 +73,7 @@ public class ASTQueryTest extends PMTest {
 
         final String source = "class S {int x; int f() {} } class S {int y; int f() {} int f() {} }";
 
-        final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
+        final CompilationUnit compilationUnit = toCompilationUnit(source);
 
         final ASTNode secondF = ASTQuery.nodeForSelectionInCompilationUnit(56, 10,
                 compilationUnit);
@@ -88,7 +88,7 @@ public class ASTQueryTest extends PMTest {
 
         final String source = "class S {int x,y; int f(int x) {int x,y; try {x = y + 1;} catch(Exception x){} while(1) {int y,x; x--;} } }";
 
-        final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
+        final CompilationUnit compilationUnit = toCompilationUnit(source);
 
         final ASTNode simpleName = ASTQuery.nodeForSelectionInCompilationUnit(98, 1,
                 compilationUnit);

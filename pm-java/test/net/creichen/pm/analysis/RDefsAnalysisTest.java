@@ -299,7 +299,7 @@ public class RDefsAnalysisTest extends PMTest {
     /* @Test */public void testFindDefinitions() {
         final String source = "class S {void m(int x){int y = x - 1; x++; --x; y += (x = y);}}";
 
-        final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
+        final CompilationUnit compilationUnit = toCompilationUnit(source);
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("m", 0, "S", 0, compilationUnit);

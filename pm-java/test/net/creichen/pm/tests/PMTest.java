@@ -27,8 +27,8 @@ public class PMTest {
     private IJavaProject iJavaProject = null;
 
     public boolean compilationUnitSourceMatchesSource(final String source1, final String source2) {
-        final CompilationUnit compilationUnit1 = parseCompilationUnitFromSource(source1);
-        final CompilationUnit compilationUnit2 = parseCompilationUnitFromSource(source2);
+        final CompilationUnit compilationUnit1 = toCompilationUnit(source1);
+        final CompilationUnit compilationUnit2 = toCompilationUnit(source2);
 
         return compilationUnit1.subtreeMatch(new ASTMatcher(), compilationUnit2);
     }
@@ -115,7 +115,7 @@ public class PMTest {
         return this.iJavaProject;
     }
 
-    public CompilationUnit parseCompilationUnitFromSource(final String source) {
+    public CompilationUnit toCompilationUnit(final String source) {
         return parseCompilationUnitFromSource(source, null);
     }
 
