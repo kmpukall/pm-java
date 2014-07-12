@@ -25,3 +25,5 @@ Import-Package: org.eclipse.core.filebuffers,
  org.eclipse.text.edits,
  org.eclipse.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: lib/guava-17.0.jar,
+ .
