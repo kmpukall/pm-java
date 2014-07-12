@@ -27,33 +27,8 @@ public class InsertionPoint {
 
     public InsertionPoint(final CompilationUnit compilationUnit, final int offset) {
         this.insertionIndex = -1;
-
         this.compilationUnit = compilationUnit;
-
         this.offset = offset;
-
-        if (!findInsertionPointInBlock()) {
-            findInsertionPointInTypeDeclaration();
-        }
-    }
-
-    public int insertionIndex() {
-        return this.insertionIndex;
-    }
-
-    public ASTNode insertionParent() {
-        return this.insertionParent;
-    }
-
-    public ChildListPropertyDescriptor insertionProperty() {
-        return this.insertionProperty;
-    }
-
-    public boolean isSaneInsertionPoint() {
-        return this.insertionIndex != -1;
-    }
-
-    private boolean findInsertionPointInBlock() {
 
         /*
          * a point is an insertion point if:
@@ -62,32 +37,46 @@ public class InsertionPoint {
          * the first/last character of such a child
          */
 
-        final Block containingBlock = findContainingBlockForSelection(this.compilationUnit,
-                this.offset, 0);
+        if (!findInsertionPointInBlock()) {
+            findInsertionPointInTypeDeclaration();
+        }
+    }
 
+    public int getInsertionIndex() {
+        return this.insertionIndex;
+    }
+
+    public ASTNode getInsertionParent() {
+        return this.insertionParent;
+    }
+
+    public ChildListPropertyDescriptor getInsertionProperty() {
+        return this.insertionProperty;
+    }
+
+    public boolean isValid() {
+        return this.insertionIndex != -1;
+    }
+
+    private boolean findInsertionPointInBlock() {
+        final Block containingBlock = BlockFinder.findOn(this.compilationUnit, this.offset);
         if (containingBlock != null) {
             return findInsertionPointUnderNode(containingBlock, Block.STATEMENTS_PROPERTY);
-
         } else {
             this.insertionIndex = -1;
-
             return false;
         }
     }
 
     private boolean findInsertionPointInTypeDeclaration() {
-
-        final TypeDeclaration containingTypeDeclaration = findContainingTypeDeclarationForSelection(
-                this.compilationUnit, this.offset, 0);
-
-        if (containingTypeDeclaration != null) {
-            return findInsertionPointUnderNode(containingTypeDeclaration,
+        final TypeDeclaration typeDeclaration = TypeDeclarationFinder.findOn(this.compilationUnit,
+                this.offset);
+        if (typeDeclaration != null) {
+            return findInsertionPointUnderNode(typeDeclaration,
                     TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-
         } else {
             System.err.println("Couldn't find containing type declaration");
             this.insertionIndex = -1;
-
             return false;
         }
     }
@@ -140,75 +129,69 @@ public class InsertionPoint {
 
     }
 
-    private static Block findContainingBlockForSelection(final ASTNode nodeToSearch,
-            final int offset, final int length) {
+    private static final class BlockFinder extends SurroundingNodeFinder<Block> {
 
-        final PMContainingBlockVisitor containingBlockVisitor = new PMContainingBlockVisitor(
-                offset, length);
-
-        nodeToSearch.accept(containingBlockVisitor);
-
-        return (Block) containingBlockVisitor.getContainingNode();
-    }
-
-    private static TypeDeclaration findContainingTypeDeclarationForSelection(
-            final ASTNode nodeToSearch, final int offset, final int length) {
-        final PMContainingTypeDeclarationVisitor containingTypeDeclarationVisitor = new PMContainingTypeDeclarationVisitor(
-                offset, length);
-
-        nodeToSearch.accept(containingTypeDeclarationVisitor);
-
-        return (TypeDeclaration) containingTypeDeclarationVisitor.getContainingNode();
-    }
-
-    private static final class PMContainingBlockVisitor extends TextSelectionNodeFinder {
-
-        private PMContainingBlockVisitor(final int offset, final int length) {
-            super(offset, length);
+        private BlockFinder(final int position) {
+            super(position);
         }
 
         @Override
         public boolean visit(final Block block) {
-            return visitContainingNode(block);
+            if (isContainingNode(block)) {
+                setContainingNode(block);
+                return true;
+            }
+            return false;
+        }
+
+        public static Block findOn(final ASTNode node, final int position) {
+            final BlockFinder finder = new BlockFinder(position);
+            node.accept(finder);
+            return finder.getContainingNode();
         }
     }
 
-    private static final class PMContainingTypeDeclarationVisitor extends TextSelectionNodeFinder {
+    private static final class TypeDeclarationFinder extends SurroundingNodeFinder<TypeDeclaration> {
 
-        private PMContainingTypeDeclarationVisitor(final int offset, final int length) {
-            super(offset, length);
+        private TypeDeclarationFinder(final int position) {
+            super(position);
         }
 
         @Override
         public boolean visit(final TypeDeclaration typeDeclaration) {
-            return visitContainingNode(typeDeclaration);
+            if (isContainingNode(typeDeclaration)) {
+                setContainingNode(typeDeclaration);
+                return true;
+            }
+            return false;
+        }
+
+        public static TypeDeclaration findOn(final ASTNode node, final int position) {
+            final TypeDeclarationFinder finder = new TypeDeclarationFinder(position);
+            node.accept(finder);
+            return finder.getContainingNode();
         }
     }
 
-    private abstract static class TextSelectionNodeFinder extends ASTVisitor {
-        private final int offset;
-        private final int length;
+    private abstract static class SurroundingNodeFinder<E extends ASTNode> extends ASTVisitor {
+        private final int position;
+        private E containingNode;
 
-        private ASTNode containingNode = null;
-
-        private TextSelectionNodeFinder(final int offset, final int length) {
-            this.offset = offset;
-            this.length = length;
+        public SurroundingNodeFinder(final int position) {
+            this.position = position;
         }
 
-        public ASTNode getContainingNode() {
+        public E getContainingNode() {
             return this.containingNode;
         }
 
-        public boolean visitContainingNode(final ASTNode node) {
-            if (node.getStartPosition() < this.offset
-                    && this.offset + this.length < node.getStartPosition() + node.getLength()) {
+        protected boolean isContainingNode(final ASTNode node) {
+            return node.getStartPosition() < this.position
+                    && this.position < node.getStartPosition() + node.getLength();
+        }
 
-                this.containingNode = node;
-                return true;
-            } else {
-                return false;
-            }
+        protected void setContainingNode(final E containingNode) {
+            this.containingNode = containingNode;
         }
     }
 }

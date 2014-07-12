@@ -110,20 +110,20 @@ public class Selection {
             final InsertionPoint endInsertionPoint = new InsertionPoint(this.compilationUnit,
                     offset + length);
 
-            if (startInsertionPoint.isSaneInsertionPoint()
-                    && endInsertionPoint.isSaneInsertionPoint()
-                    && startInsertionPoint.insertionParent() == endInsertionPoint.insertionParent()
-                    && startInsertionPoint.insertionProperty().equals(
-                            endInsertionPoint.insertionProperty())) {
+            if (startInsertionPoint.isValid()
+                    && endInsertionPoint.isValid()
+                    && startInsertionPoint.getInsertionParent() == endInsertionPoint.getInsertionParent()
+                    && startInsertionPoint.getInsertionProperty().equals(
+                            endInsertionPoint.getInsertionProperty())) {
 
-                this.propertyParentNode = startInsertionPoint.insertionParent();
+                this.propertyParentNode = startInsertionPoint.getInsertionParent();
 
-                this.selectedPropertyDescriptor = startInsertionPoint.insertionProperty();
+                this.selectedPropertyDescriptor = startInsertionPoint.getInsertionProperty();
 
-                this.childListPropertyOffset = startInsertionPoint.insertionIndex();
+                this.childListPropertyOffset = startInsertionPoint.getInsertionIndex();
 
-                this.childListPropertyLength = endInsertionPoint.insertionIndex()
-                        - startInsertionPoint.insertionIndex();
+                this.childListPropertyLength = endInsertionPoint.getInsertionIndex()
+                        - startInsertionPoint.getInsertionIndex();
             }
         }
 

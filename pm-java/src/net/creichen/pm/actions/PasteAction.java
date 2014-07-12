@@ -52,20 +52,20 @@ public class PasteAction extends Action {
                     (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit),
                     textSelection.getOffset());
 
-            final ASTNode selectedNode = insertionPoint.insertionParent(); // project.nodeForSelection((ITextSelection)getSelection(),
+            final ASTNode selectedNode = insertionPoint.getInsertionParent(); // project.nodeForSelection((ITextSelection)getSelection(),
             // iCompilationUnit);
 
             final Pasteboard pasteboard = project.getPasteboard();
 
-            if (insertionPoint.isSaneInsertionPoint()
+            if (insertionPoint.isValid()
                     && (selectedNode instanceof Block
                             && pasteboard.containsOnlyNodesOfClass(Statement.class) || selectedNode instanceof TypeDeclaration
                             && pasteboard.containsOnlyNodesOfClass(BodyDeclaration.class))) {
 
                 final ChildListPropertyDescriptor childProperty = insertionPoint
-                        .insertionProperty();
+                        .getInsertionProperty();
 
-                final int insertIndex = insertionPoint.insertionIndex();
+                final int insertIndex = insertionPoint.getInsertionIndex();
 
                 final PasteStep pasteStep = new PasteStep(project, selectedNode, childProperty,
                         insertIndex);

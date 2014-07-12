@@ -12,170 +12,170 @@ import org.junit.Test;
 public class InsertionPointTest extends PMTest {
 
     @Test
-    public void testInsertionIndexAtBeginningOfBlock() {
+    public void testGetInsertionIndexAtBeginningOfBlock() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {void f() {int x,y; f(); x++;} }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {void f() {"));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        final ASTNode insertionParent = insertionPointDescriptor.insertionParent();
+        assertTrue(insertionPoint.isValid());
+        final ASTNode insertionParent = insertionPoint.getInsertionParent();
         assertTrue(insertionParent instanceof Block);
-        assertEquals(0, insertionPointDescriptor.insertionIndex());
-        assertEquals(Block.STATEMENTS_PROPERTY, insertionPointDescriptor.insertionProperty());
+        assertEquals(0, insertionPoint.getInsertionIndex());
+        assertEquals(Block.STATEMENTS_PROPERTY, insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexAtBeginningOfBodyDeclarationsList() {
+    public void testGetInsertionIndexAtBeginningOfBodyDeclarationsList() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {int a; void f() {int x,y; f(); x++;} int b;}");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {"));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        final ASTNode insertionParent = insertionPointDescriptor.insertionParent();
+        assertTrue(insertionPoint.isValid());
+        final ASTNode insertionParent = insertionPoint.getInsertionParent();
         assertTrue(insertionParent instanceof AbstractTypeDeclaration);
-        assertEquals(0, insertionPointDescriptor.insertionIndex());
+        assertEquals(0, insertionPoint.getInsertionIndex());
         assertEquals(TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
-                insertionPointDescriptor.insertionProperty());
+                insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexAtEndOfBlock() {
+    public void testGetInsertionIndexAtEndOfBlock() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {void f() {int x,y; f(); x++;} }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {void f() {int x,y; f(); x++;"));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        final ASTNode insertionParent = insertionPointDescriptor.insertionParent();
+        assertTrue(insertionPoint.isValid());
+        final ASTNode insertionParent = insertionPoint.getInsertionParent();
         assertTrue(insertionParent instanceof Block);
-        assertEquals(3, insertionPointDescriptor.insertionIndex());
-        assertEquals(Block.STATEMENTS_PROPERTY, insertionPointDescriptor.insertionProperty());
+        assertEquals(3, insertionPoint.getInsertionIndex());
+        assertEquals(Block.STATEMENTS_PROPERTY, insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexAtEndOfBodyDeclarationsList() {
+    public void testGetInsertionIndexAtEndOfBodyDeclarationsList() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {int a; void f() {int x,y; f(); x++;} int b;}");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {int a; void f() {int x,y; f(); x++;} int b;"));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        final ASTNode insertionParent = insertionPointDescriptor.insertionParent();
+        assertTrue(insertionPoint.isValid());
+        final ASTNode insertionParent = insertionPoint.getInsertionParent();
         assertTrue(insertionParent instanceof TypeDeclaration);
-        assertEquals(3, insertionPointDescriptor.insertionIndex());
+        assertEquals(3, insertionPoint.getInsertionIndex());
         assertEquals(TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
-                insertionPointDescriptor.insertionProperty());
+                insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge1() {
+    public void testGetInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge1() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {  int a;  int b;  int c;  }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S { "));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        assertTrue(insertionPointDescriptor.insertionParent() instanceof TypeDeclaration);
-        assertEquals(0, insertionPointDescriptor.insertionIndex());
+        assertTrue(insertionPoint.isValid());
+        assertTrue(insertionPoint.getInsertionParent() instanceof TypeDeclaration);
+        assertEquals(0, insertionPoint.getInsertionIndex());
         assertEquals(TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
-                insertionPointDescriptor.insertionProperty());
+                insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge2() {
+    public void testGetInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge2() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {  int a;  int b;  int c;  }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {  int a; "));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        assertTrue(insertionPointDescriptor.insertionParent() instanceof TypeDeclaration);
-        assertEquals(1, insertionPointDescriptor.insertionIndex());
+        assertTrue(insertionPoint.isValid());
+        assertTrue(insertionPoint.getInsertionParent() instanceof TypeDeclaration);
+        assertEquals(1, insertionPoint.getInsertionIndex());
         assertEquals(TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
-                insertionPointDescriptor.insertionProperty());
+                insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge3() {
+    public void testGetInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge3() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {  int a;  int b;  int c;  }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {  int a;  int b; "));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        assertTrue(insertionPointDescriptor.insertionParent() instanceof TypeDeclaration);
-        assertEquals(2, insertionPointDescriptor.insertionIndex());
+        assertTrue(insertionPoint.isValid());
+        assertTrue(insertionPoint.getInsertionParent() instanceof TypeDeclaration);
+        assertEquals(2, insertionPoint.getInsertionIndex());
         assertEquals(TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
-                insertionPointDescriptor.insertionProperty());
+                insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge4() {
+    public void testGetInsertionIndexInBodyDeclarationsListNotDirectlyOnEdge4() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {  int a;  int b;  int c;  }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {  int a;  int b;  int c; "));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        assertTrue(insertionPointDescriptor.insertionParent() instanceof TypeDeclaration);
-        assertEquals(3, insertionPointDescriptor.insertionIndex());
+        assertTrue(insertionPoint.isValid());
+        assertTrue(insertionPoint.getInsertionParent() instanceof TypeDeclaration);
+        assertEquals(3, insertionPoint.getInsertionIndex());
         assertEquals(TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
-                insertionPointDescriptor.insertionProperty());
+                insertionPoint.getInsertionProperty());
 
     }
 
     @Test
-    public void testInsertionIndexInMiddleOfBlock() {
+    public void testGetInsertionIndexInMiddleOfBlock() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {void f() {int x,y; f(); x++;} }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {void f() {int x,y;"));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        final ASTNode insertionParent = insertionPointDescriptor.insertionParent();
+        assertTrue(insertionPoint.isValid());
+        final ASTNode insertionParent = insertionPoint.getInsertionParent();
         assertTrue(insertionParent instanceof Block);
-        assertEquals(1, insertionPointDescriptor.insertionIndex());
-        assertEquals(Block.STATEMENTS_PROPERTY, insertionPointDescriptor.insertionProperty());
+        assertEquals(1, insertionPoint.getInsertionIndex());
+        assertEquals(Block.STATEMENTS_PROPERTY, insertionPoint.getInsertionProperty());
     }
 
     @Test
-    public void testInsertionIndexInMiddleOfBodyDeclarationsList() {
+    public void testGetInsertionIndexInMiddleOfBodyDeclarationsList() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {int a; void f() {int x,y; f(); x++;} int b;}");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {int a;"));
 
-        assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-        final ASTNode insertionParent = insertionPointDescriptor.insertionParent();
+        assertTrue(insertionPoint.isValid());
+        final ASTNode insertionParent = insertionPoint.getInsertionParent();
         assertTrue(insertionParent instanceof TypeDeclaration);
-        assertEquals(1, insertionPointDescriptor.insertionIndex());
+        assertEquals(1, insertionPoint.getInsertionIndex());
         assertEquals(TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
-                insertionPointDescriptor.insertionProperty());
+                insertionPoint.getInsertionProperty());
     }
 
     @Test
     public void testNonSaneInsertionPointInIfGuardCondition() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S { void m() {if (true) { } }  }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S { void m() {if (tr"));
 
-        assertFalse(insertionPointDescriptor.isSaneInsertionPoint());
+        assertFalse(insertionPoint.isValid());
     }
 
     @Test
     public void testNonSaneInsertionPointInMiddleOfStatement() {
         final CompilationUnit compilationUnit = toCompilationUnit("class S {void f() {int x,y; f(); x++;} }");
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
+        final InsertionPoint insertionPoint = new InsertionPoint(compilationUnit,
                 insertAfter("class S {void f() {int x,y; f(); x+"));
 
-        assertFalse(insertionPointDescriptor.isSaneInsertionPoint());
-        assertNull(insertionPointDescriptor.insertionParent());
-        assertEquals(-1, insertionPointDescriptor.insertionIndex());
-        assertNull(insertionPointDescriptor.insertionProperty());
+        assertFalse(insertionPoint.isValid());
+        assertNull(insertionPoint.getInsertionParent());
+        assertEquals(-1, insertionPoint.getInsertionIndex());
+        assertNull(insertionPoint.getInsertionProperty());
     }
 
     private int insertAfter(final String prefix) {
