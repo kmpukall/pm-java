@@ -18,10 +18,10 @@ import java.util.Map;
 
 import net.creichen.pm.PMNodeReference;
 import net.creichen.pm.PMProject;
-import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.PMUse;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.models.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;
@@ -203,6 +203,9 @@ public class DelegateStep extends PMStep {
         final List<ASTNode> typeArgumentsProperty = getStructuralProperty(
                 MethodInvocation.TYPE_ARGUMENTS_PROPERTY, invocationToDelegate);
 
+        // FIXME: this looks really sketchy. copySubtrees() returns a List<ASTNode>, but addAll()
+        // expects a Collection<Expression> - can we really be sure that this does not lead to a
+        // class cast error?
         arguments(superMethodInvocationNode).addAll(ASTNode.copySubtrees(ast, argumentsProperty));
         arguments(superMethodInvocationNode).addAll(
                 ASTNode.copySubtrees(ast, typeArgumentsProperty));
