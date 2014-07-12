@@ -26,22 +26,17 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class CopyStep extends PMStep {
-    private List<ASTNode> selectedNodes;
+    private final List<ASTNode> selectedNodes;
 
     public CopyStep(final PMProject project, final ASTNode node) {
         super(project);
-
-        final List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
-
-        selectedNodes.add(node);
-
-        initWithSelectedNodes(selectedNodes);
+        this.selectedNodes = new ArrayList<ASTNode>();
+        this.selectedNodes.add(node);
     }
 
     CopyStep(final PMProject project, final List<ASTNode> selectedNodes) {
         super(project);
-
-        initWithSelectedNodes(selectedNodes);
+        this.selectedNodes = selectedNodes;
     }
 
     @Override
@@ -237,10 +232,6 @@ public class CopyStep extends PMStep {
             }
         }
 
-    }
-
-    private void initWithSelectedNodes(final List<ASTNode> selectedNodes) {
-        this.selectedNodes = selectedNodes;
     }
 
     @Override

@@ -24,18 +24,13 @@ public class SelectionTest extends PMTest {
     @Test
     public void testInsertionIndexAtBeginningOfBlock() {
         final String source = "class S {void f() {int x,y; f(); x++;} }";
-
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                45 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 45 - 26);
 
         assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
-
         final ASTNode insertionParent = insertionPointDescriptor.insertionParent();
-
         assertTrue(insertionParent instanceof Block);
-
         assertEquals(0, insertionPointDescriptor.insertionIndex());
         assertEquals(Block.STATEMENTS_PROPERTY, insertionPointDescriptor.insertionProperty());
     }
@@ -46,8 +41,7 @@ public class SelectionTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                35 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 35 - 26);
 
         assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
 
@@ -66,8 +60,7 @@ public class SelectionTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                63 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 63 - 26);
 
         assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
 
@@ -85,8 +78,7 @@ public class SelectionTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                78 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 78 - 26);
 
         assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
 
@@ -145,8 +137,7 @@ public class SelectionTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                53 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 53 - 26);
 
         assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
 
@@ -164,8 +155,7 @@ public class SelectionTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                41 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 41 - 26);
 
         assertTrue(insertionPointDescriptor.isSaneInsertionPoint());
 
@@ -197,8 +187,7 @@ public class SelectionTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                52 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 52 - 26);
 
         assertFalse(insertionPointDescriptor.isSaneInsertionPoint());
     }
@@ -209,8 +198,7 @@ public class SelectionTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source);
 
-        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit,
-                61 - 26);
+        final InsertionPoint insertionPointDescriptor = new InsertionPoint(compilationUnit, 61 - 26);
 
         assertTrue(!insertionPointDescriptor.isSaneInsertionPoint());
 

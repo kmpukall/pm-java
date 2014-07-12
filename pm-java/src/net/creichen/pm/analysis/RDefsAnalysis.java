@@ -17,7 +17,7 @@ import java.util.*;
 import org.eclipse.jdt.core.dom.*;
 
 public class RDefsAnalysis {
-    private static class VariableAssignment {
+    private static final class VariableAssignment {
 
         private final Def definition;
 

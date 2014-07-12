@@ -5,7 +5,6 @@ import net.creichen.pm.Wizard;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -21,8 +20,8 @@ public class SplitHandler extends AbstractActionWrapper {
         if (selection instanceof ITextSelection) {
 
             final IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-            final RefactoringProcessor processor = newProcessor(getCompilationUnit(window),
-                    (ITextSelection) selection);
+            final RefactoringProcessor processor = new SplitProcessor((ITextSelection) selection,
+                    getCompilationUnit(window));
 
             final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(
                     new Wizard(processor, null));
@@ -36,11 +35,6 @@ public class SplitHandler extends AbstractActionWrapper {
             System.err.println("Action must be run on a text selection.");
         }
         return null;
-    }
-
-    private RefactoringProcessor newProcessor(final ICompilationUnit compilationUnit,
-            final ITextSelection selection) {
-        return new SplitProcessor(selection, compilationUnit);
     }
 
 }
