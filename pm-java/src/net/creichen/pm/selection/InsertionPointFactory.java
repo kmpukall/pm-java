@@ -11,27 +11,57 @@ package net.creichen.pm.selection;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.creichen.pm.utils.RangeUtil;
+
 import org.eclipse.jdt.core.dom.*;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 
-// This class is a mess
+public final class InsertionPointFactory {
 
-public class InsertionPoint {
+	private InsertionPointFactory() {
 
-	private final CompilationUnit compilationUnit;
-	private int insertionIndex;
-	private ChildListPropertyDescriptor insertionProperty;
-	private ASTNode insertionParent;
+	}
 
-	public InsertionPoint(final CompilationUnit compilationUnit, final int offset) {
-		this.insertionIndex = -1;
-		this.compilationUnit = compilationUnit;
+	public static final class InsertionPoint {
+
+		public static final InsertionPoint INVALID = new InsertionPoint(null, -1, null);
+
+		private final ASTNode parent;
+		private final int index;
+		private final ChildListPropertyDescriptor property;
+
+		private InsertionPoint(final ASTNode parent, final int insertionIndex,
+				final ChildListPropertyDescriptor insertionProperty) {
+			this.parent = parent;
+			this.index = insertionIndex;
+			this.property = insertionProperty;
+		}
+
+		public int getIndex() {
+			return this.index;
+		}
+
+		public ASTNode getParent() {
+			return this.parent;
+		}
+
+		public ChildListPropertyDescriptor getProperty() {
+			return this.property;
+		}
+
+		public boolean isValid() {
+			return !equals(InsertionPoint.INVALID);
+		}
+
+	}
+
+	public static InsertionPoint createInsertionPoint(final CompilationUnit compilationUnit,
+			final int offset) {
+		InsertionPoint insertionPoint = InsertionPoint.INVALID;
 
 		/*
 		 * a point is an insertion point if:
@@ -40,58 +70,20 @@ public class InsertionPoint {
 		 * the above - OR it is the first/last character of such a child
 		 */
 
-		final ASTNode node = new SurroundingNodeFinder(offset).findOn(this.compilationUnit);
+		final ASTNode node = new SurroundingNodeFinder(offset).findOn(compilationUnit);
 		if (node != null) {
-			final List<Range<Integer>> ranges = rangesBetween(getStatements(node));
-			for (int i = 0; i < ranges.size() && this.insertionIndex < 0; i++) {
+			final List<Range<Integer>> ranges = RangeUtil.rangesBetween(getStatements(node));
+			for (int i = 0; i < ranges.size(); i++) {
 				if (ranges.get(i).contains(offset)) {
-					this.insertionIndex = i;
+					insertionPoint = new InsertionPoint(node, i, getProperty(node));
+					break;
 				}
 			}
 		}
-		if (isValid()) {
-			this.insertionParent = node;
-			this.insertionProperty = getProperty(node);
-		}
+		return insertionPoint;
 	}
 
-	private List<Range<Integer>> rangesBetween(final List<ASTNode> statements) {
-		final ArrayList<Range<Integer>> ranges = new ArrayList<Range<Integer>>();
-		if (statements.isEmpty()) {
-			// in this case, any cursor position within the parent node is valid
-			final Range<Integer> unboundedRange = Range.all();
-			ranges.add(unboundedRange);
-		} else {
-			ranges.add(Range.atMost(statements.get(0).getStartPosition()));
-			for (int i = 0; i < statements.size() - 1; i++) {
-				final ASTNode current = statements.get(i);
-				final ASTNode next = statements.get(i + 1);
-				ranges.add(Range.closed(current.getStartPosition() + current.getLength(),
-						next.getStartPosition()));
-			}
-			final ASTNode lastStatement = Iterables.getLast(statements);
-			ranges.add(Range.atLeast(lastStatement.getStartPosition() + lastStatement.getLength()));
-		}
-		return ranges;
-	}
-
-	public int getInsertionIndex() {
-		return this.insertionIndex;
-	}
-
-	public ASTNode getInsertionParent() {
-		return this.insertionParent;
-	}
-
-	public ChildListPropertyDescriptor getInsertionProperty() {
-		return this.insertionProperty;
-	}
-
-	public boolean isValid() {
-		return this.insertionIndex != -1;
-	}
-
-	private List<ASTNode> getStatements(final ASTNode parentNode) {
+	private static List<ASTNode> getStatements(final ASTNode parentNode) {
 		switch (parentNode.getNodeType()) {
 			case ASTNode.BLOCK:
 			case ASTNode.TYPE_DECLARATION:
@@ -103,7 +95,7 @@ public class InsertionPoint {
 
 	}
 
-	private ChildListPropertyDescriptor getProperty(final ASTNode node) {
+	private static ChildListPropertyDescriptor getProperty(final ASTNode node) {
 		if (node.getNodeType() == ASTNode.TYPE_DECLARATION) {
 			return TypeDeclaration.BODY_DECLARATIONS_PROPERTY;
 		} else {
