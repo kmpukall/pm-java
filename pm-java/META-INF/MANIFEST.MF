@@ -26,4 +26,4 @@ Import-Package: org.eclipse.core.filebuffers,
  org.eclipse.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: lib/guava-17.0.jar,
- .
+ lib/hamcrest-all-1.3.jar
