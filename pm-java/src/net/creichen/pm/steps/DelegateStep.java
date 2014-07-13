@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.PMNodeReference;
+import net.creichen.pm.NodeReference;
 import net.creichen.pm.PMProject;
-import net.creichen.pm.analysis.PMUse;
+import net.creichen.pm.analysis.Use;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class DelegateStep extends PMStep {
+public class DelegateStep extends Step {
 
     private final ASTNode selectedNode;
 
@@ -42,7 +42,7 @@ public class DelegateStep extends PMStep {
 
     // ivar to hold state across reparse
 
-    private PMNodeReference newExpressionNodeReference;
+    private NodeReference newExpressionNodeReference;
 
     private final ICompilationUnit iCompilationUnit;
 
@@ -255,7 +255,7 @@ public class DelegateStep extends PMStep {
 
             final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
 
-            final PMUse use = analysis.useForSimpleName(name);
+            final Use use = analysis.useForSimpleName(name);
 
             final DefUseModel udModel = getProject().getUDModel();
 

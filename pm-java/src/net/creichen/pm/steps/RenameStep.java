@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class RenameStep extends PMStep {
+public class RenameStep extends Step {
     private SimpleName nameNode;
 
     private String newName;

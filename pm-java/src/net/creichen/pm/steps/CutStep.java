@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class CutStep extends PMStep {
+public class CutStep extends Step {
     private List<ASTNode> selectedNodes;
 
     public CutStep(final PMProject project, final ASTNode node) {

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.creichen.pm.ASTQuery;
-import net.creichen.pm.PMNodeReference;
+import net.creichen.pm.NodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.models.NameModel;
@@ -119,7 +119,7 @@ public class SplitStepTest extends PMTest {
         final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX
                 .getParent();
 
-        final Set<PMNodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(project
+        final Set<NodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(project
                 .getReferenceForNode(secondXDeclaration));
 
         assertEquals(1, usesOfSecondDeclaration.size());

@@ -29,7 +29,7 @@ public class NodeReferenceStoreTest {
 
         ASTNode node = ast.newSimpleName("Foo");
 
-        final PMNodeReference reference = store.getReferenceForNode(node);
+        final NodeReference reference = store.getReferenceForNode(node);
 
         // ast = null; //apparaently ast doesn't keep a ref to its nodes
         node = null;
@@ -47,7 +47,7 @@ public class NodeReferenceStoreTest {
 
         final ASTNode node = ast.newSimpleName("Foo");
 
-        PMNodeReference reference = store.getReferenceForNode(node);
+        NodeReference reference = store.getReferenceForNode(node);
 
         final int hashCodeBefore = reference.hashCode();
 
@@ -68,11 +68,11 @@ public class NodeReferenceStoreTest {
 
         final ASTNode node1 = ast.newSimpleName("Foo");
 
-        final PMNodeReference reference1 = store.getReferenceForNode(node1);
+        final NodeReference reference1 = store.getReferenceForNode(node1);
 
         final ASTNode node2 = ast.newSimpleName("Bar");
 
-        final PMNodeReference reference2 = store.getReferenceForNode(node1);
+        final NodeReference reference2 = store.getReferenceForNode(node1);
 
         store.replaceOldNodeVersionWithNewVersion(node1, node2);
 
@@ -92,7 +92,7 @@ public class NodeReferenceStoreTest {
 
         final ASTNode node1 = ast.newSimpleName("Foo");
 
-        final PMNodeReference reference1 = store.getReferenceForNode(node1);
+        final NodeReference reference1 = store.getReferenceForNode(node1);
 
         final ASTNode node2 = ast.newSimpleName("Bar");
 
@@ -110,7 +110,7 @@ public class NodeReferenceStoreTest {
 
         final ASTNode node = ast.newSimpleName("Foo");
 
-        final PMNodeReference reference = store.getReferenceForNode(node);
+        final NodeReference reference = store.getReferenceForNode(node);
 
         assertNotNull(reference);
         assertTrue(store.getReferenceForNode(node) == reference);

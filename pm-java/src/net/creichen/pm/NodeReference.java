@@ -11,7 +11,7 @@ package net.creichen.pm;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
-public interface PMNodeReference {
+public interface NodeReference {
 
     ASTNode getNode();
 }

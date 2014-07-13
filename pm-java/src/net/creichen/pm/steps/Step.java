@@ -25,7 +25,7 @@ import org.eclipse.ltk.core.refactoring.NullChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.TextEdit;
 
-class PMStep {
+class Step {
     private final class PMCompositeChange extends CompositeChange {
         private PMCompositeChange(final String name) {
             super(name);
@@ -76,7 +76,7 @@ class PMStep {
 
     private final PMProject project;
 
-    PMStep(final PMProject project) {
+    Step(final PMProject project) {
         this.project = project;
     }
 

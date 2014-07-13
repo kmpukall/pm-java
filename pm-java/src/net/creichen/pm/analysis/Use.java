@@ -14,13 +14,13 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public class PMUse {
+public class Use {
 
     private final SimpleName simpleName;
 
     private final Set<Def> reachingDefinitions;
 
-    public PMUse(final SimpleName simpleName) {
+    public Use(final SimpleName simpleName) {
         this.simpleName = simpleName;
 
         this.reachingDefinitions = new HashSet<Def>();

@@ -13,12 +13,12 @@ import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
 import java.util.*;
 
-import net.creichen.pm.PMASTNodeUtil;
-import net.creichen.pm.PMNodeReference;
+import net.creichen.pm.ASTNodeUtil;
+import net.creichen.pm.NodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
-import net.creichen.pm.analysis.PMUse;
+import net.creichen.pm.analysis.Use;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
 
@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class SplitStep extends PMStep {
+public class SplitStep extends Step {
 
     private final ICompilationUnit iCompilationUnit;
 
@@ -39,7 +39,7 @@ public class SplitStep extends PMStep {
     private Expression initializerCopy;
 
     // This keeps state between reparses
-    private PMNodeReference replacementDeclarationReference;
+    private NodeReference replacementDeclarationReference;
 
     public SplitStep(final PMProject project, final ExpressionStatement assignmentStatement) {
         super(project);
@@ -108,7 +108,7 @@ public class SplitStep extends PMStep {
 
         final Set<SimpleName> uses = new HashSet<SimpleName>();
 
-        for (final PMUse use : definitionForAssignment.getUses()) {
+        for (final Use use : definitionForAssignment.getUses()) {
             final SimpleName usingSimpleName = use.getSimpleName();
 
             uses.add(usingSimpleName);
@@ -117,7 +117,7 @@ public class SplitStep extends PMStep {
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
 
-        final PMNodeReference identifierForOldAssignment = getProject().getReferenceForNode(
+        final NodeReference identifierForOldAssignment = getProject().getReferenceForNode(
                 oldAssignmentExpression);
 
         getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
@@ -125,7 +125,7 @@ public class SplitStep extends PMStep {
         // !!!_project.removeNode(oldAssignmentExpression);
         // !!!_project.addNode(_replacementDeclarationStatement);
 
-        final PMNodeReference identifierForNewVariableDeclaration = getProject()
+        final NodeReference identifierForNewVariableDeclaration = getProject()
                 .getReferenceForNode(newVariableDeclarationFragment);
 
         final SimpleName oldLHS = (SimpleName) oldAssignmentExpression.getLeftHandSide();
@@ -139,7 +139,7 @@ public class SplitStep extends PMStep {
         // for each use of the assignment, replace the use of the assignment
         // with the use of the declaration
 
-        for (final PMNodeReference useIdentifier : new HashSet<PMNodeReference>(
+        for (final NodeReference useIdentifier : new HashSet<NodeReference>(
                 udModel.usesForDefinition(identifierForOldAssignment))) {
             udModel.removeDefinitionIdentifierForName(identifierForOldAssignment, useIdentifier);
             udModel.addDefinitionIdentifierForName(identifierForNewVariableDeclaration,
@@ -192,7 +192,7 @@ public class SplitStep extends PMStep {
 
         this.replacementDeclarationStatement = ast.newVariableDeclarationStatement(fragment);
 
-        final VariableDeclaration originalVariableDeclaration = PMASTNodeUtil
+        final VariableDeclaration originalVariableDeclaration = ASTNodeUtil
                 .localVariableDeclarationForSimpleName(lhs);
 
         Type type = null;

@@ -11,7 +11,7 @@ package net.creichen.pm.steps;
 
 import java.util.*;
 
-import net.creichen.pm.PMNodeReference;
+import net.creichen.pm.NodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.Pasteboard;
 import net.creichen.pm.analysis.RDefsAnalysis;
@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class CopyStep extends PMStep {
+public class CopyStep extends Step {
     private final List<ASTNode> selectedNodes;
 
     public CopyStep(final PMProject project, final ASTNode node) {
@@ -189,13 +189,13 @@ public class CopyStep extends PMStep {
             final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes
                     .get(copiedDefinition);
 
-            final Set<PMNodeReference> originalUses = udModel.usesForDefinition(getProject()
+            final Set<NodeReference> originalUses = udModel.usesForDefinition(getProject()
                     .getReferenceForNode(originalDefinition));
 
-            final Set<PMNodeReference> copyUses = udModel.usesForDefinition(getProject()
+            final Set<NodeReference> copyUses = udModel.usesForDefinition(getProject()
                     .getReferenceForNode(copiedDefinition));
 
-            for (final PMNodeReference originalUseReference : originalUses) {
+            for (final NodeReference originalUseReference : originalUses) {
                 final ASTNode originalUseNode = originalUseReference.getNode();
 
                 final ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes
@@ -212,13 +212,13 @@ public class CopyStep extends PMStep {
         for (final ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
-            final Set<PMNodeReference> originalDefinitions = udModel
+            final Set<NodeReference> originalDefinitions = udModel
                     .definitionIdentifiersForName(getProject().getReferenceForNode(originalUse));
 
-            final Set<PMNodeReference> copyDefinitions = udModel
+            final Set<NodeReference> copyDefinitions = udModel
                     .definitionIdentifiersForName(getProject().getReferenceForNode(copiedUse));
 
-            for (final PMNodeReference originalDefinitionReference : originalDefinitions) {
+            for (final NodeReference originalDefinitionReference : originalDefinitions) {
                 final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
 
                 final ASTNode copyDefinitionNode = copiedDefiningNodesForCopiedOriginalDefiningNodes

@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.PMASTNodeUtil;
+import net.creichen.pm.ASTNodeUtil;
 import net.creichen.pm.PMProject;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
-class ExtractMethodStep extends PMStep {
+class ExtractMethodStep extends Step {
 
     private static Type newTypeASTNodeForTypeBinding(final AST ast, final ITypeBinding typeBinding) {
         // for now we only support simple types and primitive types
@@ -201,7 +201,7 @@ class ExtractMethodStep extends PMStep {
         getProject().recursivelyReplaceNodeWithCopy(this.originalExpression,
                 this.extractedExpression);
 
-        PMASTNodeUtil
+        ASTNodeUtil
                 .replaceNodeInParent(this.originalExpression, this.replacementMethodInvocation);
 
         performNameModelChange();

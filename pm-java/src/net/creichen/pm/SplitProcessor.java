@@ -80,11 +80,11 @@ public class SplitProcessor extends RefactoringProcessor {
 
                         final SimpleName name = (SimpleName) assignmentExpression.getLeftHandSide();
 
-                        final VariableDeclaration declaration = PMASTNodeUtil
+                        final VariableDeclaration declaration = ASTNodeUtil
                                 .localVariableDeclarationForSimpleName(name);
 
                         if (declaration != null
-                                && PMASTNodeUtil.variableDeclarationIsLocal(declaration)) {
+                                && ASTNodeUtil.variableDeclarationIsLocal(declaration)) {
                             this.step = new SplitStep(project, (ExpressionStatement) selectedNode);
 
                             return new RefactoringStatus();

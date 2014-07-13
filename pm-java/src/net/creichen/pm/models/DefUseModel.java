@@ -11,12 +11,12 @@ package net.creichen.pm.models;
 
 import java.util.*;
 
-import net.creichen.pm.PMNodeReference;
+import net.creichen.pm.NodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.Timer;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
-import net.creichen.pm.analysis.PMUse;
+import net.creichen.pm.analysis.Use;
 import net.creichen.pm.inconsistencies.ExtraDefinition;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
@@ -30,11 +30,11 @@ public class DefUseModel {
     // for now we only care about the defs that are used by our names
 
     private final ASTNode uninitializedMarkerNode;
-    private final PMNodeReference uninitialized;
+    private final NodeReference uninitialized;
 
-    private final Map<PMNodeReference, Set<PMNodeReference>> definitionIdentifiersByUseIdentifier;
+    private final Map<NodeReference, Set<NodeReference>> definitionIdentifiersByUseIdentifier;
 
-    private final Map<PMNodeReference, Set<PMNodeReference>> useIdentifiersByDefinitionIdentifier;
+    private final Map<NodeReference, Set<NodeReference>> useIdentifiersByDefinitionIdentifier;
 
     public DefUseModel(final PMProject project) {
 
@@ -52,41 +52,41 @@ public class DefUseModel {
         this.uninitializedMarkerNode = ast.newSimpleName("Foo");
         this.uninitialized = this.project.getReferenceForNode(this.uninitializedMarkerNode);
 
-        this.definitionIdentifiersByUseIdentifier = new HashMap<PMNodeReference, Set<PMNodeReference>>();
-        this.useIdentifiersByDefinitionIdentifier = new HashMap<PMNodeReference, Set<PMNodeReference>>();
+        this.definitionIdentifiersByUseIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
+        this.useIdentifiersByDefinitionIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
 
         initializeModel();
     }
 
-    public void addDefinitionIdentifierForName(final PMNodeReference definitionIdentifier,
-            final PMNodeReference nameIdentifier) {
+    public void addDefinitionIdentifierForName(final NodeReference definitionIdentifier,
+            final NodeReference nameIdentifier) {
         definitionIdentifiersForName(nameIdentifier).add(definitionIdentifier);
         addUseForDefinition(nameIdentifier, definitionIdentifier);
 
     }
 
-    private void addUseForDefinition(final PMNodeReference useIdentifier,
-            final PMNodeReference definitionIdentifier) {
+    private void addUseForDefinition(final NodeReference useIdentifier,
+            final NodeReference definitionIdentifier) {
         usesForDefinition(definitionIdentifier).add(useIdentifier);
     }
 
-    private void addUsesToModel(final Collection<PMUse> uses) {
-        for (final PMUse use : uses) {
+    private void addUsesToModel(final Collection<Use> uses) {
+        for (final Use use : uses) {
             addUseToModel(use);
         }
     }
 
-    public void addUseToModel(final PMUse use) {
+    public void addUseToModel(final Use use) {
         final SimpleName name = use.getSimpleName();
 
-        final PMNodeReference nameIdentifier = this.project.getReferenceForNode(name);
+        final NodeReference nameIdentifier = this.project.getReferenceForNode(name);
 
         definitionIdentifiersForName(nameIdentifier); // To add an empty entry
                                                       // to our store; gross.
 
         for (final Def def : use.getReachingDefinitions()) {
 
-            PMNodeReference definitionIdentifier;
+            NodeReference definitionIdentifier;
 
             if (def != null) {
                 final ASTNode definingNode = def.getDefiningNode();
@@ -108,27 +108,27 @@ public class DefUseModel {
 
         final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
-        final Collection<PMUse> uses = getCurrentUses();
+        final Collection<Use> uses = getCurrentUses();
 
         Timer.sharedTimer().start("INCONSISTENCIES");
 
-        for (final PMUse use : uses) {
+        for (final Use use : uses) {
 
             final ASTNode usingNode = use.getSimpleName();
 
             final Collection<ASTNode> currentDefiningNodes = definingNodesForUse(use);
 
-            final PMNodeReference useNameIdentifier = this.project.getReferenceForNode(usingNode);
+            final NodeReference useNameIdentifier = this.project.getReferenceForNode(usingNode);
 
             if (useNameIdentifier != null) {
-                final Set<PMNodeReference> desiredDefinitionIdentifiers = this.definitionIdentifiersByUseIdentifier
+                final Set<NodeReference> desiredDefinitionIdentifiers = this.definitionIdentifiersByUseIdentifier
                         .get(useNameIdentifier);
 
                 if (desiredDefinitionIdentifiers != null) {
                     // find definitions that should reach and missing
                     // definitions
 
-                    for (final PMNodeReference desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
+                    for (final NodeReference desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
                         ASTNode desiredDefiningNode;
 
                         if (!desiredDefinitionIdentifier.equals(this.uninitialized)) {
@@ -168,7 +168,7 @@ public class DefUseModel {
                 // efining nodes
 
                 for (final ASTNode currentDefiningNode : currentDefiningNodes) {
-                    PMNodeReference currentDefiningIdentifier = null;
+                    NodeReference currentDefiningIdentifier = null;
 
                     if (currentDefiningNode != null) {
                         currentDefiningIdentifier = this.project
@@ -202,7 +202,7 @@ public class DefUseModel {
         return inconsistencies;
     }
 
-    private Collection<ASTNode> definingNodesForUse(final PMUse use) {
+    private Collection<ASTNode> definingNodesForUse(final Use use) {
         final HashSet<ASTNode> definingNodes = new HashSet<ASTNode>();
 
         for (final Def definition : use.getReachingDefinitions()) {
@@ -217,22 +217,22 @@ public class DefUseModel {
         return definingNodes;
     }
 
-    public Set<PMNodeReference> definitionIdentifiersForName(final PMNodeReference nameIdentifier) {
-        Set<PMNodeReference> definitionIdentifiers = this.definitionIdentifiersByUseIdentifier
+    public Set<NodeReference> definitionIdentifiersForName(final NodeReference nameIdentifier) {
+        Set<NodeReference> definitionIdentifiers = this.definitionIdentifiersByUseIdentifier
                 .get(nameIdentifier);
 
         if (definitionIdentifiers == null) {
-            definitionIdentifiers = new HashSet<PMNodeReference>();
+            definitionIdentifiers = new HashSet<NodeReference>();
             this.definitionIdentifiersByUseIdentifier.put(nameIdentifier, definitionIdentifiers);
         }
 
         return definitionIdentifiers;
     }
 
-    public void deleteDefinition(final PMNodeReference definition) {
+    public void deleteDefinition(final NodeReference definition) {
         // delete all uses of the definition
 
-        for (final PMNodeReference use : usesForDefinition(definition)) {
+        for (final NodeReference use : usesForDefinition(definition)) {
             removeDefinitionIdentifierForName(definition, use);
         }
 
@@ -241,11 +241,11 @@ public class DefUseModel {
         this.useIdentifiersByDefinitionIdentifier.remove(definition);
     }
 
-    private Collection<PMUse> getCurrentUses() {
+    private Collection<Use> getCurrentUses() {
 
         Timer.sharedTimer().start("DUUD_CHAINS");
 
-        final Collection<PMUse> uses = new HashSet<PMUse>();
+        final Collection<Use> uses = new HashSet<Use>();
 
         for (final ASTNode root : this.project.getASTRoots()) {
 
@@ -277,28 +277,28 @@ public class DefUseModel {
     }
 
     public boolean nameIsUse(final SimpleName name) {
-        final PMNodeReference nameReference = this.project.getReferenceForNode(name);
+        final NodeReference nameReference = this.project.getReferenceForNode(name);
 
         return this.definitionIdentifiersByUseIdentifier.containsKey(nameReference);
     }
 
-    public void removeDefinitionIdentifierForName(final PMNodeReference definitionIdentifier,
-            final PMNodeReference nameIdentifier) {
+    public void removeDefinitionIdentifierForName(final NodeReference definitionIdentifier,
+            final NodeReference nameIdentifier) {
         definitionIdentifiersForName(nameIdentifier).remove(definitionIdentifier);
         removeUseForDefinition(nameIdentifier, definitionIdentifier);
     }
 
-    private void removeUseForDefinition(final PMNodeReference useIdentifier,
-            final PMNodeReference definitionIdentifier) {
+    private void removeUseForDefinition(final NodeReference useIdentifier,
+            final NodeReference definitionIdentifier) {
         usesForDefinition(definitionIdentifier).remove(useIdentifier);
     }
 
-    public Set<PMNodeReference> usesForDefinition(final PMNodeReference definitionIdentifier) {
-        Set<PMNodeReference> useIdentifiers = this.useIdentifiersByDefinitionIdentifier
+    public Set<NodeReference> usesForDefinition(final NodeReference definitionIdentifier) {
+        Set<NodeReference> useIdentifiers = this.useIdentifiersByDefinitionIdentifier
                 .get(definitionIdentifier);
 
         if (useIdentifiers == null) {
-            useIdentifiers = new HashSet<PMNodeReference>();
+            useIdentifiers = new HashSet<NodeReference>();
             this.useIdentifiersByDefinitionIdentifier.put(definitionIdentifier, useIdentifiers);
         }
 

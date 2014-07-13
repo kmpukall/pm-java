@@ -35,7 +35,7 @@ public class SplitProcessorTest extends PMTest {
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
-        PMProcessorDriver.drive(splitTemporary);
+        ProcessorDriver.drive(splitTemporary);
 
         assertTrue(compilationUnitSourceMatchesSource(
                 "public class S {void m(){int x;int x = 1;x = x + 1;}}",

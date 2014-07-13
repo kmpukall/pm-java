@@ -38,7 +38,7 @@ public class DelegateProcessorTest extends PMTest {
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
-        PMProcessorDriver.drive(delegateProcessor);
+        ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource(
                 "public class S {void m(){S s = new S();s.getClass(); s.m();}}",
@@ -63,7 +63,7 @@ public class DelegateProcessorTest extends PMTest {
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
-        PMProcessorDriver.drive(delegateProcessor);
+        ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; super.m();}}",
                 compilationUnit.getSource()));
@@ -87,7 +87,7 @@ public class DelegateProcessorTest extends PMTest {
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
-        PMProcessorDriver.drive(delegateProcessor);
+        ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource(
                 "public class S {S s; void m(){s.getClass(); s.m();}}", compilationUnit.getSource()));
@@ -117,7 +117,7 @@ public class DelegateProcessorTest extends PMTest {
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
-        PMProcessorDriver.drive(delegateProcessor);
+        ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource(
                 "package t; public class Sub extends Super {void g() {s.m();}}",
@@ -142,7 +142,7 @@ public class DelegateProcessorTest extends PMTest {
         final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
-        final RefactoringStatus status = PMProcessorDriver.drive(delegateProcessor);
+        final RefactoringStatus status = ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(status.getSeverity() < RefactoringStatus.ERROR);
 

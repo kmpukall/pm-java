@@ -297,7 +297,7 @@ public class PMProject {
         return result;
     }
 
-    public PMNodeReference getReferenceForNode(final ASTNode node) {
+    public NodeReference getReferenceForNode(final ASTNode node) {
         return this.nodeReferenceStore.getReferenceForNode(node);
     }
 

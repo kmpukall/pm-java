@@ -23,7 +23,7 @@ class NodeReferenceStore {
     // as long as we make sure that there are no cycles from the node to
     // the store (such as, perhaps, via the node's properties)
 
-    private final class PMUUIDNodeReference implements PMNodeReference {
+    private final class PMUUIDNodeReference implements NodeReference {
 
         // This provides a way of referring to nodes without using the node ptr
         // This is useful to maintain references across reparses (which will
@@ -45,31 +45,31 @@ class NodeReferenceStore {
         }
     }
 
-    private final WeakHashMap<PMNodeReference, WeakReference<ASTNode>> nodesForReferences;
+    private final WeakHashMap<NodeReference, WeakReference<ASTNode>> nodesForReferences;
 
-    private final WeakHashMap<ASTNode, WeakReference<PMNodeReference>> referencesForNodes;
+    private final WeakHashMap<ASTNode, WeakReference<NodeReference>> referencesForNodes;
 
     public NodeReferenceStore() {
-        this.nodesForReferences = new WeakHashMap<PMNodeReference, WeakReference<ASTNode>>();
+        this.nodesForReferences = new WeakHashMap<NodeReference, WeakReference<ASTNode>>();
 
-        this.referencesForNodes = new WeakHashMap<ASTNode, WeakReference<PMNodeReference>>();
+        this.referencesForNodes = new WeakHashMap<ASTNode, WeakReference<NodeReference>>();
     }
 
-    public ASTNode getNodeForReference(final PMNodeReference nodeIdentifier) {
+    public ASTNode getNodeForReference(final NodeReference nodeIdentifier) {
         return this.nodesForReferences.get(nodeIdentifier).get();
     }
 
-    public PMNodeReference getReferenceForNode(final ASTNode node) {
+    public NodeReference getReferenceForNode(final ASTNode node) {
 
-        final WeakReference<PMNodeReference> weakReference = this.referencesForNodes.get(node);
+        final WeakReference<NodeReference> weakReference = this.referencesForNodes.get(node);
 
-        PMNodeReference reference;
+        NodeReference reference;
 
         if (weakReference == null || weakReference.get() == null) {
             reference = new PMUUIDNodeReference(node);
 
             this.nodesForReferences.put(reference, new WeakReference<ASTNode>(node));
-            this.referencesForNodes.put(node, new WeakReference<PMNodeReference>(reference));
+            this.referencesForNodes.put(node, new WeakReference<NodeReference>(reference));
         } else {
             reference = weakReference.get();
         }
@@ -80,11 +80,11 @@ class NodeReferenceStore {
     // Note that this is a non-static inner class
 
     public void replaceOldNodeVersionWithNewVersion(final ASTNode oldNode, final ASTNode newNode) {
-        final WeakReference<PMNodeReference> referenceWeakRef = this.referencesForNodes
+        final WeakReference<NodeReference> referenceWeakRef = this.referencesForNodes
                 .get(oldNode);
 
         if (referenceWeakRef != null) {
-            final PMNodeReference reference = referenceWeakRef.get();
+            final NodeReference reference = referenceWeakRef.get();
 
             if (reference != null) {
                 this.referencesForNodes.remove(oldNode);

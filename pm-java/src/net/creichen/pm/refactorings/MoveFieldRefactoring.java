@@ -9,7 +9,7 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.PMNodeReference;
+import net.creichen.pm.NodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.steps.CutStep;
 import net.creichen.pm.steps.PasteStep;
@@ -22,9 +22,9 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 class MoveFieldRefactoring {
     private final PMProject project;
 
-    private final PMNodeReference fieldReference;
+    private final NodeReference fieldReference;
 
-    private final PMNodeReference newParentReference;
+    private final NodeReference newParentReference;
 
     public MoveFieldRefactoring(final PMProject project, final FieldDeclaration fieldDeclaration,
             final TypeDeclaration newParent) {

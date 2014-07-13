@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.junit.Test;
 
-public class PMPushDownFieldTest extends PMTest {
+public class PushDownFieldTest extends PMTest {
 
     @Test
     public void testPushDownFieldWithNoUses() throws JavaModelException {

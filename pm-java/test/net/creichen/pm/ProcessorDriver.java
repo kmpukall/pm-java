@@ -15,7 +15,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
-public final class PMProcessorDriver {
+public final class ProcessorDriver {
 
     static RefactoringStatus drive(final RefactoringProcessor eclipseProcessor) {
 
@@ -52,7 +52,7 @@ public final class PMProcessorDriver {
         return status;
     }
 
-    private PMProcessorDriver() {
+    private ProcessorDriver() {
         // private utility class constructor
     }
 }

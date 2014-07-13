@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
-public class PasteStep extends PMStep {
+public class PasteStep extends Step {
 
     private final ASTNode parent;
 

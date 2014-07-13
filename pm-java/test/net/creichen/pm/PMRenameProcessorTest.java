@@ -53,7 +53,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameFooToStan.setNewName("stan");
 
-        PMProcessorDriver.drive(renameFooToStan);
+        ProcessorDriver.drive(renameFooToStan);
 
         assertEquals("public class Foo {void method() {int stan; stan = 5;} }",
                 iCompilationUnit.getSource());
@@ -63,7 +63,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameStanToBar.setNewName("bar");
 
-        PMProcessorDriver.drive(renameStanToBar);
+        ProcessorDriver.drive(renameStanToBar);
 
         assertEquals("public class Foo {void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());
@@ -80,7 +80,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameFooToStan.setNewName("stan");
 
-        PMProcessorDriver.drive(renameFooToStan);
+        ProcessorDriver.drive(renameFooToStan);
 
         assertEquals("public class Foo {void method() {int stan; stan = 5;} }",
                 iCompilationUnit.getSource());
@@ -90,7 +90,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameStanToBar.setNewName("bar");
 
-        PMProcessorDriver.drive(renameStanToBar);
+        ProcessorDriver.drive(renameStanToBar);
 
         assertEquals("public class Foo {void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());
@@ -108,7 +108,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameIvarToBar.setNewName("bar");
 
-        PMProcessorDriver.drive(renameIvarToBar);
+        ProcessorDriver.drive(renameIvarToBar);
 
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());
@@ -161,7 +161,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameFooToBar.setNewName("bar");
 
-        PMProcessorDriver.drive(renameFooToBar);
+        ProcessorDriver.drive(renameFooToBar);
 
         assertEquals("public class Foo {void method() {int bar; int bar; bar = 5; bar = 6;} }",
                 iCompilationUnit.getSource());
@@ -192,7 +192,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameBarToFoo.setNewName("foo");
 
-        PMProcessorDriver.drive(renameBarToFoo);
+        ProcessorDriver.drive(renameBarToFoo);
 
         assertEquals("public class Foo {void method() {int bar; int foo; bar = 5; foo = 6;} }",
                 iCompilationUnit.getSource());
@@ -217,7 +217,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameXToY.setNewName("y");
 
-        PMProcessorDriver.drive(renameXToY);
+        ProcessorDriver.drive(renameXToY);
 
         assertEquals("public class Unit1 { public int y; void method() {y++;} }", unit1.getSource());
         assertEquals(
@@ -249,7 +249,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         renameIvarToBar.setNewName("bar");
 
-        PMProcessorDriver.drive(renameIvarToBar);
+        ProcessorDriver.drive(renameIvarToBar);
 
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());

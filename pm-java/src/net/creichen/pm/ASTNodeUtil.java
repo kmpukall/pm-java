@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 
-public final class PMASTNodeUtil {
+public final class ASTNodeUtil {
 
     public static VariableDeclaration localVariableDeclarationForSimpleName(final SimpleName name) {
         return (VariableDeclaration) ((CompilationUnit) name.getRoot()).findDeclaringNode(name
@@ -63,7 +63,7 @@ public final class PMASTNodeUtil {
         return false;
     }
 
-    private PMASTNodeUtil() {
+    private ASTNodeUtil() {
         // private utility class constructor
     }
 }
