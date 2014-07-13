@@ -11,7 +11,6 @@ package net.creichen.pm.selection;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
-import java.util.Collections;
 import java.util.List;
 
 import net.creichen.pm.utils.RangeUtil;
@@ -90,7 +89,8 @@ public final class InsertionPointFactory {
 				final ChildListPropertyDescriptor property = getProperty(parentNode);
 				return getStructuralProperty(property, parentNode);
 			default:
-				return Collections.emptyList();
+				throw new IllegalArgumentException("attempted creation of insertion point on node "
+						+ parentNode.toString() + ", must be one of Block, TypeDeclaration");
 		}
 
 	}
