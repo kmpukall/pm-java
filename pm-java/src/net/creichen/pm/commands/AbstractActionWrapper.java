@@ -4,6 +4,7 @@ import net.creichen.pm.actions.Action;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -11,6 +12,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 abstract class AbstractActionWrapper extends AbstractHandler {
 
     private Action action;
+	private IWorkbenchWindow window;
 
     protected final Action getAction() {
         return this.action;
@@ -32,5 +34,17 @@ abstract class AbstractActionWrapper extends AbstractHandler {
     protected final void setAction(final Action action) {
         this.action = action;
     }
+    
+    void showErrorDialog(final String dialogTitle, final String errorExplanation) {
+        MessageDialog.openError(this.getWindow().getShell(), dialogTitle, errorExplanation);
+    }
+
+	protected IWorkbenchWindow getWindow() {
+		return window;
+	}
+
+	protected void setWindow(IWorkbenchWindow window) {
+		this.window = window;
+	}
 
 }
