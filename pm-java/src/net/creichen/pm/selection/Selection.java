@@ -9,8 +9,6 @@
 
 package net.creichen.pm.selection;
 
-import net.creichen.pm.selection.InsertionPointFactory.InsertionPoint;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;

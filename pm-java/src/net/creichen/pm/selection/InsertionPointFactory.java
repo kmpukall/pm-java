@@ -25,39 +25,6 @@ public final class InsertionPointFactory {
 
 	}
 
-	public static final class InsertionPoint {
-
-		public static final InsertionPoint INVALID = new InsertionPoint(null, -1, null);
-
-		private final ASTNode parent;
-		private final int index;
-		private final ChildListPropertyDescriptor property;
-
-		private InsertionPoint(final ASTNode parent, final int insertionIndex,
-				final ChildListPropertyDescriptor insertionProperty) {
-			this.parent = parent;
-			this.index = insertionIndex;
-			this.property = insertionProperty;
-		}
-
-		public int getIndex() {
-			return this.index;
-		}
-
-		public ASTNode getParent() {
-			return this.parent;
-		}
-
-		public ChildListPropertyDescriptor getProperty() {
-			return this.property;
-		}
-
-		public boolean isValid() {
-			return !equals(InsertionPoint.INVALID);
-		}
-
-	}
-
 	public static InsertionPoint createInsertionPoint(final CompilationUnit compilationUnit,
 			final int offset) {
 		InsertionPoint insertionPoint = InsertionPoint.INVALID;

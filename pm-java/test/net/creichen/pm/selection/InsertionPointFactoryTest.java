@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import net.creichen.pm.selection.InsertionPointFactory.InsertionPoint;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.dom.*;

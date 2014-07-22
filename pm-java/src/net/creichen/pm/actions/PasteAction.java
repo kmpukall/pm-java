@@ -12,8 +12,8 @@ package net.creichen.pm.actions;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.Pasteboard;
+import net.creichen.pm.selection.InsertionPoint;
 import net.creichen.pm.selection.InsertionPointFactory;
-import net.creichen.pm.selection.InsertionPointFactory.InsertionPoint;
 import net.creichen.pm.steps.PasteStep;
 
 import org.eclipse.jdt.core.ICompilationUnit;
