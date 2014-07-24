@@ -43,7 +43,7 @@ abstract class AbstractActionWrapper extends AbstractHandler {
 		return window;
 	}
 
-	protected void setWindow(IWorkbenchWindow window) {
+	protected void setWindow(final IWorkbenchWindow window) {
 		this.window = window;
 	}
 
