@@ -14,7 +14,7 @@ import java.util.*;
 import net.creichen.pm.NodeReference;
 import net.creichen.pm.PMProject;
 import net.creichen.pm.Pasteboard;
-import net.creichen.pm.analysis.RDefsAnalysis;
+import net.creichen.pm.analysis.DefUseUtil;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 
@@ -157,9 +157,9 @@ public class CopyStep extends Step {
             final ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
             final ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
 
-            final List<ASTNode> originalDefiningNodes = RDefsAnalysis
+            final List<ASTNode> originalDefiningNodes = DefUseUtil
                     .findDefiningNodesUnderNode(originalRootNode);
-            final List<ASTNode> copyDefiningNodes = RDefsAnalysis
+            final List<ASTNode> copyDefiningNodes = DefUseUtil
                     .findDefiningNodesUnderNode(copyRootNode);
 
             for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes.size(); definingNodeIndex++) {
