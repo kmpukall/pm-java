@@ -37,7 +37,7 @@ public class CutHandler extends AbstractActionWrapper {
 			return null;
 		}
 
-		final ICompilationUnit iCompilationUnit = getCompilationUnit(getWindow());
+		final ICompilationUnit iCompilationUnit = getCompilationUnit();
 		final PMProject project = PMWorkspace.sharedWorkspace()
 				.projectForIJavaProject(iCompilationUnit.getJavaProject());
 		final ITextSelection textSelection = (ITextSelection) selection;

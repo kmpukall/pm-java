@@ -1,5 +1,12 @@
 package net.creichen.pm.commands;
 
+import net.creichen.pm.PMProject;
+import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.Pasteboard;
+import net.creichen.pm.selection.InsertionPoint;
+import net.creichen.pm.selection.InsertionPointFactory;
+import net.creichen.pm.steps.PasteStep;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -13,13 +20,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.handlers.HandlerUtil;
-
-import net.creichen.pm.PMProject;
-import net.creichen.pm.PMWorkspace;
-import net.creichen.pm.Pasteboard;
-import net.creichen.pm.selection.InsertionPoint;
-import net.creichen.pm.selection.InsertionPointFactory;
-import net.creichen.pm.steps.PasteStep;
 
 public class PasteHandler extends AbstractActionWrapper {
 
@@ -36,16 +36,16 @@ public class PasteHandler extends AbstractActionWrapper {
 					"PMPasteAction must be run on a text selection.");
 			return null;
 		}
-		
+
 		final ITextSelection textSelection = (ITextSelection) selection;
-		final ICompilationUnit iCompilationUnit = getCompilationUnit(getWindow());
+		final ICompilationUnit iCompilationUnit = getCompilationUnit();
 		final PMProject project = PMWorkspace.sharedWorkspace()
 				.projectForIJavaProject(iCompilationUnit.getJavaProject());
 		final InsertionPoint insertionPoint = InsertionPointFactory
 				.createInsertionPoint((CompilationUnit) project
 						.findASTRootForICompilationUnit(iCompilationUnit),
 						textSelection.getOffset());
-		final ASTNode selectedNode = insertionPoint.getParent(); 
+		final ASTNode selectedNode = insertionPoint.getParent();
 		final Pasteboard pasteboard = project.getPasteboard();
 
 		if (insertionPoint.isValid()
