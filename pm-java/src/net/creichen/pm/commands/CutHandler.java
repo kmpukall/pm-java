@@ -5,13 +5,10 @@ import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.creichen.pm.PMProject;
-import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.selection.Selection;
 import net.creichen.pm.steps.CutStep;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -23,14 +20,10 @@ public class CutHandler extends AbstractCommandHandler {
 
 	@Override
 	public final void handleEvent(final ExecutionEvent event) {
-		final ICompilationUnit iCompilationUnit = getCompilationUnit();
-		final PMProject project = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(iCompilationUnit.getJavaProject());
-		project.syncSources(); // in case they have changed
 		final Selection selectionDescriptor = new Selection(
-				(CompilationUnit) project
-						.findASTRootForICompilationUnit(iCompilationUnit),
-				getSelection().getOffset(), getSelection().getLength());
+				(CompilationUnit) getProject().findASTRootForICompilationUnit(
+						getCompilationUnit()), getSelection().getOffset(),
+						getSelection().getLength());
 
 		if (!selectionDescriptor.isSaneSelection()) {
 			showErrorDialog("PM Cut Error",
@@ -54,20 +47,19 @@ public class CutHandler extends AbstractCommandHandler {
 		} else {
 			final List<ASTNode> propertyList = getStructuralProperty(
 					(ChildListPropertyDescriptor) selectionDescriptor
-							.selectedNodeParentProperty(),
+					.selectedNodeParentProperty(),
 					selectionDescriptor.selectedNodeParent());
 			for (int i = selectionDescriptor
 					.selectedNodeParentPropertyListOffset(); i < selectionDescriptor
 					.selectedNodeParentPropertyListOffset()
 					+ selectionDescriptor
-							.selectedNodeParentPropertyListLength(); i++) {
+					.selectedNodeParentPropertyListLength(); i++) {
 				nodesToCut.add(propertyList.get(i));
 			}
 		}
 		if (nodesToCut.size() > 0) {
-			new CutStep(project, nodesToCut).applyAllAtOnce();
+			new CutStep(getProject(), nodesToCut).applyAllAtOnce();
 		}
 
 	}
-
 }

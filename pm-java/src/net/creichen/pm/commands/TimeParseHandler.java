@@ -1,25 +1,22 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.PMProject;
-import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.Timer;
 
 import org.eclipse.core.commands.ExecutionEvent;
 
 public class TimeParseHandler extends AbstractCommandHandler {
 
+	private static final int REPETITIONS = 10;
+
 	@Override
 	public final void handleEvent(final ExecutionEvent event) {
-		final PMProject project = PMWorkspace.sharedWorkspace()
-				.projectForIJavaProject(getCompilationUnit().getJavaProject());
-
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < REPETITIONS; i++) {
 
 			Timer.sharedTimer().start("JUST_PARSE");
 
 			// project.updateToNewVersionsOfICompilationUnits();
 
-			project.justParseMeasurement(false);
+			getProject().justParseMeasurement(false);
 
 			Timer.sharedTimer().stop("JUST_PARSE");
 
@@ -31,13 +28,13 @@ public class TimeParseHandler extends AbstractCommandHandler {
 			Timer.sharedTimer().clear("JUST_PARSE");
 		}
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < REPETITIONS; i++) {
 
 			Timer.sharedTimer().start("PARSE_BINDINGS");
 
 			// project.updateToNewVersionsOfICompilationUnits();
 
-			project.justParseMeasurement(true);
+			getProject().justParseMeasurement(true);
 
 			Timer.sharedTimer().stop("PARSE_BINDINGS");
 
@@ -50,13 +47,13 @@ public class TimeParseHandler extends AbstractCommandHandler {
 			Timer.sharedTimer().clear("PARSE_BINDINGS");
 		}
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < REPETITIONS; i++) {
 
 			Timer.sharedTimer().start("PARSE_BINDINGS_UPDATE");
 
 			// project.updateToNewVersionsOfICompilationUnits();
 
-			project.updateToNewVersionsOfICompilationUnits();
+			getProject().updateToNewVersionsOfICompilationUnits();
 
 			Timer.sharedTimer().stop("PARSE_BINDINGS_UPDATE");
 

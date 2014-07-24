@@ -1,5 +1,8 @@
 package net.creichen.pm.commands;
 
+import net.creichen.pm.PMProject;
+import net.creichen.pm.PMWorkspace;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -15,13 +18,20 @@ abstract class AbstractCommandHandler extends AbstractHandler {
 
 	private IWorkbenchWindow window;
 	private ITextSelection selection;
+	private PMProject project;
+	private ICompilationUnit compilationUnit;
 
 	@Override
 	public final Object execute(final ExecutionEvent event) {
 		this.window = HandlerUtil.getActiveWorkbenchWindow(event);
+		this.compilationUnit = createCompilationUnit();
+		this.project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+				getCompilationUnit().getJavaProject());
+		this.project.syncSources();
+
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		if (currentSelection instanceof ITextSelection) {
-			selection = (ITextSelection) currentSelection;
+			this.selection = (ITextSelection) currentSelection;
 			handleEvent(event);
 		} else {
 			showErrorDialog("Error",
@@ -31,7 +41,11 @@ abstract class AbstractCommandHandler extends AbstractHandler {
 	}
 
 	protected ICompilationUnit getCompilationUnit() {
-		final IWorkbenchPage activePage = window.getActivePage();
+		return this.compilationUnit;
+	}
+
+	private ICompilationUnit createCompilationUnit() {
+		final IWorkbenchPage activePage = this.window.getActivePage();
 
 		if (activePage != null) {
 			final IEditorPart editor = activePage.getActiveEditor();
@@ -40,23 +54,25 @@ abstract class AbstractCommandHandler extends AbstractHandler {
 		} else {
 			return null;
 		}
-
 	}
 
 	protected final ITextSelection getSelection() {
-		return selection;
+		return this.selection;
 	}
 
 	protected IWorkbenchWindow getWindow() {
-		return window;
+		return this.window;
 	}
 
 	protected abstract void handleEvent(ExecutionEvent event);
 
 	protected void showErrorDialog(final String dialogTitle,
 			final String errorExplanation) {
-		MessageDialog.openError(this.getWindow().getShell(), dialogTitle,
+		MessageDialog.openError(getWindow().getShell(), dialogTitle,
 				errorExplanation);
 	}
 
+	public PMProject getProject() {
+		return this.project;
+	}
 }
