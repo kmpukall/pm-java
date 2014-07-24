@@ -5,15 +5,11 @@ import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.Timer;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.handlers.HandlerUtil;
 
-public class TimeParseHandler extends AbstractActionWrapper {
+public class TimeParseHandler extends AbstractCommandHandler {
 
 	@Override
-	public final Object execute(final ExecutionEvent event)
-			throws ExecutionException {
-		setWindow(HandlerUtil.getActiveWorkbenchWindow(event));
+	public final void handleEvent(final ExecutionEvent event) {
 		final PMProject project = PMWorkspace.sharedWorkspace()
 				.projectForIJavaProject(getCompilationUnit().getJavaProject());
 
@@ -101,7 +97,6 @@ public class TimeParseHandler extends AbstractActionWrapper {
 			// PMTimer.sharedTimer().accumulatedSecondsForKey("SUBTREE_BYTES"));
 			// PMTimer.sharedTimer().clear("SUBTREE_BYTES");
 		}
-		return null;
 	}
 
 }

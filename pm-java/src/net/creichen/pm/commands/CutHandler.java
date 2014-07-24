@@ -11,7 +11,6 @@ import net.creichen.pm.selection.Selection;
 import net.creichen.pm.steps.CutStep;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
@@ -19,38 +18,23 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.handlers.HandlerUtil;
 
-public class CutHandler extends AbstractActionWrapper {
+public class CutHandler extends AbstractCommandHandler {
 
 	@Override
-	public final Object execute(final ExecutionEvent event)
-			throws ExecutionException {
-		setWindow(HandlerUtil.getActiveWorkbenchWindow(event));
-		ISelection selection = HandlerUtil.getCurrentSelection(event);
-
-		if (!(selection instanceof ITextSelection)) {
-			showErrorDialog("PM Cut Error",
-					"PM Cut must be run on a text selection.");
-			return null;
-		}
-
+	public final void handleEvent(final ExecutionEvent event) {
 		final ICompilationUnit iCompilationUnit = getCompilationUnit();
 		final PMProject project = PMWorkspace.sharedWorkspace()
 				.projectForIJavaProject(iCompilationUnit.getJavaProject());
-		final ITextSelection textSelection = (ITextSelection) selection;
 		project.syncSources(); // in case they have changed
 		final Selection selectionDescriptor = new Selection(
 				(CompilationUnit) project
 						.findASTRootForICompilationUnit(iCompilationUnit),
-				textSelection.getOffset(), textSelection.getLength());
+				getSelection().getOffset(), getSelection().getLength());
 
 		if (!selectionDescriptor.isSaneSelection()) {
 			showErrorDialog("PM Cut Error",
 					"PMCut cannot be applied to this selection");
-			return null;
 		}
 		final List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
 
@@ -84,7 +68,6 @@ public class CutHandler extends AbstractActionWrapper {
 			new CutStep(project, nodesToCut).applyAllAtOnce();
 		}
 
-		return null;
 	}
 
 }

@@ -8,7 +8,6 @@ import net.creichen.pm.selection.InsertionPointFactory;
 import net.creichen.pm.steps.PasteStep;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
@@ -17,34 +16,18 @@ import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.handlers.HandlerUtil;
 
-public class PasteHandler extends AbstractActionWrapper {
-
-	private ISelection selection;
+public class PasteHandler extends AbstractCommandHandler {
 
 	@Override
-	public final Object execute(final ExecutionEvent event)
-			throws ExecutionException {
-		this.setWindow(HandlerUtil.getActiveWorkbenchWindow(event));
-		this.selection = HandlerUtil.getCurrentSelection(event);
-
-		if (!(selection instanceof ITextSelection)) {
-			showErrorDialog("PM Paste Error",
-					"PMPasteAction must be run on a text selection.");
-			return null;
-		}
-
-		final ITextSelection textSelection = (ITextSelection) selection;
+	public final void handleEvent(final ExecutionEvent event) {
 		final ICompilationUnit iCompilationUnit = getCompilationUnit();
 		final PMProject project = PMWorkspace.sharedWorkspace()
 				.projectForIJavaProject(iCompilationUnit.getJavaProject());
 		final InsertionPoint insertionPoint = InsertionPointFactory
 				.createInsertionPoint((CompilationUnit) project
 						.findASTRootForICompilationUnit(iCompilationUnit),
-						textSelection.getOffset());
+						getSelection().getOffset());
 		final ASTNode selectedNode = insertionPoint.getParent();
 		final Pasteboard pasteboard = project.getPasteboard();
 
@@ -65,8 +48,6 @@ public class PasteHandler extends AbstractActionWrapper {
 			showErrorDialog("PM Paste Error",
 					"Paste must be run a block or a class definition");
 		}
-
-		return null;
 	}
 
 }

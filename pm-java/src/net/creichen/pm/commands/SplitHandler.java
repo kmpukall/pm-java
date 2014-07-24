@@ -4,37 +4,24 @@ import net.creichen.pm.SplitProcessor;
 import net.creichen.pm.Wizard;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
-import org.eclipse.ui.handlers.HandlerUtil;
 
-public class SplitHandler extends AbstractActionWrapper {
+public class SplitHandler extends AbstractCommandHandler {
 
 	@Override
-	public final Object execute(final ExecutionEvent event)
-			throws ExecutionException {
-		final ISelection selection = HandlerUtil.getCurrentSelection(event);
-		if (selection instanceof ITextSelection) {
+	public final void handleEvent(final ExecutionEvent event) {
+		final RefactoringProcessor processor = new SplitProcessor(
+				getSelection(), getCompilationUnit());
 
-			setWindow(HandlerUtil.getActiveWorkbenchWindow(event));
-			final RefactoringProcessor processor = new SplitProcessor(
-					(ITextSelection) selection, getCompilationUnit());
+		final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(
+				new Wizard(processor, null));
 
-			final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(
-					new Wizard(processor, null));
-
-			try {
-				operation.run(getWindow().getShell(), "PM Rename Title");
-			} catch (final Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			System.err.println("Action must be run on a text selection.");
+		try {
+			operation.run(getWindow().getShell(), "PM Rename Title");
+		} catch (final Exception e) {
+			e.printStackTrace();
 		}
-		return null;
 	}
 
 }
