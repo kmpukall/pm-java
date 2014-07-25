@@ -7,7 +7,9 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.ui;
+
+import net.creichen.pm.refactorings.PMRenameProcessor;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
@@ -20,13 +22,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class DelegateInputPage extends UserInputWizardPage {
+public class RenameInputPage extends UserInputWizardPage {
     private Text fNameField;
 
-    private final DelegateProcessor processor;
+    private final PMRenameProcessor processor;
 
-    public DelegateInputPage(final DelegateProcessor processor) {
-        super("PM Delegate Input Page");
+    public RenameInputPage(final PMRenameProcessor processor) {
+        super("PM Refactoring Input Page");
 
         this.processor = processor;
     }
@@ -34,15 +36,18 @@ public class DelegateInputPage extends UserInputWizardPage {
     @Override
     public void createControl(final Composite parent) {
         final Composite result = new Composite(parent, SWT.NONE);
+
         setControl(result);
 
         GridLayout layout = new GridLayout();
+
         layout.numColumns = 2;
+
         result.setLayout(layout);
 
         final Label label = new Label(result, SWT.NONE);
 
-        label.setText("&Delegate to identifier:");
+        label.setText("&New name:");
 
         this.fNameField = createNameField(result);
 
@@ -82,7 +87,7 @@ public class DelegateInputPage extends UserInputWizardPage {
     }
 
     private void handleInputChanged() {
-        this.processor.setDelegateIdentifier(this.fNameField.getText());
+        this.processor.setNewName(this.fNameField.getText());
 
         final RefactoringStatus status = new RefactoringStatus();
 

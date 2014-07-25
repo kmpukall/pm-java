@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.refactorings;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;

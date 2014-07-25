@@ -13,8 +13,8 @@ import static org.junit.Assert.*;
 
 import java.util.Set;
 
-import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.tests.PMTest;
 

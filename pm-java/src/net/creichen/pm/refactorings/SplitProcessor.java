@@ -7,9 +7,10 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.refactorings;
 
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.steps.SplitStep;
 import net.creichen.pm.utils.ASTNodeUtil;
 

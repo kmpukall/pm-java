@@ -11,10 +11,10 @@ package net.creichen.pm.steps;
 
 import java.util.*;
 
-import net.creichen.pm.Pasteboard;
 import net.creichen.pm.analysis.DefUseUtil;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 

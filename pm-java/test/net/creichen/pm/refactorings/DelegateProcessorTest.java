@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.refactorings;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +15,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Set;
 
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
+import net.creichen.pm.refactorings.DelegateProcessor;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;

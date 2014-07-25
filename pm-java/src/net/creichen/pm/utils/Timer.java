@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.utils;
 
 import java.util.HashMap;
 

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.creichen.pm.ASTQuery;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.dom.*;

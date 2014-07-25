@@ -1,6 +1,6 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.Pasteboard;
+import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.selection.InsertionPoint;
 import net.creichen.pm.selection.InsertionPointFactory;
 import net.creichen.pm.steps.PasteStep;

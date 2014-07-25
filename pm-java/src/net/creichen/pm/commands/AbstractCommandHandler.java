@@ -1,7 +1,7 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.PMWorkspace;
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.PMWorkspace;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

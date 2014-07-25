@@ -7,12 +7,10 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.api;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.creichen.pm.api.PMProject;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 

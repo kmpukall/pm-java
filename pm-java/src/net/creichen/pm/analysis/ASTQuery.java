@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.analysis;
 
 import static net.creichen.pm.utils.APIWrapperUtil.fragments;
 import static net.creichen.pm.utils.APIWrapperUtil.types;

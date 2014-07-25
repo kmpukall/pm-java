@@ -7,12 +7,13 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.analysis;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 
 import org.eclipse.jdt.core.dom.AST;

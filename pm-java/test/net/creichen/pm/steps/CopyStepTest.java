@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.creichen.pm.ASTQuery;
-import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.tests.PMTest;

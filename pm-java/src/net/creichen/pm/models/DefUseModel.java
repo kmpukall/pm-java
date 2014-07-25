@@ -11,7 +11,6 @@ package net.creichen.pm.models;
 
 import java.util.*;
 
-import net.creichen.pm.Timer;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
@@ -21,6 +20,7 @@ import net.creichen.pm.inconsistencies.ExtraDefinition;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
 import net.creichen.pm.inconsistencies.UnknownUse;
+import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.*;
 

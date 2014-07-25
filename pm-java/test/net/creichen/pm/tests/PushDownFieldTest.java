@@ -12,9 +12,9 @@ package net.creichen.pm.tests;
 import java.util.HashSet;
 
 import static org.junit.Assert.*;
-import net.creichen.pm.ASTQuery;
-import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.steps.CopyStep;
 import net.creichen.pm.steps.CutStep;

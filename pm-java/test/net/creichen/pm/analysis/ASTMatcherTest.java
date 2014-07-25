@@ -17,8 +17,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import net.creichen.pm.ASTQuery;
-
 import net.creichen.pm.analysis.ASTMatcher;
 
 import org.eclipse.jdt.core.dom.AST;

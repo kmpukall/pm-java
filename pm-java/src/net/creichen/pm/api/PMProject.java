@@ -18,15 +18,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.ASTQuery;
-import net.creichen.pm.NodeReferenceStore;
-import net.creichen.pm.Pasteboard;
-import net.creichen.pm.Timer;
 import net.creichen.pm.analysis.ASTMatcher;
+import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MarkerResolutionGenerator;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;

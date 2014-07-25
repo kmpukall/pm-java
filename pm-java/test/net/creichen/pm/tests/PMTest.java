@@ -9,7 +9,7 @@
 
 package net.creichen.pm.tests;
 
-import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.api.PMWorkspace;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.*;

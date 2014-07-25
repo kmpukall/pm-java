@@ -1,6 +1,6 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.Timer;
+import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.commands.ExecutionEvent;
 

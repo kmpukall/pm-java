@@ -1,7 +1,7 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.DelegateInputPage;
-import net.creichen.pm.DelegateProcessor;
+import net.creichen.pm.refactorings.DelegateProcessor;
+import net.creichen.pm.ui.DelegateInputPage;
 import net.creichen.pm.ui.Wizard;
 
 import org.eclipse.core.commands.ExecutionEvent;

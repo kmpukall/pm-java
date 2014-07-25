@@ -7,10 +7,12 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.refactorings;
 
 import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.steps.RenameStep;
+import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
