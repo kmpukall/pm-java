@@ -9,27 +9,26 @@
 
 package net.creichen.pm.inconsistencies;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class MissingDefinition extends Inconsistency {
-    private final ASTNode definingNode;
+	private final ASTNode definingNode;
 
-    public MissingDefinition(final Project project, final PMCompilationUnit iCompilationUnit,
-            final ASTNode usingNode, final ASTNode definingNode) {
-        super(project, iCompilationUnit, usingNode);
+	public MissingDefinition(final PMCompilationUnit iCompilationUnit, final ASTNode usingNode,
+			final ASTNode definingNode) {
+		super(iCompilationUnit, usingNode);
 
-        this.definingNode = definingNode;
-    }
+		this.definingNode = definingNode;
+	}
 
-    public ASTNode getDefiningNode() {
-        return this.definingNode;
-    }
+	public ASTNode getDefiningNode() {
+		return this.definingNode;
+	}
 
-    @Override
-    public String getHumanReadableDescription() {
-        return "Definition (" + this.definingNode + ") should be used by " + getNode();
-    }
+	@Override
+	public String getHumanReadableDescription() {
+		return "Definition (" + this.definingNode + ") should be used by " + getNode();
+	}
 }

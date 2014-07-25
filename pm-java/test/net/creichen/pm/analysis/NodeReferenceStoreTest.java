@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -22,103 +21,93 @@ import org.junit.Test;
 
 public class NodeReferenceStoreTest {
 
-    @Test
-    public void testNullingOutNodeRemovesReference() {
+	private final NodeReferenceStore store = NodeReferenceStore.getInstance();
 
-        final NodeReferenceStore store = new NodeReferenceStore();
+	@Test
+	public void testNullingOutNodeRemovesReference() {
+		final AST ast = AST.newAST(AST.JLS4);
 
-        final AST ast = AST.newAST(AST.JLS4);
+		ASTNode node = ast.newSimpleName("Foo");
 
-        ASTNode node = ast.newSimpleName("Foo");
+		final NodeReference reference = this.store.getReferenceForNode(node);
 
-        final NodeReference reference = store.getReferenceForNode(node);
+		// ast = null; //apparaently ast doesn't keep a ref to its nodes
+		node = null;
 
-        // ast = null; //apparaently ast doesn't keep a ref to its nodes
-        node = null;
+		System.gc();
 
-        System.gc();
+		assertNull(this.store.getNodeForReference(reference));
+	}
 
-        assertNull(store.getNodeForReference(reference));
-    }
+	@Test
+	public void testNullingOutReferenceRemovesNode() {
+		final AST ast = AST.newAST(AST.JLS4);
 
-    @Test
-    public void testNullingOutReferenceRemovesNode() {
-        final NodeReferenceStore store = new NodeReferenceStore();
+		final ASTNode node = ast.newSimpleName("Foo");
 
-        final AST ast = AST.newAST(AST.JLS4);
+		NodeReference reference = this.store.getReferenceForNode(node);
 
-        final ASTNode node = ast.newSimpleName("Foo");
+		final int hashCodeBefore = reference.hashCode();
 
-        NodeReference reference = store.getReferenceForNode(node);
+		reference = null;
 
-        final int hashCodeBefore = reference.hashCode();
+		System.gc();
 
-        reference = null;
+		reference = this.store.getReferenceForNode(node);
 
-        System.gc();
+		assertTrue(reference.hashCode() != hashCodeBefore);
+	}
 
-        reference = store.getReferenceForNode(node);
+	@Test
+	public void testReplaceNodeWithNodeWithExistingReferenceToNewNode() {
+		final AST ast = AST.newAST(AST.JLS4);
 
-        assertTrue(reference.hashCode() != hashCodeBefore);
-    }
+		final ASTNode node1 = ast.newSimpleName("Foo");
 
-    @Test
-    public void testReplaceNodeWithNodeWithExistingReferenceToNewNode() {
-        final NodeReferenceStore store = new NodeReferenceStore();
+		final NodeReference reference1 = this.store.getReferenceForNode(node1);
 
-        final AST ast = AST.newAST(AST.JLS4);
+		final ASTNode node2 = ast.newSimpleName("Bar");
 
-        final ASTNode node1 = ast.newSimpleName("Foo");
+		final NodeReference reference2 = this.store.getReferenceForNode(node1);
 
-        final NodeReference reference1 = store.getReferenceForNode(node1);
+		this.store.replaceOldNodeVersionWithNewVersion(node1, node2);
 
-        final ASTNode node2 = ast.newSimpleName("Bar");
+		// Note: This means ptr equality of references won't work
+		// You need to compare the nodes themselves
 
-        final NodeReference reference2 = store.getReferenceForNode(node1);
+		assertSame(node2, reference1.getNode());
 
-        store.replaceOldNodeVersionWithNewVersion(node1, node2);
+		assertSame(node2, reference2.getNode());
+	}
 
-        // Note: This means ptr equality of references won't work
-        // You need to compare the nodes themselves
+	@Test
+	public void testReplaceNodeWithNodeWithoutExistingReferenceToNewNode() {
+		final AST ast = AST.newAST(AST.JLS4);
 
-        assertSame(node2, reference1.getNode());
+		final ASTNode node1 = ast.newSimpleName("Foo");
 
-        assertSame(node2, reference2.getNode());
-    }
+		final NodeReference reference1 = this.store.getReferenceForNode(node1);
 
-    @Test
-    public void testReplaceNodeWithNodeWithoutExistingReferenceToNewNode() {
-        final NodeReferenceStore store = new NodeReferenceStore();
+		final ASTNode node2 = ast.newSimpleName("Bar");
 
-        final AST ast = AST.newAST(AST.JLS4);
+		this.store.replaceOldNodeVersionWithNewVersion(node1, node2);
 
-        final ASTNode node1 = ast.newSimpleName("Foo");
+		assertSame(node2, reference1.getNode());
+	}
 
-        final NodeReference reference1 = store.getReferenceForNode(node1);
+	@Test
+	public void testStoreBasics() {
+		final AST ast = AST.newAST(AST.JLS4);
 
-        final ASTNode node2 = ast.newSimpleName("Bar");
+		final ASTNode node = ast.newSimpleName("Foo");
 
-        store.replaceOldNodeVersionWithNewVersion(node1, node2);
+		final NodeReference reference = this.store.getReferenceForNode(node);
 
-        assertSame(node2, reference1.getNode());
-    }
+		assertNotNull(reference);
+		assertTrue(this.store.getReferenceForNode(node) == reference);
+		assertTrue(this.store.getNodeForReference(reference) == node);
+		assertTrue(reference.getNode() == node);
 
-    @Test
-    public void testStoreBasics() {
-
-        final NodeReferenceStore store = new NodeReferenceStore();
-
-        final AST ast = AST.newAST(AST.JLS4);
-
-        final ASTNode node = ast.newSimpleName("Foo");
-
-        final NodeReference reference = store.getReferenceForNode(node);
-
-        assertNotNull(reference);
-        assertTrue(store.getReferenceForNode(node) == reference);
-        assertTrue(store.getNodeForReference(reference) == node);
-        assertTrue(reference.getNode() == node);
-
-    }
+	}
 
 }

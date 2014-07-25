@@ -157,8 +157,7 @@ public class Project {
 	private final NodeReferenceStore nodeReferenceStore;
 
 	public Project(final IJavaProject iJavaProject) {
-
-		this.nodeReferenceStore = new NodeReferenceStore();
+		this.nodeReferenceStore = NodeReferenceStore.getInstance();
 
 		this.iJavaProject = iJavaProject;
 

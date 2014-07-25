@@ -19,62 +19,63 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class NameCapture extends Inconsistency {
 
-    private final ASTNode expectedDeclaration;
-    private final ASTNode actualDeclaration;
+	private final ASTNode expectedDeclaration;
+	private final ASTNode actualDeclaration;
+	private Project project;
 
-    public NameCapture(final Project project, final PMCompilationUnit iCompilationUnit,
-            final ASTNode capturedNode, final ASTNode expectedDeclaration,
-            final ASTNode actualDeclaration) {
-        super(project, iCompilationUnit, capturedNode);
+	public NameCapture(final Project project, final PMCompilationUnit iCompilationUnit, final ASTNode capturedNode,
+			final ASTNode expectedDeclaration, final ASTNode actualDeclaration) {
+		super(iCompilationUnit, capturedNode);
+		this.project = project;
 
-        this.expectedDeclaration = expectedDeclaration;
-        this.actualDeclaration = actualDeclaration;
-    }
+		this.expectedDeclaration = expectedDeclaration;
+		this.actualDeclaration = actualDeclaration;
+	}
 
-    @Override
-    public void acceptBehavioralChange() {
-        final Name capturedName = (Name) getCapturedNode();
+	@Override
+	public void acceptBehavioralChange() {
+		final Name capturedName = (Name) getCapturedNode();
 
-        final NameModel nameModel = this.getProject().getNameModel();
+		final NameModel nameModel = this.project.getNameModel();
 
-        final Name capturingName = this.getProject().simpleNameForDeclaringNode(this.actualDeclaration);
+		final Name capturingName = this.project.simpleNameForDeclaringNode(this.actualDeclaration);
 
-        final String capturingIdentifier = nameModel.identifierForName(capturingName);
+		final String capturingIdentifier = nameModel.identifierForName(capturingName);
 
-        nameModel.setIdentifierForName(capturingIdentifier, capturedName);
+		nameModel.setIdentifierForName(capturingIdentifier, capturedName);
 
-        this.getProject().rescanForInconsistencies();
-    }
+		this.project.rescanForInconsistencies();
+	}
 
-    @Override
-    public boolean allowsAcceptBehavioralChange() {
-        return true;
-    }
+	@Override
+	public boolean allowsAcceptBehavioralChange() {
+		return true;
+	}
 
-    public ASTNode getActualDeclaration() {
-        return this.actualDeclaration;
-    }
+	public ASTNode getActualDeclaration() {
+		return this.actualDeclaration;
+	}
 
-    public ASTNode getCapturedNode() {
-        return getNode();
-    }
+	public ASTNode getCapturedNode() {
+		return getNode();
+	}
 
-    public String getCapturedNodeDescription() {
+	public String getCapturedNodeDescription() {
 
-        if (getNode() instanceof SimpleName) {
-            return ((SimpleName) getNode()).getIdentifier();
-        } else {
-            return "Unknown node";
-        }
-    }
+		if (getNode() instanceof SimpleName) {
+			return ((SimpleName) getNode()).getIdentifier();
+		} else {
+			return "Unknown node";
+		}
+	}
 
-    public ASTNode getExpectedDeclaration() {
-        return this.expectedDeclaration;
-    }
+	public ASTNode getExpectedDeclaration() {
+		return this.expectedDeclaration;
+	}
 
-    @Override
-    public String getHumanReadableDescription() {
-        return getCapturedNodeDescription() + " was captured.";
-    }
+	@Override
+	public String getHumanReadableDescription() {
+		return getCapturedNodeDescription() + " was captured.";
+	}
 
 }

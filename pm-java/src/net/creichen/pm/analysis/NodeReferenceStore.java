@@ -47,14 +47,23 @@ public class NodeReferenceStore {
 		}
 	}
 
+	private static NodeReferenceStore instance;
+
 	private final WeakHashMap<NodeReference, WeakReference<ASTNode>> nodesForReferences;
 
 	private final WeakHashMap<ASTNode, WeakReference<NodeReference>> referencesForNodes;
 
-	public NodeReferenceStore() {
+	private NodeReferenceStore() {
 		this.nodesForReferences = new WeakHashMap<NodeReference, WeakReference<ASTNode>>();
 
 		this.referencesForNodes = new WeakHashMap<ASTNode, WeakReference<NodeReference>>();
+	}
+
+	public static final NodeReferenceStore getInstance() {
+		if (instance == null) {
+			instance = new NodeReferenceStore();
+		}
+		return instance;
 	}
 
 	public ASTNode getNodeForReference(final NodeReference nodeIdentifier) {
