@@ -9,7 +9,7 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.PMProject;
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.steps.RenameStep;
 import net.creichen.pm.steps.SplitStep;
 

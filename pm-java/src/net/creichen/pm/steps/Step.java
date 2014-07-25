@@ -11,8 +11,8 @@ package net.creichen.pm.steps;
 
 import java.util.Map;
 
-import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.api.PMProject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;

@@ -12,51 +12,53 @@ package net.creichen.pm;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.creichen.pm.api.PMProject;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class Pasteboard {
 
-    private List<ASTNode> pasteboardRoots;
+	private List<ASTNode> pasteboardRoots;
 
-    Pasteboard(final PMProject project) {
-        this.pasteboardRoots = null;
-    }
+	public Pasteboard(final PMProject project) {
+		this.pasteboardRoots = null;
+	}
 
-    private void clearPasteboard() {
-        // clear model information via _project
+	private void clearPasteboard() {
+		// clear model information via _project
 
-        this.pasteboardRoots = null;
-    }
+		this.pasteboardRoots = null;
+	}
 
-    public boolean containsOnlyNodesOfClass(final Class<?> someClass) {
-        for (final ASTNode node : this.pasteboardRoots) {
-            if (!someClass.isInstance(node)) {
-                return false;
-            }
-        }
+	public boolean containsOnlyNodesOfClass(final Class<?> someClass) {
+		for (final ASTNode node : this.pasteboardRoots) {
+			if (!someClass.isInstance(node)) {
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    public List<ASTNode> getPasteboardRoots() {
-        return this.pasteboardRoots;
-    }
+	public List<ASTNode> getPasteboardRoots() {
+		return this.pasteboardRoots;
+	}
 
-    public void setPasteboardRoot(final ASTNode root) {
-        final List<ASTNode> roots = new ArrayList<ASTNode>();
+	public void setPasteboardRoot(final ASTNode root) {
+		final List<ASTNode> roots = new ArrayList<ASTNode>();
 
-        roots.add(root);
+		roots.add(root);
 
-        setPasteboardRoots(roots);
-    }
+		setPasteboardRoots(roots);
+	}
 
-    public void setPasteboardRoots(final List<ASTNode> pasteboardRoots) {
-        if (this.pasteboardRoots != null) {
-            clearPasteboard();
-        }
+	public void setPasteboardRoots(final List<ASTNode> pasteboardRoots) {
+		if (this.pasteboardRoots != null) {
+			clearPasteboard();
+		}
 
-        this.pasteboardRoots = pasteboardRoots;
+		this.pasteboardRoots = pasteboardRoots;
 
-    }
+	}
 
 }

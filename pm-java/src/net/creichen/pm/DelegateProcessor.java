@@ -9,6 +9,8 @@
 
 package net.creichen.pm;
 
+import net.creichen.pm.api.PMProject;
+import net.creichen.pm.api.ProjectListener;
 import net.creichen.pm.steps.DelegateStep;
 
 import org.eclipse.core.runtime.CoreException;

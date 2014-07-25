@@ -13,14 +13,14 @@ import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
 import java.util.*;
 
-import net.creichen.pm.ASTNodeUtil;
-import net.creichen.pm.NodeReference;
-import net.creichen.pm.PMProject;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
+import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;

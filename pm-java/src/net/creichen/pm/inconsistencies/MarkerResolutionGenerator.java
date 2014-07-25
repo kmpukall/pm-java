@@ -9,8 +9,8 @@
 
 package net.creichen.pm.inconsistencies;
 
-import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.api.PMProject;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jdt.core.IJavaProject;

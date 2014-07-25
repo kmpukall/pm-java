@@ -9,7 +9,9 @@
 
 package net.creichen.pm;
 
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.steps.SplitStep;
+import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;

@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.creichen.pm.ASTQuery;
-import net.creichen.pm.PMProject;
 import net.creichen.pm.PMWorkspace;
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;

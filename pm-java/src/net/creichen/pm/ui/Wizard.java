@@ -36,37 +36,11 @@ public class Wizard extends RefactoringWizard {
 
 	@Override
 	public boolean performCancel() {
-		super.performCancel();
-
-		/*
-		 * ((PMProcessor)getProcessor()).textChangeWasNotApplied();
-		 */
-
-		return true;
+		return super.performCancel();
 	}
 
 	@Override
 	public boolean performFinish() {
-
-		final boolean result = super.performFinish();
-
-		/*
-		 * if (result) {
-		 *
-		 * ((PMProcessor)getProcessor()).textChangeWasApplied();
-		 *
-		 * PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject
-		 * (((PMProcessor)getProcessor ()).getICompilationUnit().getJavaProject());
-		 *
-		 * project.updateToNewVersionsOfICompilationUnits();
-		 *
-		 *
-		 * } else { ((PMProcessor)getProcessor()).textChangeWasNotApplied(); }
-		 *
-		 * System.out.println("STEP time is " +
-		 * PMTimer.sharedTimer().accumulatedSecondsForKey("STEP"));
-		 * PMTimer.sharedTimer().clear("STEP");
-		 */
-		return result;
+		return super.performFinish();
 	}
 }

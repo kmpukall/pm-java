@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.ASTNodeUtil;
-import net.creichen.pm.PMProject;
+import net.creichen.pm.api.PMProject;
+import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;

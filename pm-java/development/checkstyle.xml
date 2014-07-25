@@ -94,7 +94,7 @@
       <property name="ignoreSetter" value="true"/>
     </module>
     <module name="LineLength">
-      <property name="max" value="100"/>
+      <property name="max" value="120"/>
     </module>
   </module>
   <module name="NewlineAtEndOfFile">

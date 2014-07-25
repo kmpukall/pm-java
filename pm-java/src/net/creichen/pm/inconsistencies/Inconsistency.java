@@ -9,8 +9,8 @@
 
 package net.creichen.pm.inconsistencies;
 
-import net.creichen.pm.PMCompilationUnit;
-import net.creichen.pm.PMProject;
+import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.api.PMProject;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.ui.IMarkerResolution;

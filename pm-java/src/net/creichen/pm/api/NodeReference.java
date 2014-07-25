@@ -7,18 +7,11 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.api;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ASTNode;
 
-public interface PMCompilationUnit {
+public interface NodeReference {
 
-    CompilationUnit getASTNode();
-
-    ICompilationUnit getICompilationUnit();
-
-    String getSource();
-
-    void rename(String newName);
+    ASTNode getNode();
 }

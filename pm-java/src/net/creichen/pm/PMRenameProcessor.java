@@ -9,6 +9,7 @@
 
 package net.creichen.pm;
 
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.steps.RenameStep;
 
 import org.eclipse.core.runtime.CoreException;
@@ -26,121 +27,114 @@ import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
 public class PMRenameProcessor extends RenameProcessor {
 
-    private final ICompilationUnit iCompilationUnit;
-    private final ITextSelection textSelection;
+	private final ICompilationUnit iCompilationUnit;
+	private final ITextSelection textSelection;
 
-    private RenameStep renameStep;
+	private RenameStep renameStep;
 
-    private String newName;
+	private String newName;
 
-    public PMRenameProcessor(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
-        this.textSelection = selection;
-        this.iCompilationUnit = iCompilationUnit;
+	public PMRenameProcessor(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
+		this.textSelection = selection;
+		this.iCompilationUnit = iCompilationUnit;
 
-    }
+	}
 
-    @Override
-    public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
-            final CheckConditionsContext context) throws CoreException {
+	@Override
+	public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
+			final CheckConditionsContext context) throws CoreException {
 
-        return new RefactoringStatus();
-    }
+		return new RefactoringStatus();
+	}
 
-    @Override
-    public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
+	@Override
+	public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
 
-        Timer.sharedTimer().start("STEP");
+		Timer.sharedTimer().start("STEP");
 
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iCompilationUnit.getJavaProject());
+		final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+				this.iCompilationUnit.getJavaProject());
 
-        RefactoringStatus result = null;
+		RefactoringStatus result = null;
 
-        if (!project.sourcesAreOutOfSync()) {
+		if (project.sourcesAreOutOfSync()) {
+			result = RefactoringStatus
+					.createWarningStatus("PM Model is out of date. This will reinitialize.");
+		} else {
+			final ASTNode selectedNode = project.nodeForSelection(this.textSelection,
+					this.iCompilationUnit);
+			if (selectedNode instanceof SimpleName) {
+				result = new RefactoringStatus();
+			} else {
+				result = RefactoringStatus
+						.createFatalErrorStatus("Please select a name to use the Rename refactoring.");
+			}
+		}
 
-            final ASTNode selectedNode = project.nodeForSelection(this.textSelection,
-                    this.iCompilationUnit);
+		Timer.sharedTimer().stop("STEP");
 
-            if (selectedNode instanceof SimpleName) {
+		return result;
+	}
 
-                result = new RefactoringStatus();
-            } else {
-                result = RefactoringStatus
-                        .createFatalErrorStatus("Please select a name to use the Rename refactoring.");
-            }
-        } else {
-            result = RefactoringStatus
-                    .createWarningStatus("PM Model is out of date. This will reinitialize.");
-        }
+	@Override
+	public Change createChange(final IProgressMonitor pm) throws CoreException {
+		Timer.sharedTimer().start("STEP");
 
-        Timer.sharedTimer().stop("STEP");
+		final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+				this.iCompilationUnit.getJavaProject());
+		project.syncSources();
 
-        return result;
-    }
+		this.renameStep = new RenameStep(project, (SimpleName) project.nodeForSelection(
+				this.textSelection, this.iCompilationUnit));
+		this.renameStep.setNewName(this.newName);
 
-    @Override
-    public Change createChange(final IProgressMonitor pm) throws CoreException {
+		final Change result = this.renameStep.createCompositeChange("Rename");
 
-        Timer.sharedTimer().start("STEP");
+		Timer.sharedTimer().stop("STEP");
+		return result;
+	}
 
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
-                this.iCompilationUnit.getJavaProject());
+	@Override
+	public Object[] getElements() {
+		return null;
+	}
 
-        project.syncSources();
+	@Override
+	public String getIdentifier() {
+		return "edu.colorado.plan.PMRenameRefactoring";
+	}
 
-        this.renameStep = new RenameStep(project, (SimpleName) project.nodeForSelection(
-                this.textSelection, this.iCompilationUnit));
+	public String getNewName() {
+		return this.newName;
+	}
 
-        this.renameStep.setNewName(this.newName);
+	@Override
+	public String getProcessorName() {
+		return "PMRenameRefactoring";
+	}
 
-        final Change result = this.renameStep.createCompositeChange("Rename");
+	@Override
+	public boolean isApplicable() throws CoreException {
+		return true;
+	}
 
-        Timer.sharedTimer().stop("STEP");
+	@Override
+	public RefactoringParticipant[] loadParticipants(final RefactoringStatus status,
+			final SharableParticipants sharedParticipants) throws CoreException {
 
-        return result;
-    }
+		// RefactoringParticipant[] result =
+		// ParticipantManager.loadRenameParticipants(status, this,
+		// ((SimpleName)_nodeToRename).resolveBinding().getJavaElement(), new
+		// RenameArguments("foo", true), new String[]
+		// {"org.eclipse.jdt.core.javanature"}, sharedParticipants);
 
-    @Override
-    public Object[] getElements() {
-        return null;
-    }
+		// return result;
 
-    @Override
-    public String getIdentifier() {
-        return "edu.colorado.plan.PMRenameRefactoring";
-    }
+		return new RefactoringParticipant[0];
+	}
 
-    public String getNewName() {
-        return this.newName;
-    }
-
-    @Override
-    public String getProcessorName() {
-        return "PMRenameRefactoring";
-    }
-
-    @Override
-    public boolean isApplicable() throws CoreException {
-        return true;
-    }
-
-    @Override
-    public RefactoringParticipant[] loadParticipants(final RefactoringStatus status,
-            final SharableParticipants sharedParticipants) throws CoreException {
-
-        // RefactoringParticipant[] result =
-        // ParticipantManager.loadRenameParticipants(status, this,
-        // ((SimpleName)_nodeToRename).resolveBinding().getJavaElement(), new
-        // RenameArguments("foo", true), new String[]
-        // {"org.eclipse.jdt.core.javanature"}, sharedParticipants);
-
-        // return result;
-
-        return new RefactoringParticipant[0];
-    }
-
-    public void setNewName(final String newName) {
-        this.newName = newName;
-    }
+	public void setNewName(final String newName) {
+		this.newName = newName;
+	}
 
 }

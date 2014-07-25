@@ -11,8 +11,8 @@ package net.creichen.pm.models;
 
 import java.util.*;
 
-import net.creichen.pm.PMCompilationUnit;
-import net.creichen.pm.PMProject;
+import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.NameCapture;
 import net.creichen.pm.inconsistencies.NameConflict;

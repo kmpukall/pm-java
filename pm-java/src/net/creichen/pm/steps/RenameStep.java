@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.PMCompilationUnit;
-import net.creichen.pm.PMProject;
+import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.models.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;

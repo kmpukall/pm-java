@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.NodeReference;
-import net.creichen.pm.PMProject;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.analysis.RDefsAnalysis;
+import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 

@@ -11,6 +11,8 @@ package net.creichen.pm;
 
 import java.util.HashMap;
 
+import net.creichen.pm.api.PMProject;
+
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;

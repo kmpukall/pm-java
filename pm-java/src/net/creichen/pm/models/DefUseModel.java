@@ -11,12 +11,12 @@ package net.creichen.pm.models;
 
 import java.util.*;
 
-import net.creichen.pm.NodeReference;
-import net.creichen.pm.PMProject;
 import net.creichen.pm.Timer;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
+import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.PMProject;
 import net.creichen.pm.inconsistencies.ExtraDefinition;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
