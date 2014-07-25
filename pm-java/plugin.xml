@@ -4,7 +4,7 @@
 
    <extension point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="net.creichen.pm.inconsistencies.MarkerResolutionGenerator"
+            class="net.creichen.pm.ui.MarkerResolutionGenerator"
             markerType="org.eclipse.core.resources.problemmarker">
       </markerResolutionGenerator>
    </extension>

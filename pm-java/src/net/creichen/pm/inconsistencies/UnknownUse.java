@@ -18,7 +18,6 @@ public class UnknownUse extends Inconsistency {
 
 	public UnknownUse(final PMCompilationUnit iCompilationUnit, final SimpleName unknownUse) {
 		super(iCompilationUnit, unknownUse);
-
 		this.unknownUse = unknownUse;
 	}
 

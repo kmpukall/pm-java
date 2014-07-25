@@ -21,7 +21,6 @@ public class NameConflict extends Inconsistency {
 	public NameConflict(final PMCompilationUnit iCompilationUnit, final SimpleName name, final String expectedName) {
 		super(iCompilationUnit, name);
 		this.name = name;
-
 		this.expectedName = expectedName;
 	}
 

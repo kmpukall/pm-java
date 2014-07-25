@@ -13,12 +13,12 @@ import net.creichen.pm.api.PMCompilationUnit;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
-public class ExtraDefinition extends Inconsistency {
+public class UnexpectedDefinition extends Inconsistency {
 	private final ASTNode definingNode;
 
-	public ExtraDefinition(final PMCompilationUnit iCompilationUnit, final ASTNode usingNode, final ASTNode definingNode) {
+	public UnexpectedDefinition(final PMCompilationUnit iCompilationUnit, final ASTNode usingNode,
+			final ASTNode definingNode) {
 		super(iCompilationUnit, usingNode);
-
 		this.definingNode = definingNode;
 	}
 

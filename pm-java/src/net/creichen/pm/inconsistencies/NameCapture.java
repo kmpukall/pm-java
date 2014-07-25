@@ -27,7 +27,6 @@ public class NameCapture extends Inconsistency {
 			final ASTNode expectedDeclaration, final ASTNode actualDeclaration) {
 		super(iCompilationUnit, capturedNode);
 		this.project = project;
-
 		this.expectedDeclaration = expectedDeclaration;
 		this.actualDeclaration = actualDeclaration;
 	}
@@ -35,11 +34,8 @@ public class NameCapture extends Inconsistency {
 	@Override
 	public void acceptBehavioralChange() {
 		final Name capturedName = (Name) getCapturedNode();
-
 		final NameModel nameModel = this.project.getNameModel();
-
 		final Name capturingName = this.project.simpleNameForDeclaringNode(this.actualDeclaration);
-
 		final String capturingIdentifier = nameModel.identifierForName(capturingName);
 
 		nameModel.setIdentifierForName(capturingIdentifier, capturedName);

@@ -25,9 +25,9 @@ import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.inconsistencies.MarkerResolutionGenerator;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.ui.MarkerResolutionGenerator;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.resources.IMarker;

@@ -21,7 +21,7 @@ import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.inconsistencies.ExtraDefinition;
+import net.creichen.pm.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
 import net.creichen.pm.inconsistencies.UnknownUse;
@@ -186,7 +186,7 @@ public class DefUseModel {
 					}
 
 					if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
-						inconsistencies.add(new ExtraDefinition(this.project.findPMCompilationUnitForNode(usingNode),
+						inconsistencies.add(new UnexpectedDefinition(this.project.findPMCompilationUnitForNode(usingNode),
 								usingNode, currentDefiningNode));
 
 					}

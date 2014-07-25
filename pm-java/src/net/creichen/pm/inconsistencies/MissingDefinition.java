@@ -19,7 +19,6 @@ public class MissingDefinition extends Inconsistency {
 	public MissingDefinition(final PMCompilationUnit iCompilationUnit, final ASTNode usingNode,
 			final ASTNode definingNode) {
 		super(iCompilationUnit, usingNode);
-
 		this.definingNode = definingNode;
 	}
 

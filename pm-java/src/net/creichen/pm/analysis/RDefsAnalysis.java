@@ -56,6 +56,28 @@ public class RDefsAnalysis {
 		runAnalysis(); // may wish to do this lazily
 	}
 
+	public ArrayList<PMBlock> getAllBlocks() {
+		return this.allBlocks;
+	}
+
+	public Def getDefinitionForDefiningNode(final ASTNode definingNode) {
+		return this.definitionsByDefiningNode.get(definingNode);
+	}
+
+	public ArrayList<Def> getDefinitions() {
+		return this.definitions;
+	}
+
+	public Collection<Use> getUses() {
+		return this.usesByName.values();
+	}
+
+	// return PMUse object for a simple name, or null if the simpleName does not
+	// represent a use
+	public Use useForSimpleName(final SimpleName name) {
+		return this.usesByName.get(name);
+	}
+
 	private void addDefinitionForNode(final ASTNode node) {
 		final Def definition = new Def(node);
 
@@ -385,10 +407,6 @@ public class RDefsAnalysis {
 		return result;
 	}
 
-	public ArrayList<PMBlock> getAllBlocks() {
-		return this.allBlocks;
-	}
-
 	private PMBlock getBlockForNode(final ASTNode originalNode) {
 		ASTNode node = originalNode;
 
@@ -406,24 +424,6 @@ public class RDefsAnalysis {
 		throw new RuntimeException("Couldn't find block for definingnode  "
 				+ originalNode);
 
-	}
-
-	public Def getDefinitionForDefiningNode(final ASTNode definingNode) {
-		return this.definitionsByDefiningNode.get(definingNode);
-	}
-
-	public ArrayList<Def> getDefinitions() {
-		return this.definitions;
-	}
-
-	public Collection<Use> getUses() {
-		return this.usesByName.values();
-	}
-
-	boolean isAnalyzableLeftHandSide(final ASTNode lhs) {
-		// for now we only support assignments to simple names
-
-		return lhs instanceof SimpleName;
 	}
 
 	private void mergeBlockLists(final ArrayList<PMBlock> first,
@@ -661,9 +661,9 @@ public class RDefsAnalysis {
 		return variableAssignment;
 	}
 
-	// return PMUse object for a simple name, or null if the simpleName does not
-	// represent a use
-	public Use useForSimpleName(final SimpleName name) {
-		return this.usesByName.get(name);
+	boolean isAnalyzableLeftHandSide(final ASTNode lhs) {
+		// for now we only support assignments to simple names
+
+		return lhs instanceof SimpleName;
 	}
 }

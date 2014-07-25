@@ -19,7 +19,6 @@ public class UnknownName extends Inconsistency {
 
 	public UnknownName(final PMCompilationUnit iCompilationUnit, final SimpleName unknownName) {
 		super(iCompilationUnit, unknownName);
-
 		this.unknownName = unknownName;
 	}
 

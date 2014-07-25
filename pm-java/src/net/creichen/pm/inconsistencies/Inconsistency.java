@@ -14,11 +14,11 @@ import net.creichen.pm.api.PMCompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.ui.IMarkerResolution;
 
-public class Inconsistency {
+public abstract class Inconsistency {
 	private final ASTNode node;
 	private final String id;
 
-	Inconsistency(final PMCompilationUnit pmCompilationUnit, final ASTNode node) {
+	protected Inconsistency(final PMCompilationUnit pmCompilationUnit, final ASTNode node) {
 		this.node = node;
 		this.id = java.util.UUID.randomUUID().toString();
 	}
