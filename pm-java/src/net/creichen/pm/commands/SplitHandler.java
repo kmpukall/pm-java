@@ -1,7 +1,7 @@
 package net.creichen.pm.commands;
 
 import net.creichen.pm.SplitProcessor;
-import net.creichen.pm.Wizard;
+import net.creichen.pm.ui.Wizard;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;

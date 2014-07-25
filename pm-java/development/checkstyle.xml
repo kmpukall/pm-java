@@ -93,6 +93,9 @@
       <property name="ignoreConstructorParameter" value="true"/>
       <property name="ignoreSetter" value="true"/>
     </module>
+    <module name="LineLength">
+      <property name="max" value="100"/>
+    </module>
   </module>
   <module name="NewlineAtEndOfFile">
     <property name="severity" value="ignore"/>

@@ -2,7 +2,7 @@ package net.creichen.pm.commands;
 
 import net.creichen.pm.PMRenameProcessor;
 import net.creichen.pm.RenameInputPage;
-import net.creichen.pm.Wizard;
+import net.creichen.pm.ui.Wizard;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
