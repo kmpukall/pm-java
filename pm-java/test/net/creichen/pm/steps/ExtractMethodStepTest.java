@@ -39,7 +39,7 @@ public class ExtractMethodStepTest extends PMTest {
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-                        pmCompilationUnitS.getASTNode());
+                        pmCompilationUnitS.getCompilationUnit());
 
         final Block bodyBlock = methodDeclaration.getBody();
 
@@ -73,7 +73,7 @@ public class ExtractMethodStepTest extends PMTest {
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-                        pmCompilationUnitS.getASTNode());
+                        pmCompilationUnitS.getCompilationUnit());
 
         final Block bodyBlock = methodDeclaration.getBody();
 
@@ -92,10 +92,10 @@ public class ExtractMethodStepTest extends PMTest {
         assertEquals(2, namesToExtract.size());
 
         assertEquals(ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("i", 0,
-                "m", 0, "S", 0, pmCompilationUnitS.getASTNode()), namesToExtract.get(0));
+                "m", 0, "S", 0, pmCompilationUnitS.getCompilationUnit()), namesToExtract.get(0));
 
         assertEquals(ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("j", 1,
-                "m", 0, "S", 0, pmCompilationUnitS.getASTNode()), namesToExtract.get(1));
+                "m", 0, "S", 0, pmCompilationUnitS.getCompilationUnit()), namesToExtract.get(1));
 
     }
 

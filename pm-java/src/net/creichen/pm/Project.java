@@ -27,6 +27,7 @@ import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.NameModelConsistencyChecker;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
 import net.creichen.pm.utils.ASTNodeUtil;
 import net.creichen.pm.utils.Timer;
@@ -75,7 +76,7 @@ public class Project {
 		}
 
 		@Override
-		public CompilationUnit getASTNode() {
+		public CompilationUnit getCompilationUnit() {
 			return this.compilationUnit;
 		}
 
@@ -235,7 +236,7 @@ public class Project {
 				if (declaringICompilationUnit != null) {
 					final PMCompilationUnit declaringPMCompilationUnit = getPMCompilationUnitForICompilationUnit(declaringICompilationUnit);
 
-					final CompilationUnit declaringCompilationUnit = declaringPMCompilationUnit.getASTNode();
+					final CompilationUnit declaringCompilationUnit = declaringPMCompilationUnit.getCompilationUnit();
 
 					ASTNode declaringNode = declaringCompilationUnit.findDeclaringNode(nameBinding);
 
@@ -263,7 +264,7 @@ public class Project {
 		final Collection<ASTNode> roots = new HashSet<ASTNode>();
 
 		for (final PMCompilationUnit pmCompilationUnit : this.pmCompilationUnits.values()) {
-			roots.add(pmCompilationUnit.getASTNode());
+			roots.add(pmCompilationUnit.getCompilationUnit());
 		}
 
 		return roots;
@@ -341,11 +342,11 @@ public class Project {
 
 		parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
 				new ASTRequestor() {
-			@Override
-			public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+					@Override
+					public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
 
-			}
-		}, null);
+					}
+				}, null);
 
 	}
 
@@ -364,7 +365,7 @@ public class Project {
 	}
 
 	public CompilationUnit parsedCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
-		return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getASTNode();
+		return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getCompilationUnit();
 	}
 
 	private ArrayList<ProjectListener> projectListeners() {
@@ -421,7 +422,7 @@ public class Project {
 
 			final Set<Inconsistency> inconsistencySet = new HashSet<Inconsistency>();
 
-			inconsistencySet.addAll(this.nameModel.calculateInconsistencies());
+			inconsistencySet.addAll(new NameModelConsistencyChecker(this).calculateInconsistencies(this.nameModel));
 			inconsistencySet.addAll(this.udModel.calculateInconsistencies());
 
 			Timer.sharedTimer().stop("INCONSISTENCIES");
@@ -507,7 +508,7 @@ public class Project {
 		// for now we punt and have this reset the model
 		if (!firstTime && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
 			System.err
-			.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+					.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
 			this.pmCompilationUnits.clear();
 			finalFirstTime = true;

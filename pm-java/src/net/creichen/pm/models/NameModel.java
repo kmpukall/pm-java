@@ -17,16 +17,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.creichen.pm.Project;
-import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.inconsistencies.NameCapture;
-import net.creichen.pm.inconsistencies.NameConflict;
-import net.creichen.pm.inconsistencies.UnknownName;
-import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -83,12 +76,12 @@ public class NameModel {
 						// i.e.
 						/*
 						 * class Foo<T> { T _ivar;
-						 *
+						 * 
 						 * T getIvar() { return _ivar; } }
-						 *
+						 * 
 						 * If we don't use the getVariableDeclaration, we get separate bindings for the first and second
 						 * use of _ivar, which is clearly not what we want.
-						 *
+						 * 
 						 * But, this may lose information that we want in other cases
 						 */
 
@@ -120,17 +113,6 @@ public class NameModel {
 		}
 	}
 
-	public Set<Inconsistency> calculateInconsistencies() {
-		final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
-
-		for (final PMCompilationUnit pmCompilationUnit : this.project.getPMCompilationUnits()) {
-
-			inconsistencies.addAll(nameInconsistenciesForICompilationUnit(pmCompilationUnit));
-		}
-
-		return inconsistencies;
-	}
-
 	private List<MethodDeclaration> constructorsForClass(final TypeDeclaration classDeclaration) {
 		final List<MethodDeclaration> constructors = new ArrayList<MethodDeclaration>();
 
@@ -149,79 +131,6 @@ public class NameModel {
 
 	public String identifierForName(final Name name) {
 		return this.identifiersForNames.get(name);
-	}
-
-	private Set<Inconsistency> nameInconsistenciesForICompilationUnit(final PMCompilationUnit pmCompilationUnit) {
-
-		final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
-
-		final CompilationUnit compilationUnit = pmCompilationUnit.getASTNode();
-
-		final Set<SimpleName> simpleNamesInCompilationUnit = simpleNamesInCompilationUnit(compilationUnit);
-
-		for (final SimpleName simpleName : simpleNamesInCompilationUnit) {
-
-			final ASTNode declaringNode = this.project.findDeclaringNodeForName(simpleName); // declaringModel.getCompilationUnit().findDeclaringNode(simpleName.resolveBinding());
-
-			if (declaringNode != null) {
-				final SimpleName declaringSimpleName = ASTNodeUtil.simpleNameForDeclaringNode(declaringNode);
-
-				final String declaringIdentifier = identifierForName(declaringSimpleName);
-
-				final String usingIdentifier = identifierForName(simpleName);
-
-				if (usingIdentifier == null) {
-					inconsistencies.add(new UnknownName(pmCompilationUnit, simpleName));
-				} else {
-					if (declaringIdentifier != usingIdentifier || !declaringIdentifier.equals(usingIdentifier)) {
-
-						// System.err.println("Capture of " + simpleName +
-						// " by " +
-						// ((CompilationUnit)declaringSimpleName.getRoot()).getJavaElement());
-
-						// System.err.println("Declaring identifier is " +
-						// declaringIdentifier + " usingIdentifier is " +
-						// usingIdentifier);
-
-						// System.err.println("Declaring simpleName is " +
-						// declaringSimpleName);
-						// System.err.println("Using binding is " +
-						// simpleName.resolveBinding().hashCode() + " of class "
-						// + simpleName.resolveBinding().getClass());
-						// System.err.println("Declaring binding is " +
-						// declaringSimpleName.resolveBinding().hashCode());
-
-						// System.err.println("Using binding.getVariableDeclaration is "
-						// +
-						// ((IVariableBinding)simpleName.resolveBinding()).getVariableDeclaration().hashCode()
-						// + " of class " +
-						// simpleName.resolveBinding().getClass());
-						// System.err.println("Declaring binding.getVariableDeclaration is "
-						// +
-						// ((IVariableBinding)declaringSimpleName.resolveBinding()).getVariableDeclaration().hashCode());
-
-						// don't have quick way to figure out what the declaring
-						// node should have been yet
-
-						inconsistencies.add(new NameCapture(this.project, pmCompilationUnit, simpleName, null,
-								declaringNode));
-					}
-				}
-
-				if (!declaringSimpleName.getIdentifier().equals(simpleName.getIdentifier())) {
-					inconsistencies.add(new NameConflict(pmCompilationUnit, simpleName, declaringSimpleName
-							.getIdentifier()));
-				}
-
-			}
-			// FIXME(dcc)
-			// System.err.println("!!! ignoring inconsistencies for " +
-			// simpleName + "  in " + iCompilationUnit.getHandleIdentifier()
-			// + " because can't find declaring node");
-
-		}
-
-		return inconsistencies;
 	}
 
 	public ArrayList<SimpleName> nameNodesRelatedToNameNode(final SimpleName name) {
@@ -333,21 +242,6 @@ public class NameModel {
 
 	public String setIdentifierForName(final String identifier, final Name name) {
 		return this.identifiersForNames.put(name, identifier);
-	}
-
-	private Set<SimpleName> simpleNamesInCompilationUnit(final CompilationUnit compilationUnit) {
-		final Set<SimpleName> result = new HashSet<SimpleName>();
-
-		compilationUnit.accept(new ASTVisitor() {
-			@Override
-			public boolean visit(final SimpleName node) {
-				result.add(node);
-
-				return true;
-			}
-		});
-
-		return result;
 	}
 
 }

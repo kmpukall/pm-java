@@ -77,7 +77,7 @@ public class RenameStepTest extends PMTest {
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
         final TypeDeclaration classNode = ASTQuery.classWithNameInCompilationUnit("S", 0,
-                pmCompilationUnitS.getASTNode());
+                pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
 
@@ -94,7 +94,7 @@ public class RenameStepTest extends PMTest {
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("T", 0, "T", 0,
-                        pmCompilationUnitS.getASTNode());
+                        pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -158,7 +158,7 @@ public class RenameStepTest extends PMTest {
                 .getPMCompilationUnitForICompilationUnit(compilationUnitA);
 
         final TypeDeclaration outerClassDeclaration = ASTQuery.classWithNameInCompilationUnit(
-                "A", 0, pmCompilationUnitA.getASTNode());
+                "A", 0, pmCompilationUnitA.getCompilationUnit());
 
         final TypeDeclaration innerAClassDeclaration = (TypeDeclaration) outerClassDeclaration
                 .bodyDeclarations().get(1);
@@ -193,7 +193,7 @@ public class RenameStepTest extends PMTest {
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
         final TypeDeclaration classNode = ASTQuery.classWithNameInCompilationUnit("A", 0,
-                pmCompilationUnitS.getASTNode());
+                pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
 
@@ -227,7 +227,7 @@ public class RenameStepTest extends PMTest {
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
-                        pmCompilationUnitS.getASTNode());
+                        pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -259,7 +259,7 @@ public class RenameStepTest extends PMTest {
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("S", 0, "S", 0,
-                        pmCompilationUnitS.getASTNode());
+                        pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -275,7 +275,7 @@ public class RenameStepTest extends PMTest {
                 pmCompilationUnitS.getSource()));
 
         final TypeDeclaration classNode = ASTQuery.classWithNameInCompilationUnit("T", 0,
-                pmCompilationUnitS.getASTNode());
+                pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
 
@@ -315,7 +315,7 @@ public class RenameStepTest extends PMTest {
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
-                        pmCompilationUnitA.getASTNode());
+                        pmCompilationUnitA.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -366,7 +366,7 @@ public class RenameStepTest extends PMTest {
 
         final MethodDeclaration methodDeclaration = ASTQuery
                 .methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
-                        pmCompilationUnitA.getASTNode());
+                        pmCompilationUnitA.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -411,7 +411,7 @@ public class RenameStepTest extends PMTest {
 
         final SimpleName name = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("lVar", 0, "m", 0, "S",
-                        0, pmCompilationUnitS.getASTNode());
+                        0, pmCompilationUnitS.getCompilationUnit());
 
         final RenameStep step = new RenameStep(pmProject, name);
 

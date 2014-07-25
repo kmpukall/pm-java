@@ -14,7 +14,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public interface PMCompilationUnit {
 
-    CompilationUnit getASTNode();
+    CompilationUnit getCompilationUnit();
 
     ICompilationUnit getICompilationUnit();
 
