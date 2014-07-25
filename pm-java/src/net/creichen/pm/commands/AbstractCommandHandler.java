@@ -1,7 +1,7 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -18,14 +18,14 @@ abstract class AbstractCommandHandler extends AbstractHandler {
 
 	private IWorkbenchWindow window;
 	private ITextSelection selection;
-	private PMProject project;
+	private Project project;
 	private ICompilationUnit compilationUnit;
 
 	@Override
 	public final Object execute(final ExecutionEvent event) {
 		this.window = HandlerUtil.getActiveWorkbenchWindow(event);
 		this.compilationUnit = createCompilationUnit();
-		this.project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+		this.project = Workspace.sharedWorkspace().projectForIJavaProject(
 				getCompilationUnit().getJavaProject());
 		this.project.syncSources();
 
@@ -72,7 +72,7 @@ abstract class AbstractCommandHandler extends AbstractHandler {
 				errorExplanation);
 	}
 
-	public PMProject getProject() {
+	public Project getProject() {
 		return this.project;
 	}
 }

@@ -18,7 +18,7 @@ public class Pasteboard {
 
 	private List<ASTNode> pasteboardRoots;
 
-	public Pasteboard(final PMProject project) {
+	public Pasteboard() {
 		this.pasteboardRoots = null;
 	}
 

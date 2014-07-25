@@ -13,11 +13,11 @@ import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
 import java.util.*;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.api.PMProject;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.utils.ASTNodeUtil;
@@ -41,7 +41,7 @@ public class SplitStep extends Step {
     // This keeps state between reparses
     private NodeReference replacementDeclarationReference;
 
-    public SplitStep(final PMProject project, final ExpressionStatement assignmentStatement) {
+    public SplitStep(final Project project, final ExpressionStatement assignmentStatement) {
         super(project);
 
         this.assignmentStatement = assignmentStatement;

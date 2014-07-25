@@ -11,8 +11,8 @@ package net.creichen.pm.steps;
 
 import java.util.Map;
 
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -74,9 +74,9 @@ class Step {
 
     // need method to test for errors before asking for changes
 
-    private final PMProject project;
+    private final Project project;
 
-    Step(final PMProject project) {
+    Step(final Project project) {
         this.project = project;
     }
 
@@ -85,7 +85,7 @@ class Step {
         final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
         for (final ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
-            PMWorkspace.applyRewrite(rewrites.get(compilationUnitToRewrite),
+            Workspace.applyRewrite(rewrites.get(compilationUnitToRewrite),
                     compilationUnitToRewrite);
         }
 
@@ -142,7 +142,7 @@ class Step {
         return result;
     }
 
-    PMProject getProject() {
+    Project getProject() {
         return this.project;
     }
 

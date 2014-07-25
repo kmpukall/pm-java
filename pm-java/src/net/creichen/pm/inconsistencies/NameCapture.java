@@ -9,8 +9,8 @@
 
 package net.creichen.pm.inconsistencies;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
 import net.creichen.pm.models.NameModel;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -22,7 +22,7 @@ public class NameCapture extends Inconsistency {
     private final ASTNode expectedDeclaration;
     private final ASTNode actualDeclaration;
 
-    public NameCapture(final PMProject project, final PMCompilationUnit iCompilationUnit,
+    public NameCapture(final Project project, final PMCompilationUnit iCompilationUnit,
             final ASTNode capturedNode, final ASTNode expectedDeclaration,
             final ASTNode actualDeclaration) {
         super(project, iCompilationUnit, capturedNode);

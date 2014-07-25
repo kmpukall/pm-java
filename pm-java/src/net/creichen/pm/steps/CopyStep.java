@@ -11,9 +11,9 @@ package net.creichen.pm.steps;
 
 import java.util.*;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.analysis.DefUseUtil;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.api.PMProject;
 import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -28,13 +28,13 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 public class CopyStep extends Step {
     private final List<ASTNode> selectedNodes;
 
-    public CopyStep(final PMProject project, final ASTNode node) {
+    public CopyStep(final Project project, final ASTNode node) {
         super(project);
         this.selectedNodes = new ArrayList<ASTNode>();
         this.selectedNodes.add(node);
     }
 
-    CopyStep(final PMProject project, final List<ASTNode> selectedNodes) {
+    CopyStep(final Project project, final List<ASTNode> selectedNodes) {
         super(project);
         this.selectedNodes = selectedNodes;
     }

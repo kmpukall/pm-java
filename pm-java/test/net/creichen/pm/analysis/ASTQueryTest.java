@@ -11,8 +11,8 @@ package net.creichen.pm.analysis;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import net.creichen.pm.PMTest;
 import net.creichen.pm.analysis.ASTQuery;
-import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.dom.*;
 import org.junit.Test;

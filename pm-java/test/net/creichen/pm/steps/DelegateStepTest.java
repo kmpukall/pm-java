@@ -14,12 +14,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
+import net.creichen.pm.PMTest;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -38,7 +38,7 @@ public class DelegateStepTest extends PMTest {
         createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit s2PMCompilationUnit = pmProject

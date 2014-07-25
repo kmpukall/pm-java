@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.api;
+package net.creichen.pm;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -21,6 +21,9 @@ import java.util.Set;
 import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
+import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MarkerResolutionGenerator;
 import net.creichen.pm.models.DefUseModel;
@@ -50,7 +53,7 @@ import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jface.text.ITextSelection;
 
-public class PMProject {
+public class Project {
 
 	private class PMCompilationUnitImplementation implements PMCompilationUnit {
 		private ICompilationUnit iCompilationUnit;
@@ -103,16 +106,13 @@ public class PMProject {
 		@Override
 		public void rename(final String newName) {
 			try {
-				final IPackageFragment parentPackageFragment = (IPackageFragment) this.iCompilationUnit
-						.getParent();
-				PMProject.this.pmCompilationUnits.remove(this.iCompilationUnit
-						.getHandleIdentifier());
+				final IPackageFragment parentPackageFragment = (IPackageFragment) this.iCompilationUnit.getParent();
+				Project.this.pmCompilationUnits.remove(this.iCompilationUnit.getHandleIdentifier());
 				this.iCompilationUnit.rename(newName + ".java", false, null);
 				final ICompilationUnit newICompilationUnit = parentPackageFragment
 						.getCompilationUnit(newName + ".java");
 				this.iCompilationUnit = newICompilationUnit;
-				PMProject.this.pmCompilationUnits.put(newICompilationUnit.getHandleIdentifier(),
-						this);
+				Project.this.pmCompilationUnits.put(newICompilationUnit.getHandleIdentifier(), this);
 			} catch (final Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
@@ -123,8 +123,7 @@ public class PMProject {
 			return Arrays.equals(calculatedHashForSource(getSource()), this.sourceDigest);
 		}
 
-		protected void updatePair(final ICompilationUnit iCompilationUnit,
-				final CompilationUnit compilationUnit) {
+		protected void updatePair(final ICompilationUnit iCompilationUnit, final CompilationUnit compilationUnit) {
 			this.compilationUnit = compilationUnit;
 			this.iCompilationUnit = iCompilationUnit;
 
@@ -157,7 +156,7 @@ public class PMProject {
 
 	private final NodeReferenceStore nodeReferenceStore;
 
-	public PMProject(final IJavaProject iJavaProject) {
+	public Project(final IJavaProject iJavaProject) {
 
 		this.nodeReferenceStore = new NodeReferenceStore();
 
@@ -169,7 +168,7 @@ public class PMProject {
 
 		this.projectListeners = new ArrayList<ProjectListener>();
 
-		this.pasteboard = new Pasteboard(this);
+		this.pasteboard = new Pasteboard();
 
 		updateToNewVersionsOfICompilationUnits(true);
 
@@ -241,14 +240,12 @@ public class PMProject {
 				if (declaringICompilationUnit != null) {
 					final PMCompilationUnit declaringPMCompilationUnit = getPMCompilationUnitForICompilationUnit(declaringICompilationUnit);
 
-					final CompilationUnit declaringCompilationUnit = declaringPMCompilationUnit
-							.getASTNode();
+					final CompilationUnit declaringCompilationUnit = declaringPMCompilationUnit.getASTNode();
 
 					ASTNode declaringNode = declaringCompilationUnit.findDeclaringNode(nameBinding);
 
 					if (declaringNode == null) {
-						declaringNode = usingCompilationUnit.findDeclaringNode(nameNode
-								.resolveBinding().getKey());
+						declaringNode = usingCompilationUnit.findDeclaringNode(nameNode.resolveBinding().getKey());
 					}
 
 					return declaringNode;
@@ -263,8 +260,8 @@ public class PMProject {
 
 	// Change to findPMCompilationUnitForNode??
 	public PMCompilationUnit findPMCompilationUnitForNode(final ASTNode node) {
-		return this.pmCompilationUnits.get(((ICompilationUnit) ((CompilationUnit) node.getRoot())
-				.getJavaElement()).getHandleIdentifier());
+		return this.pmCompilationUnits.get(((ICompilationUnit) ((CompilationUnit) node.getRoot()).getJavaElement())
+				.getHandleIdentifier());
 	}
 
 	public Collection<ASTNode> getASTRoots() {
@@ -297,8 +294,7 @@ public class PMProject {
 		return this.pasteboard;
 	}
 
-	public PMCompilationUnit getPMCompilationUnitForICompilationUnit(
-			final ICompilationUnit iCompilationUnit) {
+	public PMCompilationUnit getPMCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
 		return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier());
 	}
 
@@ -321,8 +317,7 @@ public class PMProject {
 			for (final IPackageFragment packageFragment : iJavaProject.getPackageFragments()) {
 				if (packageFragment.getKind() == IPackageFragmentRoot.K_SOURCE
 						&& packageFragment.containsJavaResources()) {
-					for (final ICompilationUnit iCompilationUnit : packageFragment
-							.getCompilationUnits()) {
+					for (final ICompilationUnit iCompilationUnit : packageFragment.getCompilationUnits()) {
 
 						result.add(iCompilationUnit);
 					}
@@ -349,9 +344,8 @@ public class PMProject {
 
 		parser.setResolveBindings(resolveBindings);
 
-		parser.createASTs(
-				iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]),
-				new String[0], new ASTRequestor() {
+		parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
+				new ASTRequestor() {
 					@Override
 					public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
 
@@ -364,19 +358,17 @@ public class PMProject {
 		return simpleNameForDeclaringNode(findDeclaringNodeForName(name)) == name;
 	}
 
-	public ASTNode nodeForSelection(final ITextSelection selection,
-			final ICompilationUnit iCompilationUnit) {
+	public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
 
 		final CompilationUnit compilationUnit = (CompilationUnit) findASTRootForICompilationUnit(iCompilationUnit);
 
-		final ASTNode selectedNode = ASTQuery.nodeForSelectionInCompilationUnit(
-				selection.getOffset(), selection.getLength(), compilationUnit);
+		final ASTNode selectedNode = ASTQuery.nodeForSelectionInCompilationUnit(selection.getOffset(),
+				selection.getLength(), compilationUnit);
 
 		return selectedNode;
 	}
 
-	public CompilationUnit parsedCompilationUnitForICompilationUnit(
-			final ICompilationUnit iCompilationUnit) {
+	public CompilationUnit parsedCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
 		return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getASTNode();
 	}
 
@@ -411,8 +403,7 @@ public class PMProject {
 			}
 
 		} else {
-			System.err.println("Copy [" + copy + "] does not structurally match original [" + node
-					+ "]");
+			System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
 			throw new RuntimeException("Copy not does structurally match original");
 		}
 
@@ -443,21 +434,18 @@ public class PMProject {
 			// delete previous markers
 			for (final ICompilationUnit iCompilationUnit : getICompilationUnits()) {
 
-				iCompilationUnit.getResource().deleteMarkers(
-						"org.eclipse.core.resources.problemmarker", false, IResource.DEPTH_ZERO);
+				iCompilationUnit.getResource().deleteMarkers("org.eclipse.core.resources.problemmarker", false,
+						IResource.DEPTH_ZERO);
 			}
 
 			for (final Inconsistency inconsistency : inconsistencySet) {
-				final IResource resource = findPMCompilationUnitForNode(inconsistency.getNode())
-						.getICompilationUnit().getResource();
+				final IResource resource = findPMCompilationUnitForNode(inconsistency.getNode()).getICompilationUnit()
+						.getResource();
 
-				final IMarker marker = resource
-						.createMarker("org.eclipse.core.resources.problemmarker");
+				final IMarker marker = resource.createMarker("org.eclipse.core.resources.problemmarker");
 
-				marker.setAttribute(MarkerResolutionGenerator.INCONSISTENCY_ID,
-						inconsistency.getID());
-				marker.setAttribute(MarkerResolutionGenerator.PROJECT_ID,
-						this.iJavaProject.getHandleIdentifier());
+				marker.setAttribute(MarkerResolutionGenerator.INCONSISTENCY_ID, inconsistency.getID());
+				marker.setAttribute(MarkerResolutionGenerator.PROJECT_ID, this.iJavaProject.getHandleIdentifier());
 
 				marker.setAttribute(MarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
 						inconsistency.allowsAcceptBehavioralChange());
@@ -502,8 +490,8 @@ public class PMProject {
 			} else if (declaringNode instanceof TypeParameter) {
 				return ((TypeParameter) declaringNode).getName();
 			} else {
-				throw new RuntimeException("Unexpected declaring ASTNode type " + declaringNode
-						+ " of class " + declaringNode.getClass());
+				throw new RuntimeException("Unexpected declaring ASTNode type " + declaringNode + " of class "
+						+ declaringNode.getClass());
 			}
 		} else {
 			throw new RuntimeException("Tried to find simple name for null declaring node!");
@@ -550,7 +538,7 @@ public class PMProject {
 		// for now we punt and have this reset the model
 		if (!firstTime && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
 			System.err
-			.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+					.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
 			this.pmCompilationUnits.clear();
 			finalFirstTime = true;
@@ -565,24 +553,21 @@ public class PMProject {
 
 		final ASTRequestor requestor = new ASTRequestor() {
 			@Override
-			public void acceptAST(final ICompilationUnit source,
-					final CompilationUnit newCompilationUnit) {
+			public void acceptAST(final ICompilationUnit source, final CompilationUnit newCompilationUnit) {
 
 				Timer.sharedTimer().start("PARSE_INTERNAL");
 
-				PMCompilationUnitImplementation pmCompilationUnit = PMProject.this.pmCompilationUnits
-						.get(source.getHandleIdentifier());
+				PMCompilationUnitImplementation pmCompilationUnit = Project.this.pmCompilationUnits.get(source
+						.getHandleIdentifier());
 
 				// We don't handle deletions yet
 				if (pmCompilationUnit == null) {
 					// System.out.println("We have an ICompilationUnit we've
 					// never seen before!");
 
-					pmCompilationUnit = new PMCompilationUnitImplementation(source,
-							newCompilationUnit);
+					pmCompilationUnit = new PMCompilationUnitImplementation(source, newCompilationUnit);
 
-					PMProject.this.pmCompilationUnits.put(source.getHandleIdentifier(),
-							pmCompilationUnit);
+					Project.this.pmCompilationUnits.put(source.getHandleIdentifier(), pmCompilationUnit);
 				}
 
 				if (!finalFirstTime) {
@@ -605,9 +590,8 @@ public class PMProject {
 			}
 		};
 
-		parser.createASTs(
-				iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]),
-				new String[0], requestor, null);
+		parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
+				requestor, null);
 
 		if (finalFirstTime) {
 			resetModel();

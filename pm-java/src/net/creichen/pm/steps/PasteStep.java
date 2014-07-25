@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.api.PMProject;
+import net.creichen.pm.Project;
 import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.models.NameModel;
 
@@ -34,7 +34,7 @@ public class PasteStep extends Step {
     private final ChildListPropertyDescriptor property;
     private final int index;
 
-    public PasteStep(final PMProject project, final ASTNode parent,
+    public PasteStep(final Project project, final ASTNode parent,
             final ChildListPropertyDescriptor property, final int index) {
         super(project);
 

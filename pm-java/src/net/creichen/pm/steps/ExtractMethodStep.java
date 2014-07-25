@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.api.PMProject;
+import net.creichen.pm.Project;
 import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -75,7 +75,7 @@ class ExtractMethodStep extends Step {
 
     private Expression extractedExpression;
 
-    public ExtractMethodStep(final PMProject project, final Expression expression) {
+    public ExtractMethodStep(final Project project, final Expression expression) {
         super(project);
 
         this.namesToExtract = ExtractMethodStep.variablesReferredToInExpression(expression);

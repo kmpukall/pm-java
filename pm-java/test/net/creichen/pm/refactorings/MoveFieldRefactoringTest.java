@@ -10,10 +10,10 @@
 package net.creichen.pm.refactorings;
 
 import static org.junit.Assert.assertTrue;
+import net.creichen.pm.PMTest;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
-import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -31,7 +31,7 @@ public class MoveFieldRefactoringTest extends PMTest {
         final ICompilationUnit iCompilationUnitT = createNewCompilationUnit("", "T.java",
                 "public class T {  }");
 
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final CompilationUnit compilationUnitS = (CompilationUnit) project

@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
 import net.creichen.pm.models.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -31,7 +31,7 @@ public class RenameStep extends Step {
 
     private List<SimpleName> nameNodesToChange;
 
-    public RenameStep(final PMProject project, final SimpleName nameNode) {
+    public RenameStep(final Project project, final SimpleName nameNode) {
         super(project);
 
         if (nameNode != null) {

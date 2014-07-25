@@ -14,11 +14,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
+import net.creichen.pm.PMTest;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.refactorings.SplitProcessor;
-import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -35,7 +35,7 @@ public class SplitProcessorTest extends PMTest {
         final SplitProcessor splitTemporary = new SplitProcessor(new TextSelection(57 - 26,
                 63 - 57), compilationUnit);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         ProcessorDriver.drive(splitTemporary);

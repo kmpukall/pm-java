@@ -14,12 +14,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
+import net.creichen.pm.PMTest;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -39,7 +39,7 @@ public class RenameStepTest extends PMTest {
         createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final SimpleName firstSInT = ASTQuery
@@ -70,7 +70,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
@@ -117,7 +117,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
@@ -151,7 +151,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitA = createNewCompilationUnit("", "A.java", sourceA);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitA = pmProject
@@ -186,7 +186,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
@@ -219,7 +219,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "A.java", source);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
@@ -251,7 +251,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
@@ -304,7 +304,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitB = createNewCompilationUnit("", "B.java", sourceB);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitA = pmProject
@@ -356,7 +356,7 @@ public class RenameStepTest extends PMTest {
         final ICompilationUnit compilationUnitB = createNewCompilationUnit("testpackage", "B.java",
                 sourceB);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitA = pmProject
@@ -403,7 +403,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject

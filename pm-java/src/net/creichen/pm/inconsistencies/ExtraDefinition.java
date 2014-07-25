@@ -9,15 +9,15 @@
 
 package net.creichen.pm.inconsistencies;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class ExtraDefinition extends Inconsistency {
     private final ASTNode definingNode;
 
-    public ExtraDefinition(final PMProject project, final PMCompilationUnit iCompilationUnit,
+    public ExtraDefinition(final Project project, final PMCompilationUnit iCompilationUnit,
             final ASTNode usingNode, final ASTNode definingNode) {
         super(project, iCompilationUnit, usingNode);
 

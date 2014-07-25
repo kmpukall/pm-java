@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.PMTest;
 
 import org.eclipse.jdt.core.dom.*;
 import org.junit.Test;

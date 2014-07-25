@@ -11,8 +11,8 @@ package net.creichen.pm.models;
 
 import java.util.*;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.NameCapture;
 import net.creichen.pm.inconsistencies.NameConflict;
@@ -23,9 +23,9 @@ import org.eclipse.jdt.core.dom.*;
 public class NameModel {
     private HashMap<Name, String> identifiersForNames;
 
-    private final PMProject project;
+    private final Project project;
 
-    public NameModel(final PMProject project) {
+    public NameModel(final Project project) {
         this.project = project;
 
         this.identifiersForNames = new HashMap<Name, String>();

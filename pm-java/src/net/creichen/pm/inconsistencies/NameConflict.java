@@ -9,8 +9,8 @@
 
 package net.creichen.pm.inconsistencies;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
 
 import org.eclipse.jdt.core.dom.SimpleName;
 
@@ -19,7 +19,7 @@ public class NameConflict extends Inconsistency {
     private final String expectedName;
     private final SimpleName name;
 
-    public NameConflict(final PMProject project, final PMCompilationUnit iCompilationUnit,
+    public NameConflict(final Project project, final PMCompilationUnit iCompilationUnit,
             final SimpleName name, final String expectedName) {
         super(project, iCompilationUnit, name);
         this.name = name;

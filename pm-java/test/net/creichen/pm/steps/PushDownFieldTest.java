@@ -7,14 +7,15 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.tests;
+package net.creichen.pm.steps;
 
 import java.util.HashSet;
 
 import static org.junit.Assert.*;
+import net.creichen.pm.PMTest;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.steps.CopyStep;
 import net.creichen.pm.steps.CutStep;
@@ -38,7 +39,7 @@ public class PushDownFieldTest extends PMTest {
         ICompilationUnit iCompilationUnitT2 = createNewCompilationUnit("", "T2.java",
                 "public class T2 extends S {  }");
 
-        PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Project project = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         FieldDeclaration yField = (FieldDeclaration) ASTQuery
                 .fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,

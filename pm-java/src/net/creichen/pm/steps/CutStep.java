@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.api.PMProject;
+import net.creichen.pm.Project;
 import net.creichen.pm.api.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 public class CutStep extends Step {
     private List<ASTNode> selectedNodes;
 
-    public CutStep(final PMProject project, final ASTNode node) {
+    public CutStep(final Project project, final ASTNode node) {
         super(project);
 
         final List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
@@ -34,7 +34,7 @@ public class CutStep extends Step {
         initWithSelectedNodes(selectedNodes);
     }
 
-    public CutStep(final PMProject project, final List<ASTNode> selectedNodes) {
+    public CutStep(final Project project, final List<ASTNode> selectedNodes) {
         super(project);
 
         initWithSelectedNodes(selectedNodes);

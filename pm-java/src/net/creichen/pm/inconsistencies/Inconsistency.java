@@ -9,18 +9,18 @@
 
 package net.creichen.pm.inconsistencies;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.ui.IMarkerResolution;
 
 public class Inconsistency {
-    private final PMProject project;
+    private final Project project;
     private final ASTNode node;
     private final String id;
 
-    Inconsistency(final PMProject project, final PMCompilationUnit pmCompilationUnit,
+    Inconsistency(final Project project, final PMCompilationUnit pmCompilationUnit,
             final ASTNode node) {
         this.project = project;
         this.node = node;
@@ -47,7 +47,7 @@ public class Inconsistency {
         return this.node;
     }
 
-    protected PMProject getProject() {
+    protected Project getProject() {
         return this.project;
     }
 

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.PMTest;
 
 import org.eclipse.jdt.core.dom.*;
 import org.junit.Test;

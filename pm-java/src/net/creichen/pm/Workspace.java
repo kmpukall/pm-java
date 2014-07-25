@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.api;
+package net.creichen.pm;
 
 import java.util.HashMap;
 
@@ -22,8 +22,8 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
-public final class PMWorkspace {
-    private static PMWorkspace sharedWorkspace = null;
+public final class Workspace {
+    private static Workspace sharedWorkspace = null;
 
     public static void applyRewrite(final ASTRewrite rewrite,
             final ICompilationUnit iCompilationUnit) {
@@ -51,28 +51,28 @@ public final class PMWorkspace {
         }
     }
 
-    public static synchronized PMWorkspace sharedWorkspace() {
+    public static synchronized Workspace sharedWorkspace() {
 
         if (sharedWorkspace == null) {
-            sharedWorkspace = new PMWorkspace();
+            sharedWorkspace = new Workspace();
         }
 
         return sharedWorkspace;
     }
 
-    private final HashMap<IJavaProject, PMProject> projectMapping;
+    private final HashMap<IJavaProject, Project> projectMapping;
 
-    private PMWorkspace() {
-        this.projectMapping = new HashMap<IJavaProject, PMProject>();
+    private Workspace() {
+        this.projectMapping = new HashMap<IJavaProject, Project>();
 
     }
 
-    public synchronized PMProject projectForIJavaProject(final IJavaProject iJavaProject) {
+    public synchronized Project projectForIJavaProject(final IJavaProject iJavaProject) {
 
-        PMProject result = this.projectMapping.get(iJavaProject);
+        Project result = this.projectMapping.get(iJavaProject);
 
         if (result == null) {
-            result = new PMProject(iJavaProject);
+            result = new Project(iJavaProject);
             this.projectMapping.put(iJavaProject, result);
 
         }

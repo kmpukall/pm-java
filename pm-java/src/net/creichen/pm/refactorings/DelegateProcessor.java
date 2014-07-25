@@ -9,9 +9,9 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
-import net.creichen.pm.api.ProjectListener;
+import net.creichen.pm.Project;
+import net.creichen.pm.ProjectListener;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.steps.DelegateStep;
 
 import org.eclipse.core.runtime.CoreException;
@@ -51,7 +51,7 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
 
     @Override
     public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {
@@ -75,7 +75,7 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
     @Override
     public Change createChange(final IProgressMonitor pm) throws CoreException {
 
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.iCompilationUnit.getJavaProject());
 
         project.syncSources();
@@ -123,7 +123,7 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
     }
 
     @Override
-    public void projectDidReparse(final PMProject project) {
+    public void projectDidReparse(final Project project) {
         this.step.updateAfterReparse();
         this.step.cleanup();
     }

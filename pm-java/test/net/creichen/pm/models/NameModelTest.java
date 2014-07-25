@@ -13,10 +13,10 @@ import static org.junit.Assert.*;
 
 import java.util.Set;
 
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
+import net.creichen.pm.PMTest;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.tests.PMTest;
 
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class NameModelTest extends PMTest {
 
         createNewCompilationUnit("", "S.java", source);
 
-        PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         pmProject.rescanForInconsistencies();
 

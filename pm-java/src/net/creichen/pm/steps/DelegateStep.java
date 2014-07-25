@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.api.PMProject;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 
@@ -46,7 +46,7 @@ public class DelegateStep extends Step {
 
     private final ICompilationUnit iCompilationUnit;
 
-    public DelegateStep(final PMProject project, final ASTNode selectedNode) {
+    public DelegateStep(final Project project, final ASTNode selectedNode) {
         super(project);
 
         this.selectedNode = selectedNode;

@@ -7,9 +7,9 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.api;
+package net.creichen.pm;
 
 
 public interface ProjectListener {
-	void projectDidReparse(PMProject project);
+	void projectDidReparse(Project project);
 }

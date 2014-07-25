@@ -9,8 +9,8 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.steps.SplitStep;
 import net.creichen.pm.utils.ASTNodeUtil;
 
@@ -48,7 +48,7 @@ public class SplitProcessor extends RefactoringProcessor {
     @Override
     public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
 
-        final PMProject project = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {

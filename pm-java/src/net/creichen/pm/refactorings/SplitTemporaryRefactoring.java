@@ -9,7 +9,7 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.api.PMProject;
+import net.creichen.pm.Project;
 import net.creichen.pm.steps.RenameStep;
 import net.creichen.pm.steps.SplitStep;
 
@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 class SplitTemporaryRefactoring {
 
-    private final PMProject project;
+    private final Project project;
 
     private final SplitStep splitStep;
 
@@ -32,7 +32,7 @@ class SplitTemporaryRefactoring {
 
     private final String newVariableName;
 
-    public SplitTemporaryRefactoring(final PMProject project,
+    public SplitTemporaryRefactoring(final Project project,
             final ExpressionStatement assignmentExpressionStatement, final String newVariableName) {
 
         this.project = project;

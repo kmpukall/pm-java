@@ -9,8 +9,8 @@
 
 package net.creichen.pm.inconsistencies;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.PMProject;
 
 import org.eclipse.jdt.core.dom.SimpleName;
 
@@ -18,7 +18,7 @@ public class UnknownName extends Inconsistency {
 
     private final SimpleName unknownName;
 
-    public UnknownName(final PMProject project, final PMCompilationUnit iCompilationUnit,
+    public UnknownName(final Project project, final PMCompilationUnit iCompilationUnit,
             final SimpleName unknownName) {
         super(project, iCompilationUnit, unknownName);
 

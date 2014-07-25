@@ -14,11 +14,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import net.creichen.pm.api.PMProject;
-import net.creichen.pm.api.PMWorkspace;
+import net.creichen.pm.PMTest;
+import net.creichen.pm.Project;
+import net.creichen.pm.Workspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.refactorings.DelegateProcessor;
-import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -38,7 +38,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
@@ -63,7 +63,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("super");
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
@@ -87,7 +87,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
@@ -117,7 +117,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
@@ -142,7 +142,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("");
 
-        final PMProject pmProject = PMWorkspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
         final RefactoringStatus status = ProcessorDriver.drive(delegateProcessor);

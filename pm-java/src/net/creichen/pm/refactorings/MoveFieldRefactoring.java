@@ -9,8 +9,8 @@
 
 package net.creichen.pm.refactorings;
 
+import net.creichen.pm.Project;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.api.PMProject;
 import net.creichen.pm.steps.CutStep;
 import net.creichen.pm.steps.PasteStep;
 
@@ -20,13 +20,13 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 //We move a field by PMCutting it from its old parent and PMPasteing it in its new parent
 
 class MoveFieldRefactoring {
-    private final PMProject project;
+    private final Project project;
 
     private final NodeReference fieldReference;
 
     private final NodeReference newParentReference;
 
-    public MoveFieldRefactoring(final PMProject project, final FieldDeclaration fieldDeclaration,
+    public MoveFieldRefactoring(final Project project, final FieldDeclaration fieldDeclaration,
             final TypeDeclaration newParent) {
         this.project = project;
 
