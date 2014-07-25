@@ -22,6 +22,7 @@ import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.NameCapture;
 import net.creichen.pm.inconsistencies.NameConflict;
 import net.creichen.pm.inconsistencies.UnknownName;
+import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -163,7 +164,7 @@ public class NameModel {
 			final ASTNode declaringNode = this.project.findDeclaringNodeForName(simpleName); // declaringModel.getCompilationUnit().findDeclaringNode(simpleName.resolveBinding());
 
 			if (declaringNode != null) {
-				final SimpleName declaringSimpleName = this.project.simpleNameForDeclaringNode(declaringNode);
+				final SimpleName declaringSimpleName = ASTNodeUtil.simpleNameForDeclaringNode(declaringNode);
 
 				final String declaringIdentifier = identifierForName(declaringSimpleName);
 

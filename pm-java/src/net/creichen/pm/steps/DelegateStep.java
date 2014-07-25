@@ -22,6 +22,7 @@ import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;
@@ -229,7 +230,7 @@ public class DelegateStep extends Step {
             final ASTNode declaringNode = getProject().findDeclaringNodeForName(name);
 
             if (declaringNode != null) {
-                final SimpleName simpleNameForDeclaringNode = getProject()
+                final SimpleName simpleNameForDeclaringNode = ASTNodeUtil
                         .simpleNameForDeclaringNode(declaringNode);
 
                 final String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);

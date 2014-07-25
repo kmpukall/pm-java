@@ -28,6 +28,7 @@ import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
+import net.creichen.pm.utils.ASTNodeUtil;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.resources.IMarker;
@@ -44,13 +45,8 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jface.text.ITextSelection;
 
 public class Project {
@@ -345,16 +341,16 @@ public class Project {
 
 		parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
 				new ASTRequestor() {
-					@Override
-					public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+			@Override
+			public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
 
-					}
-				}, null);
+			}
+		}, null);
 
 	}
 
 	public boolean nameNodeIsDeclaring(final SimpleName name) {
-		return simpleNameForDeclaringNode(findDeclaringNodeForName(name)) == name;
+		return ASTNodeUtil.simpleNameForDeclaringNode(findDeclaringNodeForName(name)) == name;
 	}
 
 	public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
@@ -472,32 +468,6 @@ public class Project {
 		this.nameModel = new NameModel(this);
 	}
 
-	// Hmmm, this assumes there is only one simple name for a given declaring
-	// node
-	public SimpleName simpleNameForDeclaringNode(final ASTNode declaringNode) {
-		if (declaringNode != null) {
-			if (declaringNode instanceof VariableDeclarationFragment) {
-				return ((VariableDeclarationFragment) declaringNode).getName();
-			} else if (declaringNode instanceof SingleVariableDeclaration) {
-				return ((SingleVariableDeclaration) declaringNode).getName();
-			} else if (declaringNode instanceof VariableDeclarationFragment) {
-				return ((VariableDeclarationFragment) declaringNode).getName();
-			} else if (declaringNode instanceof TypeDeclaration) {
-				return ((TypeDeclaration) declaringNode).getName();
-			} else if (declaringNode instanceof MethodDeclaration) {
-				return ((MethodDeclaration) declaringNode).getName();
-			} else if (declaringNode instanceof TypeParameter) {
-				return ((TypeParameter) declaringNode).getName();
-			} else {
-				throw new RuntimeException("Unexpected declaring ASTNode type " + declaringNode + " of class "
-						+ declaringNode.getClass());
-			}
-		} else {
-			throw new RuntimeException("Tried to find simple name for null declaring node!");
-		}
-
-	}
-
 	private boolean sourceIsUpToDateForICompilationUnit(final ICompilationUnit iCompilationUnit) {
 		final PMCompilationUnitImplementation pmCompilationUnit = (PMCompilationUnitImplementation) getPMCompilationUnitForICompilationUnit(iCompilationUnit);
 
@@ -537,7 +507,7 @@ public class Project {
 		// for now we punt and have this reset the model
 		if (!firstTime && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
 			System.err
-					.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+			.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
 			this.pmCompilationUnits.clear();
 			finalFirstTime = true;

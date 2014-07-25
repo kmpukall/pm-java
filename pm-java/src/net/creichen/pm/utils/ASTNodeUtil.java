@@ -18,13 +18,44 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public final class ASTNodeUtil {
+
+	// Hmmm, this assumes there is only one simple name for a given declaring
+	// node
+	public static SimpleName simpleNameForDeclaringNode(final ASTNode declaringNode) {
+		if (declaringNode != null) {
+			if (declaringNode instanceof VariableDeclarationFragment) {
+				return ((VariableDeclarationFragment) declaringNode).getName();
+			} else if (declaringNode instanceof SingleVariableDeclaration) {
+				return ((SingleVariableDeclaration) declaringNode).getName();
+			} else if (declaringNode instanceof VariableDeclarationFragment) {
+				return ((VariableDeclarationFragment) declaringNode).getName();
+			} else if (declaringNode instanceof TypeDeclaration) {
+				return ((TypeDeclaration) declaringNode).getName();
+			} else if (declaringNode instanceof MethodDeclaration) {
+				return ((MethodDeclaration) declaringNode).getName();
+			} else if (declaringNode instanceof TypeParameter) {
+				return ((TypeParameter) declaringNode).getName();
+			} else {
+				throw new RuntimeException("Unexpected declaring ASTNode type " + declaringNode + " of class "
+						+ declaringNode.getClass());
+			}
+		} else {
+			throw new RuntimeException("Tried to find simple name for null declaring node!");
+		}
+	
+	}
 
 	public static VariableDeclaration localVariableDeclarationForSimpleName(final SimpleName name) {
 		return (VariableDeclaration) ((CompilationUnit) name.getRoot()).findDeclaringNode(name
