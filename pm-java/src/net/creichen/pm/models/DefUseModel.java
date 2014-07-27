@@ -15,22 +15,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.analysis.Def;
 import net.creichen.pm.analysis.NodeReferenceStore;
-import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 public class DefUseModel {
-	private final Project project;
 
 	// for now we only care about the defs that are used by our names
 
@@ -41,8 +35,7 @@ public class DefUseModel {
 
 	private final Map<NodeReference, Set<NodeReference>> useIdentifiersByDefinitionIdentifier;
 
-	public DefUseModel(final Project project) {
-		this.project = project;
+	public DefUseModel(final Collection<Use> currentUses) {
 
 		// this is such a hack; we create a random ast node and then get a
 		// reference to it to
@@ -59,7 +52,7 @@ public class DefUseModel {
 		this.definitionIdentifiersByUseIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
 		this.useIdentifiersByDefinitionIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
 
-		initializeModel();
+		addUsesToModel(currentUses);
 	}
 
 	public void addDefinitionIdentifierForName(final NodeReference definitionIdentifier,
@@ -142,41 +135,6 @@ public class DefUseModel {
 		// delete list of uses for definition
 
 		this.useIdentifiersByDefinitionIdentifier.remove(definition);
-	}
-
-	Collection<Use> getCurrentUses() {
-
-		Timer.sharedTimer().start("DUUD_CHAINS");
-
-		final Collection<Use> uses = new HashSet<Use>();
-
-		for (final ASTNode root : this.project.getASTRoots()) {
-
-			root.accept(new ASTVisitor() {
-				@Override
-				public boolean visit(final MethodDeclaration methodDeclaration) {
-
-					// There is nothing to analyze if we have an interface or
-					// abstract method
-					if (methodDeclaration.getBody() != null) {
-						final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
-
-						uses.addAll(analysis.getUses());
-					}
-
-					return false; // don't visit children
-				}
-			});
-
-		}
-
-		Timer.sharedTimer().stop("DUUD_CHAINS");
-		return uses;
-	}
-
-	private void initializeModel() {
-		addUsesToModel(getCurrentUses());
-
 	}
 
 	public boolean nameIsUse(final SimpleName name) {

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.Project;
-import net.creichen.pm.utils.ASTNodeUtil;
+import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;
@@ -201,7 +201,7 @@ class ExtractMethodStep extends Step {
         getProject().recursivelyReplaceNodeWithCopy(this.originalExpression,
                 this.extractedExpression);
 
-        ASTNodeUtil
+        ASTUtil
                 .replaceNodeInParent(this.originalExpression, this.replacementMethodInvocation);
 
         performNameModelChange();

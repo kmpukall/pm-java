@@ -30,7 +30,7 @@ import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.DefUseModelConsistencyChecker;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
-import net.creichen.pm.utils.ASTNodeUtil;
+import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.resources.IMarker;
@@ -343,16 +343,16 @@ public class Project {
 
 		parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
 				new ASTRequestor() {
-			@Override
-			public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+					@Override
+					public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
 
-			}
-		}, null);
+					}
+				}, null);
 
 	}
 
 	public boolean nameNodeIsDeclaring(final SimpleName name) {
-		return ASTNodeUtil.simpleNameForDeclaringNode(findDeclaringNodeForName(name)) == name;
+		return ASTUtil.simpleNameForDeclaringNode(findDeclaringNodeForName(name)) == name;
 	}
 
 	public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
@@ -466,7 +466,7 @@ public class Project {
 	}
 
 	private void resetModel() {
-		this.udModel = new DefUseModel(this);
+		this.udModel = new DefUseModel(ASTUtil.getCurrentUses(this));
 		this.nameModel = new NameModel(this);
 	}
 
@@ -509,7 +509,7 @@ public class Project {
 		// for now we punt and have this reset the model
 		if (!firstTime && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
 			System.err
-			.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+					.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
 			this.pmCompilationUnits.clear();
 			finalFirstTime = true;

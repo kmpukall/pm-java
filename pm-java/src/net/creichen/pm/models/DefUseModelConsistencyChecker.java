@@ -12,6 +12,7 @@ import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
 import net.creichen.pm.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.inconsistencies.UnknownUse;
+import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -28,7 +29,7 @@ public class DefUseModelConsistencyChecker {
 
 		final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
-		final Collection<Use> uses = model.getCurrentUses();
+		final Collection<Use> uses = ASTUtil.getCurrentUses(this.project);
 
 		Timer.sharedTimer().start("INCONSISTENCIES");
 

@@ -10,7 +10,7 @@ import net.creichen.pm.inconsistencies.NameCapture;
 import net.creichen.pm.inconsistencies.NameConflict;
 import net.creichen.pm.inconsistencies.UnknownName;
 import net.creichen.pm.models.NameModel;
-import net.creichen.pm.utils.ASTNodeUtil;
+import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -47,7 +47,7 @@ public class NameModelConsistencyChecker {
 			final ASTNode declaringNode = this.project.findDeclaringNodeForName(simpleName);
 
 			if (declaringNode != null) {
-				final SimpleName declaringSimpleName = ASTNodeUtil.simpleNameForDeclaringNode(declaringNode);
+				final SimpleName declaringSimpleName = ASTUtil.simpleNameForDeclaringNode(declaringNode);
 
 				final String declaringIdentifier = this.model.identifierForName(declaringSimpleName);
 

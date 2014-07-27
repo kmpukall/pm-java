@@ -12,7 +12,7 @@ package net.creichen.pm.refactorings;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.steps.SplitStep;
-import net.creichen.pm.utils.ASTNodeUtil;
+import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -83,11 +83,11 @@ public class SplitProcessor extends RefactoringProcessor {
 
                         final SimpleName name = (SimpleName) assignmentExpression.getLeftHandSide();
 
-                        final VariableDeclaration declaration = ASTNodeUtil
+                        final VariableDeclaration declaration = ASTUtil
                                 .localVariableDeclarationForSimpleName(name);
 
                         if (declaration != null
-                                && ASTNodeUtil.variableDeclarationIsLocal(declaration)) {
+                                && ASTUtil.variableDeclarationIsLocal(declaration)) {
                             this.step = new SplitStep(project, (ExpressionStatement) selectedNode);
 
                             return new RefactoringStatus();

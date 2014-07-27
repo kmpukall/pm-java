@@ -20,7 +20,7 @@ import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.utils.ASTNodeUtil;
+import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;
@@ -192,7 +192,7 @@ public class SplitStep extends Step {
 
         this.replacementDeclarationStatement = ast.newVariableDeclarationStatement(fragment);
 
-        final VariableDeclaration originalVariableDeclaration = ASTNodeUtil
+        final VariableDeclaration originalVariableDeclaration = ASTUtil
                 .localVariableDeclarationForSimpleName(lhs);
 
         Type type = null;
