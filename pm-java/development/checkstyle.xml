@@ -74,10 +74,6 @@
     </module>
     <module name="SimplifyBooleanExpression"/>
     <module name="SimplifyBooleanReturn"/>
-    <module name="DesignForExtension">
-      <property name="severity" value="ignore"/>
-      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
-    </module>
     <module name="FinalClass"/>
     <module name="HideUtilityClassConstructor"/>
     <module name="InterfaceIsType"/>
@@ -93,9 +89,27 @@
       <property name="ignoreConstructorParameter" value="true"/>
       <property name="ignoreSetter" value="true"/>
     </module>
-    <module name="LineLength">
-      <property name="max" value="120"/>
+    <module name="MissingDeprecated"/>
+    <module name="MissingOverride"/>
+    <module name="GenericWhitespace"/>
+    <module name="DefaultComesLast"/>
+    <module name="FallThrough"/>
+    <module name="IllegalType">
+      <property name="tokens" value="METHOD_DEF,PARAMETER_DEF,VARIABLE_DEF"/>
+      <property name="legalAbstractClassNames" value="AbstractTypeDeclaration"/>
     </module>
+    <module name="IllegalCatch"/>
+    <module name="IllegalThrows"/>
+    <module name="ModifiedControlVariable"/>
+    <module name="NoFinalizer"/>
+    <module name="NoClone"/>
+    <module name="PackageDeclaration"/>
+    <module name="ParameterAssignment"/>
+    <module name="StringLiteralEquality"/>
+    <module name="OneStatementPerLine"/>
+    <module name="MutableException"/>
+    <module name="ThrowsCount"/>
+    <module name="Indentation"/>
   </module>
   <module name="NewlineAtEndOfFile">
     <property name="severity" value="ignore"/>
@@ -113,4 +127,5 @@
     <property name="message" value="Line has trailing spaces."/>
     <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
   </module>
+  <module name="StrictDuplicateCode"/>
 </module>

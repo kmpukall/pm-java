@@ -9,18 +9,17 @@ import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 
 public class DelegateHandler extends AbstractCommandHandler {
 
-	@Override
-	public final void handleEvent(final ExecutionEvent event) {
-		final DelegateProcessor processor = new DelegateProcessor(
-				getSelection(), getCompilationUnit());
+    @Override
+    public final void handleEvent(final ExecutionEvent event) {
+        final DelegateProcessor processor = new DelegateProcessor(getSelection(), getCompilationUnit());
 
-		final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(
-				new Wizard(processor, new DelegateInputPage(processor)));
+        final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(new Wizard(processor,
+                new DelegateInputPage(processor)));
 
-		try {
-			operation.run(getWindow().getShell(), "PM Rename Title");
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            operation.run(getWindow().getShell(), "PM Rename Title");
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

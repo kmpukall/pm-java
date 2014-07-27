@@ -9,19 +9,17 @@ import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 
 public class SplitHandler extends AbstractCommandHandler {
 
-	@Override
-	public final void handleEvent(final ExecutionEvent event) {
-		final RefactoringProcessor processor = new SplitProcessor(
-				getSelection(), getCompilationUnit());
+    @Override
+    public final void handleEvent(final ExecutionEvent event) {
+        final RefactoringProcessor processor = new SplitProcessor(getSelection(), getCompilationUnit());
 
-		final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(
-				new Wizard(processor, null));
+        final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(new Wizard(processor, null));
 
-		try {
-			operation.run(getWindow().getShell(), "PM Rename Title");
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            operation.run(getWindow().getShell(), "PM Rename Title");
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

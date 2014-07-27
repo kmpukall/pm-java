@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
@@ -85,8 +86,7 @@ class Step {
         final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
         for (final ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
-            Workspace.applyRewrite(rewrites.get(compilationUnitToRewrite),
-                    compilationUnitToRewrite);
+            Workspace.applyRewrite(rewrites.get(compilationUnitToRewrite), compilationUnitToRewrite);
         }
 
         performASTChange();
@@ -135,7 +135,7 @@ class Step {
                 result = combinedChange;
             }
 
-        } catch (final Exception e) {
+        } catch (final JavaModelException e) {
             e.printStackTrace();
         }
 

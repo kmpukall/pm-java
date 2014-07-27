@@ -11,12 +11,13 @@ package net.creichen.pm.analysis;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class PMBlock {
-    private final ArrayList<ASTNode> nodes;
+    private final List<ASTNode> nodes;
 
     private final Set<PMBlock> incomingBlocks;
     private final Set<PMBlock> outgoingBlocks;
@@ -49,7 +50,7 @@ public class PMBlock {
         return this.incomingBlocks;
     }
 
-    public ArrayList<ASTNode> getNodes() {
+    public List<ASTNode> getNodes() {
         return this.nodes;
     }
 

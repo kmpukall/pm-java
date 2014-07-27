@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,217 +32,217 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class NameModel {
-	private HashMap<Name, String> identifiersForNames;
+    private Map<Name, String> identifiersForNames;
 
-	private final Project project;
+    private final Project project;
 
-	public NameModel(final Project project) {
-		this.project = project;
+    public NameModel(final Project project) {
+        this.project = project;
 
-		this.identifiersForNames = new HashMap<Name, String>();
+        this.identifiersForNames = new HashMap<Name, String>();
 
-		assignInitialIdentifiers();
-	}
+        assignInitialIdentifiers();
+    }
 
-	private void assignInitialIdentifiers() {
-		// use ast visitor to assign identifier to each SimpleName
+    private void assignInitialIdentifiers() {
+        // use ast visitor to assign identifier to each SimpleName
 
-		final HashMap<IBinding, String> identifiersForBindings = new HashMap<IBinding, String>();
+        final Map<IBinding, String> identifiersForBindings = new HashMap<IBinding, String>();
 
-		this.identifiersForNames = new HashMap<Name, String>();
+        this.identifiersForNames = new HashMap<Name, String>();
 
-		for (final ASTNode rootNode : this.project.getASTRoots()) {
-			rootNode.accept(new ASTVisitor() {
+        for (final ASTNode rootNode : this.project.getASTRoots()) {
+            rootNode.accept(new ASTVisitor() {
 
-				// We should visit more than simle names here
-				// We also care about field accesses, right?
-				// method invocations, etc.??
+                // We should visit more than simle names here
+                // We also care about field accesses, right?
+                // method invocations, etc.??
 
-				@Override
-				public boolean visit(final SimpleName simpleName) {
-					IBinding binding = simpleName.resolveBinding();
+                @Override
+                public boolean visit(final SimpleName simpleName) {
+                    IBinding binding = simpleName.resolveBinding();
 
-					if (binding instanceof IVariableBinding) {
+                    if (binding instanceof IVariableBinding) {
 
-						binding = ((IVariableBinding) binding).getVariableDeclaration();
+                        binding = ((IVariableBinding) binding).getVariableDeclaration();
 
-						// to deal with generics; different instances of
-						// generics have different bindings
-						// we can cal getVariableDeclaration() to get a common
-						// binding representing the non-instantiated binding
-						//
-						// This may not be the right thing to do, but seems to
-						// be necessary for inside the definitions of generic
-						// classes;
-						// i.e.
-						/*
-						 * class Foo<T> { T _ivar;
-						 * 
-						 * T getIvar() { return _ivar; } }
-						 * 
-						 * If we don't use the getVariableDeclaration, we get separate bindings for the first and second
-						 * use of _ivar, which is clearly not what we want.
-						 * 
-						 * But, this may lose information that we want in other cases
-						 */
+                        // to deal with generics; different instances of
+                        // generics have different bindings
+                        // we can cal getVariableDeclaration() to get a common
+                        // binding representing the non-instantiated binding
+                        //
+                        // This may not be the right thing to do, but seems to
+                        // be necessary for inside the definitions of generic
+                        // classes;
+                        // i.e.
+                        /*
+                         * class Foo<T> { T _ivar;
+                         * 
+                         * T getIvar() { return _ivar; } }
+                         * 
+                         * If we don't use the getVariableDeclaration, we get separate bindings for the first and second
+                         * use of _ivar, which is clearly not what we want.
+                         * 
+                         * But, this may lose information that we want in other cases
+                         */
 
-					}
+                    }
 
-					if (binding instanceof ITypeBinding) {
-						binding = ((ITypeBinding) binding).getTypeDeclaration();
-					}
+                    if (binding instanceof ITypeBinding) {
+                        binding = ((ITypeBinding) binding).getTypeDeclaration();
+                    }
 
-					if (binding instanceof IMethodBinding) {
-						binding = ((IMethodBinding) binding).getMethodDeclaration();
-					}
+                    if (binding instanceof IMethodBinding) {
+                        binding = ((IMethodBinding) binding).getMethodDeclaration();
+                    }
 
-					// System.err.println("Got binding " + binding.hashCode() +
-					// " for " + simpleName);
-					String identifier = identifiersForBindings.get(binding);
+                    // System.err.println("Got binding " + binding.hashCode() +
+                    // " for " + simpleName);
+                    String identifier = identifiersForBindings.get(binding);
 
-					if (identifier == null) {
-						identifier = generateNewIdentifierForName(simpleName);
-						identifiersForBindings.put(binding, identifier);
-					}
+                    if (identifier == null) {
+                        identifier = generateNewIdentifierForName(simpleName);
+                        identifiersForBindings.put(binding, identifier);
+                    }
 
-					NameModel.this.identifiersForNames.put(simpleName, identifier);
+                    NameModel.this.identifiersForNames.put(simpleName, identifier);
 
-					return true;
-				}
-			});
+                    return true;
+                }
+            });
 
-		}
-	}
+        }
+    }
 
-	private List<MethodDeclaration> constructorsForClass(final TypeDeclaration classDeclaration) {
-		final List<MethodDeclaration> constructors = new ArrayList<MethodDeclaration>();
+    private List<MethodDeclaration> constructorsForClass(final TypeDeclaration classDeclaration) {
+        final List<MethodDeclaration> constructors = new ArrayList<MethodDeclaration>();
 
-		for (final MethodDeclaration method : classDeclaration.getMethods()) {
-			if (method.isConstructor()) {
-				constructors.add(method);
-			}
-		}
+        for (final MethodDeclaration method : classDeclaration.getMethods()) {
+            if (method.isConstructor()) {
+                constructors.add(method);
+            }
+        }
 
-		return constructors;
-	}
+        return constructors;
+    }
 
-	public String generateNewIdentifierForName(final Name name) {
-		return UUID.randomUUID().toString();
-	}
+    public String generateNewIdentifierForName(final Name name) {
+        return UUID.randomUUID().toString();
+    }
 
-	public String identifierForName(final Name name) {
-		return this.identifiersForNames.get(name);
-	}
+    public String identifierForName(final Name name) {
+        return this.identifiersForNames.get(name);
+    }
 
-	public ArrayList<SimpleName> nameNodesRelatedToNameNode(final SimpleName name) {
-		final Set<SimpleName> allRelatedNodes = new HashSet<SimpleName>();
+    public List<SimpleName> nameNodesRelatedToNameNode(final SimpleName name) {
+        final Set<SimpleName> allRelatedNodes = new HashSet<SimpleName>();
 
-		recursiveAddNameNodesRelatedToNameNode(name, allRelatedNodes);
+        recursiveAddNameNodesRelatedToNameNode(name, allRelatedNodes);
 
-		return new ArrayList<SimpleName>(allRelatedNodes);
-	}
+        return new ArrayList<SimpleName>(allRelatedNodes);
+    }
 
-	private ArrayList<SimpleName> nameNodesRelatedToNameNodeWithIdentifier(final String identifier) {
-		final String identifierCopy = identifier;
+    private List<SimpleName> nameNodesRelatedToNameNodeWithIdentifier(final String identifier) {
+        final String identifierCopy = identifier;
 
-		final ArrayList<SimpleName> result = new ArrayList<SimpleName>();
+        final List<SimpleName> result = new ArrayList<SimpleName>();
 
-		// We could keep reverse mappings instead of doing this?
+        // We could keep reverse mappings instead of doing this?
 
-		for (final ASTNode rootNode : this.project.getASTRoots()) {
-			rootNode.accept(new ASTVisitor() {
-				@Override
-				public boolean visit(final SimpleName visitedNode) {
-					final String identifierForVisitedNode = NameModel.this.identifiersForNames.get(visitedNode);
+        for (final ASTNode rootNode : this.project.getASTRoots()) {
+            rootNode.accept(new ASTVisitor() {
+                @Override
+                public boolean visit(final SimpleName visitedNode) {
+                    final String identifierForVisitedNode = NameModel.this.identifiersForNames.get(visitedNode);
 
-					if (identifierCopy.equals(identifierForVisitedNode)) {
-						result.add(visitedNode);
-					}
+                    if (identifierCopy.equals(identifierForVisitedNode)) {
+                        result.add(visitedNode);
+                    }
 
-					return true;
-				}
-			});
+                    return true;
+                }
+            });
 
-		}
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	private void recursiveAddNameNodesRelatedToNameNode(final SimpleName name, final Set<SimpleName> visitedNodes) {
+    private void recursiveAddNameNodesRelatedToNameNode(final SimpleName name, final Set<SimpleName> visitedNodes) {
 
-		final String identifier = this.identifiersForNames.get(name);
+        final String identifier = this.identifiersForNames.get(name);
 
-		final ArrayList<SimpleName> directlyRelatedNodes = nameNodesRelatedToNameNodeWithIdentifier(identifier);
+        final List<SimpleName> directlyRelatedNodes = nameNodesRelatedToNameNodeWithIdentifier(identifier);
 
-		for (final SimpleName directlyRelatedName : directlyRelatedNodes) {
-			if (!visitedNodes.contains(directlyRelatedName)) {
-				visitedNodes.add(directlyRelatedName);
+        for (final SimpleName directlyRelatedName : directlyRelatedNodes) {
+            if (!visitedNodes.contains(directlyRelatedName)) {
+                visitedNodes.add(directlyRelatedName);
 
-				final Set<SimpleName> indirectlyRelatedNames = representativeNameNodesIndirectlyRelatedToNameNode(directlyRelatedName);
+                final Set<SimpleName> indirectlyRelatedNames = representativeNameNodesIndirectlyRelatedToNameNode(directlyRelatedName);
 
-				for (final SimpleName indirectlyRelatedName : indirectlyRelatedNames) {
-					recursiveAddNameNodesRelatedToNameNode(indirectlyRelatedName, visitedNodes);
-				}
-			}
-		}
+                for (final SimpleName indirectlyRelatedName : indirectlyRelatedNames) {
+                    recursiveAddNameNodesRelatedToNameNode(indirectlyRelatedName, visitedNodes);
+                }
+            }
+        }
 
-	}
+    }
 
-	public void removeIdentifierForName(final Name name) {
-		this.identifiersForNames.remove(name);
-	}
+    public void removeIdentifierForName(final Name name) {
+        this.identifiersForNames.remove(name);
+    }
 
-	public void replaceNameWithName(final Name oldName, final Name newName) {
-		final String identifier = identifierForName(oldName);
+    public void replaceNameWithName(final Name oldName, final Name newName) {
+        final String identifier = identifierForName(oldName);
 
-		if (identifier != null) {
-			removeIdentifierForName(oldName);
-			setIdentifierForName(identifier, newName);
-		}
+        if (identifier != null) {
+            removeIdentifierForName(oldName);
+            setIdentifierForName(identifier, newName);
+        }
 
-	}
+    }
 
-	private Set<SimpleName> representativeNameNodesIndirectlyRelatedToNameNode(final SimpleName nameNode) {
-		final Set<SimpleName> result = new HashSet<SimpleName>();
+    private Set<SimpleName> representativeNameNodesIndirectlyRelatedToNameNode(final SimpleName nameNode) {
+        final Set<SimpleName> result = new HashSet<SimpleName>();
 
-		final ASTNode parent = nameNode.getParent();
-		final StructuralPropertyDescriptor locationInParent = nameNode.getLocationInParent();
+        final ASTNode parent = nameNode.getParent();
+        final StructuralPropertyDescriptor locationInParent = nameNode.getLocationInParent();
 
-		if (parent instanceof TypeDeclaration && locationInParent == ((TypeDeclaration) parent).getNameProperty()) {
-			final List<MethodDeclaration> constructors = constructorsForClass((TypeDeclaration) nameNode.getParent());
+        if (parent instanceof TypeDeclaration && locationInParent == ((TypeDeclaration) parent).getNameProperty()) {
+            final List<MethodDeclaration> constructors = constructorsForClass((TypeDeclaration) nameNode.getParent());
 
-			for (final MethodDeclaration constructor : constructors) {
-				result.add(constructor.getName());
-			}
-		} else if (parent instanceof MethodDeclaration) {
-			final MethodDeclaration method = (MethodDeclaration) nameNode.getParent();
+            for (final MethodDeclaration constructor : constructors) {
+                result.add(constructor.getName());
+            }
+        } else if (parent instanceof MethodDeclaration) {
+            final MethodDeclaration method = (MethodDeclaration) nameNode.getParent();
 
-			if (method.isConstructor()) {
-				// If the name is the name of a constructor, we have to add all
-				// of the other constructors
-				// (and the names related to them) and the
-				// name of the class and all names related to that class
+            if (method.isConstructor()) {
+                // If the name is the name of a constructor, we have to add all
+                // of the other constructors
+                // (and the names related to them) and the
+                // name of the class and all names related to that class
 
-				final TypeDeclaration containingClass = (TypeDeclaration) method.getParent();
+                final TypeDeclaration containingClass = (TypeDeclaration) method.getParent();
 
-				result.add(containingClass.getName());
+                result.add(containingClass.getName());
 
-				final List<MethodDeclaration> constructors = constructorsForClass(containingClass);
+                final List<MethodDeclaration> constructors = constructorsForClass(containingClass);
 
-				for (final MethodDeclaration constructor : constructors) {
-					if (constructor != method) {
-						result.add(constructor.getName());
-					}
-				}
+                for (final MethodDeclaration constructor : constructors) {
+                    if (constructor != method) {
+                        result.add(constructor.getName());
+                    }
+                }
 
-			}
-		}
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public String setIdentifierForName(final String identifier, final Name name) {
-		return this.identifiersForNames.put(name, identifier);
-	}
+    public String setIdentifierForName(final String identifier, final Name name) {
+        return this.identifiersForNames.put(name, identifier);
+    }
 
 }

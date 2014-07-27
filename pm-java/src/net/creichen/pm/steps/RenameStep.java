@@ -47,20 +47,18 @@ public class RenameStep extends Step {
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
         final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-        this.getProject().syncSources();
+        getProject().syncSources();
 
-        final NameModel nameModel = this.getProject().getNameModel();
+        final NameModel nameModel = getProject().getNameModel();
 
-        final ArrayList<SimpleName> nodesToRename = nameModel
-                .nameNodesRelatedToNameNode(this.nameNode);
+        final List<SimpleName> nodesToRename = nameModel.nameNodesRelatedToNameNode(this.nameNode);
 
         this.nameNodesToChange.addAll(nodesToRename);
 
-        final HashMap<ICompilationUnit, List<SimpleName>> nodesByICompilationUnit = new HashMap<ICompilationUnit, List<SimpleName>>();
+        final Map<ICompilationUnit, List<SimpleName>> nodesByICompilationUnit = new HashMap<ICompilationUnit, List<SimpleName>>();
 
         for (final SimpleName nodeToRename : nodesToRename) {
-            final CompilationUnit containingCompilationUnit = (CompilationUnit) nodeToRename
-                    .getRoot();
+            final CompilationUnit containingCompilationUnit = (CompilationUnit) nodeToRename.getRoot();
 
             final ICompilationUnit containingICompilationUnit = (ICompilationUnit) containingCompilationUnit
                     .getJavaElement();
@@ -120,7 +118,7 @@ public class RenameStep extends Step {
                 final ICompilationUnit iCompilationUnitToRename = (ICompilationUnit) ((CompilationUnit) nameNode
                         .getParent().getParent()).getJavaElement();
 
-                final PMCompilationUnit pmCompilationUnitToRename = this.getProject()
+                final PMCompilationUnit pmCompilationUnitToRename = getProject()
                         .getPMCompilationUnitForICompilationUnit(iCompilationUnitToRename);
 
                 pmCompilationUnitToRename.rename(this.newName);

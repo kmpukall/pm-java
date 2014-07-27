@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 //We use weak references to store references to nodes
 //that will automatically disappear if no one holds the reference object any more
 
-public class NodeReferenceStore {
+public final class NodeReferenceStore {
 
 	// Strictly speaking, we don't need to have the node in a weak reference
 	// as long as we make sure that there are no cycles from the node to
@@ -59,7 +59,7 @@ public class NodeReferenceStore {
 		this.referencesForNodes = new WeakHashMap<ASTNode, WeakReference<NodeReference>>();
 	}
 
-	public static final NodeReferenceStore getInstance() {
+	public static NodeReferenceStore getInstance() {
 		if (instance == null) {
 			instance = new NodeReferenceStore();
 		}

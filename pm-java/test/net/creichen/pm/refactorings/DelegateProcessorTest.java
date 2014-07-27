@@ -18,7 +18,6 @@ import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.refactorings.DelegateProcessor;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -33,18 +32,15 @@ public class DelegateProcessorTest extends PMTest {
 
         final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(
-                79 - 26, 3), compilationUnit);
+        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(53, 3), compilationUnit);
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S {void m(){S s = new S();s.getClass(); s.m();}}",
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
         final Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
@@ -58,13 +54,11 @@ public class DelegateProcessorTest extends PMTest {
 
         final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(
-                56 - 26, 59 - 56), compilationUnit);
+        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(30, 3), compilationUnit);
 
         delegateProcessor.setDelegateIdentifier("super");
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
@@ -82,18 +76,16 @@ public class DelegateProcessorTest extends PMTest {
 
         final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(
-                70 - 26, 3), compilationUnit);
+        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(44, 3), compilationUnit);
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S {S s; void m(){s.getClass(); s.m();}}", compilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {S s; void m(){s.getClass(); s.m();}}",
+                compilationUnit.getSource()));
 
         final Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
 
@@ -109,21 +101,18 @@ public class DelegateProcessorTest extends PMTest {
 
         // ICompilationUnit superCompilationUnit = createNewCompilationUnit("t",
         // "Super.java", superSource);
-        final ICompilationUnit subCompilationUnit = createNewCompilationUnit("t", "Sub.java",
-                subSource);
+        final ICompilationUnit subCompilationUnit = createNewCompilationUnit("t", "Sub.java", subSource);
 
         final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(
-                82 - 29, 3), subCompilationUnit);
+                "package t; public class Sub extends Super {void g() {".length(), "m()".length()), subCompilationUnit);
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "package t; public class Sub extends Super {void g() {s.m();}}",
+        assertTrue(compilationUnitSourceMatchesSource("package t; public class Sub extends Super {void g() {s.m();}}",
                 subCompilationUnit.getSource()));
 
         final Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
@@ -137,13 +126,11 @@ public class DelegateProcessorTest extends PMTest {
 
         final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(
-                56 - 26, 61 - 56), compilationUnit);
+        final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(30, 5), compilationUnit);
 
         delegateProcessor.setDelegateIdentifier("");
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         final RefactoringStatus status = ProcessorDriver.drive(delegateProcessor);
 

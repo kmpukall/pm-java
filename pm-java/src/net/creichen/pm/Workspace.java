@@ -10,23 +10,25 @@
 package net.creichen.pm;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 public final class Workspace {
     private static Workspace sharedWorkspace = null;
 
-    public static void applyRewrite(final ASTRewrite rewrite,
-            final ICompilationUnit iCompilationUnit) {
+    public static void applyRewrite(final ASTRewrite rewrite, final ICompilationUnit iCompilationUnit) {
         try {
             final TextEdit astEdit = rewrite.rewriteAST();
 
@@ -34,8 +36,7 @@ public final class Workspace {
             final IPath path = iCompilationUnit.getPath();
             try {
                 bufferManager.connect(path, LocationKind.IFILE, null);
-                final ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path,
-                        LocationKind.IFILE);
+                final ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path, LocationKind.IFILE);
 
                 final IDocument document = textFileBuffer.getDocument();
 
@@ -46,7 +47,9 @@ public final class Workspace {
                 bufferManager.disconnect(path, LocationKind.IFILE, null);
             }
 
-        } catch (final Exception e) {
+        } catch (final BadLocationException e) {
+            e.printStackTrace();
+        } catch (final CoreException e) {
             e.printStackTrace();
         }
     }
@@ -60,7 +63,7 @@ public final class Workspace {
         return sharedWorkspace;
     }
 
-    private final HashMap<IJavaProject, Project> projectMapping;
+    private final Map<IJavaProject, Project> projectMapping;
 
     private Workspace() {
         this.projectMapping = new HashMap<IJavaProject, Project>();

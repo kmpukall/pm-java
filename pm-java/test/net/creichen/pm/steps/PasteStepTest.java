@@ -21,7 +21,14 @@ import net.creichen.pm.analysis.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.junit.Test;
 
 public class PasteStepTest extends PMTest {
@@ -35,15 +42,12 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery
-                .fieldWithNameInClassInCompilationUnit("s", 0, "S1", 0, (CompilationUnit) pmProject
-                        .findASTRootForICompilationUnit(compilationUnit1));
+        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit(
+                "s", 0, "S1", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit1));
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment
-                .getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
         final CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
 
@@ -57,10 +61,10 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S1 {void m1(){System.out.println(s);}}", compilationUnit1.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S2 {void a(){} S1 s; void b(){} }", compilationUnit2.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S1 {void m1(){System.out.println(s);}}",
+                compilationUnit1.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S2 {void a(){} S1 s; void b(){} }",
+                compilationUnit2.getSource()));
     }
 
     @Test
@@ -72,13 +76,10 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final MethodDeclaration methodDeclaration = ASTQuery
-                .methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnit1));
+        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
+                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit1));
 
         final CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
@@ -92,11 +93,9 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S1 {S1 s;}",
-                compilationUnit1.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S1 {S1 s;}", compilationUnit1.getSource()));
         assertTrue(compilationUnitSourceMatchesSource(
-                "public class S2 {String a;  void m(){System.out.println(s);} String b;",
-                compilationUnit2.getSource()));
+                "public class S2 {String a;  void m(){System.out.println(s);} String b;", compilationUnit2.getSource()));
     }
 
     @Test
@@ -108,30 +107,23 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final MethodDeclaration sourceMethodDeclaration = ASTQuery
-                .methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnit1));
+        final MethodDeclaration sourceMethodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S1",
+                0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit1));
 
-        final Statement firstStatement = (Statement) sourceMethodDeclaration.getBody().statements()
-                .get(0);
+        final Statement firstStatement = (Statement) sourceMethodDeclaration.getBody().statements().get(0);
 
         final CutStep cutStep = new CutStep(pmProject, firstStatement);
 
         cutStep.applyAllAtOnce();
 
-        final MethodDeclaration targetMethodDeclaration = ASTQuery
-                .methodWithNameInClassInCompilationUnit("a", 0, "S2", 0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnit2));
+        final MethodDeclaration targetMethodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("a", 0, "S2",
+                0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit2));
 
         final Block targetBlock = targetMethodDeclaration.getBody();
 
-        final PasteStep pasteStep = new PasteStep(pmProject, targetBlock,
-                Block.STATEMENTS_PROPERTY, 1);
+        final PasteStep pasteStep = new PasteStep(pmProject, targetBlock, Block.STATEMENTS_PROPERTY, 1);
 
         pasteStep.applyAllAtOnce();
 
@@ -148,19 +140,15 @@ public class PasteStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        CompilationUnit compilationUnit = (CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(iCompilationUnit);
+        CompilationUnit compilationUnit = (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit);
 
-        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0, compilationUnit);
+        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+                compilationUnit);
 
-        final Statement thirdStatement = (Statement) methodDeclaration.getBody().statements()
-                .get(2);
-        final Statement fourthStatement = (Statement) methodDeclaration.getBody().statements()
-                .get(3);
+        final Statement thirdStatement = (Statement) methodDeclaration.getBody().statements().get(2);
+        final Statement fourthStatement = (Statement) methodDeclaration.getBody().statements().get(3);
 
         final List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
         nodesToCut.add(thirdStatement);
@@ -170,30 +158,25 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x,y; int a; x = 2;}}",
+                iCompilationUnit.getSource()));
 
         // have to get new ASTNodes b/c of reparsing
-        compilationUnit = (CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(iCompilationUnit);
+        compilationUnit = (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit);
 
-        methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-                compilationUnit);
+        methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0, compilationUnit);
 
-        final PasteStep pasteStep = new PasteStep(pmProject, methodDeclaration.getBody(),
-                Block.STATEMENTS_PROPERTY, 2);
+        final PasteStep pasteStep = new PasteStep(pmProject, methodDeclaration.getBody(), Block.STATEMENTS_PROPERTY, 2);
 
         pasteStep.applyAllAtOnce();
 
         assertTrue(compilationUnitSourceMatchesSource(
-                "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}",
-                iCompilationUnit.getSource()));
+                "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}", iCompilationUnit.getSource()));
 
     }
 
     @Test
-    public void testPullupFieldToDifferentPackageWithStaticMethodInitializer()
-            throws JavaModelException {
+    public void testPullupFieldToDifferentPackageWithStaticMethodInitializer() throws JavaModelException {
 
         final String sourceS = "package A; public class S extends A.T {String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String sourceT = "package B; public class T {}";
@@ -201,17 +184,11 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("A", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("B", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery
-                .fieldWithNameInClassInCompilationUnit(
-                        "string",
-                        0,
-                        "S",
-                        0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS)).getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+                "string", 0, "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS))
+                .getParent();
 
         final CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
 
@@ -228,10 +205,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "package A; public class S extends A.T {void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "package B; public class T {String string = foo(); }";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
-                compilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -243,16 +218,12 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery
-                .fieldWithNameInClassInCompilationUnit("string", 0, "S", 0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS));
+        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit(
+                "string", 0, "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS));
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment
-                .getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
         final CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
 
@@ -269,10 +240,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
         final String expectedNewSourceT = "public class T {String string;}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
-                compilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -284,17 +253,11 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery
-                .fieldWithNameInClassInCompilationUnit(
-                        "string",
-                        0,
-                        "S",
-                        0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS)).getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+                "string", 0, "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS))
+                .getParent();
 
         final CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
 
@@ -311,10 +274,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
         final String expectedNewSourceT = "public class T {String string = \"Bar\";}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
-                compilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -326,17 +287,11 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery
-                .fieldWithNameInClassInCompilationUnit(
-                        "string",
-                        0,
-                        "S",
-                        0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS)).getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+                "string", 0, "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS))
+                .getParent();
 
         final CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
 
@@ -353,10 +308,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "public class T {String string = foo();}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
-                compilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -368,17 +321,11 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery
-                .fieldWithNameInClassInCompilationUnit(
-                        "string",
-                        0,
-                        "S",
-                        0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS)).getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+                "string", 0, "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS))
+                .getParent();
 
         final CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
 
@@ -395,15 +342,12 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "public class T {static String string = foo();}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
-                compilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
-    public void testPullupStaticMethodWithStaticFieldInitializerReferencingIt()
-            throws JavaModelException {
+    public void testPullupStaticMethodWithStaticFieldInitializerReferencingIt() throws JavaModelException {
 
         final String sourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String sourceT = "public class T {}";
@@ -411,13 +355,10 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final MethodDeclaration methodDeclaration = ASTQuery
-                .methodWithNameInClassInCompilationUnit("foo", 0, "S", 0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitS));
+        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("foo", 0, "S", 0,
+                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS));
 
         final CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
@@ -434,10 +375,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);}  }";
         final String expectedNewSourceT = "public class T { private static String foo() {return \"foo\";}}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS,
-                compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT,
-                compilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
 }

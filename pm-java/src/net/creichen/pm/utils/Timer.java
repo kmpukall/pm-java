@@ -10,14 +10,15 @@
 package net.creichen.pm.utils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Timer {
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
 
-    private final HashMap<String, Long> accumulatedMilliseconds;
+    private final Map<String, Long> accumulatedMilliseconds;
 
-    private final HashMap<String, Long> startTimes;
+    private final Map<String, Long> startTimes;
 
     private static Timer sharedTimer;
 

@@ -22,11 +22,11 @@ public class DefUseModelConsistencyChecker {
 
 	private Project project;
 
-	public DefUseModelConsistencyChecker(Project project) {
+	public DefUseModelConsistencyChecker(final Project project) {
 		this.project = project;
 	}
 
-	public Collection<Inconsistency> calculateInconsistencies(DefUseModel model) {
+	public Collection<Inconsistency> calculateInconsistencies(final DefUseModel model) {
 
 		final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 

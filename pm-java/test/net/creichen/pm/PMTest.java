@@ -9,10 +9,18 @@
 
 package net.creichen.pm;
 
-import net.creichen.pm.Workspace;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -33,8 +41,8 @@ public class PMTest {
         return compilationUnit1.subtreeMatch(new ASTMatcher(), compilationUnit2);
     }
 
-    public ICompilationUnit createNewCompilationUnit(final String packageFragmentName,
-            final String fileName, final String sourceText) {
+    public ICompilationUnit createNewCompilationUnit(final String packageFragmentName, final String fileName,
+            final String sourceText) {
 
         ICompilationUnit result = null;
 
@@ -49,12 +57,11 @@ public class PMTest {
 
             Assert.assertTrue(srcFolder.exists());
 
-            final IPackageFragment fragment = srcFolder.createPackageFragment(packageFragmentName,
-                    true, null);
+            final IPackageFragment fragment = srcFolder.createPackageFragment(packageFragmentName, true, null);
 
             result = fragment.createCompilationUnit(fileName, sourceText, false, null);
 
-        } catch (final Exception e) {
+        } catch (final CoreException e) {
             throw new RuntimeException(e);
         }
 
@@ -80,14 +87,12 @@ public class PMTest {
 
             this.iJavaProject = JavaCore.create(this.iProject);
 
-            final IClasspathEntry[] buildPath = {
-                    JavaCore.newSourceEntry(this.iProject.getFullPath().append("src")),
+            final IClasspathEntry[] buildPath = { JavaCore.newSourceEntry(this.iProject.getFullPath().append("src")),
                     JavaRuntime.getDefaultJREContainerEntry() };
 
-            this.iJavaProject.setRawClasspath(buildPath, this.iProject.getFullPath().append("bin"),
-                    null);
+            this.iJavaProject.setRawClasspath(buildPath, this.iProject.getFullPath().append("bin"), null);
 
-        } catch (final Exception e) {
+        } catch (final CoreException e) {
             e.printStackTrace();
 
             throw new RuntimeException(e);
@@ -101,7 +106,7 @@ public class PMTest {
             Workspace.sharedWorkspace().removeProjectForIJavaProject(this.iJavaProject);
 
             this.iProject.delete(true, null);
-        } catch (final Exception e) {
+        } catch (final CoreException e) {
             e.printStackTrace();
 
             throw new RuntimeException(e);

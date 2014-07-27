@@ -17,15 +17,26 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.Project;
-import net.creichen.pm.analysis.Use;
 import net.creichen.pm.analysis.RDefsAnalysis;
+import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.utils.APIWrapperUtil;
 import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class DelegateStep extends Step {
@@ -52,8 +63,7 @@ public class DelegateStep extends Step {
 
         this.selectedNode = selectedNode;
 
-        final CompilationUnit containingCompilationUnit = (CompilationUnit) this.selectedNode
-                .getRoot();
+        final CompilationUnit containingCompilationUnit = (CompilationUnit) this.selectedNode.getRoot();
 
         this.iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
 
@@ -80,8 +90,8 @@ public class DelegateStep extends Step {
 
                 this.newSuperInvocationNode = superMethodDelegatingMethodInvocation(this.selectedMethodInvocation);
 
-                rewriteToDelegateMethodInvocationToSuperInvocation(astRewrite,
-                        this.selectedMethodInvocation, this.newSuperInvocationNode);
+                rewriteToDelegateMethodInvocationToSuperInvocation(astRewrite, this.selectedMethodInvocation,
+                        this.newSuperInvocationNode);
 
             } else {
                 if (!this.delegateIdentifier.equals("")) {
@@ -90,8 +100,8 @@ public class DelegateStep extends Step {
                     this.newExpressionNode = null;
                 }
 
-                rewriteToDelegateMethodInvocationToIdentifier(astRewrite,
-                        this.selectedMethodInvocation, this.newExpressionNode);
+                rewriteToDelegateMethodInvocationToIdentifier(astRewrite, this.selectedMethodInvocation,
+                        this.newExpressionNode);
             }
 
             result.put(this.iCompilationUnit, astRewrite);
@@ -122,8 +132,7 @@ public class DelegateStep extends Step {
 
             if (oldArguments.size() == newArguments.size()) {
                 for (int i = 0; i < oldArguments.size(); i++) {
-                    getProject().recursivelyReplaceNodeWithCopy(oldArguments.get(i),
-                            newArguments.get(i));
+                    getProject().recursivelyReplaceNodeWithCopy(oldArguments.get(i), newArguments.get(i));
                 }
 
             } else {
@@ -132,20 +141,16 @@ public class DelegateStep extends Step {
 
             // FIXME(dcc) Should use ASTNodeUtils.replaceNodeInParent()
 
-            final StructuralPropertyDescriptor location = this.selectedMethodInvocation
-                    .getLocationInParent();
+            final StructuralPropertyDescriptor location = this.selectedMethodInvocation.getLocationInParent();
 
             // replace the selected method invocation with the new invocation
             if (location.isChildProperty()) {
-                this.selectedMethodInvocation.getParent().setStructuralProperty(location,
-                        this.newSuperInvocationNode);
+                this.selectedMethodInvocation.getParent().setStructuralProperty(location, this.newSuperInvocationNode);
             } else {
-                final List<ASTNode> parentList = getStructuralProperty(
-                        (ChildListPropertyDescriptor) location,
+                final List<ASTNode> parentList = getStructuralProperty((ChildListPropertyDescriptor) location,
                         this.selectedMethodInvocation.getParent());
 
-                parentList.set(parentList.indexOf(this.selectedMethodInvocation),
-                        this.newSuperInvocationNode);
+                parentList.set(parentList.indexOf(this.selectedMethodInvocation), this.newSuperInvocationNode);
             }
 
         } else {
@@ -153,11 +158,9 @@ public class DelegateStep extends Step {
             if (this.newExpressionNode != null) {
                 if (this.newExpressionNode instanceof Name) {
 
-                    this.newExpressionNodeReference = getProject().getReferenceForNode(
-                            this.newExpressionNode);
+                    this.newExpressionNodeReference = getProject().getReferenceForNode(this.newExpressionNode);
                 } else {
-                    System.err.println("Unexpected new expression type "
-                            + this.newExpressionNode.getClass());
+                    System.err.println("Unexpected new expression type " + this.newExpressionNode.getClass());
                 }
 
             }
@@ -172,44 +175,38 @@ public class DelegateStep extends Step {
     private void rewriteToDelegateMethodInvocationToIdentifier(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression identifierNode) {
         astRewrite
-                .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
+        .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
     }
 
     private void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression superInvocationNode) {
         astRewrite.replace(methodInvocation, superInvocationNode, null /*
-                                                                        * edit group
-                                                                        */);
+         * edit group
+         */);
     }
 
     public void setDelegateIdentifier(final String delegateIdentifier) {
         this.delegateIdentifier = delegateIdentifier;
     }
 
-    private SuperMethodInvocation superMethodDelegatingMethodInvocation(
-            final MethodInvocation invocationToDelegate) {
+    private SuperMethodInvocation superMethodDelegatingMethodInvocation(final MethodInvocation invocationToDelegate) {
 
         final AST ast = invocationToDelegate.getAST();
 
         final SuperMethodInvocation superMethodInvocationNode = ast.newSuperMethodInvocation();
 
-        superMethodInvocationNode
-                .setStructuralProperty(SuperMethodInvocation.NAME_PROPERTY, ASTNode
-                        .copySubtree(
-                                ast,
-                                getStructuralProperty(MethodInvocation.NAME_PROPERTY,
-                                        invocationToDelegate)));
-        final List<ASTNode> argumentsProperty = getStructuralProperty(
-                MethodInvocation.ARGUMENTS_PROPERTY, invocationToDelegate);
-        final List<ASTNode> typeArgumentsProperty = getStructuralProperty(
-                MethodInvocation.TYPE_ARGUMENTS_PROPERTY, invocationToDelegate);
+        superMethodInvocationNode.setStructuralProperty(SuperMethodInvocation.NAME_PROPERTY,
+                ASTNode.copySubtree(ast, getStructuralProperty(MethodInvocation.NAME_PROPERTY, invocationToDelegate)));
+        final List<ASTNode> argumentsProperty = getStructuralProperty(MethodInvocation.ARGUMENTS_PROPERTY,
+                invocationToDelegate);
+        final List<ASTNode> typeArgumentsProperty = getStructuralProperty(MethodInvocation.TYPE_ARGUMENTS_PROPERTY,
+                invocationToDelegate);
 
-        // FIXME: this looks really sketchy. copySubtrees() returns a List<ASTNode>, but addAll()
-        // expects a Collection<Expression> - can we really be sure that this does not lead to a
-        // class cast error?
-        arguments(superMethodInvocationNode).addAll(ASTNode.copySubtrees(ast, argumentsProperty));
-        arguments(superMethodInvocationNode).addAll(
-                ASTNode.copySubtrees(ast, typeArgumentsProperty));
+        List<Expression> arguments = APIWrapperUtil.toExpressionList(ASTNode.copySubtrees(ast, argumentsProperty));
+        arguments(superMethodInvocationNode).addAll(arguments);
+        List<Expression> typeArguments = APIWrapperUtil.toExpressionList(ASTNode.copySubtrees(ast,
+                typeArgumentsProperty));
+        arguments(superMethodInvocationNode).addAll(typeArguments);
 
         return superMethodInvocationNode;
     }
@@ -230,8 +227,7 @@ public class DelegateStep extends Step {
             final ASTNode declaringNode = getProject().findDeclaringNodeForName(name);
 
             if (declaringNode != null) {
-                final SimpleName simpleNameForDeclaringNode = ASTUtil
-                        .simpleNameForDeclaringNode(declaringNode);
+                final SimpleName simpleNameForDeclaringNode = ASTUtil.simpleNameForDeclaringNode(declaringNode);
 
                 final String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);
 

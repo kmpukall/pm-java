@@ -39,631 +39,568 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 
 public class RDefsAnalysis {
 
-	private final MethodDeclaration methodDeclaration;
-	private ArrayList<Def> definitions;
-	private Map<IBinding, Set<Def>> definitionsByBinding;
-	private Map<ASTNode, Def> definitionsByDefiningNode;
-	private Map<SimpleName, Use> usesByName;
-	private ArrayList<PMBlock> allBlocks;
-	private Map<ASTNode, PMBlock> blocksByNode;
-	private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnEntry;
-	private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnExit;
-	private final HashMap<Def, HashMap<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<Def, HashMap<IBinding, VariableAssignment>>();
-
-	public RDefsAnalysis(final MethodDeclaration methodDeclaration) {
-		this.methodDeclaration = methodDeclaration;
-
-		runAnalysis(); // may wish to do this lazily
-	}
-
-	public ArrayList<PMBlock> getAllBlocks() {
-		return this.allBlocks;
-	}
-
-	public Def getDefinitionForDefiningNode(final ASTNode definingNode) {
-		return this.definitionsByDefiningNode.get(definingNode);
-	}
-
-	public ArrayList<Def> getDefinitions() {
-		return this.definitions;
-	}
-
-	public Collection<Use> getUses() {
-		return this.usesByName.values();
-	}
-
-	// return PMUse object for a simple name, or null if the simpleName does not
-	// represent a use
-	public Use useForSimpleName(final SimpleName name) {
-		return this.usesByName.get(name);
-	}
-
-	private void addDefinitionForNode(final ASTNode node) {
-		final Def definition = new Def(node);
-
-		this.definitions.add(definition);
-		this.definitionsByDefiningNode.put(node, definition);
-	}
-
-	private void addSerialBlockToEndOfList(final PMBlock block,
-			final ArrayList<PMBlock> blockList) {
-		if (blockList.size() > 0) {
-			final PMBlock lastBlock = blockList.get(blockList.size() - 1);
-			lastBlock.addOutgoingBlock(block);
-		}
-		blockList.add(block);
-	}
-
-	private void findAllBlocks() {
-		this.allBlocks = new ArrayList<PMBlock>();
-		this.allBlocks.add(new PMBlock()); // synthetic initial block;
-		mergeBlockLists(this.allBlocks,
-				generateBlocksForStatement(this.methodDeclaration.getBody()));
-
-		// fill in _blocksByNode
-		// Every node should have at least one ancestor that has a block
-		// according to this hash
-
-		this.blocksByNode = new HashMap<ASTNode, PMBlock>();
-		for (final PMBlock block : this.allBlocks) {
-			for (final ASTNode node : block.getNodes()) {
-				this.blocksByNode.put(node, block);
-			}
-
-		}
-	}
-
-	private void findDefinitions() {
-		this.definitions = new ArrayList<Def>();
-		this.definitionsByDefiningNode = new HashMap<ASTNode, Def>();
-
-		final List<ASTNode> definingNodes = DefUseUtil
-				.findDefiningNodesUnderNode(this.methodDeclaration.getBody());
-		for (final ASTNode definingNode : definingNodes) {
-			addDefinitionForNode(definingNode);
-		}
+    private final MethodDeclaration methodDeclaration;
+    private List<Def> definitions;
+    private Map<IBinding, Set<Def>> definitionsByBinding;
+    private Map<ASTNode, Def> definitionsByDefiningNode;
+    private Map<SimpleName, Use> usesByName;
+    private List<PMBlock> allBlocks;
+    private Map<ASTNode, PMBlock> blocksByNode;
+    private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnEntry;
+    private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnExit;
+    private final Map<Def, Map<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<Def, Map<IBinding, VariableAssignment>>();
+
+    public RDefsAnalysis(final MethodDeclaration methodDeclaration) {
+        this.methodDeclaration = methodDeclaration;
+
+        runAnalysis(); // may wish to do this lazily
+    }
+
+    public List<PMBlock> getAllBlocks() {
+        return this.allBlocks;
+    }
+
+    public Def getDefinitionForDefiningNode(final ASTNode definingNode) {
+        return this.definitionsByDefiningNode.get(definingNode);
+    }
+
+    public List<Def> getDefinitions() {
+        return this.definitions;
+    }
+
+    public Collection<Use> getUses() {
+        return this.usesByName.values();
+    }
+
+    // return PMUse object for a simple name, or null if the simpleName does not
+    // represent a use
+    public Use useForSimpleName(final SimpleName name) {
+        return this.usesByName.get(name);
+    }
+
+    private void addDefinitionForNode(final ASTNode node) {
+        final Def definition = new Def(node);
+
+        this.definitions.add(definition);
+        this.definitionsByDefiningNode.put(node, definition);
+    }
+
+    private void addSerialBlockToEndOfList(final PMBlock block, final List<PMBlock> blockList) {
+        if (blockList.size() > 0) {
+            final PMBlock lastBlock = blockList.get(blockList.size() - 1);
+            lastBlock.addOutgoingBlock(block);
+        }
+        blockList.add(block);
+    }
+
+    private void findAllBlocks() {
+        this.allBlocks = new ArrayList<PMBlock>();
+        this.allBlocks.add(new PMBlock()); // synthetic initial block;
+        mergeBlockLists(this.allBlocks, generateBlocksForStatement(this.methodDeclaration.getBody()));
+
+        // fill in _blocksByNode
+        // Every node should have at least one ancestor that has a block
+        // according to this hash
 
-		this.definitionsByBinding = new HashMap<IBinding, Set<Def>>();
-		for (final Def def : this.definitions) {
-			final IBinding binding = def.getBinding();
-			Set<Def> definitionsForBinding = this.definitionsByBinding
-					.get(binding);
-			if (definitionsForBinding == null) {
-				definitionsForBinding = new HashSet<Def>();
-				this.definitionsByBinding.put(binding, definitionsForBinding);
-			}
-			definitionsForBinding.add(def);
-		}
-	}
+        this.blocksByNode = new HashMap<ASTNode, PMBlock>();
+        for (final PMBlock block : this.allBlocks) {
+            for (final ASTNode node : block.getNodes()) {
+                this.blocksByNode.put(node, block);
+            }
 
-	private HashMap<PMBlock, HashSet<VariableAssignment>> findGenSets() {
+        }
+    }
 
-		final HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
+    private void findDefinitions() {
+        this.definitions = new ArrayList<Def>();
+        this.definitionsByDefiningNode = new HashMap<ASTNode, Def>();
 
-		for (final Def definition : this.definitions) {
+        final List<ASTNode> definingNodes = DefUseUtil.findDefiningNodesUnderNode(this.methodDeclaration.getBody());
+        for (final ASTNode definingNode : definingNodes) {
+            addDefinitionForNode(definingNode);
+        }
 
-			// Create singleton set for gen set (could probably dispense w/
-			// containing set)
-			final HashSet<VariableAssignment> genSet = new HashSet<VariableAssignment>();
+        this.definitionsByBinding = new HashMap<IBinding, Set<Def>>();
+        for (final Def def : this.definitions) {
+            final IBinding binding = def.getBinding();
+            Set<Def> definitionsForBinding = this.definitionsByBinding.get(binding);
+            if (definitionsForBinding == null) {
+                definitionsForBinding = new HashSet<Def>();
+                this.definitionsByBinding.put(binding, definitionsForBinding);
+            }
+            definitionsForBinding.add(def);
+        }
+    }
 
-			final IBinding binding = definition.getBinding();
+    private Map<PMBlock, Set<VariableAssignment>> findGenSets() {
 
-			// The binding could be null if the declaration for the lhs no
-			// longer exists
+        final Map<PMBlock, Set<VariableAssignment>> result = new HashMap<PMBlock, Set<VariableAssignment>>();
 
-			if (binding != null) {
-				genSet.add(uniqueVariableAssignment(definition, binding));
+        for (final Def definition : this.definitions) {
 
-				final PMBlock block = getBlockForNode(definition
-						.getDefiningNode());
+            // Create singleton set for gen set (could probably dispense w/
+            // containing set)
+            final Set<VariableAssignment> genSet = new HashSet<VariableAssignment>();
 
-				result.put(block, genSet);
-			}
-		}
+            final IBinding binding = definition.getBinding();
 
-		return result;
-	}
+            // The binding could be null if the declaration for the lhs no
+            // longer exists
 
-	private HashMap<PMBlock, HashSet<VariableAssignment>> findKillSets() {
+            if (binding != null) {
+                genSet.add(uniqueVariableAssignment(definition, binding));
 
-		final HashMap<PMBlock, HashSet<VariableAssignment>> result = new HashMap<PMBlock, HashSet<VariableAssignment>>();
+                final PMBlock block = getBlockForNode(definition.getDefiningNode());
 
-		// Note: we populate the killsets by iterating through definitions
-		// this means there will be no killset for a block with no definitions
-		//
-		for (final Def definition : this.definitions) {
-			final IBinding binding = definition.getBinding();
+                result.put(block, genSet);
+            }
+        }
 
-			// Binding may be null if the declaring node for our lhs no longer
-			// exists
-			if (binding != null) {
-				final HashSet<VariableAssignment> killSet = new HashSet<VariableAssignment>();
+        return result;
+    }
 
-				// killset for an assignment is the "undefined" assignment plus
-				// all the other assignments than this one
+    private Map<PMBlock, Set<VariableAssignment>> findKillSets() {
 
-				killSet.add(uniqueVariableAssignment(null, binding)); // "undefined"
-				// assignment
+        final Map<PMBlock, Set<VariableAssignment>> result = new HashMap<PMBlock, Set<VariableAssignment>>();
 
-				for (final Def otherDefinition : this.definitionsByBinding
-						.get(binding)) {
-					if (otherDefinition != definition) {
-						killSet.add(uniqueVariableAssignment(otherDefinition,
-								binding));
-					}
-				}
+        // Note: we populate the killsets by iterating through definitions
+        // this means there will be no killset for a block with no definitions
+        //
+        for (final Def definition : this.definitions) {
+            final IBinding binding = definition.getBinding();
 
-				final PMBlock block = getBlockForNode(definition
-						.getDefiningNode());
+            // Binding may be null if the declaring node for our lhs no longer
+            // exists
+            if (binding != null) {
+                final Set<VariableAssignment> killSet = new HashSet<VariableAssignment>();
 
-				result.put(block, killSet);
-			}
+                // killset for an assignment is the "undefined" assignment plus
+                // all the other assignments than this one
 
-		}
+                killSet.add(uniqueVariableAssignment(null, binding)); // "undefined"
+                // assignment
 
-		return result;
-	}
+                for (final Def otherDefinition : this.definitionsByBinding.get(binding)) {
+                    if (otherDefinition != definition) {
+                        killSet.add(uniqueVariableAssignment(otherDefinition, binding));
+                    }
+                }
 
-	private void findUses() {
+                final PMBlock block = getBlockForNode(definition.getDefiningNode());
 
-		this.usesByName = new HashMap<SimpleName, Use>();
+                result.put(block, killSet);
+            }
 
-		final Block body = this.methodDeclaration.getBody();
+        }
 
-		final ASTVisitor visitor = new ASTVisitor() {
+        return result;
+    }
 
-			@Override
-			public boolean visit(final SimpleName name) {
+    private void findUses() {
 
-				final PMBlock block = getBlockForNode(name);
+        this.usesByName = new HashMap<SimpleName, Use>();
 
-				final Set<VariableAssignment> reachingDefinitions = RDefsAnalysis.this.reachingDefsOnEntry
-						.get(block);
+        final Block body = this.methodDeclaration.getBody();
 
-				if (simpleNameIsUse(name)) {
-					final Use use = new Use(name);
+        final ASTVisitor visitor = new ASTVisitor() {
 
-					RDefsAnalysis.this.usesByName.put(name, use);
+            @Override
+            public boolean visit(final SimpleName name) {
 
-					final IBinding variableBinding = name.resolveBinding();
+                final PMBlock block = getBlockForNode(name);
 
-					for (final VariableAssignment reachingDefinition : reachingDefinitions) {
-						if (reachingDefinition.getVariableBinding() == variableBinding) {
-							use.addReachingDefinition(reachingDefinition
-									.getDefinition());
-						}
-					}
-				}
+                final Set<VariableAssignment> reachingDefinitions = RDefsAnalysis.this.reachingDefsOnEntry.get(block);
 
-				return true;
-			}
-		};
+                if (simpleNameIsUse(name)) {
+                    final Use use = new Use(name);
 
-		body.accept(visitor);
+                    RDefsAnalysis.this.usesByName.put(name, use);
 
-	}
+                    final IBinding variableBinding = name.resolveBinding();
 
-	private ArrayList<PMBlock> generateBlocksForExpression(
-			final Expression expression) {
-		final ArrayList<PMBlock> result = new ArrayList<PMBlock>();
+                    for (final VariableAssignment reachingDefinition : reachingDefinitions) {
+                        if (reachingDefinition.getVariableBinding() == variableBinding) {
+                            use.addReachingDefinition(reachingDefinition.getDefinition());
+                        }
+                    }
+                }
 
-		if (expression instanceof Assignment) {
-			final Assignment assignmentExpression = (Assignment) expression;
+                return true;
+            }
+        };
 
-			final PMBlock block = new PMBlock();
+        body.accept(visitor);
 
-			mergeBlockLists(result,
-					generateBlocksForExpression(assignmentExpression
-							.getRightHandSide()));
+    }
 
-			block.addNode(expression);
+    private List<PMBlock> generateBlocksForExpression(final Expression expression) {
+        final List<PMBlock> result = new ArrayList<PMBlock>();
 
-			addSerialBlockToEndOfList(block, result);
-		} else if (expression instanceof VariableDeclarationExpression) {
-			// add a block for reach fragment
-			// don't currently handle complex code in initializers
+        if (expression instanceof Assignment) {
+            final Assignment assignmentExpression = (Assignment) expression;
 
-			final VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
+            final PMBlock block = new PMBlock();
 
-			for (final VariableDeclarationFragment fragment : fragments(variableDeclarationExpression)) {
-				// really should generate blocks for fragment initializer
+            mergeBlockLists(result, generateBlocksForExpression(assignmentExpression.getRightHandSide()));
 
-				final PMBlock block = new PMBlock();
+            block.addNode(expression);
 
-				block.addNode(fragment);
+            addSerialBlockToEndOfList(block, result);
+        } else if (expression instanceof VariableDeclarationExpression) {
+            // add a block for reach fragment
+            // don't currently handle complex code in initializers
 
-				addSerialBlockToEndOfList(block, result);
-			}
-		} else {
-			final PMBlock block = new PMBlock();
+            final VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
 
-			block.addNode(expression);
+            for (final VariableDeclarationFragment fragment : fragments(variableDeclarationExpression)) {
+                // really should generate blocks for fragment initializer
 
-			addSerialBlockToEndOfList(block, result);
+                final PMBlock block = new PMBlock();
 
-		}
+                block.addNode(fragment);
 
-		return result;
-	}
+                addSerialBlockToEndOfList(block, result);
+            }
+        } else {
+            final PMBlock block = new PMBlock();
 
-	private ArrayList<PMBlock> generateBlocksForStatement(
-			final Statement statement) {
-		final ArrayList<PMBlock> result = new ArrayList<PMBlock>();
+            block.addNode(expression);
 
-		if (statement instanceof ExpressionStatement) {
-			final ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+            addSerialBlockToEndOfList(block, result);
 
-			result.addAll(generateBlocksForExpression(expressionStatement
-					.getExpression()));
-		} else if (statement instanceof Block) {
-			final Block blockStatement = (Block) statement;
+        }
 
-			for (final Statement subStatement : statements(blockStatement)) {
-				final ArrayList<PMBlock> blocksForSubStatement = generateBlocksForStatement(subStatement);
+        return result;
+    }
 
-				mergeBlockLists(result, blocksForSubStatement);
-			}
-		} else if (statement instanceof IfStatement) {
-			final IfStatement ifStatement = (IfStatement) statement;
-			/*
-			 * three components: - guard block - then block - else block
-			 *
-			 * - exit block to join then and else
-			 */
+    private List<PMBlock> generateBlocksForStatement(final Statement statement) {
+        final List<PMBlock> result = new ArrayList<PMBlock>();
 
-			final ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(ifStatement
-					.getExpression());
-			final PMBlock endingGuardBlock = blocksForGuard.get(blocksForGuard
-					.size() - 1);
+        if (statement instanceof ExpressionStatement) {
+            final ExpressionStatement expressionStatement = (ExpressionStatement) statement;
 
-			final PMBlock exitBlock = new PMBlock();
+            result.addAll(generateBlocksForExpression(expressionStatement.getExpression()));
+        } else if (statement instanceof Block) {
+            final Block blockStatement = (Block) statement;
 
-			mergeBlockLists(result, blocksForGuard);
+            for (final Statement subStatement : statements(blockStatement)) {
+                final List<PMBlock> blocksForSubStatement = generateBlocksForStatement(subStatement);
 
-			final ArrayList<PMBlock> blocksForThen = generateBlocksForStatement(ifStatement
-					.getThenStatement());
+                mergeBlockLists(result, blocksForSubStatement);
+            }
+        } else if (statement instanceof IfStatement) {
+            final IfStatement ifStatement = (IfStatement) statement;
+            /*
+             * three components: - guard block - then block - else block
+             *
+             * - exit block to join then and else
+             */
 
-			// this will make a connection from the ending guard block to the
-			// first then block
-			mergeBlockLists(result, blocksForThen);
+            final List<PMBlock> blocksForGuard = generateBlocksForExpression(ifStatement.getExpression());
+            final PMBlock endingGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
 
-			final PMBlock endingThenBlock = blocksForThen.get(blocksForThen
-					.size() - 1);
-			endingThenBlock.addOutgoingBlock(exitBlock);
+            final PMBlock exitBlock = new PMBlock();
 
-			if (ifStatement.getElseStatement() != null) {
-				final ArrayList<PMBlock> blocksForElse = generateBlocksForStatement(ifStatement
-						.getElseStatement());
+            mergeBlockLists(result, blocksForGuard);
 
-				// make connection from the ending guard block to the starting
-				// else block
-				// and from the ending else block to the exitBlock
+            final List<PMBlock> blocksForThen = generateBlocksForStatement(ifStatement.getThenStatement());
 
-				final PMBlock startingElseBlock = blocksForElse.get(0);
+            // this will make a connection from the ending guard block to the
+            // first then block
+            mergeBlockLists(result, blocksForThen);
 
-				endingGuardBlock.addOutgoingBlock(startingElseBlock);
+            final PMBlock endingThenBlock = blocksForThen.get(blocksForThen.size() - 1);
+            endingThenBlock.addOutgoingBlock(exitBlock);
 
-				final PMBlock endingElseBlock = blocksForElse.get(blocksForElse
-						.size() - 1);
+            if (ifStatement.getElseStatement() != null) {
+                final List<PMBlock> blocksForElse = generateBlocksForStatement(ifStatement.getElseStatement());
 
-				endingElseBlock.addOutgoingBlock(exitBlock);
+                // make connection from the ending guard block to the starting
+                // else block
+                // and from the ending else block to the exitBlock
 
-				result.addAll(blocksForElse);
-			} else {
-				// No else block, so guard block may flow directly to exit block
+                final PMBlock startingElseBlock = blocksForElse.get(0);
 
-				endingGuardBlock.addOutgoingBlock(exitBlock);
-			}
+                endingGuardBlock.addOutgoingBlock(startingElseBlock);
 
-			result.add(exitBlock);
+                final PMBlock endingElseBlock = blocksForElse.get(blocksForElse.size() - 1);
 
-		} else if (statement instanceof WhileStatement) {
-			final WhileStatement whileStatement = (WhileStatement) statement;
+                endingElseBlock.addOutgoingBlock(exitBlock);
 
-			/*
-			 * while statements consist of: - guard condition - body
-			 *
-			 * - synthetic exit block
-			 */
+                result.addAll(blocksForElse);
+            } else {
+                // No else block, so guard block may flow directly to exit block
 
-			final ArrayList<PMBlock> blocksForGuard = generateBlocksForExpression(whileStatement
-					.getExpression());
-			final PMBlock startingGuardBlock = blocksForGuard.get(0);
-			final PMBlock lastGuardBlock = blocksForGuard.get(blocksForGuard
-					.size() - 1);
+                endingGuardBlock.addOutgoingBlock(exitBlock);
+            }
 
-			final PMBlock exitBlock = new PMBlock();
+            result.add(exitBlock);
 
-			mergeBlockLists(result, blocksForGuard);
+        } else if (statement instanceof WhileStatement) {
+            final WhileStatement whileStatement = (WhileStatement) statement;
 
-			final ArrayList<PMBlock> blocksForBody = generateBlocksForStatement(whileStatement
-					.getBody());
+            /*
+             * while statements consist of: - guard condition - body
+             *
+             * - synthetic exit block
+             */
 
-			mergeBlockLists(result, blocksForBody);
+            final List<PMBlock> blocksForGuard = generateBlocksForExpression(whileStatement.getExpression());
+            final PMBlock startingGuardBlock = blocksForGuard.get(0);
+            final PMBlock lastGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
 
-			// last block of body always flows to guard
+            final PMBlock exitBlock = new PMBlock();
 
-			final PMBlock lastBodyBlock = blocksForBody.get(blocksForBody
-					.size() - 1);
-			lastBodyBlock.addOutgoingBlock(startingGuardBlock);
+            mergeBlockLists(result, blocksForGuard);
 
-			// guard may fail and flow to exit
-			lastGuardBlock.addOutgoingBlock(exitBlock);
+            final List<PMBlock> blocksForBody = generateBlocksForStatement(whileStatement.getBody());
 
-			result.add(exitBlock);
+            mergeBlockLists(result, blocksForBody);
 
-		}
+            // last block of body always flows to guard
 
-		// we need to add the statement itself to a block to maintain the
-		// invariant that
-		// every node has some ancestor that is in a block
+            final PMBlock lastBodyBlock = blocksForBody.get(blocksForBody.size() - 1);
+            lastBodyBlock.addOutgoingBlock(startingGuardBlock);
 
-		final PMBlock statementBlock = new PMBlock();
+            // guard may fail and flow to exit
+            lastGuardBlock.addOutgoingBlock(exitBlock);
 
-		statementBlock.addNode(statement);
+            result.add(exitBlock);
 
-		addSerialBlockToEndOfList(statementBlock, result);
+        }
 
-		return result;
-	}
+        // we need to add the statement itself to a block to maintain the
+        // invariant that
+        // every node has some ancestor that is in a block
 
-	private PMBlock getBlockForNode(final ASTNode originalNode) {
-		ASTNode node = originalNode;
+        final PMBlock statementBlock = new PMBlock();
 
-		do {
-			final PMBlock block = this.blocksByNode.get(node);
+        statementBlock.addNode(statement);
 
-			if (block == null) {
-				node = node.getParent();
-			} else {
-				return block;
-			}
+        addSerialBlockToEndOfList(statementBlock, result);
 
-		} while (node != null);
+        return result;
+    }
 
-		throw new RuntimeException("Couldn't find block for definingnode  "
-				+ originalNode);
+    private PMBlock getBlockForNode(final ASTNode originalNode) {
+        ASTNode node = originalNode;
 
-	}
+        do {
+            final PMBlock block = this.blocksByNode.get(node);
 
-	private void mergeBlockLists(final ArrayList<PMBlock> first,
-			final ArrayList<PMBlock> second) {
-		// We assume the last block of the first list is followed sequentially
-		// by the first block of the second list
+            if (block == null) {
+                node = node.getParent();
+            } else {
+                return block;
+            }
 
-		if (first.size() > 0) {
-			first.get(first.size() - 1).addOutgoingBlock(second.get(0));
-		}
+        } while (node != null);
 
-		first.addAll(second);
-	}
+        throw new RuntimeException("Couldn't find block for definingnode  " + originalNode);
 
-	private void runAnalysis() {
-		findDefinitions();
-		findAllBlocks();
+    }
 
-		final HashMap<PMBlock, HashSet<VariableAssignment>> genSets = findGenSets();
-		final HashMap<PMBlock, HashSet<VariableAssignment>> killSets = findKillSets();
+    private void mergeBlockLists(final List<PMBlock> first, final List<PMBlock> second) {
+        // We assume the last block of the first list is followed sequentially
+        // by the first block of the second list
 
-		// Forward analysis
+        if (first.size() > 0) {
+            first.get(first.size() - 1).addOutgoingBlock(second.get(0));
+        }
 
-		this.reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
-		this.reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
+        first.addAll(second);
+    }
 
-		final PMBlock initialBlock = this.allBlocks.get(0);
+    private void runAnalysis() {
+        findDefinitions();
+        findAllBlocks();
 
-		for (final PMBlock block : this.allBlocks) {
-			this.reachingDefsOnEntry.put(block,
-					new HashSet<VariableAssignment>());
+        final Map<PMBlock, Set<VariableAssignment>> genSets = findGenSets();
+        final Map<PMBlock, Set<VariableAssignment>> killSets = findKillSets();
 
-			if (block == initialBlock) {
-				// add "undefined" assignments for all free variables in method
+        // Forward analysis
 
-				this.methodDeclaration.accept(new ASTVisitor() {
-					@Override
-					public boolean visit(final SimpleName name) {
+        this.reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
+        this.reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
 
-						final IBinding binding = name.resolveBinding();
-						// We only care about names if they are variables (i.e.
-						// locals or fields)
+        final PMBlock initialBlock = this.allBlocks.get(0);
+        for (final PMBlock block : this.allBlocks) {
+            this.reachingDefsOnEntry.put(block, new HashSet<VariableAssignment>());
 
-						if (binding instanceof IVariableBinding) {
-							RDefsAnalysis.this.reachingDefsOnEntry
-							.get(block)
-							.add(uniqueVariableAssignment(null, binding));
-						}
+            if (block == initialBlock) {
+                // add "undefined" assignments for all free variables in method
 
-						return true;
-					}
+                this.methodDeclaration.accept(new ASTVisitor() {
+                    @Override
+                    public boolean visit(final SimpleName name) {
 
-				});
+                        final IBinding binding = name.resolveBinding();
+                        // We only care about names if they are variables (i.e.
+                        // locals or fields)
 
-			}
+                        if (binding instanceof IVariableBinding) {
+                            RDefsAnalysis.this.reachingDefsOnEntry.get(block).add(
+                                    uniqueVariableAssignment(null, binding));
+                        }
+                        return true;
+                    }
+                });
+            }
+            this.reachingDefsOnExit.put(block, new HashSet<VariableAssignment>());
+        }
+        boolean changed = false;
+        do {
+            // ?? do we need to make a copy of the entry/exit info and use these
+            // or can we update in place??
+            changed = false;
 
-			this.reachingDefsOnExit.put(block,
-					new HashSet<VariableAssignment>());
-		}
-		boolean changed = false;
-		do {
-			// ?? do we need to make a copy of the entry/exit info and use these
-			// or can we update in place??
-			changed = false;
+            for (final PMBlock block : this.allBlocks) {
 
-			for (final PMBlock block : this.allBlocks) {
+                // entry prop
+                if (block != initialBlock) {
+                    final Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
 
-				// entry prop
-				if (block != initialBlock) {
-					final Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
+                    for (final PMBlock incomingBlock : block.getIncomingBlocks()) {
+                        if (this.reachingDefsOnExit.get(incomingBlock) == null) {
+                            System.out.println("Coulding find reaching defs for block " + incomingBlock);
+                        }
+                        newEntryReachingDefs.addAll(this.reachingDefsOnExit.get(incomingBlock));
+                    }
 
-					for (final PMBlock incomingBlock : block
-							.getIncomingBlocks()) {
-						if (this.reachingDefsOnExit.get(incomingBlock) == null) {
-							System.out
-							.println("Coulding find reaching defs for block "
-									+ incomingBlock);
-						}
-						newEntryReachingDefs.addAll(this.reachingDefsOnExit
-								.get(incomingBlock));
-					}
+                    if (!newEntryReachingDefs.equals(this.reachingDefsOnEntry.get(block))) {
+                        changed = true;
+                        this.reachingDefsOnEntry.put(block, newEntryReachingDefs);
+                    }
 
-					if (!newEntryReachingDefs.equals(this.reachingDefsOnEntry
-							.get(block))) {
-						changed = true;
-						this.reachingDefsOnEntry.put(block,
-								newEntryReachingDefs);
-					}
+                }
 
-				}
+                // exit prop
 
-				// exit prop
+                final Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
 
-				final Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
+                newExitReachingDefs.addAll(this.reachingDefsOnEntry.get(block));
 
-				newExitReachingDefs.addAll(this.reachingDefsOnEntry.get(block));
+                final Set<VariableAssignment> killSet = killSets.get(block);
+                if (killSet != null) {
+                    newExitReachingDefs.removeAll(killSet);
+                }
+                final Set<VariableAssignment> genSet = genSets.get(block);
+                if (genSet != null) {
+                    newExitReachingDefs.addAll(genSet);
+                }
+                if (!newExitReachingDefs.equals(this.reachingDefsOnExit.get(block))) {
+                    changed = true;
+                    this.reachingDefsOnExit.put(block, newExitReachingDefs);
+                }
+            }
+        } while (changed);
 
-				final HashSet<VariableAssignment> killSet = killSets.get(block);
+        /*
+         * for (PMBlock block: _allBlocks) {
+         *
+         * String output = "For [" + block + "]:\n";
+         *
+         * output += "\tGen Set is:\n";
+         *
+         * if (genSets.get(block) != null) { for (VariableAssignment variableAssignment:genSets.get(block)) { output +=
+         * "\t\t" + variableAssignment.getDefinition().getDefiningNode() + " for [" +
+         * variableAssignment.getVariableBinding() + "]\n"; } }
+         *
+         *
+         * output += "\tKill Set is:\n";
+         *
+         * if (killSets.get(block) != null) { for (VariableAssignment variableAssignment:killSets.get(block)) { ASTNode
+         * definingNode = null;
+         *
+         * if (variableAssignment.getDefinition() != null) definingNode =
+         * variableAssignment.getDefinition().getDefiningNode();
+         *
+         * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() + "]\n"; } }
+         *
+         * output += "\tReaching defs are:\n";
+         *
+         * for (VariableAssignment variableAssignment: _reachingDefsOnEntry.get(block)) { ASTNode definingNode = null;
+         *
+         * if (variableAssignment.getDefinition() != null) definingNode =
+         * variableAssignment.getDefinition().getDefiningNode();
+         *
+         * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() + "]\n"; }
+         *
+         *
+         *
+         * System.out.println(output);
+         *
+         *
+         * }
+         */
 
-				if (killSet != null) {
-					newExitReachingDefs.removeAll(killSet);
-				}
+        findUses();
 
-				final HashSet<VariableAssignment> genSet = genSets.get(block);
+        /*
+         * System.out.println("Uses:");
+         *
+         *
+         * for (PMUse use: _usesByName.values()) { String output = "" + use.getSimpleName() + "\n";
+         *
+         * for (PMDef reachingDefinition: use.getReachingDefinitions()) {
+         *
+         * ASTNode definingNode = null;
+         *
+         * if (reachingDefinition != null) definingNode = reachingDefinition.getDefiningNode();
+         *
+         * output += "\t" + definingNode; }
+         *
+         * System.out.println(output); }
+         */
+    }
 
-				if (genSet != null) {
-					newExitReachingDefs.addAll(genSet);
-				}
+    private boolean simpleNameIsUse(final SimpleName name) {
+        /*
+         * we assume all simple names are uses except:
+         *
+         * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
+         * SingleVariableDeclaration
+         *
+         * There are probably more cases (i.e. method names in invocations?)
+         */
 
-				if (!newExitReachingDefs.equals(this.reachingDefsOnExit
-						.get(block))) {
-					changed = true;
-					this.reachingDefsOnExit.put(block, newExitReachingDefs);
-				}
+        final ASTNode parent = name.getParent();
 
-			}
+        if (parent instanceof Assignment && ((Assignment) parent).getLeftHandSide() == name) {
+            return false;
+        } else if (parent instanceof VariableDeclaration && ((VariableDeclaration) parent).getName() == name) {
+            return false;
+        }
 
-		} while (changed);
+        return true;
+    }
 
-		/*
-		 * for (PMBlock block: _allBlocks) {
-		 *
-		 * String output = "For [" + block + "]:\n";
-		 *
-		 * output += "\tGen Set is:\n";
-		 *
-		 * if (genSets.get(block) != null) { for (VariableAssignment
-		 * variableAssignment:genSets.get(block)) { output += "\t\t" +
-		 * variableAssignment.getDefinition().getDefiningNode() + " for [" +
-		 * variableAssignment.getVariableBinding() + "]\n"; } }
-		 *
-		 *
-		 * output += "\tKill Set is:\n";
-		 *
-		 * if (killSets.get(block) != null) { for (VariableAssignment
-		 * variableAssignment:killSets.get(block)) { ASTNode definingNode =
-		 * null;
-		 *
-		 * if (variableAssignment.getDefinition() != null) definingNode =
-		 * variableAssignment.getDefinition().getDefiningNode();
-		 *
-		 * output += "\t\t" + definingNode + " for [" +
-		 * variableAssignment.getVariableBinding() + "]\n"; } }
-		 *
-		 * output += "\tReaching defs are:\n";
-		 *
-		 * for (VariableAssignment variableAssignment:
-		 * _reachingDefsOnEntry.get(block)) { ASTNode definingNode = null;
-		 *
-		 * if (variableAssignment.getDefinition() != null) definingNode =
-		 * variableAssignment.getDefinition().getDefiningNode();
-		 *
-		 * output += "\t\t" + definingNode + " for [" +
-		 * variableAssignment.getVariableBinding() + "]\n"; }
-		 *
-		 *
-		 *
-		 * System.out.println(output);
-		 *
-		 *
-		 * }
-		 */
+    private VariableAssignment uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
 
-		findUses();
+        if (variableBinding == null) {
+            throw new RuntimeException("variableBinding for " + definition + " is null!");
+        }
 
-		/*
-		 * System.out.println("Uses:");
-		 *
-		 *
-		 * for (PMUse use: _usesByName.values()) { String output = "" +
-		 * use.getSimpleName() + "\n";
-		 *
-		 * for (PMDef reachingDefinition: use.getReachingDefinitions()) {
-		 *
-		 * ASTNode definingNode = null;
-		 *
-		 * if (reachingDefinition != null) definingNode =
-		 * reachingDefinition.getDefiningNode();
-		 *
-		 * output += "\t" + definingNode; }
-		 *
-		 * System.out.println(output); }
-		 */
-	}
+        Map<IBinding, VariableAssignment> assignmentsForLocation = this.uniqueVariableAssigments.get(definition);
 
-	private boolean simpleNameIsUse(final SimpleName name) {
-		/*
-		 * we assume all simple names are uses except:
-		 *
-		 * the lhs of Assignment expressions the name of a
-		 * VariableDeclarationFragment the name of a SingleVariableDeclaration
-		 *
-		 * There are probably more cases (i.e. method names in invocations?)
-		 */
+        if (assignmentsForLocation == null) {
+            assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
+            this.uniqueVariableAssigments.put(definition, assignmentsForLocation);
+        }
 
-		final ASTNode parent = name.getParent();
+        VariableAssignment variableAssignment = assignmentsForLocation.get(variableBinding);
 
-		if (parent instanceof Assignment
-				&& ((Assignment) parent).getLeftHandSide() == name) {
-			return false;
-		} else if (parent instanceof VariableDeclaration
-				&& ((VariableDeclaration) parent).getName() == name) {
-			return false;
-		}
+        if (variableAssignment == null) {
+            variableAssignment = new VariableAssignment(definition, variableBinding);
+            assignmentsForLocation.put(variableBinding, variableAssignment);
+        }
 
-		return true;
-	}
+        return variableAssignment;
+    }
 
-	private VariableAssignment uniqueVariableAssignment(final Def definition,
-			final IBinding variableBinding) {
+    boolean isAnalyzableLeftHandSide(final ASTNode lhs) {
+        // for now we only support assignments to simple names
 
-		if (variableBinding == null) {
-			throw new RuntimeException("variableBinding for " + definition
-					+ " is null!");
-		}
-
-		HashMap<IBinding, VariableAssignment> assignmentsForLocation = this.uniqueVariableAssigments
-				.get(definition);
-
-		if (assignmentsForLocation == null) {
-			assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
-			this.uniqueVariableAssigments.put(definition,
-					assignmentsForLocation);
-		}
-
-		VariableAssignment variableAssignment = assignmentsForLocation
-				.get(variableBinding);
-
-		if (variableAssignment == null) {
-			variableAssignment = new VariableAssignment(definition,
-					variableBinding);
-			assignmentsForLocation.put(variableBinding, variableAssignment);
-		}
-
-		return variableAssignment;
-	}
-
-	boolean isAnalyzableLeftHandSide(final ASTNode lhs) {
-		// for now we only support assignments to simple names
-
-		return lhs instanceof SimpleName;
-	}
+        return lhs instanceof SimpleName;
+    }
 }

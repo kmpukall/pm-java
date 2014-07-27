@@ -9,8 +9,10 @@
 
 package net.creichen.pm.refactorings;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -26,13 +28,13 @@ public final class ProcessorDriver {
         try {
 
             status = eclipseProcessor.checkInitialConditions(pm); // technically,
-                                                                  // this
-                                                                  // should be
-                                                                  // called
-                                                                  // before
-                                                                  // drive()
-                                                                  // is even
-                                                                  // called
+            // this
+            // should be
+            // called
+            // before
+            // drive()
+            // is even
+            // called
 
             if (status.getSeverity() < RefactoringStatus.ERROR) {
                 final Change change = eclipseProcessor.createChange(pm);
@@ -41,11 +43,13 @@ public final class ProcessorDriver {
 
             } else {
 
-                System.err.println("Error in inital conditions for "
-                        + eclipseProcessor.getClass().getName() + " : " + status);
+                System.err.println("Error in inital conditions for " + eclipseProcessor.getClass().getName() + " : "
+                        + status);
             }
 
-        } catch (final Exception e) {
+        } catch (final CoreException e) {
+            e.printStackTrace();
+        } catch (final OperationCanceledException e) {
             e.printStackTrace();
         }
 

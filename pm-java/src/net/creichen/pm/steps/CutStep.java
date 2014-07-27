@@ -22,74 +22,67 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class CutStep extends Step {
-    private List<ASTNode> selectedNodes;
+	private List<ASTNode> selectedNodes;
 
-    public CutStep(final Project project, final ASTNode node) {
-        super(project);
+	public CutStep(final Project project, final ASTNode node) {
+		super(project);
 
-        final List<ASTNode> selectedNodes = new ArrayList<ASTNode>();
+		this.selectedNodes = new ArrayList<ASTNode>();
 
-        selectedNodes.add(node);
+		this.selectedNodes.add(node);
+	}
 
-        initWithSelectedNodes(selectedNodes);
-    }
+	public CutStep(final Project project, final List<ASTNode> selectedNodes) {
+		super(project);
 
-    public CutStep(final Project project, final List<ASTNode> selectedNodes) {
-        super(project);
+		this.selectedNodes = selectedNodes;
+	}
 
-        initWithSelectedNodes(selectedNodes);
-    }
+	@Override
+	public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+		final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
-    @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+		final ASTRewrite astRewrite = ASTRewrite.create(this.selectedNodes.get(0).getAST());
 
-        final ASTRewrite astRewrite = ASTRewrite.create(this.selectedNodes.get(0).getAST());
+		for (final ASTNode node : this.selectedNodes) {
+			astRewrite.remove(node, null);
 
-        for (final ASTNode node : this.selectedNodes) {
-            astRewrite.remove(node, null);
+			result.put(getProject().findPMCompilationUnitForNode(node).getICompilationUnit(), astRewrite);
+		}
 
-            result.put(this.getProject().findPMCompilationUnitForNode(node).getICompilationUnit(),
-                    astRewrite);
-        }
+		return result;
+	}
 
-        return result;
-    }
+	// need method to test for errors before asking for changes
 
-    // need method to test for errors before asking for changes
+	@Override
+	public void cleanup() {
+		// called regardless of whether updateAfterReparse() was called
+	}
 
-    @Override
-    public void cleanup() {
-        // called regardless of whether updateAfterReparse() was called
-    }
+	@Override
+	public void performASTChange() {
+		/*
+		 * 
+		 * _project.setPasteboardRoot(_selectedNodes.get(0));
+		 * 
+		 * PMCompilationUnitModel usingModel = _project.modelForASTNode(_selectedNodes.get(0));
+		 * usingModel.removeIdentifiersForTreeStartingAtNode (_selectedNodes.get(0));
+		 */
 
-    private void initWithSelectedNodes(final List<ASTNode> selectedNodes) {
-        this.selectedNodes = selectedNodes;
-    }
+		final Pasteboard pasteboard = getProject().getPasteboard();
 
-    @Override
-    public void performASTChange() {
-        /*
-         * 
-         * _project.setPasteboardRoot(_selectedNodes.get(0));
-         * 
-         * PMCompilationUnitModel usingModel = _project.modelForASTNode(_selectedNodes.get(0));
-         * usingModel.removeIdentifiersForTreeStartingAtNode (_selectedNodes.get(0));
-         */
+		pasteboard.setPasteboardRoots(this.selectedNodes);
 
-        final Pasteboard pasteboard = this.getProject().getPasteboard();
+		for (final ASTNode node : this.selectedNodes) {
+			node.delete();
+		}
 
-        pasteboard.setPasteboardRoots(this.selectedNodes);
+	}
 
-        for (final ASTNode node : this.selectedNodes) {
-            node.delete();
-        }
+	@Override
+	public void updateAfterReparse() {
 
-    }
-
-    @Override
-    public void updateAfterReparse() {
-
-    }
+	}
 
 }

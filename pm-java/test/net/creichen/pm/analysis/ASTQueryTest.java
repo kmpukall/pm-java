@@ -12,9 +12,13 @@ package net.creichen.pm.analysis;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import net.creichen.pm.PMTest;
-import net.creichen.pm.analysis.ASTQuery;
 
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.junit.Test;
 
 public class ASTQueryTest extends PMTest {
@@ -26,8 +30,7 @@ public class ASTQueryTest extends PMTest {
 
         final CompilationUnit compilationUnit = toCompilationUnit(source);
 
-        final ASTNode secondS = ASTQuery.nodeForSelectionInCompilationUnit(40, 28,
-                compilationUnit);
+        final ASTNode secondS = ASTQuery.nodeForSelectionInCompilationUnit(40, 28, compilationUnit);
 
         assertTrue(secondS instanceof TypeDeclaration);
         assertEquals(secondS, ASTQuery.classWithNameInCompilationUnit("S", 1, compilationUnit));
@@ -35,38 +38,25 @@ public class ASTQueryTest extends PMTest {
 
     @Test
     public void testFindFieldByName() {
-
         final String source = "class S {int x,y; int f() {} int y; int x,y,x; int y; int y,x; int x; }";
-
         final CompilationUnit compilationUnit = toCompilationUnit(source);
-
-        final ASTNode field = ASTQuery.nodeForSelectionInCompilationUnit(60, 1, compilationUnit)
-                .getParent(); // the finder finds the
-                              // SimpleName, so we need to get
-                              // the parent fragment
-
+        // the finder finds the SimpleName, so we need to get the parent fragment
+        final ASTNode field = ASTQuery.nodeForSelectionInCompilationUnit(60, 1, compilationUnit).getParent();
         assertTrue(field instanceof VariableDeclarationFragment);
-
-        assertEquals(field,
-                ASTQuery.fieldWithNameInClassInCompilationUnit("x", 3, "S", 0, compilationUnit));
+        assertEquals(field, ASTQuery.fieldWithNameInClassInCompilationUnit("x", 3, "S", 0, compilationUnit));
     }
 
     @Test
     public void testFindLocalByName() {
-
         final String source = "class S {int x,y; int f() {int x,y; try {} catch(Exception x){} while(1) {int y,x;} } }";
-
         final CompilationUnit compilationUnit = toCompilationUnit(source);
-
-        final ASTNode local = ASTQuery.nodeForSelectionInCompilationUnit(80, 1, compilationUnit)
-                .getParent(); // the finder finds the
-                              // SimpleName, so we need to get
-                              // the parent fragment
-
+        final ASTNode local = ASTQuery.nodeForSelectionInCompilationUnit(
+                "class S {int x,y; int f() {int x,y; try {} catch(Exception x){} while(1) {int y,".length(),
+                "x".length(), compilationUnit).getParent();
+        // the finder finds the SimpleName, so we need to get the parent fragment
         assertTrue(local instanceof VariableDeclarationFragment);
-
-        assertEquals(local, ASTQuery.localWithNameInMethodInClassInCompilationUnit("x", 2, "f",
-                0, "S", 0, compilationUnit));
+        assertEquals(local,
+                ASTQuery.localWithNameInMethodInClassInCompilationUnit("x", 2, "f", 0, "S", 0, compilationUnit));
     }
 
     @Test
@@ -76,12 +66,10 @@ public class ASTQueryTest extends PMTest {
 
         final CompilationUnit compilationUnit = toCompilationUnit(source);
 
-        final ASTNode secondF = ASTQuery.nodeForSelectionInCompilationUnit(56, 10,
-                compilationUnit);
+        final ASTNode secondF = ASTQuery.nodeForSelectionInCompilationUnit(56, 10, compilationUnit);
 
         assertTrue(secondF instanceof MethodDeclaration);
-        assertEquals(secondF,
-                ASTQuery.methodWithNameInClassInCompilationUnit("f", 1, "S", 1, compilationUnit));
+        assertEquals(secondF, ASTQuery.methodWithNameInClassInCompilationUnit("f", 1, "S", 1, compilationUnit));
     }
 
     @Test
@@ -91,14 +79,12 @@ public class ASTQueryTest extends PMTest {
 
         final CompilationUnit compilationUnit = toCompilationUnit(source);
 
-        final ASTNode simpleName = ASTQuery.nodeForSelectionInCompilationUnit(98, 1,
-                compilationUnit);
+        final ASTNode simpleName = ASTQuery.nodeForSelectionInCompilationUnit(98, 1, compilationUnit);
 
         assertTrue(simpleName instanceof SimpleName);
 
-        assertEquals(simpleName,
-                ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 4, "f", 0,
-                        "S", 0, compilationUnit));
+        assertEquals(simpleName, ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 4, "f", 0, "S",
+                0, compilationUnit));
     }
 
 }

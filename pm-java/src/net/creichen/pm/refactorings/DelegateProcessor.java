@@ -37,15 +37,13 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
 
     private DelegateStep step;
 
-    public DelegateProcessor(final ITextSelection selection,
-            final ICompilationUnit iCompilationUnit) {
+    public DelegateProcessor(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
         this.textSelection = selection;
         this.iCompilationUnit = iCompilationUnit;
     }
 
     @Override
-    public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
-            final CheckConditionsContext context) throws CoreException {
+    public RefactoringStatus checkFinalConditions(final IProgressMonitor pm, final CheckConditionsContext context) {
         return new RefactoringStatus();
     }
 
@@ -55,42 +53,30 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
                 this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {
-            final ASTNode selectedNode = project.nodeForSelection(this.textSelection,
-                    this.iCompilationUnit);
+            final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
 
             if (selectedNode instanceof MethodInvocation) {
                 return new RefactoringStatus();
             } else {
-                return RefactoringStatus
-                        .createFatalErrorStatus("Please select a method invocation [not a "
-                                + selectedNode.getClass() + "]");
+                return RefactoringStatus.createFatalErrorStatus("Please select a method invocation [not a "
+                        + selectedNode.getClass() + "]");
             }
         } else {
-            return RefactoringStatus
-                    .createWarningStatus("PM Model is out of date. This will reinitialize.");
+            return RefactoringStatus.createWarningStatus("PM Model is out of date. This will reinitialize.");
         }
 
     }
 
     @Override
     public Change createChange(final IProgressMonitor pm) throws CoreException {
-
         final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.iCompilationUnit.getJavaProject());
-
         project.syncSources();
-
         Change result = new NullChange();
-
-        final ASTNode selectedNode = project.nodeForSelection(this.textSelection,
-                this.iCompilationUnit);
-
+        final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
         this.step = new DelegateStep(project, selectedNode);
-
         this.step.setDelegateIdentifier(this.delegateIdentifier);
-
         result = this.step.createCompositeChange("Delegate");
-
         return result;
     }
 

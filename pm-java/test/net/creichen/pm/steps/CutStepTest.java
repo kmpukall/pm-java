@@ -41,8 +41,7 @@ public class CutStepTest extends PMTest {
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0,
+        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
         CutStep cutStep = new CutStep(pmProject, methodDeclaration);
@@ -60,16 +59,14 @@ public class CutStepTest extends PMTest {
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0,
+        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
         CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S {S s;}",
-                compilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {S s;}", compilationUnit.getSource()));
     }
 
     @Test
@@ -80,8 +77,7 @@ public class CutStepTest extends PMTest {
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0,
+        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
                 (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
         Statement firstStatement = (Statement) methodDeclaration.getBody().statements().get(0);
@@ -90,8 +86,7 @@ public class CutStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S {S s; void m(){}}",
-                compilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {S s; void m(){}}", compilationUnit.getSource()));
     }
 
     @Test
@@ -102,9 +97,8 @@ public class CutStepTest extends PMTest {
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery
-                .fieldWithNameInClassInCompilationUnit("s", 0, "S", 0,
-                        (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit("s", 0,
+                "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
@@ -112,8 +106,8 @@ public class CutStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S {void m(){System.out.println(s);}}", compilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){System.out.println(s);}}",
+                compilationUnit.getSource()));
     }
 
     @Test
@@ -124,11 +118,10 @@ public class CutStepTest extends PMTest {
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        CompilationUnit compilationUnit = (CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(iCompilationUnit);
+        CompilationUnit compilationUnit = (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit);
 
-        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0, compilationUnit);
+        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+                compilationUnit);
 
         Statement thirdStatement = (Statement) methodDeclaration.getBody().statements().get(2);
         Statement fourthStatement = (Statement) methodDeclaration.getBody().statements().get(3);
@@ -141,8 +134,8 @@ public class CutStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x,y; int a; x = 2;}}",
+                iCompilationUnit.getSource()));
 
         assertEquals(pmProject.getPasteboard().getPasteboardRoots().size(), 2);
         assertTrue(pmProject.getPasteboard().containsOnlyNodesOfClass(Statement.class));
@@ -156,27 +149,18 @@ public class CutStepTest extends PMTest {
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        CompilationUnit compilationUnit = (CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(iCompilationUnit);
+        CompilationUnit compilationUnit = (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit);
 
-        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit(
-                "m", 0, "S", 0, compilationUnit);
+        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+                compilationUnit);
 
         Statement secondStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
-        try {
-            CutStep cutStep = new CutStep(pmProject, secondStatement);
+        CutStep cutStep = new CutStep(pmProject, secondStatement);
 
-            cutStep.applyAllAtOnce();
-        } catch (RuntimeException e) {
+        cutStep.applyAllAtOnce();
 
-            System.out.println("Shouldn't throw exception");
-
-            org.junit.Assert.fail("Shouldn't throw exception");
-        }
-
-        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){x = 1;}}",
-                iCompilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){x = 1;}}", iCompilationUnit.getSource()));
 
     }
 
@@ -188,9 +172,8 @@ public class CutStepTest extends PMTest {
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery
-                .fieldWithNameInClassInCompilationUnit("x", 0, "S", 0, (CompilationUnit) pmProject
-                        .findASTRootForICompilationUnit(iCompilationUnit));
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit("x", 0,
+                "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
@@ -198,8 +181,7 @@ public class CutStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){x = 1;}}",
-                iCompilationUnit.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){x = 1;}}", iCompilationUnit.getSource()));
     }
 
 }

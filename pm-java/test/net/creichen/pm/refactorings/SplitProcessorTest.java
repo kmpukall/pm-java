@@ -18,7 +18,6 @@ import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.refactorings.SplitProcessor;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -32,16 +31,13 @@ public class SplitProcessorTest extends PMTest {
 
         final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final SplitProcessor splitTemporary = new SplitProcessor(new TextSelection(57 - 26,
-                63 - 57), compilationUnit);
+        final SplitProcessor splitTemporary = new SplitProcessor(new TextSelection(31, 6), compilationUnit);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         ProcessorDriver.drive(splitTemporary);
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S {void m(){int x;int x = 1;x = x + 1;}}",
+        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x;int x = 1;x = x + 1;}}",
                 compilationUnit.getSource()));
 
         final Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();

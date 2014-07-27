@@ -9,19 +9,18 @@ import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
 
 public class RenameHandler extends AbstractCommandHandler {
 
-	@Override
-	public final void handleEvent(final ExecutionEvent event) {
-		final PMRenameProcessor processor = new PMRenameProcessor(
-				getSelection(), getCompilationUnit());
+    @Override
+    public final void handleEvent(final ExecutionEvent event) {
+        final PMRenameProcessor processor = new PMRenameProcessor(getSelection(), getCompilationUnit());
 
-		final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(
-				new Wizard(processor, new RenameInputPage(processor)));
+        final RefactoringWizardOpenOperation operation = new RefactoringWizardOpenOperation(new Wizard(processor,
+                new RenameInputPage(processor)));
 
-		try {
-			operation.run(getWindow().getShell(), "PM Rename Title");
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            operation.run(getWindow().getShell(), "PM Rename Title");
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

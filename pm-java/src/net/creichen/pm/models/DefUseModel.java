@@ -26,153 +26,153 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class DefUseModel {
 
-	// for now we only care about the defs that are used by our names
+    // for now we only care about the defs that are used by our names
 
-	private final ASTNode uninitializedMarkerNode;
-	private final NodeReference uninitialized;
+    private final ASTNode uninitializedMarkerNode;
+    private final NodeReference uninitialized;
 
-	private final Map<NodeReference, Set<NodeReference>> definitionIdentifiersByUseIdentifier;
+    private final Map<NodeReference, Set<NodeReference>> definitionIdentifiersByUseIdentifier;
 
-	private final Map<NodeReference, Set<NodeReference>> useIdentifiersByDefinitionIdentifier;
+    private final Map<NodeReference, Set<NodeReference>> useIdentifiersByDefinitionIdentifier;
 
-	public DefUseModel(final Collection<Use> currentUses) {
+    public DefUseModel(final Collection<Use> currentUses) {
 
-		// this is such a hack; we create a random ast node and then get a
-		// reference to it to
-		// act as our uninitialized distinguished marker. We have to store this
-		// node
-		// so it isn't garbage collected out of the store (since the store uses
-		// weak refs).
+        // this is such a hack; we create a random ast node and then get a
+        // reference to it to
+        // act as our uninitialized distinguished marker. We have to store this
+        // node
+        // so it isn't garbage collected out of the store (since the store uses
+        // weak refs).
 
-		final AST ast = AST.newAST(AST.JLS4);
+        final AST ast = AST.newAST(AST.JLS4);
 
-		this.uninitializedMarkerNode = ast.newSimpleName("Foo");
-		this.uninitialized = NodeReferenceStore.getInstance().getReferenceForNode(this.uninitializedMarkerNode);
+        this.uninitializedMarkerNode = ast.newSimpleName("Foo");
+        this.uninitialized = NodeReferenceStore.getInstance().getReferenceForNode(this.uninitializedMarkerNode);
 
-		this.definitionIdentifiersByUseIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
-		this.useIdentifiersByDefinitionIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
+        this.definitionIdentifiersByUseIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
+        this.useIdentifiersByDefinitionIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
 
-		addUsesToModel(currentUses);
-	}
+        addUsesToModel(currentUses);
+    }
 
-	public void addDefinitionIdentifierForName(final NodeReference definitionIdentifier,
-			final NodeReference nameIdentifier) {
-		definitionIdentifiersForName(nameIdentifier).add(definitionIdentifier);
-		addUseForDefinition(nameIdentifier, definitionIdentifier);
+    public void addDefinitionIdentifierForName(final NodeReference definitionIdentifier,
+            final NodeReference nameIdentifier) {
+        definitionIdentifiersForName(nameIdentifier).add(definitionIdentifier);
+        addUseForDefinition(nameIdentifier, definitionIdentifier);
 
-	}
+    }
 
-	private void addUseForDefinition(final NodeReference useIdentifier, final NodeReference definitionIdentifier) {
-		usesForDefinition(definitionIdentifier).add(useIdentifier);
-	}
+    private void addUseForDefinition(final NodeReference useIdentifier, final NodeReference definitionIdentifier) {
+        usesForDefinition(definitionIdentifier).add(useIdentifier);
+    }
 
-	private void addUsesToModel(final Collection<Use> uses) {
-		for (final Use use : uses) {
-			addUseToModel(use);
-		}
-	}
+    private void addUsesToModel(final Collection<Use> uses) {
+        for (final Use use : uses) {
+            addUseToModel(use);
+        }
+    }
 
-	public void addUseToModel(final Use use) {
-		final SimpleName name = use.getSimpleName();
+    public void addUseToModel(final Use use) {
+        final SimpleName name = use.getSimpleName();
 
-		final NodeReference nameIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(name);
+        final NodeReference nameIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(name);
 
-		definitionIdentifiersForName(nameIdentifier); // To add an empty entry
-		// to our store; gross.
+        definitionIdentifiersForName(nameIdentifier); // To add an empty entry
+        // to our store; gross.
 
-		for (final Def def : use.getReachingDefinitions()) {
+        for (final Def def : use.getReachingDefinitions()) {
 
-			NodeReference definitionIdentifier;
+            NodeReference definitionIdentifier;
 
-			if (def != null) {
-				final ASTNode definingNode = def.getDefiningNode();
-				definitionIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(definingNode);
+            if (def != null) {
+                final ASTNode definingNode = def.getDefiningNode();
+                definitionIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(definingNode);
 
-				if (definitionIdentifier == null) {
-					throw new RuntimeException("Couldn't find identifier for defining node " + definingNode);
-				}
-			} else {
-				definitionIdentifier = this.uninitialized;
-			}
+                if (definitionIdentifier == null) {
+                    throw new RuntimeException("Couldn't find identifier for defining node " + definingNode);
+                }
+            } else {
+                definitionIdentifier = this.uninitialized;
+            }
 
-			addDefinitionIdentifierForName(definitionIdentifier, nameIdentifier);
-		}
-	}
+            addDefinitionIdentifierForName(definitionIdentifier, nameIdentifier);
+        }
+    }
 
-	public Collection<ASTNode> definingNodesForUse(final Use use) {
-		final HashSet<ASTNode> definingNodes = new HashSet<ASTNode>();
+    public Collection<ASTNode> definingNodesForUse(final Use use) {
+        final Set<ASTNode> definingNodes = new HashSet<ASTNode>();
 
-		for (final Def definition : use.getReachingDefinitions()) {
-			if (definition != null) {
-				definingNodes.add(definition.getDefiningNode());
-			} else {
-				definingNodes.add(null);
-			}
+        for (final Def definition : use.getReachingDefinitions()) {
+            if (definition != null) {
+                definingNodes.add(definition.getDefiningNode());
+            } else {
+                definingNodes.add(null);
+            }
 
-		}
+        }
 
-		return definingNodes;
-	}
+        return definingNodes;
+    }
 
-	public Set<NodeReference> definitionIdentifiersForName(final NodeReference nameIdentifier) {
-		Set<NodeReference> definitionIdentifiers = this.definitionIdentifiersByUseIdentifier.get(nameIdentifier);
+    public Set<NodeReference> definitionIdentifiersForName(final NodeReference nameIdentifier) {
+        Set<NodeReference> definitionIdentifiers = this.definitionIdentifiersByUseIdentifier.get(nameIdentifier);
 
-		if (definitionIdentifiers == null) {
-			definitionIdentifiers = new HashSet<NodeReference>();
-			this.definitionIdentifiersByUseIdentifier.put(nameIdentifier, definitionIdentifiers);
-		}
+        if (definitionIdentifiers == null) {
+            definitionIdentifiers = new HashSet<NodeReference>();
+            this.definitionIdentifiersByUseIdentifier.put(nameIdentifier, definitionIdentifiers);
+        }
 
-		return definitionIdentifiers;
-	}
+        return definitionIdentifiers;
+    }
 
-	public void deleteDefinition(final NodeReference definition) {
-		// delete all uses of the definition
+    public void deleteDefinition(final NodeReference definition) {
+        // delete all uses of the definition
 
-		for (final NodeReference use : usesForDefinition(definition)) {
-			removeDefinitionIdentifierForName(definition, use);
-		}
+        for (final NodeReference use : usesForDefinition(definition)) {
+            removeDefinitionIdentifierForName(definition, use);
+        }
 
-		// delete list of uses for definition
+        // delete list of uses for definition
 
-		this.useIdentifiersByDefinitionIdentifier.remove(definition);
-	}
+        this.useIdentifiersByDefinitionIdentifier.remove(definition);
+    }
 
-	public boolean nameIsUse(final SimpleName name) {
-		final NodeReference nameReference = NodeReferenceStore.getInstance().getReferenceForNode(name);
+    public boolean nameIsUse(final SimpleName name) {
+        final NodeReference nameReference = NodeReferenceStore.getInstance().getReferenceForNode(name);
 
-		return this.definitionIdentifiersByUseIdentifier.containsKey(nameReference);
-	}
+        return this.definitionIdentifiersByUseIdentifier.containsKey(nameReference);
+    }
 
-	public void removeDefinitionIdentifierForName(final NodeReference definitionIdentifier,
-			final NodeReference nameIdentifier) {
-		definitionIdentifiersForName(nameIdentifier).remove(definitionIdentifier);
-		removeUseForDefinition(nameIdentifier, definitionIdentifier);
-	}
+    public void removeDefinitionIdentifierForName(final NodeReference definitionIdentifier,
+            final NodeReference nameIdentifier) {
+        definitionIdentifiersForName(nameIdentifier).remove(definitionIdentifier);
+        removeUseForDefinition(nameIdentifier, definitionIdentifier);
+    }
 
-	private void removeUseForDefinition(final NodeReference useIdentifier, final NodeReference definitionIdentifier) {
-		usesForDefinition(definitionIdentifier).remove(useIdentifier);
-	}
+    private void removeUseForDefinition(final NodeReference useIdentifier, final NodeReference definitionIdentifier) {
+        usesForDefinition(definitionIdentifier).remove(useIdentifier);
+    }
 
-	public Set<NodeReference> usesForDefinition(final NodeReference definitionIdentifier) {
-		Set<NodeReference> useIdentifiers = this.useIdentifiersByDefinitionIdentifier.get(definitionIdentifier);
+    public Set<NodeReference> usesForDefinition(final NodeReference definitionIdentifier) {
+        Set<NodeReference> useIdentifiers = this.useIdentifiersByDefinitionIdentifier.get(definitionIdentifier);
 
-		if (useIdentifiers == null) {
-			useIdentifiers = new HashSet<NodeReference>();
-			this.useIdentifiersByDefinitionIdentifier.put(definitionIdentifier, useIdentifiers);
-		}
+        if (useIdentifiers == null) {
+            useIdentifiers = new HashSet<NodeReference>();
+            this.useIdentifiersByDefinitionIdentifier.put(definitionIdentifier, useIdentifiers);
+        }
 
-		return useIdentifiers;
-	}
+        return useIdentifiers;
+    }
 
-	public Set<NodeReference> getDefinitionByUse(final NodeReference useNameIdentifier) {
-		return this.definitionIdentifiersByUseIdentifier.get(useNameIdentifier);
-	}
+    public Set<NodeReference> getDefinitionByUse(final NodeReference useNameIdentifier) {
+        return this.definitionIdentifiersByUseIdentifier.get(useNameIdentifier);
+    }
 
-	public boolean isUninitialized(final NodeReference desiredDefinitionIdentifier) {
-		return this.uninitialized.equals(desiredDefinitionIdentifier);
-	}
+    public boolean isUninitialized(final NodeReference desiredDefinitionIdentifier) {
+        return this.uninitialized.equals(desiredDefinitionIdentifier);
+    }
 
-	public NodeReference getUninitialized() {
-		return this.uninitialized;
-	}
+    public NodeReference getUninitialized() {
+        return this.uninitialized;
+    }
 }
