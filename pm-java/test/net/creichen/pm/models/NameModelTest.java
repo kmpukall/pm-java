@@ -9,33 +9,27 @@
 
 package net.creichen.pm.models;
 
-import static org.junit.Assert.*;
-
-import java.util.Set;
-
+import static org.junit.Assert.assertEquals;
 import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
-import net.creichen.pm.inconsistencies.Inconsistency;
 
 import org.junit.Test;
 
 public class NameModelTest extends PMTest {
 
-    @Test
-    public void testArrayLengthIsSane() {
+	@Test
+	public void testArrayLengthIsSane() {
 
-        String source = "public class S {void m(){int array[] = new int[5]; System.out.println(array.length); } }";
+		String source = "public class S {void m(){int array[] = new int[5]; System.out.println(array.length); } }";
 
-        createNewCompilationUnit("", "S.java", source);
+		createNewCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+		Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        pmProject.rescanForInconsistencies();
+		pmProject.rescanForInconsistencies();
 
-        Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
-
-        assertEquals(0, inconsistencies.size());
-    }
+		assertEquals(0, pmProject.allInconsistencies().size());
+	}
 
 }

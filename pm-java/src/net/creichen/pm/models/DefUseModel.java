@@ -29,9 +29,9 @@ public class DefUseModel {
 	// for now we only care about the defs that are used by our names
 
 	private final ASTNode uninitializedMarkerNode;
-	final NodeReference uninitialized;
+	private final NodeReference uninitialized;
 
-	final Map<NodeReference, Set<NodeReference>> definitionIdentifiersByUseIdentifier;
+	private final Map<NodeReference, Set<NodeReference>> definitionIdentifiersByUseIdentifier;
 
 	private final Map<NodeReference, Set<NodeReference>> useIdentifiersByDefinitionIdentifier;
 
@@ -99,7 +99,7 @@ public class DefUseModel {
 		}
 	}
 
-	Collection<ASTNode> definingNodesForUse(final Use use) {
+	public Collection<ASTNode> definingNodesForUse(final Use use) {
 		final HashSet<ASTNode> definingNodes = new HashSet<ASTNode>();
 
 		for (final Def definition : use.getReachingDefinitions()) {
@@ -162,5 +162,17 @@ public class DefUseModel {
 		}
 
 		return useIdentifiers;
+	}
+
+	public Set<NodeReference> getDefinitionByUse(final NodeReference useNameIdentifier) {
+		return this.definitionIdentifiersByUseIdentifier.get(useNameIdentifier);
+	}
+
+	public boolean isUninitialized(final NodeReference desiredDefinitionIdentifier) {
+		return this.uninitialized.equals(desiredDefinitionIdentifier);
+	}
+
+	public NodeReference getUninitialized() {
+		return this.uninitialized;
 	}
 }

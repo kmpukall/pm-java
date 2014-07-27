@@ -1,4 +1,4 @@
-package net.creichen.pm.models;
+package net.creichen.pm.checkers;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,6 +12,7 @@ import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
 import net.creichen.pm.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.inconsistencies.UnknownUse;
+import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
@@ -42,8 +43,7 @@ public class DefUseModelConsistencyChecker {
 			final NodeReference useNameIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(usingNode);
 
 			if (useNameIdentifier != null) {
-				final Set<NodeReference> desiredDefinitionIdentifiers = model.definitionIdentifiersByUseIdentifier
-						.get(useNameIdentifier);
+				final Set<NodeReference> desiredDefinitionIdentifiers = model.getDefinitionByUse(useNameIdentifier);
 
 				if (desiredDefinitionIdentifiers != null) {
 					// find definitions that should reach and missing
@@ -52,7 +52,7 @@ public class DefUseModelConsistencyChecker {
 					for (final NodeReference desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
 						ASTNode desiredDefiningNode;
 
-						if (!desiredDefinitionIdentifier.equals(model.uninitialized)) {
+						if (!model.isUninitialized(desiredDefinitionIdentifier)) {
 							desiredDefiningNode = desiredDefinitionIdentifier.getNode();
 
 							if (desiredDefiningNode == null) {
@@ -97,7 +97,7 @@ public class DefUseModelConsistencyChecker {
 									+ currentDefiningNode);
 						}
 					} else {
-						currentDefiningIdentifier = model.uninitialized;
+						currentDefiningIdentifier = model.getUninitialized();
 					}
 
 					if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
