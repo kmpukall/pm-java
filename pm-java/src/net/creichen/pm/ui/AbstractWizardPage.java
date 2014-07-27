@@ -2,12 +2,17 @@ package net.creichen.pm.ui;
 
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public abstract class AbstractWizardPage extends UserInputWizardPage {
+
+    private Text fNameField;
 
     public AbstractWizardPage(final String name) {
         super(name);
@@ -19,6 +24,43 @@ public abstract class AbstractWizardPage extends UserInputWizardPage {
         final Text field = new Text(result, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
         field.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         return field;
+    }
+
+    @Override
+    public void createControl(final Composite parent) {
+
+        final Composite result = new Composite(parent, SWT.NONE);
+        setControl(result);
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 2;
+        this.fNameField = createNameField(result, getLabel());
+        result.setLayout(layout);
+
+        final Composite composite = new Composite(result, SWT.NONE);
+        GridLayout compositeLayout = new GridLayout();
+        compositeLayout.marginHeight = 0;
+        compositeLayout.marginWidth = 0;
+        compositeLayout.numColumns = 1;
+        composite.setLayout(compositeLayout);
+        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        this.fNameField.addModifyListener(new ModifyListener() {
+            @Override
+            public void modifyText(final ModifyEvent event) {
+                handleInputChanged();
+            }
+        });
+        this.fNameField.setFocus();
+        this.fNameField.selectAll();
+        handleInputChanged();
+    }
+
+    protected abstract String getLabel();
+
+    protected abstract void handleInputChanged();
+
+    protected Text getTextField() {
+        return this.fNameField;
     }
 
 }
