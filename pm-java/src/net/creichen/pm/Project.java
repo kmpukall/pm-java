@@ -26,8 +26,8 @@ import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.api.Pasteboard;
-import net.creichen.pm.checkers.DefUseModelConsistencyChecker;
-import net.creichen.pm.checkers.NameModelConsistencyChecker;
+import net.creichen.pm.checkers.DefUseModelConsistencyCheck;
+import net.creichen.pm.checkers.NameModelConsistencyCheck;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -177,9 +177,7 @@ public class Project {
 
     public Set<Inconsistency> allInconsistencies() {
         final Set<Inconsistency> result = new HashSet<Inconsistency>();
-
         result.addAll(this.currentInconsistencies.values());
-
         return result;
     }
 
@@ -347,11 +345,11 @@ public class Project {
 
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-                    @Override
-                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+            @Override
+            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
 
-                    }
-                }, null);
+            }
+        }, null);
 
     }
 
@@ -427,8 +425,8 @@ public class Project {
 
             final Set<Inconsistency> inconsistencySet = new HashSet<Inconsistency>();
 
-            inconsistencySet.addAll(new NameModelConsistencyChecker(this).calculateInconsistencies(this.nameModel));
-            inconsistencySet.addAll(new DefUseModelConsistencyChecker(this).calculateInconsistencies(this.udModel));
+            inconsistencySet.addAll(new NameModelConsistencyCheck(this).calculateInconsistencies(this.nameModel));
+            inconsistencySet.addAll(new DefUseModelConsistencyCheck(this).calculateInconsistencies(this.udModel));
 
             Timer.sharedTimer().stop("INCONSISTENCIES");
 
@@ -455,7 +453,6 @@ public class Project {
                 marker.setAttribute(IMarker.TRANSIENT, true);
 
                 final ASTNode node = inconsistency.getNode();
-
                 marker.setAttribute(IMarker.CHAR_START, node.getStartPosition());
                 marker.setAttribute(IMarker.CHAR_END, node.getStartPosition() + node.getLength());
 
@@ -470,7 +467,7 @@ public class Project {
     }
 
     private void resetModel() {
-        this.udModel = new DefUseModel(ASTUtil.getCurrentUses(this));
+        this.udModel = new DefUseModel(ASTUtil.getCurrentUses(getASTRoots()));
         this.nameModel = new NameModel(this);
     }
 
@@ -513,7 +510,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!firstTime && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             finalFirstTime = true;

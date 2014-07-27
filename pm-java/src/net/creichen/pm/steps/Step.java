@@ -34,19 +34,12 @@ class Step {
 
         @Override
         public Change perform(final IProgressMonitor pm) throws CoreException {
-
             final Change result = super.perform(pm);
-
             performASTChange();
-
             getProject().updateToNewVersionsOfICompilationUnits();
-
             updateAfterReparse();
-
             cleanup();
-
             getProject().rescanForInconsistencies();
-
             return result;
         }
 

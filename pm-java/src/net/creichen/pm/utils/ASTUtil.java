@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 
@@ -38,104 +37,103 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public final class ASTUtil {
 
-	public static Collection<Use> getCurrentUses(final Project project) {
-		Timer.sharedTimer().start("DUUD_CHAINS");
-	
-		final Collection<Use> uses = new HashSet<Use>();
-		for (final ASTNode root : project.getASTRoots()) {
-			root.accept(new ASTVisitor() {
-				@Override
-				public boolean visit(final MethodDeclaration methodDeclaration) {
-	
-					// There is nothing to analyze if we have an interface or
-					// abstract method
-					if (methodDeclaration.getBody() != null) {
-						final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
-						uses.addAll(analysis.getUses());
-					}
-	
-					return false; // don't visit children
-				}
-			});
-	
-		}
-		Timer.sharedTimer().stop("DUUD_CHAINS");
-		return uses;
-	}
+    public static Collection<Use> getCurrentUses(final Collection<ASTNode> roots) {
+        Timer.sharedTimer().start("DUUD_CHAINS");
 
-	// Hmmm, this assumes there is only one simple name for a given declaring
-	// node
-	public static SimpleName simpleNameForDeclaringNode(final ASTNode declaringNode) {
-		if (declaringNode != null) {
-			if (declaringNode instanceof VariableDeclarationFragment) {
-				return ((VariableDeclarationFragment) declaringNode).getName();
-			} else if (declaringNode instanceof SingleVariableDeclaration) {
-				return ((SingleVariableDeclaration) declaringNode).getName();
-			} else if (declaringNode instanceof VariableDeclarationFragment) {
-				return ((VariableDeclarationFragment) declaringNode).getName();
-			} else if (declaringNode instanceof TypeDeclaration) {
-				return ((TypeDeclaration) declaringNode).getName();
-			} else if (declaringNode instanceof MethodDeclaration) {
-				return ((MethodDeclaration) declaringNode).getName();
-			} else if (declaringNode instanceof TypeParameter) {
-				return ((TypeParameter) declaringNode).getName();
-			} else {
-				throw new RuntimeException("Unexpected declaring ASTNode type " + declaringNode + " of class "
-						+ declaringNode.getClass());
-			}
-		} else {
-			throw new RuntimeException("Tried to find simple name for null declaring node!");
-		}
-	
-	}
+        final Collection<Use> uses = new HashSet<Use>();
+        for (final ASTNode root : roots) {
+            root.accept(new ASTVisitor() {
+                @Override
+                public boolean visit(final MethodDeclaration methodDeclaration) {
 
-	public static VariableDeclaration localVariableDeclarationForSimpleName(final SimpleName name) {
-		return (VariableDeclaration) ((CompilationUnit) name.getRoot()).findDeclaringNode(name
-				.resolveBinding());
-	}
+                    // There is nothing to analyze if we have an interface or
+                    // abstract method
+                    if (methodDeclaration.getBody() != null) {
+                        final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
+                        uses.addAll(analysis.getUses());
+                    }
 
-	public static void replaceNodeInParent(final ASTNode oldNode, final ASTNode replacement) {
-		final StructuralPropertyDescriptor location = oldNode.getLocationInParent();
+                    return false; // don't visit children
+                }
+            });
 
-		// replace the selected method invocation with the new invocation
-		if (location.isChildProperty()) {
-			oldNode.getParent().setStructuralProperty(location, replacement);
-		} else {
-			final List<ASTNode> parentList = getStructuralProperty(
-					(ChildListPropertyDescriptor) location, oldNode.getParent());
+        }
+        Timer.sharedTimer().stop("DUUD_CHAINS");
+        return uses;
+    }
 
-			parentList.set(parentList.indexOf(oldNode), replacement);
-		}
-	}
+    // Hmmm, this assumes there is only one simple name for a given declaring
+    // node
+    public static SimpleName simpleNameForDeclaringNode(final ASTNode declaringNode) {
+        if (declaringNode != null) {
+            if (declaringNode instanceof VariableDeclarationFragment) {
+                return ((VariableDeclarationFragment) declaringNode).getName();
+            } else if (declaringNode instanceof SingleVariableDeclaration) {
+                return ((SingleVariableDeclaration) declaringNode).getName();
+            } else if (declaringNode instanceof VariableDeclarationFragment) {
+                return ((VariableDeclarationFragment) declaringNode).getName();
+            } else if (declaringNode instanceof TypeDeclaration) {
+                return ((TypeDeclaration) declaringNode).getName();
+            } else if (declaringNode instanceof MethodDeclaration) {
+                return ((MethodDeclaration) declaringNode).getName();
+            } else if (declaringNode instanceof TypeParameter) {
+                return ((TypeParameter) declaringNode).getName();
+            } else {
+                throw new RuntimeException("Unexpected declaring ASTNode type " + declaringNode + " of class "
+                        + declaringNode.getClass());
+            }
+        } else {
+            throw new RuntimeException("Tried to find simple name for null declaring node!");
+        }
 
-	// We also consider parameters, for statement vars, and catch vars to be
-	// local
-	public static boolean variableDeclarationIsLocal(final VariableDeclaration declaration) {
+    }
 
-		final ASTNode parent = declaration.getParent();
+    public static VariableDeclaration localVariableDeclarationForSimpleName(final SimpleName name) {
+        return (VariableDeclaration) ((CompilationUnit) name.getRoot()).findDeclaringNode(name.resolveBinding());
+    }
 
-		// not sure this is actually the best way to do this
+    public static void replaceNodeInParent(final ASTNode oldNode, final ASTNode replacement) {
+        final StructuralPropertyDescriptor location = oldNode.getLocationInParent();
 
-		if (parent instanceof CatchClause) {
-			return true;
-		}
+        // replace the selected method invocation with the new invocation
+        if (location.isChildProperty()) {
+            oldNode.getParent().setStructuralProperty(location, replacement);
+        } else {
+            final List<ASTNode> parentList = getStructuralProperty((ChildListPropertyDescriptor) location,
+                    oldNode.getParent());
 
-		if (parent instanceof VariableDeclarationExpression) {
-			return true;
-		}
+            parentList.set(parentList.indexOf(oldNode), replacement);
+        }
+    }
 
-		if (parent instanceof VariableDeclarationStatement) {
-			return true;
-		}
+    // We also consider parameters, for statement vars, and catch vars to be
+    // local
+    public static boolean variableDeclarationIsLocal(final VariableDeclaration declaration) {
 
-		if (parent instanceof ForStatement) {
-			return true;
-		}
+        final ASTNode parent = declaration.getParent();
 
-		return false;
-	}
+        // not sure this is actually the best way to do this
 
-	private ASTUtil() {
-		// private utility class constructor
-	}
+        if (parent instanceof CatchClause) {
+            return true;
+        }
+
+        if (parent instanceof VariableDeclarationExpression) {
+            return true;
+        }
+
+        if (parent instanceof VariableDeclarationStatement) {
+            return true;
+        }
+
+        if (parent instanceof ForStatement) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private ASTUtil() {
+        // private utility class constructor
+    }
 }
