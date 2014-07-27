@@ -1,4 +1,4 @@
-package net.creichen.pm.models;
+package net.creichen.pm.checkers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +9,7 @@ import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.NameCapture;
 import net.creichen.pm.inconsistencies.NameConflict;
 import net.creichen.pm.inconsistencies.UnknownName;
+import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.ASTNodeUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;

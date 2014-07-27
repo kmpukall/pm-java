@@ -24,10 +24,11 @@ import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.api.Pasteboard;
+import net.creichen.pm.checkers.NameModelConsistencyChecker;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.models.DefUseModelConsistencyChecker;
 import net.creichen.pm.models.NameModel;
-import net.creichen.pm.models.NameModelConsistencyChecker;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
 import net.creichen.pm.utils.ASTNodeUtil;
 import net.creichen.pm.utils.Timer;
@@ -342,11 +343,11 @@ public class Project {
 
 		parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
 				new ASTRequestor() {
-					@Override
-					public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+			@Override
+			public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
 
-					}
-				}, null);
+			}
+		}, null);
 
 	}
 
@@ -423,7 +424,7 @@ public class Project {
 			final Set<Inconsistency> inconsistencySet = new HashSet<Inconsistency>();
 
 			inconsistencySet.addAll(new NameModelConsistencyChecker(this).calculateInconsistencies(this.nameModel));
-			inconsistencySet.addAll(this.udModel.calculateInconsistencies());
+			inconsistencySet.addAll(new DefUseModelConsistencyChecker(this).calculateInconsistencies(this.udModel));
 
 			Timer.sharedTimer().stop("INCONSISTENCIES");
 
@@ -508,7 +509,7 @@ public class Project {
 		// for now we punt and have this reset the model
 		if (!firstTime && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
 			System.err
-					.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+			.println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
 			this.pmCompilationUnits.clear();
 			finalFirstTime = true;
