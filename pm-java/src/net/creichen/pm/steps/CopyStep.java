@@ -21,6 +21,7 @@ import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -74,7 +75,7 @@ public class CopyStep extends Step {
             public boolean match(final SimpleName originalName, final Object copyNameObject) {
                 final SimpleName copyName = (SimpleName) copyNameObject;
 
-                if (getProject().nameNodeIsDeclaring(originalName)) {
+                if (ASTUtil.simpleNameForDeclaringNode(getProject().findDeclaringNodeForName(originalName)) == originalName) {
                     // Generate fresh identifier for node with name model
 
                     final String freshNameModelIdentifier = nameModel.generateNewIdentifierForName(copyName);
