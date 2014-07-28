@@ -20,6 +20,15 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 public class ConsistencyValidator {
 
+    private static ConsistencyValidator instance;
+
+    public static ConsistencyValidator getInstance() {
+        if (instance == null) {
+            instance = new ConsistencyValidator();
+        }
+        return instance;
+    }
+
     private final Map<String, Inconsistency> currentInconsistencies;
 
     public ConsistencyValidator() {

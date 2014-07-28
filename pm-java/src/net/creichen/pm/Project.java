@@ -148,7 +148,7 @@ public class Project {
 
     public Project(final IJavaProject iJavaProject) {
         this.iJavaProject = iJavaProject;
-        this.validator = new ConsistencyValidator();
+        this.validator = ConsistencyValidator.getInstance();
         this.pmCompilationUnits = new HashMap<String, PMCompilationUnitImplementation>();
         this.projectListeners = new ArrayList<ProjectListener>();
         updateModelData(true);
@@ -265,10 +265,10 @@ public class Project {
         parser.setResolveBindings(resolveBindings);
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-            @Override
-            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-            }
-        }, null);
+                    @Override
+                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+                    }
+                }, null);
 
     }
 
@@ -357,7 +357,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;
