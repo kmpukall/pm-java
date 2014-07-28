@@ -50,11 +50,11 @@ import org.eclipse.jface.text.ITextSelection;
 public class Project {
 
     private class PMCompilationUnitImplementation implements PMCompilationUnit {
-        private ICompilationUnit iCompilationUnit;
 
         private byte[] sourceDigest;
 
         private CompilationUnit compilationUnit;
+        private ICompilationUnit iCompilationUnit;
 
         public PMCompilationUnitImplementation(final ICompilationUnit iCompilationUnit,
                 final CompilationUnit compilationUnit) {
@@ -77,9 +77,8 @@ public class Project {
                 return this.iCompilationUnit.getSource();
             } catch (final JavaModelException e) {
                 e.printStackTrace();
+                return null;
             }
-
-            return null;
         }
 
         // we parse more than one compilation unit at once (since this makes it
@@ -118,7 +117,7 @@ public class Project {
             }
         }
 
-        private void updateSourceDigestForSource(final String source) {
+        private void updateHash(final String source) {
             this.sourceDigest = calculateHashForSource(source);
         }
 
@@ -126,7 +125,7 @@ public class Project {
             this.compilationUnit = compilationUnit;
             this.iCompilationUnit = iCompilationUnit;
 
-            updateSourceDigestForSource(getSource());
+            updateHash(getSource());
         }
     }
 
