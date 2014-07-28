@@ -19,6 +19,7 @@ import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -393,7 +394,7 @@ public class RenameStepTest extends PMTest {
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         // Inconsistencies are:
         // [Definition (null) should be used by iVar,

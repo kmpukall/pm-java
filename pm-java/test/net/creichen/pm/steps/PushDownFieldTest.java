@@ -14,6 +14,7 @@ import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.checkers.ConsistencyValidator;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -49,7 +50,7 @@ public class PushDownFieldTest extends PMTest {
 
         pasteStep1.applyAllAtOnce();
 
-        assertTrue(project.allInconsistencies().isEmpty());
+        assertTrue(ConsistencyValidator.getInstance().getInconsistencies().isEmpty());
         final ICompilationUnit iCompilationUnit2 = iCompilationUnitS;
 
         yField = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,
@@ -78,7 +79,7 @@ public class PushDownFieldTest extends PMTest {
         yField = null;
         cutStep.applyAllAtOnce();
 
-        assertTrue(project.allInconsistencies().isEmpty());
+        assertTrue(ConsistencyValidator.getInstance().getInconsistencies().isEmpty());
 
         assertTrue(compilationUnitSourceMatchesSource("public class S {} }", iCompilationUnitS.getSource()));
 

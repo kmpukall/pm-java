@@ -17,6 +17,7 @@ import java.util.Collection;
 import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -43,7 +44,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }
@@ -65,7 +66,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; super.m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }
@@ -87,7 +88,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {S s; void m(){s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }
@@ -115,7 +116,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("package t; public class Sub extends Super {void g() {s.m();}}",
                 subCompilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }
@@ -139,7 +140,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(0, inconsistencies.size());
     }

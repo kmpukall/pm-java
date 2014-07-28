@@ -13,6 +13,7 @@ import java.util.Map;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
+import net.creichen.pm.checkers.ConsistencyValidator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -39,7 +40,7 @@ class Step {
             getProject().updateToNewVersionsOfICompilationUnits();
             updateAfterReparse();
             cleanup();
-            getProject().rescanForInconsistencies();
+            ConsistencyValidator.getInstance().rescanForInconsistencies(getProject());
             return result;
         }
 
@@ -90,7 +91,7 @@ class Step {
 
         cleanup();
 
-        this.project.rescanForInconsistencies();
+        ConsistencyValidator.getInstance().rescanForInconsistencies(this.project);
     }
 
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {

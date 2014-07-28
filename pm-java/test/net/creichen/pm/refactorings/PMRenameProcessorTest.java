@@ -18,6 +18,7 @@ import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.MissingDefinition;
 import net.creichen.pm.inconsistencies.NameCapture;
@@ -106,7 +107,7 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());
 
-        Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(1, inconsistencies.size());
 
@@ -155,7 +156,7 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("public class Foo {void method() {int bar; int bar; bar = 5; bar = 6;} }",
                 iCompilationUnit.getSource());
 
-        Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertTrue(inconsistencies.size() == 1);
 
@@ -182,7 +183,7 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("public class Foo {void method() {int bar; int foo; bar = 5; foo = 6;} }",
                 iCompilationUnit.getSource());
 
-        inconsistencies = pmProject.allInconsistencies();
+        inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertTrue(inconsistencies.size() == 0);
 
@@ -207,7 +208,7 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("public class Unit1 { public int y; void method() {y++;} }", unit1.getSource());
         assertEquals("public class Unit2 { void method() {Unit1 unit1 = new Unit1(); unit1.y--;} }", unit2.getSource());
 
-        for (Inconsistency inconsistency : pmProject.allInconsistencies()) {
+        for (Inconsistency inconsistency : ConsistencyValidator.getInstance().getInconsistencies()) {
             System.out.println(inconsistency.getHumanReadableDescription());
 
             if (inconsistency instanceof MissingDefinition) {
@@ -216,7 +217,7 @@ public class PMRenameProcessorTest extends PMTest {
             }
         }
 
-        assertTrue(pmProject.allInconsistencies().size() == 0);
+        assertTrue(ConsistencyValidator.getInstance().getInconsistencies().size() == 0);
 
     }
 
@@ -236,7 +237,7 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
                 iCompilationUnit.getSource());
 
-        Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertTrue(inconsistencies.size() == 1);
 
@@ -250,7 +251,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         nameCapture.acceptBehavioralChange();
 
-        Collection<Inconsistency> newInconsistencies = pmProject.allInconsistencies();
+        Collection<Inconsistency> newInconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(0, newInconsistencies.size());
     }

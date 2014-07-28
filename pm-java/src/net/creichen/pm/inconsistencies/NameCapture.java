@@ -11,6 +11,7 @@ package net.creichen.pm.inconsistencies;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.ASTUtil;
 
@@ -41,7 +42,7 @@ public class NameCapture extends Inconsistency {
 
 		nameModel.setIdentifierForName(capturingIdentifier, capturedName);
 
-		this.project.rescanForInconsistencies();
+		ConsistencyValidator.getInstance().rescanForInconsistencies(this.project);
 	}
 
 	@Override

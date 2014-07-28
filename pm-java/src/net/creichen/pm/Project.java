@@ -26,7 +26,6 @@ import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.checkers.ConsistencyValidator;
-import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.Timer;
@@ -152,10 +151,6 @@ public class Project {
 
     }
 
-    public Collection<Inconsistency> allInconsistencies() {
-        return ConsistencyValidator.getInstance().getInconsistencies();
-    }
-
     public ASTNode findDeclaringNodeForName(final Name nameNode) {
         final CompilationUnit usingCompilationUnit = (CompilationUnit) nameNode.getRoot();
         final IBinding nameBinding = nameNode.resolveBinding();
@@ -231,10 +226,6 @@ public class Project {
         return this.iJavaProject;
     }
 
-    public Inconsistency getInconsistencyWithKey(final String key) {
-        return ConsistencyValidator.getInstance().getInconsistency(key);
-    }
-
     public NameModel getNameModel() {
         return this.nameModel;
     }
@@ -262,10 +253,10 @@ public class Project {
         parser.setResolveBindings(resolveBindings);
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-            @Override
-            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-            }
-        }, null);
+                    @Override
+                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+                    }
+                }, null);
 
     }
 
@@ -301,10 +292,6 @@ public class Project {
 
         Timer.sharedTimer().stop("NODE_REPLACEMENT");
         return matches;
-    }
-
-    public void rescanForInconsistencies() {
-        ConsistencyValidator.getInstance().rescanForInconsistencies(this);
     }
 
     public boolean sourcesAreOutOfSync() {
@@ -354,7 +341,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;

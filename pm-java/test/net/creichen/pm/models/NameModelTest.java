@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
+import net.creichen.pm.checkers.ConsistencyValidator;
 
 import org.junit.Test;
 
@@ -27,9 +28,9 @@ public class NameModelTest extends PMTest {
 
 		Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-		pmProject.rescanForInconsistencies();
+		ConsistencyValidator.getInstance().rescanForInconsistencies(pmProject);
 
-		assertEquals(0, pmProject.allInconsistencies().size());
+		assertEquals(0, ConsistencyValidator.getInstance().getInconsistencies().size());
 	}
 
 }

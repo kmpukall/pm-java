@@ -11,6 +11,7 @@ package net.creichen.pm.ui;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 
 import org.eclipse.core.resources.IMarker;
@@ -53,7 +54,7 @@ public class MarkerResolutionGenerator implements IMarkerResolutionGenerator {
             final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                     (IJavaProject) JavaCore.create((String) marker.getAttribute(PROJECT_ID)));
             final String inconsistencyID = (String) marker.getAttribute(INCONSISTENCY_ID);
-            final Inconsistency inconsistency = project.getInconsistencyWithKey(inconsistencyID);
+            final Inconsistency inconsistency = ConsistencyValidator.getInstance().getInconsistency(inconsistencyID);
             final IMarkerResolution[] result = new IMarkerResolution[1];
             result[0] = new AcceptBehavioralChangeQuickFix(inconsistency);
             return result;

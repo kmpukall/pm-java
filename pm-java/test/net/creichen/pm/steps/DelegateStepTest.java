@@ -19,6 +19,7 @@ import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -60,7 +61,7 @@ public class DelegateStepTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }",
                 s2PMCompilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(1, inconsistencies.size());
 

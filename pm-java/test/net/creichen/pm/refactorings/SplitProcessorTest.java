@@ -17,6 +17,7 @@ import java.util.Collection;
 import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -40,7 +41,7 @@ public class SplitProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x;int x = 1;x = x + 1;}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(1, inconsistencies.size());
     }
