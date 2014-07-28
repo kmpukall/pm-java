@@ -29,7 +29,6 @@ import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
-import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -266,16 +265,13 @@ public class Project {
 
         final ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setProject(this.iJavaProject);
-
         parser.setResolveBindings(resolveBindings);
-
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-            @Override
-            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-
-            }
-        }, null);
+                    @Override
+                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+                    }
+                }, null);
 
     }
 
@@ -290,38 +286,26 @@ public class Project {
     }
 
     public boolean recursivelyReplaceNodeWithCopy(final ASTNode node, final ASTNode copy) {
-
         Timer.sharedTimer().start("NODE_REPLACEMENT");
 
         // It's kind of silly that we have to match twice
-
         final ASTMatcher astMatcher = new ASTMatcher(node, copy);
-
-        final boolean matches = astMatcher.match();
-
+        final boolean matches = astMatcher.matches();
         if (matches) {
-
             final Map<ASTNode, ASTNode> isomorphicNodes = astMatcher.isomorphicNodes();
-
             for (final ASTNode oldNode : isomorphicNodes.keySet()) {
-
                 final ASTNode newNode = isomorphicNodes.get(oldNode);
-
                 if (oldNode instanceof SimpleName) {
                     this.nameModel.replaceNameWithName((SimpleName) oldNode, (SimpleName) newNode);
                 }
-
                 NodeReferenceStore.getInstance().replaceOldNodeVersionWithNewVersion(oldNode, newNode);
-
             }
-
         } else {
             System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
             throw new RuntimeException("Copy not does structurally match original");
         }
 
         Timer.sharedTimer().stop("NODE_REPLACEMENT");
-
         return matches;
     }
 
@@ -376,7 +360,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;
