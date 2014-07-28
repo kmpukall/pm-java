@@ -144,11 +144,8 @@ public class Project {
 
     private NameModel nameModel;
 
-    private final ConsistencyValidator validator;
-
     public Project(final IJavaProject iJavaProject) {
         this.iJavaProject = iJavaProject;
-        this.validator = ConsistencyValidator.getInstance();
         this.pmCompilationUnits = new HashMap<String, PMCompilationUnitImplementation>();
         this.projectListeners = new ArrayList<ProjectListener>();
         updateModelData(true);
@@ -156,7 +153,7 @@ public class Project {
     }
 
     public Collection<Inconsistency> allInconsistencies() {
-        return this.validator.getInconsistencies();
+        return ConsistencyValidator.getInstance().getInconsistencies();
     }
 
     public ASTNode findDeclaringNodeForName(final Name nameNode) {
@@ -235,7 +232,7 @@ public class Project {
     }
 
     public Inconsistency getInconsistencyWithKey(final String key) {
-        return this.validator.getInconsistency(key);
+        return ConsistencyValidator.getInstance().getInconsistency(key);
     }
 
     public NameModel getNameModel() {
@@ -265,10 +262,10 @@ public class Project {
         parser.setResolveBindings(resolveBindings);
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-                    @Override
-                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-                    }
-                }, null);
+            @Override
+            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+            }
+        }, null);
 
     }
 
@@ -307,7 +304,7 @@ public class Project {
     }
 
     public void rescanForInconsistencies() {
-        this.validator.rescanForInconsistencies(this);
+        ConsistencyValidator.getInstance().rescanForInconsistencies(this);
     }
 
     public boolean sourcesAreOutOfSync() {
@@ -357,7 +354,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;
@@ -415,7 +412,7 @@ public class Project {
             listener.projectDidReparse(this);
         }
 
-        this.validator.reset();
+        ConsistencyValidator.getInstance().reset();
 
     }
 
