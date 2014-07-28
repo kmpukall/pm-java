@@ -251,6 +251,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         nameCapture.acceptBehavioralChange();
 
+        ConsistencyValidator.getInstance().rescanForInconsistencies(pmProject);
         Collection<Inconsistency> newInconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
         assertEquals(0, newInconsistencies.size());

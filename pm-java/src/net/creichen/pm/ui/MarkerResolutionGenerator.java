@@ -24,9 +24,11 @@ import org.eclipse.ui.IMarkerResolutionGenerator;
 public class MarkerResolutionGenerator implements IMarkerResolutionGenerator {
     private static final class AcceptBehavioralChangeQuickFix implements IMarkerResolution {
         private final Inconsistency inconsistency;
+        private Project project;
 
-        private AcceptBehavioralChangeQuickFix(final Inconsistency inconsistency) {
+        private AcceptBehavioralChangeQuickFix(final Inconsistency inconsistency, Project project) {
             this.inconsistency = inconsistency;
+            this.project = project;
         }
 
         @Override
@@ -37,7 +39,7 @@ public class MarkerResolutionGenerator implements IMarkerResolutionGenerator {
         @Override
         public void run(final IMarker marker) {
             this.inconsistency.acceptBehavioralChange();
-
+            ConsistencyValidator.getInstance().rescanForInconsistencies(this.project);
         }
     }
 
@@ -56,7 +58,7 @@ public class MarkerResolutionGenerator implements IMarkerResolutionGenerator {
             final String inconsistencyID = (String) marker.getAttribute(INCONSISTENCY_ID);
             final Inconsistency inconsistency = ConsistencyValidator.getInstance().getInconsistency(inconsistencyID);
             final IMarkerResolution[] result = new IMarkerResolution[1];
-            result[0] = new AcceptBehavioralChangeQuickFix(inconsistency);
+            result[0] = new AcceptBehavioralChangeQuickFix(inconsistency, project);
             return result;
         } catch (final CoreException e) {
             return new IMarkerResolution[0];
