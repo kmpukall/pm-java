@@ -41,9 +41,10 @@ public class CutStepTest extends PMTest {
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final ICompilationUnit iCompilationUnit = compilationUnit;
 
         MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
+                (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
@@ -59,9 +60,10 @@ public class CutStepTest extends PMTest {
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final ICompilationUnit iCompilationUnit = compilationUnit;
 
         MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
+                (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
@@ -77,9 +79,10 @@ public class CutStepTest extends PMTest {
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final ICompilationUnit iCompilationUnit = compilationUnit;
 
         MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
-                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
+                (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         Statement firstStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
@@ -97,9 +100,10 @@ public class CutStepTest extends PMTest {
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final ICompilationUnit iCompilationUnit = compilationUnit;
 
         VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit("s", 0,
-                "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnit));
+                "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
@@ -118,8 +122,9 @@ public class CutStepTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        CompilationUnit compilationUnit = (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit);
+        CompilationUnit compilationUnit = (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit1);
 
         MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
                 compilationUnit);
@@ -149,8 +154,9 @@ public class CutStepTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        CompilationUnit compilationUnit = (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit);
+        CompilationUnit compilationUnit = (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit1);
 
         MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
                 compilationUnit);
@@ -172,9 +178,10 @@ public class CutStepTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
         VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit("x", 0,
-                "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit));
+                "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit1));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 

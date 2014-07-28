@@ -10,6 +10,7 @@
 package net.creichen.pm.refactorings;
 
 import net.creichen.pm.Project;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.steps.CutStep;
 import net.creichen.pm.steps.PasteStep;
@@ -30,9 +31,9 @@ class MoveFieldRefactoring {
             final TypeDeclaration newParent) {
         this.project = project;
 
-        this.fieldReference = this.project.getReferenceForNode(fieldDeclaration);
+        this.fieldReference = NodeReferenceStore.getInstance().getReferenceForNode(fieldDeclaration);
 
-        this.newParentReference = this.project.getReferenceForNode(newParent);
+        this.newParentReference = NodeReferenceStore.getInstance().getReferenceForNode(newParent);
     }
 
     public void apply() {
@@ -47,8 +48,8 @@ class MoveFieldRefactoring {
 
         final TypeDeclaration newParent = (TypeDeclaration) this.newParentReference.getNode();
 
-        final PasteStep pasteStep = new PasteStep(this.project, newParent,
-                TypeDeclaration.BODY_DECLARATIONS_PROPERTY, newParent.bodyDeclarations().size());
+        final PasteStep pasteStep = new PasteStep(this.project, newParent, TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
+                newParent.bodyDeclarations().size());
 
         pasteStep.applyAllAtOnce();
     }

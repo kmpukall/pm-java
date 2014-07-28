@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.Project;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
@@ -158,7 +159,8 @@ public class DelegateStep extends Step {
             if (this.newExpressionNode != null) {
                 if (this.newExpressionNode instanceof Name) {
 
-                    this.newExpressionNodeReference = getProject().getReferenceForNode(this.newExpressionNode);
+                    this.newExpressionNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(
+                            this.newExpressionNode);
                 } else {
                     System.err.println("Unexpected new expression type " + this.newExpressionNode.getClass());
                 }
@@ -175,14 +177,14 @@ public class DelegateStep extends Step {
     private void rewriteToDelegateMethodInvocationToIdentifier(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression identifierNode) {
         astRewrite
-        .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
+                .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
     }
 
     private void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression superInvocationNode) {
         astRewrite.replace(methodInvocation, superInvocationNode, null /*
-         * edit group
-         */);
+                                                                        * edit group
+                                                                        */);
     }
 
     public void setDelegateIdentifier(final String delegateIdentifier) {

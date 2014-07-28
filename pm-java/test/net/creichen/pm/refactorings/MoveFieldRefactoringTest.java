@@ -34,10 +34,8 @@ public class MoveFieldRefactoringTest extends PMTest {
         final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.getIJavaProject());
 
-        final CompilationUnit compilationUnitS = (CompilationUnit) project
-                .findASTRootForICompilationUnit(iCompilationUnitS);
-        final CompilationUnit compilationUnitT = (CompilationUnit) project
-                .findASTRootForICompilationUnit(iCompilationUnitT);
+        final CompilationUnit compilationUnitS = (CompilationUnit) project.getCompilationUnitForICompilationUnit(iCompilationUnitS);
+        final CompilationUnit compilationUnitT = (CompilationUnit) project.getCompilationUnitForICompilationUnit(iCompilationUnitT);
 
         final FieldDeclaration yField = (FieldDeclaration) ASTQuery
                 .fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0, compilationUnitS)

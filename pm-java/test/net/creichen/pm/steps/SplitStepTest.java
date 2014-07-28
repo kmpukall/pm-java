@@ -20,13 +20,18 @@ import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.models.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.junit.Test;
 
 public class SplitStepTest extends PMTest {
@@ -36,15 +41,12 @@ public class SplitStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final Assignment secondAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(
-                1, "m", 0, "S", 0,
-                (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        final Assignment secondAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0, "S", 0,
+                project.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
-        final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment
-                .getParent();
+        final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
 
         final SplitStep step = new SplitStep(project, assignmentStatement);
 
@@ -68,24 +70,20 @@ public class SplitStepTest extends PMTest {
         // Second two occurrences of x should have same identifier (different
         // from first identifier)
 
-        final SimpleName firstX = ASTQuery
-                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0, "S", 0,
-                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
-        final SimpleName secondX = ASTQuery
-                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 1, "m", 0, "S", 0,
-                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        final SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0,
+                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+        final SimpleName secondX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 1, "m", 0,
+                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.identifierForName(firstX));
         assertNotNull(nameModel.identifierForName(secondX));
 
         assertEquals(nameModel.identifierForName(firstX), nameModel.identifierForName(secondX));
 
-        final SimpleName thirdX = ASTQuery
-                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0, "S", 0,
-                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
-        final SimpleName fourthX = ASTQuery
-                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 3, "m", 0, "S", 0,
-                        (CompilationUnit) project.findASTRootForICompilationUnit(iCompilationUnit));
+        final SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0,
+                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+        final SimpleName fourthX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 3, "m", 0,
+                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.identifierForName(thirdX));
         assertNotNull(nameModel.identifierForName(fourthX));
@@ -96,15 +94,13 @@ public class SplitStepTest extends PMTest {
 
         // now test reverse mapping interface
 
-        final List<SimpleName> nodesRelatedToFirstDeclaration = nameModel
-                .nameNodesRelatedToNameNode(firstX);
+        final List<SimpleName> nodesRelatedToFirstDeclaration = nameModel.nameNodesRelatedToNameNode(firstX);
 
         assertEquals(2, nodesRelatedToFirstDeclaration.size());
         assertTrue(nodesRelatedToFirstDeclaration.contains(firstX));
         assertTrue(nodesRelatedToFirstDeclaration.contains(secondX));
 
-        final List<SimpleName> nodesRelatedToSecondDeclaration = nameModel
-                .nameNodesRelatedToNameNode(thirdX);
+        final List<SimpleName> nodesRelatedToSecondDeclaration = nameModel.nameNodesRelatedToNameNode(thirdX);
 
         assertEquals(2, nodesRelatedToSecondDeclaration.size());
         assertTrue(nodesRelatedToSecondDeclaration.contains(thirdX));
@@ -116,10 +112,9 @@ public class SplitStepTest extends PMTest {
 
         // The use for the second declaration should be the fourthX
 
-        final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX
-                .getParent();
+        final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX.getParent();
 
-        final Set<NodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(project
+        final Set<NodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(NodeReferenceStore.getInstance()
                 .getReferenceForNode(secondXDeclaration));
 
         assertEquals(1, usesOfSecondDeclaration.size());

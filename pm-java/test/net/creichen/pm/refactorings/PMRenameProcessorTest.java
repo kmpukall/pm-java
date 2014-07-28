@@ -112,7 +112,7 @@ public class PMRenameProcessorTest extends PMTest {
 
 		NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-		CompilationUnit parsedCompilationUnit = pmProject.parsedCompilationUnitForICompilationUnit(iCompilationUnit);
+		CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
 		ASTNode expectedCapturedNode = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1,
 				"method", 0, "Foo", 0, parsedCompilationUnit);
@@ -161,7 +161,7 @@ public class PMRenameProcessorTest extends PMTest {
 
 		NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-		CompilationUnit parsedCompilationUnit = pmProject.parsedCompilationUnitForICompilationUnit(iCompilationUnit);
+		CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
 		ASTNode expectedCapturedNode = pmProject.nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
 		assertEquals(expectedCapturedNode, nameCapture.getNode());
@@ -242,7 +242,7 @@ public class PMRenameProcessorTest extends PMTest {
 
 		NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-		CompilationUnit parsedCompilationUnit = pmProject.parsedCompilationUnitForICompilationUnit(iCompilationUnit);
+		CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
 		ASTNode expectedCapturedNode = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1,
 				"method", 0, "Foo", 0, parsedCompilationUnit);

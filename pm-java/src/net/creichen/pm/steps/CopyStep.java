@@ -17,6 +17,7 @@ import java.util.Set;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.analysis.DefUseUtil;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -171,7 +172,7 @@ public class CopyStep extends Step {
 
         /*
          * Now that we have the mappings:
-         * 
+         *
          * For each copied definition, find the original definition and get the original uses for it for each original
          * use, if it is external add it as a use for the copy if it is internal, generate a new identifier for the copy
          * use and add it to the uses for the copied definition
@@ -180,11 +181,11 @@ public class CopyStep extends Step {
         for (final ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes.keySet()) {
             final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes.get(copiedDefinition);
 
-            final Set<NodeReference> originalUses = udModel.usesForDefinition(getProject().getReferenceForNode(
-                    originalDefinition));
+            final Set<NodeReference> originalUses = udModel.usesForDefinition(NodeReferenceStore.getInstance()
+                    .getReferenceForNode(originalDefinition));
 
-            final Set<NodeReference> copyUses = udModel.usesForDefinition(getProject().getReferenceForNode(
-                    copiedDefinition));
+            final Set<NodeReference> copyUses = udModel.usesForDefinition(NodeReferenceStore.getInstance()
+                    .getReferenceForNode(copiedDefinition));
 
             for (final NodeReference originalUseReference : originalUses) {
                 final ASTNode originalUseNode = originalUseReference.getNode();
@@ -192,7 +193,7 @@ public class CopyStep extends Step {
                 final ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes.get(originalUseNode);
 
                 if (copyUseNode != null) { /* use is internal */
-                    copyUses.add(getProject().getReferenceForNode(copyUseNode));
+                    copyUses.add(NodeReferenceStore.getInstance().getReferenceForNode(copyUseNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyUses.add(originalUseReference);
                 }
@@ -202,11 +203,11 @@ public class CopyStep extends Step {
         for (final ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
-            final Set<NodeReference> originalDefinitions = udModel.definitionIdentifiersForName(getProject()
-                    .getReferenceForNode(originalUse));
+            final Set<NodeReference> originalDefinitions = udModel.definitionIdentifiersForName(NodeReferenceStore
+                    .getInstance().getReferenceForNode(originalUse));
 
-            final Set<NodeReference> copyDefinitions = udModel.definitionIdentifiersForName(getProject()
-                    .getReferenceForNode(copiedUse));
+            final Set<NodeReference> copyDefinitions = udModel.definitionIdentifiersForName(NodeReferenceStore
+                    .getInstance().getReferenceForNode(copiedUse));
 
             for (final NodeReference originalDefinitionReference : originalDefinitions) {
                 final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
@@ -215,7 +216,7 @@ public class CopyStep extends Step {
                         .get(originalDefinitionNode);
 
                 if (copyDefinitionNode != null) { /* def is internal */
-                    copyDefinitions.add(getProject().getReferenceForNode(copyDefinitionNode));
+                    copyDefinitions.add(NodeReferenceStore.getInstance().getReferenceForNode(copyDefinitionNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyDefinitions.add(originalDefinitionReference);
                 }

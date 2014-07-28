@@ -21,8 +21,7 @@ public class CutHandler extends AbstractCommandHandler {
 	@Override
 	public final void handleEvent(final ExecutionEvent event) {
 		final Selection selectionDescriptor = new Selection(
-				(CompilationUnit) getProject().findASTRootForICompilationUnit(
-						getCompilationUnit()), getSelection().getOffset(),
+				(CompilationUnit) getProject().getCompilationUnitForICompilationUnit(getCompilationUnit()), getSelection().getOffset(),
 						getSelection().getLength());
 
 		if (!selectionDescriptor.isSaneSelection()) {

@@ -11,19 +11,40 @@ package net.creichen.pm.steps;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.analysis.Def;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class SplitStep extends Step {
@@ -46,8 +67,7 @@ public class SplitStep extends Step {
 
         this.assignmentStatement = assignmentStatement;
 
-        final CompilationUnit containingCompilationUnit = (CompilationUnit) this.assignmentStatement
-                .getRoot();
+        final CompilationUnit containingCompilationUnit = (CompilationUnit) this.assignmentStatement.getRoot();
 
         this.iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
 
@@ -57,8 +77,7 @@ public class SplitStep extends Step {
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
         final ASTRewrite astRewrite = ASTRewrite.create(this.assignmentStatement.getAST());
 
-        final Assignment assignmentExpression = (Assignment) this.assignmentStatement
-                .getExpression();
+        final Assignment assignmentExpression = (Assignment) this.assignmentStatement.getExpression();
 
         rewriteToReplaceAssignmentStatementWithDeclaration(astRewrite, assignmentExpression);
 
@@ -95,16 +114,13 @@ public class SplitStep extends Step {
     @Override
     public void performASTChange() {
 
-        final Assignment oldAssignmentExpression = (Assignment) this.assignmentStatement
-                .getExpression();
+        final Assignment oldAssignmentExpression = (Assignment) this.assignmentStatement.getExpression();
 
         final MethodDeclaration containingMethodDeclaration = findContainingMethodDeclaration(oldAssignmentExpression);
 
-        final RDefsAnalysis reachingDefsAnalysis = new RDefsAnalysis(
-                containingMethodDeclaration);
+        final RDefsAnalysis reachingDefsAnalysis = new RDefsAnalysis(containingMethodDeclaration);
 
-        final Def definitionForAssignment = reachingDefsAnalysis
-                .getDefinitionForDefiningNode(oldAssignmentExpression);
+        final Def definitionForAssignment = reachingDefsAnalysis.getDefinitionForDefiningNode(oldAssignmentExpression);
 
         final Set<SimpleName> uses = new HashSet<SimpleName>();
 
@@ -117,7 +133,7 @@ public class SplitStep extends Step {
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
 
-        final NodeReference identifierForOldAssignment = getProject().getReferenceForNode(
+        final NodeReference identifierForOldAssignment = NodeReferenceStore.getInstance().getReferenceForNode(
                 oldAssignmentExpression);
 
         getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
@@ -125,8 +141,8 @@ public class SplitStep extends Step {
         // !!!_project.removeNode(oldAssignmentExpression);
         // !!!_project.addNode(_replacementDeclarationStatement);
 
-        final NodeReference identifierForNewVariableDeclaration = getProject()
-                .getReferenceForNode(newVariableDeclarationFragment);
+        final NodeReference identifierForNewVariableDeclaration = NodeReferenceStore.getInstance().getReferenceForNode(
+                newVariableDeclarationFragment);
 
         final SimpleName oldLHS = (SimpleName) oldAssignmentExpression.getLeftHandSide();
         final SimpleName newLHS = newVariableDeclarationFragment.getName();
@@ -142,8 +158,7 @@ public class SplitStep extends Step {
         for (final NodeReference useIdentifier : new HashSet<NodeReference>(
                 udModel.usesForDefinition(identifierForOldAssignment))) {
             udModel.removeDefinitionIdentifierForName(identifierForOldAssignment, useIdentifier);
-            udModel.addDefinitionIdentifierForName(identifierForNewVariableDeclaration,
-                    useIdentifier);
+            udModel.addDefinitionIdentifierForName(identifierForNewVariableDeclaration, useIdentifier);
         }
 
         udModel.deleteDefinition(identifierForOldAssignment);
@@ -161,16 +176,14 @@ public class SplitStep extends Step {
             nameModel.setIdentifierForName(freshIdentifier, use);
         }
 
-        final StructuralPropertyDescriptor location = this.assignmentStatement
-                .getLocationInParent();
+        final StructuralPropertyDescriptor location = this.assignmentStatement.getLocationInParent();
 
-        final List<ASTNode> parentList = getStructuralProperty(
-                (ChildListPropertyDescriptor) location, this.assignmentStatement.getParent());
+        final List<ASTNode> parentList = getStructuralProperty((ChildListPropertyDescriptor) location,
+                this.assignmentStatement.getParent());
 
-        parentList.set(parentList.indexOf(this.assignmentStatement),
-                this.replacementDeclarationStatement);
+        parentList.set(parentList.indexOf(this.assignmentStatement), this.replacementDeclarationStatement);
 
-        this.replacementDeclarationReference = getProject().getReferenceForNode(
+        this.replacementDeclarationReference = NodeReferenceStore.getInstance().getReferenceForNode(
                 this.replacementDeclarationStatement);
 
     }
@@ -192,8 +205,7 @@ public class SplitStep extends Step {
 
         this.replacementDeclarationStatement = ast.newVariableDeclarationStatement(fragment);
 
-        final VariableDeclaration originalVariableDeclaration = ASTUtil
-                .localVariableDeclarationForSimpleName(lhs);
+        final VariableDeclaration originalVariableDeclaration = ASTUtil.localVariableDeclarationForSimpleName(lhs);
 
         Type type = null;
 
@@ -216,8 +228,7 @@ public class SplitStep extends Step {
         this.replacementDeclarationStatement.setType((Type) ASTNode.copySubtree(ast, type));
 
         rewrite.replace(this.assignmentStatement, this.replacementDeclarationStatement, null /*
-                                                                                              * edit
-                                                                                              * group
+                                                                                              * edit group
                                                                                               */);
     }
 

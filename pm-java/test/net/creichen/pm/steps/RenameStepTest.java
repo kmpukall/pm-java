@@ -44,8 +44,7 @@ public class RenameStepTest extends PMTest {
 
         final SimpleName firstSInT = ASTQuery
                 .simpleNameWithIdentifierInMethodInClassInCompilationUnit("s", 0, "m", 0, "T", 0,
-                        (CompilationUnit) pmProject
-                                .findASTRootForICompilationUnit(compilationUnitT));
+                        (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final RenameStep step = new RenameStep(pmProject, firstSInT);
 
@@ -57,8 +56,7 @@ public class RenameStepTest extends PMTest {
                 "public class T {void m() {S sInstance = new S(); sInstance.sMethod();} }",
                 compilationUnitT.getSource()));
 
-        final IProblem[] problemsT = ((CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(compilationUnitT)).getProblems();
+        final IProblem[] problemsT = ((CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT)).getProblems();
 
         assertEquals(0, problemsT.length);
     }
@@ -124,7 +122,7 @@ public class RenameStepTest extends PMTest {
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
         final TypeDeclaration classS = ASTQuery.classWithNameInCompilationUnit("S", 0,
-                (CompilationUnit) pmProject.findASTRootForICompilationUnit(compilationUnitS));
+                (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS));
 
         final SimpleName className = classS.getName();
 
@@ -139,8 +137,7 @@ public class RenameStepTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class T {void sMethod() {}}",
                 compilationUnitT.getSource()));
 
-        final IProblem[] problems = ((CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(compilationUnitT)).getProblems();
+        final IProblem[] problems = ((CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT)).getProblems();
 
         assertEquals(0, problems.length);
     }

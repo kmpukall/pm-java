@@ -22,6 +22,7 @@ import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -52,8 +53,7 @@ public class CopyStepTest extends PMTest {
 
         final NameModel nameModel = pmProject.getNameModel();
 
-        final CompilationUnit compilationUnitS = (CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(iCompilationUnit);
+        final CompilationUnit compilationUnitS = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
                 "x", 0, "S", 0, compilationUnitS).getParent();
@@ -139,8 +139,7 @@ public class CopyStepTest extends PMTest {
 
         final DefUseModel udModel = pmProject.getUDModel();
 
-        final CompilationUnit compilationUnitS = (CompilationUnit) pmProject
-                .findASTRootForICompilationUnit(iCompilationUnit);
+        final CompilationUnit compilationUnitS = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
         final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
                 compilationUnitS);
@@ -152,7 +151,8 @@ public class CopyStepTest extends PMTest {
         final SimpleName x3RHSOriginal = ASTQuery.simpleNameWithIdentifierInNode("x", 1,
                 xGetsXPlusOneAssignmentOriginal);
 
-        final NodeReference x3RHSOriginalNodeReference = pmProject.getReferenceForNode(x3RHSOriginal);
+        final NodeReference x3RHSOriginalNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(
+                x3RHSOriginal);
 
         final ExpressionStatement fifthStatementOriginal = (ExpressionStatement) methodDeclaration.getBody()
                 .statements().get(4);
@@ -178,11 +178,11 @@ public class CopyStepTest extends PMTest {
 
         final Assignment xGetsXPlusOneAssignmentCopy = (Assignment) fourthStatementCopy.getExpression();
 
-        final NodeReference xGetsXPlusOneAssignmentCopyReference = pmProject
+        final NodeReference xGetsXPlusOneAssignmentCopyReference = NodeReferenceStore.getInstance()
                 .getReferenceForNode(xGetsXPlusOneAssignmentCopy);
 
         final SimpleName x3RHSCopy = ASTQuery.simpleNameWithIdentifierInNode("x", 1, xGetsXPlusOneAssignmentCopy);
-        final NodeReference x3RHSCopyNodeReference = pmProject.getReferenceForNode(x3RHSCopy);
+        final NodeReference x3RHSCopyNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(x3RHSCopy);
 
         final Set<NodeReference> definitionsForX3RHSOriginal = udModel
                 .definitionIdentifiersForName(x3RHSOriginalNodeReference);
@@ -194,7 +194,7 @@ public class CopyStepTest extends PMTest {
         assertEquals(definitionsForX3RHSOriginal, definitionsForX3RHSCopy);
 
         final SimpleName x4RHSCopy = ASTQuery.simpleNameWithIdentifierInNode("x", 0, fifthStatementCopy);
-        final NodeReference x4RHSCopyNodeReference = pmProject.getReferenceForNode(x4RHSCopy);
+        final NodeReference x4RHSCopyNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(x4RHSCopy);
 
         final Set<NodeReference> definitionsForX4RHSCopy = udModel.definitionIdentifiersForName(x4RHSCopyNodeReference);
 
@@ -212,7 +212,7 @@ public class CopyStepTest extends PMTest {
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit(
-                "x", 0, "S", 0, (CompilationUnit) pmProject.findASTRootForICompilationUnit(iCompilationUnit));
+                "x", 0, "S", 0, pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 

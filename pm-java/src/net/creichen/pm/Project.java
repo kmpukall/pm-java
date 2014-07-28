@@ -24,7 +24,6 @@ import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
-import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
@@ -63,18 +62,6 @@ public class Project {
             updatePair(iCompilationUnit, compilationUnit);
         }
 
-        private byte[] calculatedHashForSource(final String source) {
-            try {
-                final MessageDigest digest = java.security.MessageDigest.getInstance("SHA");
-                digest.update(source.getBytes()); // Encoding issues here?
-                return digest.digest();
-            } catch (final NoSuchAlgorithmException e) {
-                // this shouldn't happen in a sane environment
-                e.printStackTrace();
-                return null;
-            }
-        }
-
         @Override
         public CompilationUnit getCompilationUnit() {
             return this.compilationUnit;
@@ -84,10 +71,6 @@ public class Project {
         public ICompilationUnit getICompilationUnit() {
             return this.iCompilationUnit;
         }
-
-        // we parse more than one compilation unit at once (since this makes it
-        // faster) in project and then pass
-        // the newly parsed ast to to the pmcompilationunit with this method.
 
         @Override
         public String getSource() {
@@ -99,6 +82,10 @@ public class Project {
 
             return null;
         }
+
+        // we parse more than one compilation unit at once (since this makes it
+        // faster) in project and then pass
+        // the newly parsed ast to to the pmcompilationunit with this method.
 
         @Override
         public void rename(final String newName) {
@@ -120,15 +107,27 @@ public class Project {
             return Arrays.equals(calculatedHashForSource(getSource()), this.sourceDigest);
         }
 
+        private byte[] calculatedHashForSource(final String source) {
+            try {
+                final MessageDigest digest = java.security.MessageDigest.getInstance("SHA");
+                digest.update(source.getBytes()); // Encoding issues here?
+                return digest.digest();
+            } catch (final NoSuchAlgorithmException e) {
+                // this shouldn't happen in a sane environment
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        private void updateSourceDigestForSource(final String source) {
+            this.sourceDigest = calculatedHashForSource(source);
+        }
+
         protected void updatePair(final ICompilationUnit iCompilationUnit, final CompilationUnit compilationUnit) {
             this.compilationUnit = compilationUnit;
             this.iCompilationUnit = iCompilationUnit;
 
             updateSourceDigestForSource(getSource());
-        }
-
-        private void updateSourceDigestForSource(final String source) {
-            this.sourceDigest = calculatedHashForSource(source);
         }
     }
 
@@ -149,10 +148,7 @@ public class Project {
 
     private NameModel nameModel;
 
-    private final NodeReferenceStore nodeReferenceStore;
-
     public Project(final IJavaProject iJavaProject) {
-        this.nodeReferenceStore = NodeReferenceStore.getInstance();
         this.iJavaProject = iJavaProject;
         this.currentInconsistencies = new HashMap<String, Inconsistency>();
         this.pmCompilationUnits = new HashMap<String, PMCompilationUnitImplementation>();
@@ -167,37 +163,16 @@ public class Project {
         return result;
     }
 
-    private Set<ICompilationUnit> allKnownICompilationUnits() {
-        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
-
-        for (final PMCompilationUnit pmCompilationUnit : getPMCompilationUnits()) {
-            result.add(pmCompilationUnit.getICompilationUnit());
-        }
-
-        return result;
-    }
-
-    public ASTNode findASTRootForICompilationUnit(final ICompilationUnit iCompilationUnit) {
-        return parsedCompilationUnitForICompilationUnit(iCompilationUnit);
-    }
-
     public ASTNode findDeclaringNodeForName(final Name nameNode) {
-
         final CompilationUnit usingCompilationUnit = (CompilationUnit) nameNode.getRoot();
-
         final IBinding nameBinding = nameNode.resolveBinding();
-
-        // System.out.println("Binding for " + nameNode + " in " +
-        // nameNode.getParent().getClass().getName() + " is " + binding);
 
         // It appears that name nodes like m in foo.m() have nil bindings here
         // (but not always??)
         // we'll want to do the analysis through the method invocation's
         // resolveMethodBinding() to catch capture here
         // in the future
-
         if (nameBinding != null) {
-
             final IJavaElement elementForBinding = nameBinding.getJavaElement();
 
             // Some name's bindings may not not have java elements (e.g.
@@ -223,10 +198,7 @@ public class Project {
                 // from an IClassFile
 
                 if (declaringICompilationUnit != null) {
-                    final PMCompilationUnit declaringPMCompilationUnit = getPMCompilationUnitForICompilationUnit(declaringICompilationUnit);
-
-                    final CompilationUnit declaringCompilationUnit = declaringPMCompilationUnit.getCompilationUnit();
-
+                    final CompilationUnit declaringCompilationUnit = getCompilationUnitForICompilationUnit(declaringICompilationUnit);
                     ASTNode declaringNode = declaringCompilationUnit.findDeclaringNode(nameBinding);
 
                     if (declaringNode == null) {
@@ -236,14 +208,11 @@ public class Project {
                     return declaringNode;
                 }
             }
-
         }
-
         return null;
 
     }
 
-    // Change to findPMCompilationUnitForNode??
     public PMCompilationUnit findPMCompilationUnitForNode(final ASTNode node) {
         return this.pmCompilationUnits.get(((ICompilationUnit) ((CompilationUnit) node.getRoot()).getJavaElement())
                 .getHandleIdentifier());
@@ -251,11 +220,9 @@ public class Project {
 
     public Collection<ASTNode> getASTRoots() {
         final Collection<ASTNode> roots = new HashSet<ASTNode>();
-
         for (final PMCompilationUnit pmCompilationUnit : this.pmCompilationUnits.values()) {
             roots.add(pmCompilationUnit.getCompilationUnit());
         }
-
         return roots;
     }
 
@@ -282,31 +249,6 @@ public class Project {
     public Collection<PMCompilationUnit> getPMCompilationUnits() {
         final Collection<PMCompilationUnit> result = new HashSet<PMCompilationUnit>();
         result.addAll(this.pmCompilationUnits.values());
-        return result;
-    }
-
-    public NodeReference getReferenceForNode(final ASTNode node) {
-        return this.nodeReferenceStore.getReferenceForNode(node);
-    }
-
-    private Set<ICompilationUnit> getSourceFilesForProject(final IJavaProject iJavaProject) {
-        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
-
-        try {
-            for (final IPackageFragment packageFragment : iJavaProject.getPackageFragments()) {
-                if (packageFragment.getKind() == IPackageFragmentRoot.K_SOURCE
-                        && packageFragment.containsJavaResources()) {
-                    for (final ICompilationUnit iCompilationUnit : packageFragment.getCompilationUnits()) {
-
-                        result.add(iCompilationUnit);
-                    }
-
-                }
-            }
-        } catch (final JavaModelException e) {
-            e.printStackTrace();
-        }
-
         return result;
     }
 
@@ -339,7 +281,7 @@ public class Project {
 
     public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
 
-        final CompilationUnit compilationUnit = (CompilationUnit) findASTRootForICompilationUnit(iCompilationUnit);
+        final CompilationUnit compilationUnit = getCompilationUnitForICompilationUnit(iCompilationUnit);
 
         final ASTNode selectedNode = ASTQuery.nodeForSelectionInCompilationUnit(selection.getOffset(),
                 selection.getLength(), compilationUnit);
@@ -347,12 +289,8 @@ public class Project {
         return selectedNode;
     }
 
-    public CompilationUnit parsedCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
+    public CompilationUnit getCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
         return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getCompilationUnit();
-    }
-
-    private List<ProjectListener> projectListeners() {
-        return new ArrayList<ProjectListener>(this.projectListeners);
     }
 
     public boolean recursivelyReplaceNodeWithCopy(final ASTNode node, final ASTNode copy) {
@@ -391,23 +329,8 @@ public class Project {
         return matches;
     }
 
-    private void replaceNodeWithNode(final ASTNode oldNode, final ASTNode newNode) {
-        this.nodeReferenceStore.replaceOldNodeVersionWithNewVersion(oldNode, newNode);
-    }
-
     public void rescanForInconsistencies() {
         this.currentInconsistencies = new ConsistencyValidator().rescanForInconsistencies(this);
-    }
-
-    private void resetModel() {
-        this.udModel = new DefUseModel(RDefsAnalysis.getCurrentUses(getASTRoots()));
-        this.nameModel = new NameModel(this);
-    }
-
-    private boolean sourceIsUpToDateForICompilationUnit(final ICompilationUnit iCompilationUnit) {
-        final PMCompilationUnitImplementation pmCompilationUnit = (PMCompilationUnitImplementation) getPMCompilationUnitForICompilationUnit(iCompilationUnit);
-
-        return pmCompilationUnit.textHasChanged();
     }
 
     public boolean sourcesAreOutOfSync() {
@@ -428,6 +351,56 @@ public class Project {
 
     public void updateToNewVersionsOfICompilationUnits() {
         updateToNewVersionsOfICompilationUnits(false);
+    }
+
+    private Set<ICompilationUnit> allKnownICompilationUnits() {
+        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
+
+        for (final PMCompilationUnit pmCompilationUnit : getPMCompilationUnits()) {
+            result.add(pmCompilationUnit.getICompilationUnit());
+        }
+
+        return result;
+    }
+
+    private Set<ICompilationUnit> getSourceFilesForProject(final IJavaProject iJavaProject) {
+        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
+
+        try {
+            for (final IPackageFragment packageFragment : iJavaProject.getPackageFragments()) {
+                if (packageFragment.getKind() == IPackageFragmentRoot.K_SOURCE
+                        && packageFragment.containsJavaResources()) {
+                    for (final ICompilationUnit iCompilationUnit : packageFragment.getCompilationUnits()) {
+
+                        result.add(iCompilationUnit);
+                    }
+
+                }
+            }
+        } catch (final JavaModelException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    private List<ProjectListener> projectListeners() {
+        return new ArrayList<ProjectListener>(this.projectListeners);
+    }
+
+    private void replaceNodeWithNode(final ASTNode oldNode, final ASTNode newNode) {
+        NodeReferenceStore.getInstance().replaceOldNodeVersionWithNewVersion(oldNode, newNode);
+    }
+
+    private void resetModel() {
+        this.udModel = new DefUseModel(RDefsAnalysis.getCurrentUses(getASTRoots()));
+        this.nameModel = new NameModel(this);
+    }
+
+    private boolean sourceIsUpToDateForICompilationUnit(final ICompilationUnit iCompilationUnit) {
+        final PMCompilationUnitImplementation pmCompilationUnit = (PMCompilationUnitImplementation) getPMCompilationUnitForICompilationUnit(iCompilationUnit);
+
+        return pmCompilationUnit.textHasChanged();
     }
 
     private void updateToNewVersionsOfICompilationUnits(final boolean firstTime) {
@@ -476,7 +449,7 @@ public class Project {
                 }
 
                 if (!finalFirstTime) {
-                    final CompilationUnit oldCompilationUnit = parsedCompilationUnitForICompilationUnit(source);
+                    final CompilationUnit oldCompilationUnit = getCompilationUnitForICompilationUnit(source);
 
                     if (recursivelyReplaceNodeWithCopy(oldCompilationUnit, newCompilationUnit)) {
                         pmCompilationUnit.updatePair(source, newCompilationUnit);
