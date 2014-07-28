@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.Project;
-import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.utils.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -34,8 +34,8 @@ public class PasteStep extends Step {
     private final ChildListPropertyDescriptor property;
     private final int index;
 
-    public PasteStep(final Project project, final ASTNode parent,
-            final ChildListPropertyDescriptor property, final int index) {
+    public PasteStep(final Project project, final ASTNode parent, final ChildListPropertyDescriptor property,
+            final int index) {
         super(project);
 
         this.parent = parent;
@@ -47,7 +47,7 @@ public class PasteStep extends Step {
     @Override
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
 
-        final Pasteboard pasteboard = this.getProject().getPasteboard();
+        final Pasteboard pasteboard = Pasteboard.getInstance();
 
         final List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
 
@@ -63,8 +63,7 @@ public class PasteStep extends Step {
             final ListRewrite lrw = astRewrite.getListRewrite(this.parent, this.property);
             lrw.insertAt(copiedNode, index++, null /* textEditGroup */);
 
-            result.put(this.getProject().findPMCompilationUnitForNode(this.parent)
-                    .getICompilationUnit(), astRewrite);
+            result.put(getProject().findPMCompilationUnitForNode(this.parent).getICompilationUnit(), astRewrite);
         }
 
         return result;
@@ -78,11 +77,11 @@ public class PasteStep extends Step {
     @Override
     public void performASTChange() {
 
-        final Pasteboard pasteboard = this.getProject().getPasteboard();
+        final Pasteboard pasteboard = Pasteboard.getInstance();
 
         final List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
 
-        final NameModel nameModel = this.getProject().getNameModel();
+        final NameModel nameModel = getProject().getNameModel();
 
         for (int i = 0; i < nodesToPaste.size(); i++) {
             final ASTNode node = nodesToPaste.get(i);
@@ -116,18 +115,17 @@ public class PasteStep extends Step {
             };
 
             if (node.subtreeMatch(identifierMatcher, copiedNode)) {
-                this.getProject().recursivelyReplaceNodeWithCopy(node, copiedNode);
+                getProject().recursivelyReplaceNodeWithCopy(node, copiedNode);
 
             } else {
                 System.err.println("Couldn't match copied statement to original");
 
-                throw new RuntimeException(
-                        "PM Paste Error: Couldn't match copied statement to original");
+                throw new RuntimeException("PM Paste Error: Couldn't match copied statement to original");
             }
         }
 
         // FIXME(dcc) is this update necessary?
-        this.getProject().updateToNewVersionsOfICompilationUnits();
+        getProject().updateToNewVersionsOfICompilationUnits();
     }
 
     @Override

@@ -25,7 +25,6 @@ import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.checkers.DefUseModelConsistencyCheck;
 import net.creichen.pm.checkers.NameModelConsistencyCheck;
 import net.creichen.pm.inconsistencies.Inconsistency;
@@ -154,23 +153,14 @@ public class Project {
 
     private NameModel nameModel;
 
-    private final Pasteboard pasteboard;
-
     private final NodeReferenceStore nodeReferenceStore;
 
     public Project(final IJavaProject iJavaProject) {
         this.nodeReferenceStore = NodeReferenceStore.getInstance();
-
         this.iJavaProject = iJavaProject;
-
         this.currentInconsistencies = new HashMap<String, Inconsistency>();
-
         this.pmCompilationUnits = new HashMap<String, PMCompilationUnitImplementation>();
-
         this.projectListeners = new ArrayList<ProjectListener>();
-
-        this.pasteboard = new Pasteboard();
-
         updateToNewVersionsOfICompilationUnits(true);
 
     }
@@ -289,19 +279,13 @@ public class Project {
         return this.nameModel;
     }
 
-    public Pasteboard getPasteboard() {
-        return this.pasteboard;
-    }
-
     public PMCompilationUnit getPMCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
         return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier());
     }
 
-    public Set<PMCompilationUnit> getPMCompilationUnits() {
-        final Set<PMCompilationUnit> result = new HashSet<PMCompilationUnit>();
-
+    public Collection<PMCompilationUnit> getPMCompilationUnits() {
+        final Collection<PMCompilationUnit> result = new HashSet<PMCompilationUnit>();
         result.addAll(this.pmCompilationUnits.values());
-
         return result;
     }
 

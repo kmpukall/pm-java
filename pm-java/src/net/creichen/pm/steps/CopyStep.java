@@ -9,14 +9,18 @@
 
 package net.creichen.pm.steps;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.analysis.DefUseUtil;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.api.Pasteboard;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.utils.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -53,13 +57,11 @@ public class CopyStep extends Step {
 
     }
 
-    private void copyNameModel(final List<ASTNode> originalRootNodes,
-            final List<ASTNode> copiedRootNodes) {
+    private void copyNameModel(final List<ASTNode> originalRootNodes, final List<ASTNode> copiedRootNodes) {
         /*
-         * Generate fresh identifiers for all copied declarations (and definitions) and keep a
-         * mapping from the original identifiers to the new ones so we can later fix up references.
-         * We have to do this in two passes because a reference may come before a declaration in the
-         * AST.
+         * Generate fresh identifiers for all copied declarations (and definitions) and keep a mapping from the original
+         * identifiers to the new ones so we can later fix up references. We have to do this in two passes because a
+         * reference may come before a declaration in the AST.
          */
 
         final NameModel nameModel = getProject().getNameModel();
@@ -74,15 +76,13 @@ public class CopyStep extends Step {
                 if (getProject().nameNodeIsDeclaring(originalName)) {
                     // Generate fresh identifier for node with name model
 
-                    final String freshNameModelIdentifier = nameModel
-                            .generateNewIdentifierForName(copyName);
+                    final String freshNameModelIdentifier = nameModel.generateNewIdentifierForName(copyName);
                     nameModel.setIdentifierForName(freshNameModelIdentifier, copyName);
 
                     copyNameIdentifiersForOriginals.put(nameModel.identifierForName(originalName),
                             freshNameModelIdentifier);
                 } else {
-                    nameModel.setIdentifierForName(nameModel.identifierForName(originalName),
-                            copyName);
+                    nameModel.setIdentifierForName(nameModel.identifierForName(originalName), copyName);
                 }
 
                 return true;
@@ -98,9 +98,8 @@ public class CopyStep extends Step {
         }
 
         /*
-         * Now that we've generated fresh identifiers for all copied declarations, we go through and
-         * fix up references to the old identifiers in the copies to now point to the new
-         * identifiers
+         * Now that we've generated fresh identifiers for all copied declarations, we go through and fix up references
+         * to the old identifiers in the copies to now point to the new identifiers
          */
 
         final ASTVisitor fixupReferenceVisitor = new ASTVisitor() {
@@ -109,8 +108,7 @@ public class CopyStep extends Step {
                 final String nameIdentifier = nameModel.identifierForName(name);
 
                 if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier)) {
-                    nameModel.setIdentifierForName(
-                            copyNameIdentifiersForOriginals.get(nameIdentifier), name);
+                    nameModel.setIdentifierForName(copyNameIdentifiersForOriginals.get(nameIdentifier), name);
                 }
                 return true;
             }
@@ -121,8 +119,7 @@ public class CopyStep extends Step {
         }
     }
 
-    private void copyUDModel(final List<ASTNode> originalRootNodes,
-            final List<ASTNode> copiedRootNodes) {
+    private void copyUDModel(final List<ASTNode> originalRootNodes, final List<ASTNode> copiedRootNodes) {
         // find all definitions in the copy
         // and keep a mapping from the new definition to the old
 
@@ -157,19 +154,15 @@ public class CopyStep extends Step {
             final ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
             final ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
 
-            final List<ASTNode> originalDefiningNodes = DefUseUtil
-                    .findDefiningNodesUnderNode(originalRootNode);
-            final List<ASTNode> copyDefiningNodes = DefUseUtil
-                    .findDefiningNodesUnderNode(copyRootNode);
+            final List<ASTNode> originalDefiningNodes = DefUseUtil.findDefiningNodesUnderNode(originalRootNode);
+            final List<ASTNode> copyDefiningNodes = DefUseUtil.findDefiningNodesUnderNode(copyRootNode);
 
             for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes.size(); definingNodeIndex++) {
                 final ASTNode originalDefiningNode = originalDefiningNodes.get(definingNodeIndex);
                 final ASTNode copyDefiningNode = copyDefiningNodes.get(definingNodeIndex);
 
-                originalDefiningNodesForCopiedDefiningNodes.put(copyDefiningNode,
-                        originalDefiningNode);
-                copiedDefiningNodesForCopiedOriginalDefiningNodes.put(originalDefiningNode,
-                        copyDefiningNode);
+                originalDefiningNodesForCopiedDefiningNodes.put(copyDefiningNode, originalDefiningNode);
+                copiedDefiningNodesForCopiedOriginalDefiningNodes.put(originalDefiningNode, copyDefiningNode);
             }
 
             originalRootNode.subtreeMatch(nameMatcher, copyRootNode);
@@ -179,27 +172,24 @@ public class CopyStep extends Step {
         /*
          * Now that we have the mappings:
          * 
-         * For each copied definition, find the original definition and get the original uses for it
-         * for each original use, if it is external add it as a use for the copy if it is internal,
-         * generate a new identifier for the copy use and add it to the uses for the copied
-         * definition
+         * For each copied definition, find the original definition and get the original uses for it for each original
+         * use, if it is external add it as a use for the copy if it is internal, generate a new identifier for the copy
+         * use and add it to the uses for the copied definition
          */
 
         for (final ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes.keySet()) {
-            final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes
-                    .get(copiedDefinition);
+            final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes.get(copiedDefinition);
 
-            final Set<NodeReference> originalUses = udModel.usesForDefinition(getProject()
-                    .getReferenceForNode(originalDefinition));
+            final Set<NodeReference> originalUses = udModel.usesForDefinition(getProject().getReferenceForNode(
+                    originalDefinition));
 
-            final Set<NodeReference> copyUses = udModel.usesForDefinition(getProject()
-                    .getReferenceForNode(copiedDefinition));
+            final Set<NodeReference> copyUses = udModel.usesForDefinition(getProject().getReferenceForNode(
+                    copiedDefinition));
 
             for (final NodeReference originalUseReference : originalUses) {
                 final ASTNode originalUseNode = originalUseReference.getNode();
 
-                final ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes
-                        .get(originalUseNode);
+                final ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes.get(originalUseNode);
 
                 if (copyUseNode != null) { /* use is internal */
                     copyUses.add(getProject().getReferenceForNode(copyUseNode));
@@ -212,11 +202,11 @@ public class CopyStep extends Step {
         for (final ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
-            final Set<NodeReference> originalDefinitions = udModel
-                    .definitionIdentifiersForName(getProject().getReferenceForNode(originalUse));
+            final Set<NodeReference> originalDefinitions = udModel.definitionIdentifiersForName(getProject()
+                    .getReferenceForNode(originalUse));
 
-            final Set<NodeReference> copyDefinitions = udModel
-                    .definitionIdentifiersForName(getProject().getReferenceForNode(copiedUse));
+            final Set<NodeReference> copyDefinitions = udModel.definitionIdentifiersForName(getProject()
+                    .getReferenceForNode(copiedUse));
 
             for (final NodeReference originalDefinitionReference : originalDefinitions) {
                 final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
@@ -249,7 +239,7 @@ public class CopyStep extends Step {
 
         copyUDModel(this.selectedNodes, copiedPasteboardRootNodes);
 
-        final Pasteboard pasteboard = getProject().getPasteboard();
+        final Pasteboard pasteboard = Pasteboard.getInstance();
 
         pasteboard.setPasteboardRoots(copiedPasteboardRootNodes);
     }

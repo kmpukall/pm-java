@@ -19,6 +19,7 @@ import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.utils.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -137,8 +138,8 @@ public class CutStepTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x,y; int a; x = 2;}}",
                 iCompilationUnit.getSource()));
 
-        assertEquals(pmProject.getPasteboard().getPasteboardRoots().size(), 2);
-        assertTrue(pmProject.getPasteboard().containsOnlyNodesOfClass(Statement.class));
+        assertEquals(Pasteboard.getInstance().getPasteboardRoots().size(), 2);
+        assertTrue(Pasteboard.getInstance().containsOnlyNodesOfClass(Statement.class));
     }
 
     @Test
