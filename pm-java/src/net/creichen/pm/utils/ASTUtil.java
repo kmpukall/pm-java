@@ -11,15 +11,9 @@ package net.creichen.pm.utils;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
-import net.creichen.pm.analysis.RDefsAnalysis;
-import net.creichen.pm.analysis.Use;
-
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -36,31 +30,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public final class ASTUtil {
-
-    public static Collection<Use> getCurrentUses(final Collection<ASTNode> roots) {
-        Timer.sharedTimer().start("DUUD_CHAINS");
-
-        final Collection<Use> uses = new HashSet<Use>();
-        for (final ASTNode root : roots) {
-            root.accept(new ASTVisitor() {
-                @Override
-                public boolean visit(final MethodDeclaration methodDeclaration) {
-
-                    // There is nothing to analyze if we have an interface or
-                    // abstract method
-                    if (methodDeclaration.getBody() != null) {
-                        final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
-                        uses.addAll(analysis.getUses());
-                    }
-
-                    return false; // don't visit children
-                }
-            });
-
-        }
-        Timer.sharedTimer().stop("DUUD_CHAINS");
-        return uses;
-    }
 
     // Hmmm, this assumes there is only one simple name for a given declaring
     // node

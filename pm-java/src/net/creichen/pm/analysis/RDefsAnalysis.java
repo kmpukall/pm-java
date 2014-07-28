@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.creichen.pm.utils.Timer;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -602,5 +604,30 @@ public class RDefsAnalysis {
         // for now we only support assignments to simple names
 
         return lhs instanceof SimpleName;
+    }
+
+    public static Collection<Use> getCurrentUses(final Collection<ASTNode> roots) {
+        Timer.sharedTimer().start("DUUD_CHAINS");
+    
+        final Collection<Use> uses = new HashSet<Use>();
+        for (final ASTNode root : roots) {
+            root.accept(new ASTVisitor() {
+                @Override
+                public boolean visit(final MethodDeclaration methodDeclaration) {
+    
+                    // There is nothing to analyze if we have an interface or
+                    // abstract method
+                    if (methodDeclaration.getBody() != null) {
+                        final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
+                        uses.addAll(analysis.getUses());
+                    }
+    
+                    return false; // don't visit children
+                }
+            });
+    
+        }
+        Timer.sharedTimer().stop("DUUD_CHAINS");
+        return uses;
     }
 }

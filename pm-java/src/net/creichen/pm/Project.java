@@ -23,20 +23,16 @@ import java.util.Set;
 import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
+import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.checkers.DefUseModelConsistencyCheck;
-import net.creichen.pm.checkers.NameModelConsistencyCheck;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
-import net.creichen.pm.ui.MarkerResolutionGenerator;
 import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -141,7 +137,7 @@ public class Project {
 
     private final IJavaProject iJavaProject;
 
-    private final Map<String, Inconsistency> currentInconsistencies;
+    private Map<String, Inconsistency> currentInconsistencies;
 
     private final Map<String, PMCompilationUnitImplementation> pmCompilationUnits; // keyed
     // off
@@ -263,7 +259,7 @@ public class Project {
         return roots;
     }
 
-    private Set<ICompilationUnit> getICompilationUnits() {
+    public Set<ICompilationUnit> getICompilationUnits() {
         return getSourceFilesForProject(this.iJavaProject);
     }
 
@@ -400,58 +396,11 @@ public class Project {
     }
 
     public void rescanForInconsistencies() {
-
-        try {
-
-            this.currentInconsistencies.clear();
-
-            Timer.sharedTimer().start("INCONSISTENCIES");
-
-            final Set<Inconsistency> inconsistencySet = new HashSet<Inconsistency>();
-
-            inconsistencySet.addAll(new NameModelConsistencyCheck(this).calculateInconsistencies(this.nameModel));
-            inconsistencySet.addAll(new DefUseModelConsistencyCheck(this).calculateInconsistencies(this.udModel));
-
-            Timer.sharedTimer().stop("INCONSISTENCIES");
-
-            // delete previous markers
-            for (final ICompilationUnit iCompilationUnit : getICompilationUnits()) {
-
-                iCompilationUnit.getResource().deleteMarkers("org.eclipse.core.resources.problemmarker", false,
-                        IResource.DEPTH_ZERO);
-            }
-
-            for (final Inconsistency inconsistency : inconsistencySet) {
-                final IResource resource = findPMCompilationUnitForNode(inconsistency.getNode()).getICompilationUnit()
-                        .getResource();
-
-                final IMarker marker = resource.createMarker("org.eclipse.core.resources.problemmarker");
-
-                marker.setAttribute(MarkerResolutionGenerator.INCONSISTENCY_ID, inconsistency.getID());
-                marker.setAttribute(MarkerResolutionGenerator.PROJECT_ID, this.iJavaProject.getHandleIdentifier());
-
-                marker.setAttribute(MarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
-                        inconsistency.allowsAcceptBehavioralChange());
-
-                marker.setAttribute(IMarker.MESSAGE, inconsistency.getHumanReadableDescription());
-                marker.setAttribute(IMarker.TRANSIENT, true);
-
-                final ASTNode node = inconsistency.getNode();
-                marker.setAttribute(IMarker.CHAR_START, node.getStartPosition());
-                marker.setAttribute(IMarker.CHAR_END, node.getStartPosition() + node.getLength());
-
-                this.currentInconsistencies.put(inconsistency.getID(), inconsistency);
-            }
-
-        } catch (final CoreException e) {
-            e.printStackTrace();
-
-            throw new RuntimeException(e);
-        }
+        this.currentInconsistencies = new ConsistencyValidator().rescanForInconsistencies(this);
     }
 
     private void resetModel() {
-        this.udModel = new DefUseModel(ASTUtil.getCurrentUses(getASTRoots()));
+        this.udModel = new DefUseModel(RDefsAnalysis.getCurrentUses(getASTRoots()));
         this.nameModel = new NameModel(this);
     }
 

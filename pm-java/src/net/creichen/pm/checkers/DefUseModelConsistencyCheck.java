@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.analysis.NodeReferenceStore;
+import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.inconsistencies.Inconsistency;
@@ -13,7 +14,6 @@ import net.creichen.pm.inconsistencies.MissingDefinition;
 import net.creichen.pm.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.inconsistencies.UnknownUse;
 import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -30,7 +30,7 @@ public class DefUseModelConsistencyCheck {
 
         final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
-        final Collection<Use> uses = ASTUtil.getCurrentUses(this.project.getASTRoots());
+        final Collection<Use> uses = RDefsAnalysis.getCurrentUses(this.project.getASTRoots());
 
         Timer.sharedTimer().start("INCONSISTENCIES");
 
