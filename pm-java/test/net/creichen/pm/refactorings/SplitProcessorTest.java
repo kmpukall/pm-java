@@ -12,7 +12,7 @@ package net.creichen.pm.refactorings;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Set;
+import java.util.Collection;
 
 import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
@@ -40,7 +40,7 @@ public class SplitProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x;int x = 1;x = x + 1;}}",
                 compilationUnit.getSource()));
 
-        final Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(1, inconsistencies.size());
     }

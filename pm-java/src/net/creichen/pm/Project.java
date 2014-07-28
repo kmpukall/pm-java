@@ -134,8 +134,6 @@ public class Project {
 
     private final IJavaProject iJavaProject;
 
-    private Map<String, Inconsistency> currentInconsistencies;
-
     private final Map<String, PMCompilationUnitImplementation> pmCompilationUnits; // keyed
     // off
     // ICompilationUnit.getHandleIdentifier
@@ -146,19 +144,19 @@ public class Project {
 
     private NameModel nameModel;
 
+    private final ConsistencyValidator validator;
+
     public Project(final IJavaProject iJavaProject) {
         this.iJavaProject = iJavaProject;
-        this.currentInconsistencies = new HashMap<String, Inconsistency>();
+        this.validator = new ConsistencyValidator();
         this.pmCompilationUnits = new HashMap<String, PMCompilationUnitImplementation>();
         this.projectListeners = new ArrayList<ProjectListener>();
         updateModelData(true);
 
     }
 
-    public Set<Inconsistency> allInconsistencies() {
-        final Set<Inconsistency> result = new HashSet<Inconsistency>();
-        result.addAll(this.currentInconsistencies.values());
-        return result;
+    public Collection<Inconsistency> allInconsistencies() {
+        return this.validator.getInconsistencies();
     }
 
     public ASTNode findDeclaringNodeForName(final Name nameNode) {
@@ -237,7 +235,7 @@ public class Project {
     }
 
     public Inconsistency getInconsistencyWithKey(final String key) {
-        return this.currentInconsistencies.get(key);
+        return this.validator.getInconsistency(key);
     }
 
     public NameModel getNameModel() {
@@ -267,10 +265,10 @@ public class Project {
         parser.setResolveBindings(resolveBindings);
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-                    @Override
-                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-                    }
-                }, null);
+            @Override
+            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+            }
+        }, null);
 
     }
 
@@ -309,7 +307,7 @@ public class Project {
     }
 
     public void rescanForInconsistencies() {
-        this.currentInconsistencies = new ConsistencyValidator().rescanForInconsistencies(this);
+        this.validator.rescanForInconsistencies(this);
     }
 
     public boolean sourcesAreOutOfSync() {
@@ -359,7 +357,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;
@@ -417,7 +415,7 @@ public class Project {
             listener.projectDidReparse(this);
         }
 
-        this.currentInconsistencies.clear();
+        this.validator.reset();
 
     }
 

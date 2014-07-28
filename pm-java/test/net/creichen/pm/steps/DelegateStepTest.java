@@ -12,7 +12,7 @@ package net.creichen.pm.steps;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Set;
+import java.util.Collection;
 
 import net.creichen.pm.PMTest;
 import net.creichen.pm.Project;
@@ -38,20 +38,18 @@ public class DelegateStepTest extends PMTest {
         createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
-                this.getIJavaProject());
+        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         final PMCompilationUnit s2PMCompilationUnit = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnit2);
 
-        final MethodDeclaration methodB = ASTQuery.methodWithNameInClassInCompilationUnit("b", 0,
-                "S2", 0, s2PMCompilationUnit.getCompilationUnit());
+        final MethodDeclaration methodB = ASTQuery.methodWithNameInClassInCompilationUnit("b", 0, "S2", 0,
+                s2PMCompilationUnit.getCompilationUnit());
 
-        final ExpressionStatement methodInvocationStatement = (ExpressionStatement) methodB
-                .getBody().statements().get(1);
+        final ExpressionStatement methodInvocationStatement = (ExpressionStatement) methodB.getBody().statements()
+                .get(1);
 
-        final MethodInvocation callToB = (MethodInvocation) methodInvocationStatement
-                .getExpression();
+        final MethodInvocation callToB = (MethodInvocation) methodInvocationStatement.getExpression();
 
         final DelegateStep step = new DelegateStep(pmProject, callToB);
 
@@ -59,11 +57,10 @@ public class DelegateStepTest extends PMTest {
 
         step.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource(
-                "public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }",
+        assertTrue(compilationUnitSourceMatchesSource("public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }",
                 s2PMCompilationUnit.getSource()));
 
-        final Set<Inconsistency> inconsistencies = pmProject.allInconsistencies();
+        final Collection<Inconsistency> inconsistencies = pmProject.allInconsistencies();
 
         assertEquals(1, inconsistencies.size());
 

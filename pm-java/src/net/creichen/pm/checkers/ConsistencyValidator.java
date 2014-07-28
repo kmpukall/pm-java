@@ -1,5 +1,6 @@
 package net.creichen.pm.checkers;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class ConsistencyValidator {
         this.currentInconsistencies = new HashMap<String, Inconsistency>();
     }
 
-    public Map<String, Inconsistency> rescanForInconsistencies(final Project project) {
+    public void rescanForInconsistencies(final Project project) {
         try {
             this.currentInconsistencies.clear();
 
@@ -58,8 +59,6 @@ public class ConsistencyValidator {
 
             throw new RuntimeException(e);
         }
-
-        return this.currentInconsistencies;
     }
 
     public static void createMarker(final IResource resource, final Inconsistency inconsistency,
@@ -78,6 +77,18 @@ public class ConsistencyValidator {
         final ASTNode node = inconsistency.getNode();
         marker.setAttribute(IMarker.CHAR_START, node.getStartPosition());
         marker.setAttribute(IMarker.CHAR_END, node.getStartPosition() + node.getLength());
+    }
+
+    public Collection<Inconsistency> getInconsistencies() {
+        return this.currentInconsistencies.values();
+    }
+
+    public Inconsistency getInconsistency(final String key) {
+        return this.currentInconsistencies.get(key);
+    }
+
+    public void reset() {
+        this.currentInconsistencies.clear();
     }
 
 }
