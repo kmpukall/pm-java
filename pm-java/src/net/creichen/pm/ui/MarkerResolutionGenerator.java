@@ -9,10 +9,10 @@
 
 package net.creichen.pm.ui;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
+import net.creichen.pm.models.Project;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;

@@ -9,9 +9,9 @@
 
 package net.creichen.pm.inconsistencies;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;

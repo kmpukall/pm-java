@@ -7,7 +7,8 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.models;
+
 
 
 public interface ProjectListener {

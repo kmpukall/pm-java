@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
@@ -14,6 +13,7 @@ import net.creichen.pm.inconsistencies.MissingDefinition;
 import net.creichen.pm.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.inconsistencies.UnknownUse;
 import net.creichen.pm.models.DefUseModel;
+import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;

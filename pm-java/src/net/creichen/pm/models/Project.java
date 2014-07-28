@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.models;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,8 +25,6 @@ import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.ICompilationUnit;

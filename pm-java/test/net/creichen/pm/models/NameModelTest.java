@@ -11,7 +11,6 @@ package net.creichen.pm.models;
 
 import static org.junit.Assert.assertEquals;
 import net.creichen.pm.PMTest;
-import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.checkers.ConsistencyValidator;
 

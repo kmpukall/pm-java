@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.creichen.pm.checkers.ConsistencyValidator;
+import net.creichen.pm.models.Project;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;

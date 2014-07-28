@@ -9,9 +9,9 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.models.Project;
 import net.creichen.pm.steps.CutStep;
 import net.creichen.pm.steps.PasteStep;
 

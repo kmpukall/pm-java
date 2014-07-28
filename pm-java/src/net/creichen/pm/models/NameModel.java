@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import net.creichen.pm.Project;
-
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IBinding;

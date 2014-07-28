@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.Project;
 import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;

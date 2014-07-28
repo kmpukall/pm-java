@@ -9,10 +9,10 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.Project;
-import net.creichen.pm.ProjectListener;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.checkers.ConsistencyValidator;
+import net.creichen.pm.models.Project;
+import net.creichen.pm.models.ProjectListener;
 import net.creichen.pm.steps.DelegateStep;
 
 import org.eclipse.core.runtime.CoreException;
