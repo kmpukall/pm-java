@@ -16,6 +16,7 @@ import java.util.Map;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.models.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -48,6 +49,7 @@ public class RenameStep extends Step {
         final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
 
         getProject().syncSources();
+        ConsistencyValidator.getInstance().reset();
 
         final NameModel nameModel = getProject().getNameModel();
 

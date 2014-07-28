@@ -12,6 +12,8 @@ package net.creichen.pm;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.creichen.pm.checkers.ConsistencyValidator;
+
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
@@ -77,7 +79,7 @@ public final class Workspace {
         if (result == null) {
             result = new Project(iJavaProject);
             this.projectMapping.put(iJavaProject, result);
-
+            ConsistencyValidator.getInstance().reset();
         }
 
         return result;

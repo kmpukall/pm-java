@@ -38,6 +38,7 @@ class Step {
             final Change result = super.perform(pm);
             performASTChange();
             getProject().updateToNewVersionsOfICompilationUnits();
+            ConsistencyValidator.getInstance().reset();
             updateAfterReparse();
             cleanup();
             ConsistencyValidator.getInstance().rescanForInconsistencies(getProject());
@@ -86,6 +87,7 @@ class Step {
         performASTChange();
 
         this.project.updateToNewVersionsOfICompilationUnits();
+        ConsistencyValidator.getInstance().reset();
 
         updateAfterReparse();
 

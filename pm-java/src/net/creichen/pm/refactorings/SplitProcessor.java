@@ -11,13 +11,18 @@ package net.creichen.pm.refactorings;
 
 import net.creichen.pm.Project;
 import net.creichen.pm.Workspace;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.steps.SplitStep;
 import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.NullChange;
@@ -40,8 +45,8 @@ public class SplitProcessor extends RefactoringProcessor {
     }
 
     @Override
-    public RefactoringStatus checkFinalConditions(final IProgressMonitor pm,
-            final CheckConditionsContext context) throws CoreException {
+    public RefactoringStatus checkFinalConditions(final IProgressMonitor pm, final CheckConditionsContext context)
+            throws CoreException {
         return new RefactoringStatus();
     }
 
@@ -54,9 +59,9 @@ public class SplitProcessor extends RefactoringProcessor {
         if (!project.sourcesAreOutOfSync()) {
 
             project.syncSources();
+            ConsistencyValidator.getInstance().reset();
 
-            ASTNode selectedNode = project.nodeForSelection(this.textSelection,
-                    this.iCompilationUnit);
+            ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
 
             // We expect the selected node to be an ExpressionStatement with an
             // Assignment as the expression.
@@ -76,18 +81,15 @@ public class SplitProcessor extends RefactoringProcessor {
                 final ExpressionStatement assignmentStatement = (ExpressionStatement) selectedNode;
 
                 if (assignmentStatement.getExpression() instanceof Assignment) {
-                    final Assignment assignmentExpression = (Assignment) assignmentStatement
-                            .getExpression();
+                    final Assignment assignmentExpression = (Assignment) assignmentStatement.getExpression();
 
                     if (assignmentExpression.getLeftHandSide() instanceof SimpleName) {
 
                         final SimpleName name = (SimpleName) assignmentExpression.getLeftHandSide();
 
-                        final VariableDeclaration declaration = ASTUtil
-                                .localVariableDeclarationForSimpleName(name);
+                        final VariableDeclaration declaration = ASTUtil.localVariableDeclarationForSimpleName(name);
 
-                        if (declaration != null
-                                && ASTUtil.variableDeclarationIsLocal(declaration)) {
+                        if (declaration != null && ASTUtil.variableDeclarationIsLocal(declaration)) {
                             this.step = new SplitStep(project, (ExpressionStatement) selectedNode);
 
                             return new RefactoringStatus();
@@ -101,8 +103,7 @@ public class SplitProcessor extends RefactoringProcessor {
                     .createFatalErrorStatus("Split temporary can only be run on an assignment to a local variable.");
 
         } else {
-            return RefactoringStatus
-                    .createWarningStatus("PM Model is out of date. This will reinitialize.");
+            return RefactoringStatus.createWarningStatus("PM Model is out of date. This will reinitialize.");
         }
 
     }

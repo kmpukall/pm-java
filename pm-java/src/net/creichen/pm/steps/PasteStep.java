@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.Project;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.Pasteboard;
 
@@ -126,6 +127,7 @@ public class PasteStep extends Step {
 
         // FIXME(dcc) is this update necessary?
         getProject().updateToNewVersionsOfICompilationUnits();
+        ConsistencyValidator.getInstance().reset();
     }
 
     @Override

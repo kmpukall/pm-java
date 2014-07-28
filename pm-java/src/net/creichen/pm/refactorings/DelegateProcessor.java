@@ -12,6 +12,7 @@ package net.creichen.pm.refactorings;
 import net.creichen.pm.Project;
 import net.creichen.pm.ProjectListener;
 import net.creichen.pm.Workspace;
+import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.steps.DelegateStep;
 
 import org.eclipse.core.runtime.CoreException;
@@ -72,6 +73,7 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
         final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
                 this.iCompilationUnit.getJavaProject());
         project.syncSources();
+        ConsistencyValidator.getInstance().reset();
         Change result = new NullChange();
         final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
         this.step = new DelegateStep(project, selectedNode);
