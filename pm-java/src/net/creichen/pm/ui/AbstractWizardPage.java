@@ -1,5 +1,6 @@
 package net.creichen.pm.ui;
 
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -57,10 +58,24 @@ public abstract class AbstractWizardPage extends UserInputWizardPage {
 
     protected abstract String getLabel();
 
-    protected abstract void handleInputChanged();
-
     protected Text getTextField() {
         return this.fNameField;
     }
+
+    protected void handleInputChanged() {
+        String text = getTextField().getText();
+        handleNewInput(text);
+        final RefactoringStatus status = new RefactoringStatus();
+        setPageComplete(!status.hasError());
+        final int severity = status.getSeverity();
+        final String message = status.getMessageMatchingSeverity(severity);
+        if (severity >= RefactoringStatus.INFO) {
+            setMessage(message, severity);
+        } else {
+            setMessage("", NONE);
+        }
+    }
+
+    protected abstract void handleNewInput(String text);
 
 }

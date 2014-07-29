@@ -11,8 +11,6 @@ package net.creichen.pm.ui;
 
 import net.creichen.pm.refactorings.DelegateProcessor;
 
-import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-
 public class DelegateInputPage extends AbstractWizardPage {
 
     private final DelegateProcessor processor;
@@ -29,16 +27,7 @@ public class DelegateInputPage extends AbstractWizardPage {
     }
 
     @Override
-    protected void handleInputChanged() {
-        this.processor.setDelegateIdentifier(this.getTextField().getText());
-        final RefactoringStatus status = new RefactoringStatus();
-        setPageComplete(!status.hasError());
-        final int severity = status.getSeverity();
-        final String message = status.getMessageMatchingSeverity(severity);
-        if (severity >= RefactoringStatus.INFO) {
-            setMessage(message, severity);
-        } else {
-            setMessage("", NONE);
-        }
+    protected void handleNewInput(String text) {
+        this.processor.setDelegateIdentifier(text);
     }
 }

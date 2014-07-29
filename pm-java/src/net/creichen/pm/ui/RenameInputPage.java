@@ -11,8 +11,6 @@ package net.creichen.pm.ui;
 
 import net.creichen.pm.refactorings.PMRenameProcessor;
 
-import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-
 public class RenameInputPage extends AbstractWizardPage {
 
     private final PMRenameProcessor processor;
@@ -28,17 +26,7 @@ public class RenameInputPage extends AbstractWizardPage {
         return "&New name:";
     }
 
-    @Override
-    protected void handleInputChanged() {
-        this.processor.setNewName(this.getTextField().getText());
-        final RefactoringStatus status = new RefactoringStatus();
-        setPageComplete(!status.hasError());
-        final int severity = status.getSeverity();
-        final String message = status.getMessageMatchingSeverity(severity);
-        if (severity >= RefactoringStatus.INFO) {
-            setMessage(message, severity);
-        } else {
-            setMessage("", NONE);
-        }
+    protected void handleNewInput(String text) {
+        this.processor.setNewName(text);
     }
 }
