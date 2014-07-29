@@ -46,7 +46,7 @@ public class NameModelConsistencyCheck {
             final ASTNode declaringNode = this.project.findDeclaringNodeForName(simpleName);
 
             if (declaringNode != null) {
-                final SimpleName declaringSimpleName = ASTUtil.simpleNameForDeclaringNode(declaringNode);
+                final SimpleName declaringSimpleName = ASTUtil.simpleNameForNode(declaringNode);
 
                 final String declaringIdentifier = this.model.identifierForName(declaringSimpleName);
 

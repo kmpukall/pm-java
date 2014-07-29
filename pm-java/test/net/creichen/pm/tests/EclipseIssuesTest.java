@@ -9,7 +9,6 @@
 
 package net.creichen.pm.tests;
 
-import net.creichen.pm.PMTest;
 import net.creichen.pm.analysis.ASTQuery;
 
 import org.eclipse.jdt.core.dom.CompilationUnit;

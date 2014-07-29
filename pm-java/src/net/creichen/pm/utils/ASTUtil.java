@@ -33,28 +33,23 @@ public final class ASTUtil {
 
     // Hmmm, this assumes there is only one simple name for a given declaring
     // node
-    public static SimpleName simpleNameForDeclaringNode(final ASTNode declaringNode) {
-        if (declaringNode != null) {
-            if (declaringNode instanceof VariableDeclarationFragment) {
-                return ((VariableDeclarationFragment) declaringNode).getName();
-            } else if (declaringNode instanceof SingleVariableDeclaration) {
-                return ((SingleVariableDeclaration) declaringNode).getName();
-            } else if (declaringNode instanceof VariableDeclarationFragment) {
-                return ((VariableDeclarationFragment) declaringNode).getName();
-            } else if (declaringNode instanceof TypeDeclaration) {
-                return ((TypeDeclaration) declaringNode).getName();
-            } else if (declaringNode instanceof MethodDeclaration) {
-                return ((MethodDeclaration) declaringNode).getName();
-            } else if (declaringNode instanceof TypeParameter) {
-                return ((TypeParameter) declaringNode).getName();
-            } else {
-                throw new RuntimeException("Unexpected declaring ASTNode type " + declaringNode + " of class "
-                        + declaringNode.getClass());
-            }
+    public static SimpleName simpleNameForNode(final ASTNode declaringNode) {
+        if (declaringNode instanceof VariableDeclarationFragment) {
+            return ((VariableDeclarationFragment) declaringNode).getName();
+        } else if (declaringNode instanceof SingleVariableDeclaration) {
+            return ((SingleVariableDeclaration) declaringNode).getName();
+        } else if (declaringNode instanceof VariableDeclarationFragment) {
+            return ((VariableDeclarationFragment) declaringNode).getName();
+        } else if (declaringNode instanceof TypeDeclaration) {
+            return ((TypeDeclaration) declaringNode).getName();
+        } else if (declaringNode instanceof MethodDeclaration) {
+            return ((MethodDeclaration) declaringNode).getName();
+        } else if (declaringNode instanceof TypeParameter) {
+            return ((TypeParameter) declaringNode).getName();
         } else {
-            throw new RuntimeException("Tried to find simple name for null declaring node!");
+            throw new IllegalArgumentException("Unable to find simple name for ASTNode " + declaringNode + " of class "
+                    + declaringNode.getClass());
         }
-
     }
 
     public static VariableDeclaration localVariableDeclarationForSimpleName(final SimpleName name) {

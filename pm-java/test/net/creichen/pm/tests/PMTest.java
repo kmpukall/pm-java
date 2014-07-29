@@ -7,7 +7,9 @@
 
  *******************************************************************************/
 
-package net.creichen.pm;
+package net.creichen.pm.tests;
+
+import net.creichen.pm.Workspace;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;

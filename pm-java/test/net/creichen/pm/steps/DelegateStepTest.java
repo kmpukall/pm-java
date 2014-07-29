@@ -14,13 +14,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
-import net.creichen.pm.PMTest;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.models.Project;
+import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;

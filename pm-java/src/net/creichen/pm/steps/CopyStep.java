@@ -75,7 +75,7 @@ public class CopyStep extends Step {
             public boolean match(final SimpleName originalName, final Object copyNameObject) {
                 final SimpleName copyName = (SimpleName) copyNameObject;
 
-                if (ASTUtil.simpleNameForDeclaringNode(getProject().findDeclaringNodeForName(originalName)) == originalName) {
+                if (ASTUtil.simpleNameForNode(getProject().findDeclaringNodeForName(originalName)) == originalName) {
                     // Generate fresh identifier for node with name model
 
                     final String freshNameModelIdentifier = nameModel.generateNewIdentifierForName(copyName);
