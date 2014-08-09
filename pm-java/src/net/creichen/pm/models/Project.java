@@ -24,6 +24,7 @@ import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
+import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.utils.Timer;
 
@@ -323,7 +324,8 @@ public class Project {
     }
 
     private void resetModel() {
-        this.udModel = new DefUseModel(RDefsAnalysis.getCurrentUses(getASTRoots()));
+        Collection<Use> currentUses = RDefsAnalysis.getCurrentUses(getASTRoots());
+        this.udModel = new DefUseModel(currentUses);
         this.nameModel = new NameModel(this);
     }
 

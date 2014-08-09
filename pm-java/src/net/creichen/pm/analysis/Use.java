@@ -46,4 +46,8 @@ public class Use {
         return this.simpleName;
     }
 
+    @Override
+    public String toString() {
+        return "Use of '" + this.simpleName + "', " + this.reachingDefinitions.size() + " reaching definitions";
+    }
 }

@@ -9,7 +9,11 @@
 
 package net.creichen.pm.analysis;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
@@ -71,8 +75,8 @@ public class RDefsAnalysisTest extends PMTest {
         final SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0,
                 "S", 0, compilationUnit);
         final Use thirdXUse = rdefs.useForSimpleName(thirdX);
-        assertTrue(thirdXUse != null);
-        assertEquals(1, thirdXUse.getReachingDefinitions().size());
+        assertThat(thirdXUse, is(not(nullValue())));
+        assertThat(thirdXUse.getReachingDefinitions().size(), is(1));
         final Def xInitializerDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
         final VariableDeclaration xDeclaration = ASTQuery.localWithNameInMethodInClassInCompilationUnit("x", 0, "m", 0,
                 "S", 0, compilationUnit);
