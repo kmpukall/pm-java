@@ -6,7 +6,11 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 
 import com.google.common.base.Predicate;
 
-public class PredicateFactory {
+public final class PredicateFactory {
+
+    private PredicateFactory() {
+        // private utility class constructor
+    }
 
     private static final Predicate<TypeDeclaration> NOT_INTERFACE = new Predicate<TypeDeclaration>() {
 
@@ -30,7 +34,7 @@ public class PredicateFactory {
         return new Predicate<MethodDeclaration>() {
 
             @Override
-            public boolean apply(MethodDeclaration method) {
+            public boolean apply(final MethodDeclaration method) {
                 return method.getName().getIdentifier().equals(methodName);
             }
         };

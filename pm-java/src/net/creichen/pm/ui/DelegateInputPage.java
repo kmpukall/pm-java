@@ -27,7 +27,7 @@ public class DelegateInputPage extends AbstractWizardPage {
     }
 
     @Override
-    protected void handleNewInput(String text) {
+    protected void handleNewInput(final String text) {
         this.processor.setDelegateIdentifier(text);
     }
 }

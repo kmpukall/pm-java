@@ -26,7 +26,8 @@ public class RenameInputPage extends AbstractWizardPage {
         return "&New name:";
     }
 
-    protected void handleNewInput(String text) {
+    @Override
+    protected void handleNewInput(final String text) {
         this.processor.setNewName(text);
     }
 }

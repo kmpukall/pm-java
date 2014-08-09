@@ -26,7 +26,7 @@ public class MarkerResolutionGenerator implements IMarkerResolutionGenerator {
         private final Inconsistency inconsistency;
         private Project project;
 
-        private AcceptBehavioralChangeQuickFix(final Inconsistency inconsistency, Project project) {
+        private AcceptBehavioralChangeQuickFix(final Inconsistency inconsistency, final Project project) {
             this.inconsistency = inconsistency;
             this.project = project;
         }

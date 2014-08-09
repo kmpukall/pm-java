@@ -19,7 +19,7 @@ public final class DefinitionFinder extends ASTVisitor {
         this.result = new ArrayList<ASTNode>();
     }
 
-    public final List<ASTNode> getResult() {
+    public List<ASTNode> getResult() {
         return this.result;
     }
 

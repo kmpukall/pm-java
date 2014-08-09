@@ -9,8 +9,6 @@
 
 package net.creichen.pm.models;
 
-
-
 public interface ProjectListener {
-	void projectDidReparse(Project project);
+    void projectDidReparse(Project project);
 }

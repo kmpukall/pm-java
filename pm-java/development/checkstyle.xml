@@ -80,10 +80,7 @@
     <module name="VisibilityModifier"/>
     <module name="ArrayTypeStyle"/>
     <module name="FinalParameters"/>
-    <module name="TodoComment">
-      <property name="severity" value="ignore"/>
-      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
-    </module>
+    <module name="TodoComment"/>
     <module name="UpperEll"/>
     <module name="HiddenField">
       <property name="ignoreConstructorParameter" value="true"/>
@@ -109,7 +106,10 @@
     <module name="OneStatementPerLine"/>
     <module name="MutableException"/>
     <module name="ThrowsCount"/>
-    <module name="Indentation"/>
+    <module name="Indentation">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
   </module>
   <module name="NewlineAtEndOfFile">
     <property name="severity" value="ignore"/>
