@@ -34,7 +34,7 @@ public class PushDownFieldTest extends PMTest {
         Project project = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = iCompilationUnitS;
 
-        FieldDeclaration yField = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,
+        FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
                 project.getCompilationUnitForICompilationUnit(iCompilationUnit)).getParent();
         CopyStep copyStep1 = new CopyStep(project, yField);
         yField = null;
@@ -53,7 +53,7 @@ public class PushDownFieldTest extends PMTest {
         assertTrue(ConsistencyValidator.getInstance().getInconsistencies().isEmpty());
         final ICompilationUnit iCompilationUnit2 = iCompilationUnitS;
 
-        yField = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,
+        yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
                 project.getCompilationUnitForICompilationUnit(iCompilationUnit2)).getParent();
         CopyStep copyStep2 = new CopyStep(project, yField);
         yField = null;
@@ -70,7 +70,7 @@ public class PushDownFieldTest extends PMTest {
         pasteStep2.applyAllAtOnce();
         final ICompilationUnit iCompilationUnit4 = iCompilationUnitS;
 
-        yField = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0,
+        yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
                 project.getCompilationUnitForICompilationUnit(iCompilationUnit4)).getParent();
         CutStep cutStep = new CutStep(project, yField); // We use cut to
         // delete the

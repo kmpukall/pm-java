@@ -102,7 +102,7 @@ public class CutStepTest extends PMTest {
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit("s", 0,
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("s", 0,
                 "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
@@ -180,7 +180,7 @@ public class CutStepTest extends PMTest {
         Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit("x", 0,
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0,
                 "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit1));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();

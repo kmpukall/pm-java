@@ -43,7 +43,7 @@ public class ASTQueryTest extends PMTest {
         // the finder finds the SimpleName, so we need to get the parent fragment
         final ASTNode expected = ASTQuery.nodeForSelectionInCompilationUnit(60, 1, compilationUnit).getParent();
 
-        VariableDeclarationFragment field = ASTQuery.fieldWithNameInClassInCompilationUnit("x", 3, "S", 0,
+        VariableDeclarationFragment field = ASTQuery.findFieldByName("x", 3, "S", 0,
                 compilationUnit);
 
         assertThat(field, is(equalTo(expected)));

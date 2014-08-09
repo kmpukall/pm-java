@@ -15,6 +15,7 @@ import static net.creichen.pm.utils.APIWrapperUtil.types;
 import static net.creichen.pm.utils.factories.PredicateFactory.hasClassName;
 import static net.creichen.pm.utils.factories.PredicateFactory.isNotInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -150,16 +151,17 @@ public final class ASTQuery {
         return Lists.newArrayList(matchingClasses);
     }
 
-    public static VariableDeclarationFragment fieldWithNameInClassInCompilationUnit(final String fieldName,
-            final int fieldNameOccurrence, final String className, final int classNameOccurrence,
-            final CompilationUnit compilationUnit) {
+    public static VariableDeclarationFragment findFieldByName(final String fieldName, final int fieldNameOccurrence,
+            final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
         final TypeDeclaration classDeclaration = findClassWithName(className, classNameOccurrence, compilationUnit);
 
         // This is basically copied and pasted from
         // methodWithNameInClassInCompilationUnit()
 
+        List<VariableDeclarationFragment> fragments = new ArrayList<VariableDeclarationFragment>();
         int occurrence = fieldNameOccurrence;
         for (final FieldDeclaration fieldDeclaration : classDeclaration.getFields()) {
+            fragments.addAll(fragments(fieldDeclaration));
             for (final VariableDeclarationFragment fragment : fragments(fieldDeclaration)) {
                 if (fragment.getName().getIdentifier().equals(fieldName)) {
                     if (occurrence == 0) {

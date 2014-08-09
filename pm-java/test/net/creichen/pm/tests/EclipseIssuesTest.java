@@ -82,12 +82,12 @@ public class EclipseIssuesTest extends PMTest {
 
         CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        VariableDeclarationFragment firstXField = ASTQuery.fieldWithNameInClassInCompilationUnit(
+        VariableDeclarationFragment firstXField = ASTQuery.findFieldByName(
                 "x", 0, "S", 0, compilationUnit);
         assertTrue(firstXField != null);
 
         VariableDeclarationFragment secondXField = ASTQuery
-                .fieldWithNameInClassInCompilationUnit("x", 1, "S", 0, compilationUnit);
+                .findFieldByName("x", 1, "S", 0, compilationUnit);
         assertTrue(secondXField != null);
 
         // System.out.println("firstFieldX binding key is " +

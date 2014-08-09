@@ -7,14 +7,16 @@ import com.google.common.base.Predicate;
 
 public class PredicateFactory {
 
-    public static Predicate<TypeDeclaration> isNotInterface() {
-        return new Predicate<TypeDeclaration>() {
+    private static final Predicate<TypeDeclaration> NOT_INTERFACE = new Predicate<TypeDeclaration>() {
 
-            @Override
-            public boolean apply(final TypeDeclaration type) {
-                return !type.isInterface();
-            }
-        };
+        @Override
+        public boolean apply(final TypeDeclaration type) {
+            return !type.isInterface();
+        }
+    };
+
+    public static Predicate<TypeDeclaration> isNotInterface() {
+        return NOT_INTERFACE;
     }
 
     public static Predicate<TypeDeclaration> hasClassName(final String className) {

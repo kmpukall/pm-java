@@ -44,7 +44,7 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit(
+        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName(
                 "s", 0, "S1", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit1));
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
@@ -186,7 +186,7 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
                 .getParent();
 
@@ -220,7 +220,7 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.fieldWithNameInClassInCompilationUnit(
+        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS));
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
@@ -255,7 +255,7 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
                 .getParent();
 
@@ -289,7 +289,7 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
                 .getParent();
 
@@ -323,7 +323,7 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.fieldWithNameInClassInCompilationUnit(
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
                 .getParent();
 
