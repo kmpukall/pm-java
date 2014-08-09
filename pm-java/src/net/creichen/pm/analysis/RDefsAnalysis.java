@@ -119,7 +119,7 @@ public class RDefsAnalysis {
 
         final DefinitionFinder visitor = new DefinitionFinder();
         this.methodDeclaration.getBody().accept(visitor);
-        final List<ASTNode> definingNodes = visitor.getResult();
+        final List<ASTNode> definingNodes = visitor.getResults();
         for (final ASTNode definingNode : definingNodes) {
             addDefinitionForNode(definingNode);
         }

@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
@@ -24,7 +25,6 @@ import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.APIWrapperUtil;
-import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
@@ -229,9 +229,9 @@ public class DelegateStep extends Step {
             final ASTNode declaringNode = getProject().findDeclaringNodeForName(name);
 
             if (declaringNode != null) {
-                final SimpleName simpleNameForDeclaringNode = ASTUtil.simpleNameForNode(declaringNode);
+                final SimpleName simpleNameForDeclaringNode = ASTQuery.getSimpleName(declaringNode);
 
-                final String identifier = nameModel.identifierForName(simpleNameForDeclaringNode);
+                final String identifier = nameModel.getIdentifierForName(simpleNameForDeclaringNode);
 
                 nameModel.setIdentifierForName(identifier, name);
 

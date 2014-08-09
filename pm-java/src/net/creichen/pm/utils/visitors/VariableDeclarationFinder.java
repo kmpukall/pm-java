@@ -1,21 +1,11 @@
 package net.creichen.pm.utils.visitors;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public class VariableDeclarationFinder extends ASTVisitor {
-    private List<VariableDeclaration> results = new ArrayList<VariableDeclaration>();
-
-    public List<VariableDeclaration> result() {
-        return this.results;
-    }
-
+public class VariableDeclarationFinder extends CollectingASTVisitor<VariableDeclaration> {
     // visitor methods
 
     @Override
@@ -25,13 +15,13 @@ public class VariableDeclarationFinder extends ASTVisitor {
 
     @Override
     public boolean visit(final SingleVariableDeclaration singleVariableDeclaration) {
-        this.results.add(singleVariableDeclaration);
+        addResult(singleVariableDeclaration);
         return true;
     }
 
     @Override
     public boolean visit(final VariableDeclarationFragment fragment) {
-        this.results.add(fragment);
+        addResult(fragment);
         return true;
     }
 }

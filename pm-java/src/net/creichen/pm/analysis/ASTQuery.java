@@ -31,13 +31,52 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.google.common.collect.Iterables;
 
 public final class ASTQuery {
+
+    public static VariableDeclaration localVariableDeclarationForSimpleName(final SimpleName name) {
+        return (VariableDeclaration) ((CompilationUnit) name.getRoot()).findDeclaringNode(name.resolveBinding());
+    }
+
+    // Hmmm, this assumes there is only one simple name for a given declaring
+    // node
+    public static SimpleName getSimpleName(final ASTNode declaringNode) {
+        if (declaringNode instanceof VariableDeclarationFragment) {
+            return ((VariableDeclarationFragment) declaringNode).getName();
+        } else if (declaringNode instanceof SingleVariableDeclaration) {
+            return ((SingleVariableDeclaration) declaringNode).getName();
+        } else if (declaringNode instanceof VariableDeclarationFragment) {
+            return ((VariableDeclarationFragment) declaringNode).getName();
+        } else if (declaringNode instanceof TypeDeclaration) {
+            return ((TypeDeclaration) declaringNode).getName();
+        } else if (declaringNode instanceof MethodDeclaration) {
+            return ((MethodDeclaration) declaringNode).getName();
+        } else if (declaringNode instanceof TypeParameter) {
+            return ((TypeParameter) declaringNode).getName();
+        } else {
+            throw new IllegalArgumentException("Unable to find simple name for ASTNode " + declaringNode + " of class "
+                    + declaringNode.getClass());
+        }
+    }
+
+    public static List<MethodDeclaration> getConstructorsOfClass(final TypeDeclaration classDeclaration) {
+        final List<MethodDeclaration> constructors = new ArrayList<MethodDeclaration>();
+    
+        for (final MethodDeclaration method : classDeclaration.getMethods()) {
+            if (method.isConstructor()) {
+                constructors.add(method);
+            }
+        }
+    
+        return constructors;
+    }
 
     public static Assignment assignmentInMethodInClassInCompilationUnit(final int assignmentOccurrence,
             final String methodName, final int methodNameOccurrence, final String className,
@@ -130,7 +169,7 @@ public final class ASTQuery {
         // visit nodes in method body to find local vars
         VariableDeclarationFinder visitor = new VariableDeclarationFinder();
         methodDeclaration.getBody().accept(visitor);
-        List<VariableDeclaration> results = visitor.result();
+        List<VariableDeclaration> results = visitor.getResults();
         Iterable<VariableDeclaration> matchingDeclarations = filter(results, hasVariableName(localName));
 
         return get(matchingDeclarations, localNameOccurrence, null);

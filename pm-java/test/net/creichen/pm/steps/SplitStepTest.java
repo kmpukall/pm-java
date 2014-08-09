@@ -75,22 +75,22 @@ public class SplitStepTest extends PMTest {
         final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0,
                 "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
-        assertNotNull(nameModel.identifierForName(firstX));
-        assertNotNull(nameModel.identifierForName(secondX));
+        assertNotNull(nameModel.getIdentifierForName(firstX));
+        assertNotNull(nameModel.getIdentifierForName(secondX));
 
-        assertEquals(nameModel.identifierForName(firstX), nameModel.identifierForName(secondX));
+        assertEquals(nameModel.getIdentifierForName(firstX), nameModel.getIdentifierForName(secondX));
 
         final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
                 "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
         final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0,
                 "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
-        assertNotNull(nameModel.identifierForName(thirdX));
-        assertNotNull(nameModel.identifierForName(fourthX));
+        assertNotNull(nameModel.getIdentifierForName(thirdX));
+        assertNotNull(nameModel.getIdentifierForName(fourthX));
 
-        assertEquals(nameModel.identifierForName(thirdX), nameModel.identifierForName(fourthX));
+        assertEquals(nameModel.getIdentifierForName(thirdX), nameModel.getIdentifierForName(fourthX));
 
-        assertTrue(!nameModel.identifierForName(firstX).equals(nameModel.identifierForName(thirdX)));
+        assertTrue(!nameModel.getIdentifierForName(firstX).equals(nameModel.getIdentifierForName(thirdX)));
 
         // now test reverse mapping interface
 

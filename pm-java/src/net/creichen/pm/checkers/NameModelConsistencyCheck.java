@@ -3,6 +3,7 @@ package net.creichen.pm.checkers;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.inconsistencies.Inconsistency;
 import net.creichen.pm.inconsistencies.NameCapture;
@@ -10,7 +11,6 @@ import net.creichen.pm.inconsistencies.NameConflict;
 import net.creichen.pm.inconsistencies.UnknownName;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
-import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -46,11 +46,11 @@ public class NameModelConsistencyCheck {
             final ASTNode declaringNode = this.project.findDeclaringNodeForName(simpleName);
 
             if (declaringNode != null) {
-                final SimpleName declaringSimpleName = ASTUtil.simpleNameForNode(declaringNode);
+                final SimpleName declaringSimpleName = ASTQuery.getSimpleName(declaringNode);
 
-                final String declaringIdentifier = this.model.identifierForName(declaringSimpleName);
+                final String declaringIdentifier = this.model.getIdentifierForName(declaringSimpleName);
 
-                final String usingIdentifier = this.model.identifierForName(simpleName);
+                final String usingIdentifier = this.model.getIdentifierForName(simpleName);
 
                 if (usingIdentifier == null) {
                     inconsistencies.add(new UnknownName(pmCompilationUnit, simpleName));

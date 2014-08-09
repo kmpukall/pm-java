@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
-import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Pasteboard;
 import net.creichen.pm.utils.visitors.DefinitionFinder;
 
@@ -75,16 +75,16 @@ public class CopyStep extends Step {
             public boolean match(final SimpleName originalName, final Object copyNameObject) {
                 final SimpleName copyName = (SimpleName) copyNameObject;
 
-                if (ASTUtil.simpleNameForNode(getProject().findDeclaringNodeForName(originalName)) == originalName) {
+                if (ASTQuery.getSimpleName(getProject().findDeclaringNodeForName(originalName)) == originalName) {
                     // Generate fresh identifier for node with name model
 
-                    final String freshNameModelIdentifier = nameModel.generateNewIdentifierForName(copyName);
+                    final String freshNameModelIdentifier = NameModel.generateNewIdentifier();
                     nameModel.setIdentifierForName(freshNameModelIdentifier, copyName);
 
-                    copyNameIdentifiersForOriginals.put(nameModel.identifierForName(originalName),
+                    copyNameIdentifiersForOriginals.put(nameModel.getIdentifierForName(originalName),
                             freshNameModelIdentifier);
                 } else {
-                    nameModel.setIdentifierForName(nameModel.identifierForName(originalName), copyName);
+                    nameModel.setIdentifierForName(nameModel.getIdentifierForName(originalName), copyName);
                 }
 
                 return true;
@@ -107,7 +107,7 @@ public class CopyStep extends Step {
         final ASTVisitor fixupReferenceVisitor = new ASTVisitor() {
             @Override
             public boolean visit(final SimpleName name) {
-                final String nameIdentifier = nameModel.identifierForName(name);
+                final String nameIdentifier = nameModel.getIdentifierForName(name);
 
                 if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier)) {
                     nameModel.setIdentifierForName(copyNameIdentifiersForOriginals.get(nameIdentifier), name);
@@ -157,11 +157,11 @@ public class CopyStep extends Step {
             final ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
             final DefinitionFinder originalVisitor = new DefinitionFinder();
             originalRootNode.accept(originalVisitor);
-            final List<ASTNode> originalDefiningNodes = originalVisitor.getResult();
+            final List<ASTNode> originalDefiningNodes = originalVisitor.getResults();
 
             final DefinitionFinder visitor = new DefinitionFinder();
             copyRootNode.accept(visitor);
-            final List<ASTNode> copyDefiningNodes = visitor.getResult();
+            final List<ASTNode> copyDefiningNodes = visitor.getResults();
 
             for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes.size(); definingNodeIndex++) {
                 final ASTNode originalDefiningNode = originalDefiningNodes.get(definingNodeIndex);

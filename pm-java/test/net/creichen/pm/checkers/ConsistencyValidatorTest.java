@@ -7,16 +7,17 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.models;
+package net.creichen.pm.checkers;
 
 import static org.junit.Assert.assertEquals;
 import net.creichen.pm.Workspace;
 import net.creichen.pm.checkers.ConsistencyValidator;
+import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
 
 import org.junit.Test;
 
-public class NameModelTest extends PMTest {
+public class ConsistencyValidatorTest extends PMTest {
 
 	@Test
 	public void testArrayLengthIsSane() {

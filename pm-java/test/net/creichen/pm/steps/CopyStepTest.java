@@ -59,17 +59,17 @@ public class CopyStepTest extends PMTest {
                 "x", 0, "S", 0, compilationUnitS).getParent();
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()
                 .get(0)).getName();
-        final String fieldDeclarationOriginalNameIdentifier = nameModel.identifierForName(fieldDeclarationOriginalName);
+        final String fieldDeclarationOriginalNameIdentifier = nameModel.getIdentifierForName(fieldDeclarationOriginalName);
 
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnitS);
         final SimpleName methodDeclarationOriginalName = methodDeclaration.getName();
         final String methodDeclarationOriginalNameIdentifier = nameModel
-                .identifierForName(methodDeclarationOriginalName);
+                .getIdentifierForName(methodDeclarationOriginalName);
 
         final SimpleName originalUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0,
                 methodDeclaration.getBody());
-        final String originalUseOfYInMIdentifier = nameModel.identifierForName(originalUseOfYInM);
+        final String originalUseOfYInMIdentifier = nameModel.getIdentifierForName(originalUseOfYInM);
 
         final List<ASTNode> nodesToCopy = new ArrayList<ASTNode>();
         nodesToCopy.add(methodDeclaration); // Method declaration goes first to
@@ -99,13 +99,13 @@ public class CopyStepTest extends PMTest {
 
         // field declaration gets fresh identifier copy
 
-        final String fieldDeclarationCopyNameIdentifier = nameModel.identifierForName(fieldDeclarationCopyName);
+        final String fieldDeclarationCopyNameIdentifier = nameModel.getIdentifierForName(fieldDeclarationCopyName);
         assertNotNull(fieldDeclarationCopyNameIdentifier);
         assertFalse(fieldDeclarationCopyNameIdentifier.equals(fieldDeclarationOriginalNameIdentifier));
 
         // method declaration gets fresh identifier in copy
 
-        final String methodDeclarationCopyNameIdentifier = nameModel.identifierForName(methodDeclarationCopy.getName());
+        final String methodDeclarationCopyNameIdentifier = nameModel.getIdentifierForName(methodDeclarationCopy.getName());
         assertNotNull(methodDeclarationCopyNameIdentifier);
         assertFalse(methodDeclarationCopyNameIdentifier.equals(methodDeclarationOriginalNameIdentifier));
 
@@ -114,7 +114,7 @@ public class CopyStepTest extends PMTest {
 
         final SimpleName copyUseOfXInM = ASTQuery.findSimpleNameByIdentifier("x", 0,
                 methodDeclarationCopy.getBody());
-        final String copyUseOfXInMIdentifier = nameModel.identifierForName(copyUseOfXInM);
+        final String copyUseOfXInMIdentifier = nameModel.getIdentifierForName(copyUseOfXInM);
 
         assertEquals(copyUseOfXInMIdentifier, fieldDeclarationCopyNameIdentifier);
 
@@ -123,7 +123,7 @@ public class CopyStepTest extends PMTest {
 
         final SimpleName copyUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0,
                 methodDeclarationCopy.getBody());
-        final String copyUseOfYInMIdentifier = nameModel.identifierForName(copyUseOfYInM);
+        final String copyUseOfYInMIdentifier = nameModel.getIdentifierForName(copyUseOfYInM);
 
         assertEquals(copyUseOfYInMIdentifier, originalUseOfYInMIdentifier);
     }
@@ -219,7 +219,7 @@ public class CopyStepTest extends PMTest {
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()
                 .get(0)).getName();
 
-        final String fieldDeclarationOriginalNameIdentifier = pmProject.getNameModel().identifierForName(
+        final String fieldDeclarationOriginalNameIdentifier = pmProject.getNameModel().getIdentifierForName(
                 fieldDeclarationOriginalName);
 
         final CopyStep copyStep = new CopyStep(pmProject, fieldDeclaration);
@@ -239,7 +239,7 @@ public class CopyStepTest extends PMTest {
         final SimpleName fieldDeclarationCopyName = ((VariableDeclarationFragment) fieldDeclarationCopy.fragments()
                 .get(0)).getName();
 
-        final String fieldDeclarationCopyNameIdentifier = pmProject.getNameModel().identifierForName(
+        final String fieldDeclarationCopyNameIdentifier = pmProject.getNameModel().getIdentifierForName(
                 fieldDeclarationCopyName);
 
         assertNotNull(fieldDeclarationCopyNameIdentifier);

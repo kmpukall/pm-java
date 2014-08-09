@@ -278,7 +278,7 @@ public class Project {
             for (final ASTNode oldNode : isomorphicNodes.keySet()) {
                 final ASTNode newNode = isomorphicNodes.get(oldNode);
                 if (oldNode instanceof SimpleName) {
-                    this.nameModel.replaceNameWithName((SimpleName) oldNode, (SimpleName) newNode);
+                    this.nameModel.replaceName((SimpleName) oldNode, (SimpleName) newNode);
                 }
                 NodeReferenceStore.getInstance().replaceOldNodeVersionWithNewVersion(oldNode, newNode);
             }

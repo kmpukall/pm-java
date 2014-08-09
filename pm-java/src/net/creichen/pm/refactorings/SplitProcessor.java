@@ -10,6 +10,7 @@
 package net.creichen.pm.refactorings;
 
 import net.creichen.pm.Workspace;
+import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.checkers.ConsistencyValidator;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.steps.SplitStep;
@@ -87,9 +88,9 @@ public class SplitProcessor extends RefactoringProcessor {
 
                         final SimpleName name = (SimpleName) assignmentExpression.getLeftHandSide();
 
-                        final VariableDeclaration declaration = ASTUtil.localVariableDeclarationForSimpleName(name);
+                        final VariableDeclaration declaration = ASTQuery.localVariableDeclarationForSimpleName(name);
 
-                        if (declaration != null && ASTUtil.variableDeclarationIsLocal(declaration)) {
+                        if (declaration != null && ASTUtil.isVariableDeclarationLocal(declaration)) {
                             this.step = new SplitStep(project, (ExpressionStatement) selectedNode);
 
                             return new RefactoringStatus();

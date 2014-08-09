@@ -9,10 +9,10 @@
 
 package net.creichen.pm.inconsistencies;
 
+import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
-import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Name;
@@ -34,10 +34,10 @@ public class NameCapture extends Inconsistency {
 
     @Override
     public void acceptBehavioralChange() {
-        final Name capturedName = (Name) getCapturedNode();
+        final Name capturedName = (Name) getNode();
         final NameModel nameModel = this.project.getNameModel();
-        final Name capturingName = ASTUtil.simpleNameForNode(this.actualDeclaration);
-        final String capturingIdentifier = nameModel.identifierForName(capturingName);
+        final Name capturingName = ASTQuery.getSimpleName(this.actualDeclaration);
+        final String capturingIdentifier = nameModel.getIdentifierForName(capturingName);
 
         nameModel.setIdentifierForName(capturingIdentifier, capturedName);
     }
@@ -49,10 +49,6 @@ public class NameCapture extends Inconsistency {
 
     public ASTNode getActualDeclaration() {
         return this.actualDeclaration;
-    }
-
-    public ASTNode getCapturedNode() {
-        return getNode();
     }
 
     public String getCapturedNodeDescription() {
