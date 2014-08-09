@@ -115,8 +115,8 @@ public class PMRenameProcessorTest extends PMTest {
 
         CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1,
-                "method", 0, "Foo", 0, parsedCompilationUnit);
+        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
+                parsedCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
         // ASTNode expectedExpectedDeclaringNode =
@@ -131,8 +131,8 @@ public class PMRenameProcessorTest extends PMTest {
         // assertEquals(expectedExpectedDeclaringNode,
         // actualExpectedDeclaringNode);
 
-        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 0,
-                "method", 0, "Foo", 0, parsedCompilationUnit).getParent();
+        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 0, "method", 0, "Foo", 0,
+                parsedCompilationUnit).getParent();
 
         ASTNode actualCapturingNode = nameCapture.getActualDeclaration();
 
@@ -167,8 +167,8 @@ public class PMRenameProcessorTest extends PMTest {
         ASTNode expectedCapturedNode = pmProject.nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
-        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 1,
-                "method", 0, "Foo", 0, parsedCompilationUnit).getParent();
+        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
+                parsedCompilationUnit).getParent();
 
         ASTNode actualCapturingNode = nameCapture.getActualDeclaration();
 
@@ -197,7 +197,7 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit unit2 = createNewCompilationUnit("", "Unit2.java",
                 "public class Unit2 { void method() {Unit1 unit1 = new Unit1(); unit1.x--;} }");
 
-        Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
         PMRenameProcessor renameXToY = new PMRenameProcessor(new TextSelection(32, 1), unit1);
 
@@ -245,8 +245,8 @@ public class PMRenameProcessorTest extends PMTest {
 
         CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1,
-                "method", 0, "Foo", 0, parsedCompilationUnit);
+        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
+                parsedCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
         nameCapture.acceptBehavioralChange();

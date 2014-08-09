@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.analysis.DefUseUtil;
 import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.models.DefUseModel;
@@ -23,6 +22,7 @@ import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Pasteboard;
+import net.creichen.pm.utils.visitors.DefinitionFinder;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -155,9 +155,13 @@ public class CopyStep extends Step {
         for (int rootNodeIndex = 0; rootNodeIndex < originalRootNodes.size(); rootNodeIndex++) {
             final ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
             final ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
+            final DefinitionFinder originalVisitor = new DefinitionFinder();
+            originalRootNode.accept(originalVisitor);
+            final List<ASTNode> originalDefiningNodes = originalVisitor.getResult();
 
-            final List<ASTNode> originalDefiningNodes = DefUseUtil.findDefiningNodesUnderNode(originalRootNode);
-            final List<ASTNode> copyDefiningNodes = DefUseUtil.findDefiningNodesUnderNode(copyRootNode);
+            final DefinitionFinder visitor = new DefinitionFinder();
+            copyRootNode.accept(visitor);
+            final List<ASTNode> copyDefiningNodes = visitor.getResult();
 
             for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes.size(); definingNodeIndex++) {
                 final ASTNode originalDefiningNode = originalDefiningNodes.get(definingNodeIndex);
@@ -173,7 +177,7 @@ public class CopyStep extends Step {
 
         /*
          * Now that we have the mappings:
-         *
+         * 
          * For each copied definition, find the original definition and get the original uses for it for each original
          * use, if it is external add it as a use for the copy if it is internal, generate a new identifier for the copy
          * use and add it to the uses for the copied definition

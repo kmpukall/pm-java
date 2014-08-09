@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.utils.Timer;
+import net.creichen.pm.utils.visitors.DefinitionFinder;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -54,7 +55,6 @@ public class RDefsAnalysis {
 
     public RDefsAnalysis(final MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
-
         runAnalysis(); // may wish to do this lazily
     }
 
@@ -74,7 +74,7 @@ public class RDefsAnalysis {
         return this.usesByName.values();
     }
 
-    // return PMUse object for a simple name, or null if the simpleName does not
+    // return Use object for a simple name, or null if the simpleName does not
     // represent a use
     public Use useForSimpleName(final SimpleName name) {
         return this.usesByName.get(name);
@@ -117,7 +117,9 @@ public class RDefsAnalysis {
         this.definitions = new ArrayList<Def>();
         this.definitionsByDefiningNode = new HashMap<ASTNode, Def>();
 
-        final List<ASTNode> definingNodes = DefUseUtil.findDefiningNodesUnderNode(this.methodDeclaration.getBody());
+        final DefinitionFinder visitor = new DefinitionFinder();
+        this.methodDeclaration.getBody().accept(visitor);
+        final List<ASTNode> definingNodes = visitor.getResult();
         for (final ASTNode definingNode : definingNodes) {
             addDefinitionForNode(definingNode);
         }
@@ -294,7 +296,7 @@ public class RDefsAnalysis {
             final IfStatement ifStatement = (IfStatement) statement;
             /*
              * three components: - guard block - then block - else block
-             *
+             * 
              * - exit block to join then and else
              */
 
@@ -343,7 +345,7 @@ public class RDefsAnalysis {
 
             /*
              * while statements consist of: - guard condition - body
-             *
+             * 
              * - synthetic exit block
              */
 
@@ -499,40 +501,40 @@ public class RDefsAnalysis {
 
         /*
          * for (PMBlock block: _allBlocks) {
-         *
+         * 
          * String output = "For [" + block + "]:\n";
-         *
+         * 
          * output += "\tGen Set is:\n";
-         *
+         * 
          * if (genSets.get(block) != null) { for (VariableAssignment variableAssignment:genSets.get(block)) { output +=
          * "\t\t" + variableAssignment.getDefinition().getDefiningNode() + " for [" +
          * variableAssignment.getVariableBinding() + "]\n"; } }
-         *
-         *
+         * 
+         * 
          * output += "\tKill Set is:\n";
-         *
+         * 
          * if (killSets.get(block) != null) { for (VariableAssignment variableAssignment:killSets.get(block)) { ASTNode
          * definingNode = null;
-         *
+         * 
          * if (variableAssignment.getDefinition() != null) definingNode =
          * variableAssignment.getDefinition().getDefiningNode();
-         *
+         * 
          * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() + "]\n"; } }
-         *
+         * 
          * output += "\tReaching defs are:\n";
-         *
+         * 
          * for (VariableAssignment variableAssignment: _reachingDefsOnEntry.get(block)) { ASTNode definingNode = null;
-         *
+         * 
          * if (variableAssignment.getDefinition() != null) definingNode =
          * variableAssignment.getDefinition().getDefiningNode();
-         *
+         * 
          * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() + "]\n"; }
-         *
-         *
-         *
+         * 
+         * 
+         * 
          * System.out.println(output);
-         *
-         *
+         * 
+         * 
          * }
          */
 
@@ -540,18 +542,18 @@ public class RDefsAnalysis {
 
         /*
          * System.out.println("Uses:");
-         *
-         *
+         * 
+         * 
          * for (PMUse use: _usesByName.values()) { String output = "" + use.getSimpleName() + "\n";
-         *
+         * 
          * for (PMDef reachingDefinition: use.getReachingDefinitions()) {
-         *
+         * 
          * ASTNode definingNode = null;
-         *
+         * 
          * if (reachingDefinition != null) definingNode = reachingDefinition.getDefiningNode();
-         *
+         * 
          * output += "\t" + definingNode; }
-         *
+         * 
          * System.out.println(output); }
          */
     }
@@ -559,10 +561,10 @@ public class RDefsAnalysis {
     private boolean simpleNameIsUse(final SimpleName name) {
         /*
          * we assume all simple names are uses except:
-         *
+         * 
          * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
          * SingleVariableDeclaration
-         *
+         * 
          * There are probably more cases (i.e. method names in invocations?)
          */
 
@@ -600,34 +602,29 @@ public class RDefsAnalysis {
         return variableAssignment;
     }
 
-    boolean isAnalyzableLeftHandSide(final ASTNode lhs) {
-        // for now we only support assignments to simple names
-
-        return lhs instanceof SimpleName;
-    }
-
     public static Collection<Use> getCurrentUses(final Collection<ASTNode> roots) {
         Timer.sharedTimer().start("DUUD_CHAINS");
-    
+
         final Collection<Use> uses = new HashSet<Use>();
         for (final ASTNode root : roots) {
             root.accept(new ASTVisitor() {
                 @Override
                 public boolean visit(final MethodDeclaration methodDeclaration) {
-    
+
                     // There is nothing to analyze if we have an interface or
                     // abstract method
                     if (methodDeclaration.getBody() != null) {
                         final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
                         uses.addAll(analysis.getUses());
                     }
-    
+
                     return false; // don't visit children
                 }
             });
-    
+
         }
         Timer.sharedTimer().stop("DUUD_CHAINS");
         return uses;
     }
+
 }
