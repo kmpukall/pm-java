@@ -41,7 +41,7 @@ public class MoveFieldRefactoringTest extends PMTest {
                 .fieldWithNameInClassInCompilationUnit("_y", 0, "S", 0, compilationUnitS)
                 .getParent();
 
-        final TypeDeclaration classT = ASTQuery.classWithNameInCompilationUnit("T", 0,
+        final TypeDeclaration classT = ASTQuery.findClassWithName("T", 0,
                 compilationUnitT);
 
         final MoveFieldRefactoring refactoring = new MoveFieldRefactoring(project, yField,

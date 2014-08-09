@@ -42,7 +42,7 @@ public class PushDownFieldTest extends PMTest {
         final ICompilationUnit iCompilationUnit1 = iCompilationUnitT1;
 
         CompilationUnit compilationUnitT1 = project.getCompilationUnitForICompilationUnit(iCompilationUnit1);
-        TypeDeclaration classT1 = ASTQuery.classWithNameInCompilationUnit("T1", 0, compilationUnitT1);
+        TypeDeclaration classT1 = ASTQuery.findClassWithName("T1", 0, compilationUnitT1);
 
         PasteStep pasteStep1 = new PasteStep(project, classT1, classT1.getBodyDeclarationsProperty(), classT1
                 .bodyDeclarations().size());
@@ -61,7 +61,7 @@ public class PushDownFieldTest extends PMTest {
         final ICompilationUnit iCompilationUnit3 = iCompilationUnitT2;
 
         CompilationUnit compilationUnitT2 = project.getCompilationUnitForICompilationUnit(iCompilationUnit3);
-        TypeDeclaration classT2 = ASTQuery.classWithNameInCompilationUnit("T2", 0, compilationUnitT2);
+        TypeDeclaration classT2 = ASTQuery.findClassWithName("T2", 0, compilationUnitT2);
 
         PasteStep pasteStep2 = new PasteStep(project, classT2, classT2.getBodyDeclarationsProperty(), classT2
                 .bodyDeclarations().size());

@@ -31,7 +31,7 @@ public class ASTQueryTest extends PMTest {
         final CompilationUnit compilationUnit = toCompilationUnit(source);
         final ASTNode expected = ASTQuery.nodeForSelectionInCompilationUnit(40, 28, compilationUnit);
 
-        TypeDeclaration declaration = ASTQuery.classWithNameInCompilationUnit("S", 1, compilationUnit);
+        TypeDeclaration declaration = ASTQuery.findClassWithName("S", 1, compilationUnit);
 
         assertThat(declaration, is(equalTo(expected)));
     }

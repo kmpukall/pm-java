@@ -251,15 +251,14 @@ public class Project {
         parser.setResolveBindings(resolveBindings);
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-            @Override
-            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-            }
-        }, null);
+                    @Override
+                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+                    }
+                }, null);
 
     }
 
     public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
-
         final CompilationUnit compilationUnit = getCompilationUnitForICompilationUnit(iCompilationUnit);
 
         final ASTNode selectedNode = ASTQuery.nodeForSelectionInCompilationUnit(selection.getOffset(),
@@ -340,7 +339,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;
