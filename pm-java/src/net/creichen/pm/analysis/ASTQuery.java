@@ -13,6 +13,7 @@ import static com.google.common.collect.Iterables.filter;
 import static net.creichen.pm.utils.APIWrapperUtil.fragments;
 import static net.creichen.pm.utils.APIWrapperUtil.types;
 import static net.creichen.pm.utils.factories.PredicateFactory.hasClassName;
+import static net.creichen.pm.utils.factories.PredicateFactory.hasVariableName;
 import static net.creichen.pm.utils.factories.PredicateFactory.isNotInterface;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 public final class ASTQuery {
@@ -165,7 +167,7 @@ public final class ASTQuery {
             for (final VariableDeclarationFragment fragment : fragments(fieldDeclaration)) {
                 if (fragment.getName().getIdentifier().equals(fieldName)) {
                     if (occurrence == 0) {
-                        return fragment;
+                        // return fragment;
                     } else {
                         occurrence--;
                     }
@@ -173,7 +175,7 @@ public final class ASTQuery {
             }
         }
 
-        return null;
+        return Iterables.get(filter(fragments, hasVariableName(fieldName)), fieldNameOccurrence, null);
     }
 
     public static VariableDeclaration localWithNameInMethodInClassInCompilationUnit(final String localName,
