@@ -44,7 +44,7 @@ public class DelegateStepTest extends PMTest {
         final PMCompilationUnit s2PMCompilationUnit = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnit2);
 
-        final MethodDeclaration methodB = ASTQuery.methodWithNameInClassInCompilationUnit("b", 0, "S2", 0,
+        final MethodDeclaration methodB = ASTQuery.findMethodByName("b", 0, "S2", 0,
                 s2PMCompilationUnit.getCompilationUnit());
 
         final ExpressionStatement methodInvocationStatement = (ExpressionStatement) methodB.getBody().statements()

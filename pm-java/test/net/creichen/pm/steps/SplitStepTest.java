@@ -70,9 +70,9 @@ public class SplitStepTest extends PMTest {
         // Second two occurrences of x should have same identifier (different
         // from first identifier)
 
-        final SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0,
+        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
-        final SimpleName secondX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 1, "m", 0,
+        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0,
                 "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.identifierForName(firstX));
@@ -80,9 +80,9 @@ public class SplitStepTest extends PMTest {
 
         assertEquals(nameModel.identifierForName(firstX), nameModel.identifierForName(secondX));
 
-        final SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0,
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
                 "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
-        final SimpleName fourthX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 3, "m", 0,
+        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0,
                 "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.identifierForName(thirdX));

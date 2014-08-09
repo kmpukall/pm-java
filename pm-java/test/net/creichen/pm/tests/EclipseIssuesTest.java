@@ -32,14 +32,14 @@ public class EclipseIssuesTest extends PMTest {
 
         CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName firstX = ASTQuery.findSimpleNameByIdentifier(
                 "x", 0, "m", 0, "S", 0, compilationUnit);
-        SimpleName secondX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName secondX = ASTQuery.findSimpleNameByIdentifier(
                 "x", 1, "m", 0, "S", 0, compilationUnit);
 
-        SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier(
                 "x", 2, "m", 0, "S", 0, compilationUnit);
-        SimpleName fourthX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+        SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier(
                 "x", 3, "m", 0, "S", 0, compilationUnit);
 
         /*
@@ -101,7 +101,7 @@ public class EclipseIssuesTest extends PMTest {
         // secondXField.resolveBinding().hashCode());
 
         SimpleName firstLocalX = ASTQuery
-                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0, "S", 0,
+                .findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0,
                         compilationUnit);
 
         assertTrue(firstLocalX.resolveBinding() == null);

@@ -48,7 +48,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
@@ -61,24 +61,24 @@ public class RDefsAnalysisTest extends PMTest {
     public void testDefiningInitializer() {
         final String source = "public class S {void m(){int x = 0;x = x + 1;}}";
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
-        final SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0,
+        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertEquals(null, rdefs.useForSimpleName(firstX)); // The first x is
         // not a use
-        final SimpleName secondX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 1, "m", 0,
+        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0,
                 "S", 0, compilationUnit);
         assertEquals(null, rdefs.useForSimpleName(secondX)); // The second x is
         // not a use
-        final SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0,
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
                 "S", 0, compilationUnit);
         final Use thirdXUse = rdefs.useForSimpleName(thirdX);
         assertThat(thirdXUse, is(not(nullValue())));
         assertThat(thirdXUse.getReachingDefinitions().size(), is(1));
         final Def xInitializerDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
-        final VariableDeclaration xDeclaration = ASTQuery.localWithNameInMethodInClassInCompilationUnit("x", 0, "m", 0,
+        final VariableDeclaration xDeclaration = ASTQuery.findLocalByName("x", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertEquals(xDeclaration, xInitializerDef.getDefiningNode());
     }
@@ -89,12 +89,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName thirdY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 2, "m", 0,
+        final SimpleName thirdY = ASTQuery.findSimpleNameByIdentifier("y", 2, "m", 0,
                 "S", 0, compilationUnit);
         final Use thirdYUse = rdefs.useForSimpleName(thirdY);
 
@@ -105,7 +105,7 @@ public class RDefsAnalysisTest extends PMTest {
         final Def defForThirdYUse = (Def) thirdYUse.getReachingDefinitions().toArray()[0];
 
         final PostfixExpression yPlusPlus = (PostfixExpression) ASTQuery
-                .simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 1, "m", 0, "S", 0, compilationUnit)
+                .findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0, compilationUnit)
                 .getParent();
 
         assertEquals(yPlusPlus, defForThirdYUse.getDefiningNode());
@@ -117,12 +117,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName thirdY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 2, "m", 0,
+        final SimpleName thirdY = ASTQuery.findSimpleNameByIdentifier("y", 2, "m", 0,
                 "S", 0, compilationUnit);
         final Use thirdYUse = rdefs.useForSimpleName(thirdY);
 
@@ -135,7 +135,7 @@ public class RDefsAnalysisTest extends PMTest {
         final Def definition1 = (Def) definitions[0];
         final Def definition2 = (Def) definitions[1];
 
-        final VariableDeclaration yEquals1 = ASTQuery.localWithNameInMethodInClassInCompilationUnit("y", 0, "m", 0,
+        final VariableDeclaration yEquals1 = ASTQuery.findLocalByName("y", 0, "m", 0,
                 "S", 0, compilationUnit);
         final Assignment yEquals5 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0, "S", 0,
                 compilationUnit);
@@ -151,12 +151,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName fourthY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 3, "m", 0,
+        final SimpleName fourthY = ASTQuery.findSimpleNameByIdentifier("y", 3, "m", 0,
                 "S", 0, compilationUnit);
         final Use fourthYUse = rdefs.useForSimpleName(fourthY);
 
@@ -185,12 +185,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName sixthY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 5, "m", 0,
+        final SimpleName sixthY = ASTQuery.findSimpleNameByIdentifier("y", 5, "m", 0,
                 "S", 0, compilationUnit);
         final Use sixthYUse = rdefs.useForSimpleName(sixthY);
 
@@ -221,12 +221,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName fourthY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 3, "m", 0,
+        final SimpleName fourthY = ASTQuery.findSimpleNameByIdentifier("y", 3, "m", 0,
                 "S", 0, compilationUnit);
         final Use fourthYUse = rdefs.useForSimpleName(fourthY);
 
@@ -236,7 +236,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final Set<ASTNode> fourthYUseDefiningNodes = definingNodesFromDefinitions(fourthYUse.getReachingDefinitions());
 
-        final VariableDeclaration yEquals1 = ASTQuery.localWithNameInMethodInClassInCompilationUnit("y", 0, "m", 0,
+        final VariableDeclaration yEquals1 = ASTQuery.findLocalByName("y", 0, "m", 0,
                 "S", 0, compilationUnit);
 
         final Assignment yEqualsYPlus1 = ASTQuery.assignmentInMethodInClassInCompilationUnit(0, "m", 0, "S", 0,
@@ -245,7 +245,7 @@ public class RDefsAnalysisTest extends PMTest {
         assertTrue(fourthYUseDefiningNodes.contains(yEquals1));
         assertTrue(fourthYUseDefiningNodes.contains(yEqualsYPlus1));
 
-        final SimpleName fifthY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 4, "m", 0,
+        final SimpleName fifthY = ASTQuery.findSimpleNameByIdentifier("y", 4, "m", 0,
                 "S", 0, compilationUnit);
         final Use fifthYUse = rdefs.useForSimpleName(fifthY);
 
@@ -264,7 +264,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
@@ -277,7 +277,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = toCompilationUnit(source);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
@@ -293,7 +293,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
@@ -309,12 +309,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0,
+        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertTrue(firstX != null);
 
@@ -333,7 +333,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
@@ -348,7 +348,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
@@ -366,22 +366,22 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0,
+        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, compilationUnit);
 
         assertEquals(null, rdefs.useForSimpleName(firstX));
 
-        final SimpleName secondX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 1, "m", 0,
+        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0,
                 "S", 0, compilationUnit);
 
         assertEquals(null, rdefs.useForSimpleName(secondX));
 
-        final SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0,
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
                 "S", 0, compilationUnit);
 
         final Use thirdXUse = rdefs.useForSimpleName(thirdX);
@@ -409,12 +409,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName thirdX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 2, "m", 0,
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
                 "S", 0, compilationUnit);
 
         final Use thirdXUse = rdefs.useForSimpleName(thirdX);
@@ -437,22 +437,22 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName firstY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 0, "m", 0,
+        final SimpleName firstY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertEquals(null, rdefs.useForSimpleName(firstY)); // The first y is
         // not a use
 
-        final SimpleName firstX = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("x", 0, "m", 0,
+        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertEquals(null, rdefs.useForSimpleName(firstX)); // The first x is
         // not a use
 
-        final SimpleName secondY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 1, "m", 0,
+        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0,
                 "S", 0, compilationUnit);
         final Use secondYUse = rdefs.useForSimpleName(secondY);
 
@@ -462,7 +462,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final Def defForSecondYUse = (Def) secondYUse.getReachingDefinitions().toArray()[0];
 
-        final VariableDeclaration yDeclaration = ASTQuery.localWithNameInMethodInClassInCompilationUnit("y", 0, "m", 0,
+        final VariableDeclaration yDeclaration = ASTQuery.findLocalByName("y", 0, "m", 0,
                 "S", 0, compilationUnit);
 
         assertEquals(yDeclaration, defForSecondYUse.getDefiningNode());
@@ -474,12 +474,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName secondY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 1, "m", 0,
+        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0,
                 "S", 0, compilationUnit);
         final Use secondYUse = rdefs.useForSimpleName(secondY);
 
@@ -489,7 +489,7 @@ public class RDefsAnalysisTest extends PMTest {
 
         final Def defForSecondYUse = (Def) secondYUse.getReachingDefinitions().toArray()[0];
 
-        final VariableDeclaration yDeclaration = ASTQuery.localWithNameInMethodInClassInCompilationUnit("y", 0, "m", 0,
+        final VariableDeclaration yDeclaration = ASTQuery.findLocalByName("y", 0, "m", 0,
                 "S", 0, compilationUnit);
 
         assertEquals(yDeclaration, defForSecondYUse.getDefiningNode());
@@ -501,12 +501,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName secondY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 0, "m", 0,
+        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertTrue(secondY != null);
 
@@ -523,12 +523,12 @@ public class RDefsAnalysisTest extends PMTest {
 
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
 
-        final SimpleName secondY = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 0, "m", 0,
+        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertTrue(secondY != null);
 

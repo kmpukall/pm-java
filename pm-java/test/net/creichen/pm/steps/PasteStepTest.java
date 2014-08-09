@@ -53,7 +53,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration classDeclaration = ASTQuery.findClassWithName("S2", 0,
+        final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit2));
 
         final PasteStep pasteStep = new PasteStep(pmProject, classDeclaration,
@@ -78,14 +78,14 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S1", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S1", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit1));
 
         final CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration classDeclaration = ASTQuery.findClassWithName("S2", 0,
+        final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit2));
 
         final PasteStep pasteStep = new PasteStep(pmProject, classDeclaration,
@@ -109,7 +109,7 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final MethodDeclaration sourceMethodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S1",
+        final MethodDeclaration sourceMethodDeclaration = ASTQuery.findMethodByName("m", 0, "S1",
                 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit1));
 
         final Statement firstStatement = (Statement) sourceMethodDeclaration.getBody().statements().get(0);
@@ -118,7 +118,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final MethodDeclaration targetMethodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("a", 0, "S2",
+        final MethodDeclaration targetMethodDeclaration = ASTQuery.findMethodByName("a", 0, "S2",
                 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit2));
 
         final Block targetBlock = targetMethodDeclaration.getBody();
@@ -144,7 +144,7 @@ public class PasteStepTest extends PMTest {
 
         CompilationUnit compilationUnit = (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0,
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
         final Statement thirdStatement = (Statement) methodDeclaration.getBody().statements().get(2);
@@ -164,7 +164,7 @@ public class PasteStepTest extends PMTest {
         // have to get new ASTNodes b/c of reparsing
         compilationUnit = (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("m", 0, "S", 0, compilationUnit);
+        methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnit);
 
         final PasteStep pasteStep = new PasteStep(pmProject, methodDeclaration.getBody(), Block.STATEMENTS_PROPERTY, 2);
 
@@ -194,7 +194,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassWithName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(pmProject, targetDeclaration,
@@ -229,7 +229,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassWithName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(pmProject, targetDeclaration,
@@ -263,7 +263,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassWithName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(pmProject, targetDeclaration,
@@ -297,7 +297,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassWithName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(pmProject, targetDeclaration,
@@ -331,7 +331,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassWithName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(pmProject, targetDeclaration,
@@ -357,14 +357,14 @@ public class PasteStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("foo", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("foo", 0, "S", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS));
 
         final CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassWithName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(pmProject, targetDeclaration,

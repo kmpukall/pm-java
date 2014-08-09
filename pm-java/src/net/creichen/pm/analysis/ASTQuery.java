@@ -10,96 +10,40 @@
 package net.creichen.pm.analysis;
 
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.get;
 import static net.creichen.pm.utils.APIWrapperUtil.fragments;
 import static net.creichen.pm.utils.APIWrapperUtil.types;
 import static net.creichen.pm.utils.factories.PredicateFactory.hasClassName;
+import static net.creichen.pm.utils.factories.PredicateFactory.hasMethodName;
 import static net.creichen.pm.utils.factories.PredicateFactory.hasVariableName;
 import static net.creichen.pm.utils.factories.PredicateFactory.isNotInterface;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import net.creichen.pm.utils.visitors.VariableDeclarationFinder;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 public final class ASTQuery {
-
-    private static class LocalFinderASTVisitor extends ASTVisitor {
-        private final String localName;
-        private int localNameOccurrenceCounter;
-
-        private VariableDeclaration result;
-
-        public LocalFinderASTVisitor(final String localName, final int localNameOccurrence) {
-            this.localName = localName;
-
-            this.localNameOccurrenceCounter = localNameOccurrence; // counts down to
-            // zero
-
-        }
-
-        public VariableDeclaration result() {
-            return this.result;
-        }
-
-        // visitor methods
-
-        @Override
-        public boolean visit(final AnonymousClassDeclaration anonymousClass) {
-
-            // we ignore anonymous classes for now
-
-            return false;
-        }
-
-        @Override
-        public boolean visit(final SingleVariableDeclaration singleVariableDeclaration) {
-
-            if (this.result == null && singleVariableDeclaration.getName().getIdentifier().equals(this.localName)) {
-                if (this.localNameOccurrenceCounter == 0) {
-                    this.result = singleVariableDeclaration;
-                } else {
-                    this.localNameOccurrenceCounter--;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public boolean visit(final VariableDeclarationFragment fragment) {
-
-            if (this.result == null && fragment.getName().getIdentifier().equals(this.localName)) {
-
-                if (this.localNameOccurrenceCounter == 0) {
-                    this.result = fragment;
-                } else {
-                    this.localNameOccurrenceCounter--;
-                }
-            }
-
-            return true;
-        }
-    }
 
     public static Assignment assignmentInMethodInClassInCompilationUnit(final int assignmentOccurrence,
             final String methodName, final int methodNameOccurrence, final String className,
             final int classNameOccurrence, final CompilationUnit compilationUnit) {
-        final MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(methodName,
-                methodNameOccurrence, className, classNameOccurrence, compilationUnit);
+        final MethodDeclaration methodDeclaration = findMethodByName(methodName, methodNameOccurrence, className,
+                classNameOccurrence, compilationUnit);
 
         final Assignment[] result = new Assignment[1]; // use array to be able
         // to return result from
@@ -134,103 +78,126 @@ public final class ASTQuery {
      *
      * indexing starts are 0 (i.e. to find the first occurence, pass 0)
      */
-    public static TypeDeclaration findClassWithName(final String className, final int classNameOccurrence,
+    public static TypeDeclaration findClassByName(final String className, final int classNameOccurrence,
             final CompilationUnit compilationUnit) {
-        List<TypeDeclaration> matchingClasses = findClassesWithName(compilationUnit, className);
 
-        if (matchingClasses.size() > classNameOccurrence) {
-            return matchingClasses.get(classNameOccurrence);
-        }
-
-        return null;
-    }
-
-    private static List<TypeDeclaration> findClassesWithName(final CompilationUnit compilationUnit,
-            final String className) {
         Iterable<TypeDeclaration> typeDeclarations = filter(types(compilationUnit), TypeDeclaration.class);
         Iterable<TypeDeclaration> classes = filter(typeDeclarations, isNotInterface());
         Iterable<TypeDeclaration> matchingClasses = filter(classes, hasClassName(className));
-        return Lists.newArrayList(matchingClasses);
+
+        return get(matchingClasses, classNameOccurrence, null);
     }
 
+    /**
+     *
+     * @param fieldName
+     * @param fieldNameOccurrence
+     * @param className
+     * @param classNameOccurrence
+     * @param compilationUnit
+     * @return
+     */
     public static VariableDeclarationFragment findFieldByName(final String fieldName, final int fieldNameOccurrence,
             final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
-        final TypeDeclaration classDeclaration = findClassWithName(className, classNameOccurrence, compilationUnit);
-
-        // This is basically copied and pasted from
-        // methodWithNameInClassInCompilationUnit()
+        final TypeDeclaration classDeclaration = findClassByName(className, classNameOccurrence, compilationUnit);
 
         List<VariableDeclarationFragment> fragments = new ArrayList<VariableDeclarationFragment>();
-        int occurrence = fieldNameOccurrence;
         for (final FieldDeclaration fieldDeclaration : classDeclaration.getFields()) {
             fragments.addAll(fragments(fieldDeclaration));
-            for (final VariableDeclarationFragment fragment : fragments(fieldDeclaration)) {
-                if (fragment.getName().getIdentifier().equals(fieldName)) {
-                    if (occurrence == 0) {
-                        // return fragment;
-                    } else {
-                        occurrence--;
-                    }
-                }
-            }
         }
 
-        return Iterables.get(filter(fragments, hasVariableName(fieldName)), fieldNameOccurrence, null);
+        Iterable<VariableDeclarationFragment> matchingFragments = filter(fragments, hasVariableName(fieldName));
+        return Iterables.get(matchingFragments, fieldNameOccurrence, /* or default to */null);
     }
 
-    public static VariableDeclaration localWithNameInMethodInClassInCompilationUnit(final String localName,
-            final int localNameOccurrence, final String methodName, final int methodNameOccurrence,
-            final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
-        final MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(methodName,
-                methodNameOccurrence, className, classNameOccurrence, compilationUnit);
+    /**
+     *
+     * @param localName
+     * @param localNameOccurrence
+     * @param methodName
+     * @param methodNameOccurrence
+     * @param className
+     * @param classNameOccurrence
+     * @param compilationUnit
+     * @return
+     */
+    public static VariableDeclaration findLocalByName(final String localName, final int localNameOccurrence,
+            final String methodName, final int methodNameOccurrence, final String className,
+            final int classNameOccurrence, final CompilationUnit compilationUnit) {
 
+        final MethodDeclaration methodDeclaration = findMethodByName(methodName, methodNameOccurrence, className,
+                classNameOccurrence, compilationUnit);
         // visit nodes in method body to find local vars
-
-        final LocalFinderASTVisitor visitor = new LocalFinderASTVisitor(localName, localNameOccurrence);
-
+        VariableDeclarationFinder visitor = new VariableDeclarationFinder();
         methodDeclaration.getBody().accept(visitor);
+        List<VariableDeclaration> results = visitor.result();
+        Iterable<VariableDeclaration> matchingDeclarations = filter(results, hasVariableName(localName));
 
-        return visitor.result();
+        return get(matchingDeclarations, localNameOccurrence, null);
     }
 
-    public static MethodDeclaration methodWithNameInClassInCompilationUnit(final String methodName,
-            final int methodNameOccurrence, final String className, final int classNameOccurrence,
-            final CompilationUnit compilationUnit) {
-        final TypeDeclaration classDeclaration = findClassWithName(className, classNameOccurrence, compilationUnit);
+    /**
+     *
+     * @param methodName
+     * @param methodNameOccurrence
+     * @param className
+     * @param classNameOccurrence
+     * @param compilationUnit
+     * @return
+     */
+    public static MethodDeclaration findMethodByName(final String methodName, final int methodNameOccurrence,
+            final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
+        final TypeDeclaration classDeclaration = findClassByName(className, classNameOccurrence, compilationUnit);
 
-        int occurrence = methodNameOccurrence;
-        for (final MethodDeclaration methodDeclaration : classDeclaration.getMethods()) {
-            if (methodDeclaration.getName().getIdentifier().equals(methodName)) {
-                if (occurrence == 0) {
-                    return methodDeclaration;
-                } else {
-                    occurrence--;
-                }
-            }
-        }
+        Iterable<MethodDeclaration> matchingMethods = filter(Arrays.asList(classDeclaration.getMethods()),
+                hasMethodName(methodName));
 
-        return null;
+        return get(matchingMethods, methodNameOccurrence, null);
     }
 
-    public static ASTNode nodeForSelectionInCompilationUnit(final int selectionOffset, final int selectionLength,
+    /**
+     *
+     * @param selectionOffset
+     * @param selectionLength
+     * @param compilationUnit
+     * @return
+     */
+    public static ASTNode findNodeForSelection(final int selectionOffset, final int selectionLength,
             final CompilationUnit compilationUnit) {
 
         // Should use PMSelection once it handles the generic case!!!
-
         return org.eclipse.jdt.core.dom.NodeFinder.perform(compilationUnit, selectionOffset, selectionLength);
     }
 
-    public static SimpleName simpleNameWithIdentifierInMethodInClassInCompilationUnit(
+    /**
+     *
+     * @param simpleNameIdentifier
+     * @param simpleNameOccurrence
+     * @param methodName
+     * @param methodNameOccurrence
+     * @param className
+     * @param classNameOccurrence
+     * @param compilationUnit
+     * @return
+     */
+    public static SimpleName findSimpleNameByIdentifier(
             final String simpleNameIdentifier, final int simpleNameOccurrence, final String methodName,
             final int methodNameOccurrence, final String className, final int classNameOccurrence,
             final CompilationUnit compilationUnit) {
-        final MethodDeclaration methodDeclaration = methodWithNameInClassInCompilationUnit(methodName,
-                methodNameOccurrence, className, classNameOccurrence, compilationUnit);
+        final MethodDeclaration methodDeclaration = findMethodByName(methodName, methodNameOccurrence, className,
+                classNameOccurrence, compilationUnit);
 
-        return simpleNameWithIdentifierInNode(simpleNameIdentifier, simpleNameOccurrence, methodDeclaration.getBody());
+        return findSimpleNameByIdentifier(simpleNameIdentifier, simpleNameOccurrence, methodDeclaration.getBody());
     }
 
-    public static SimpleName simpleNameWithIdentifierInNode(final String simpleNameIdentifier,
+    /**
+     *
+     * @param simpleNameIdentifier
+     * @param simpleNameOccurrence
+     * @param node
+     * @return
+     */
+    public static SimpleName findSimpleNameByIdentifier(final String simpleNameIdentifier,
             final int simpleNameOccurrence, final ASTNode node) {
         final SimpleName[] result = new SimpleName[1]; // use aray to be able to
         // return result from

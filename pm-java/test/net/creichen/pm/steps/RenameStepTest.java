@@ -45,7 +45,7 @@ public class RenameStepTest extends PMTest {
 
         final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
 
-        final SimpleName firstSInT = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("s", 0, "m", 0,
+        final SimpleName firstSInT = ASTQuery.findSimpleNameByIdentifier("s", 0, "m", 0,
                 "T", 0, pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
 
         final RenameStep step = new RenameStep(pmProject, firstSInT);
@@ -75,7 +75,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        final TypeDeclaration classNode = ASTQuery.findClassWithName("S", 0,
+        final TypeDeclaration classNode = ASTQuery.findClassByName("S", 0,
                 pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
@@ -90,7 +90,7 @@ public class RenameStepTest extends PMTest {
 
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameClass, pmCompilationUnitS.getSource()));
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("T", 0, "T", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("T", 0, "T", 0,
                 pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
@@ -119,7 +119,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        final TypeDeclaration classS = ASTQuery.findClassWithName("S", 0,
+        final TypeDeclaration classS = ASTQuery.findClassByName("S", 0,
                 pmProject.getCompilationUnitForICompilationUnit(compilationUnitS));
 
         final SimpleName className = classS.getName();
@@ -151,7 +151,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitA = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitA);
 
-        final TypeDeclaration outerClassDeclaration = ASTQuery.findClassWithName("A", 0,
+        final TypeDeclaration outerClassDeclaration = ASTQuery.findClassByName("A", 0,
                 pmCompilationUnitA.getCompilationUnit());
 
         final TypeDeclaration innerAClassDeclaration = (TypeDeclaration) outerClassDeclaration.bodyDeclarations()
@@ -184,7 +184,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        final TypeDeclaration classNode = ASTQuery.findClassWithName("A", 0,
+        final TypeDeclaration classNode = ASTQuery.findClassByName("A", 0,
                 pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
@@ -215,7 +215,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("A", 0, "A", 0,
                 pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
@@ -244,7 +244,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("S", 0, "S", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("S", 0, "S", 0,
                 pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
@@ -260,7 +260,7 @@ public class RenameStepTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameConstructor,
                 pmCompilationUnitS.getSource()));
 
-        final TypeDeclaration classNode = ASTQuery.findClassWithName("T", 0,
+        final TypeDeclaration classNode = ASTQuery.findClassByName("T", 0,
                 pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
@@ -296,7 +296,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitB = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitB);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("A", 0, "A", 0,
                 pmCompilationUnitA.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
@@ -340,7 +340,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitB = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitB);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.methodWithNameInClassInCompilationUnit("A", 0, "A", 0,
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("A", 0, "A", 0,
                 pmCompilationUnitA.getCompilationUnit());
 
         final SimpleName methodName = methodDeclaration.getName();
@@ -380,7 +380,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = pmProject
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
-        final SimpleName name = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("lVar", 0, "m", 0,
+        final SimpleName name = ASTQuery.findSimpleNameByIdentifier("lVar", 0, "m", 0,
                 "S", 0, pmCompilationUnitS.getCompilationUnit());
 
         final RenameStep step = new RenameStep(pmProject, name);

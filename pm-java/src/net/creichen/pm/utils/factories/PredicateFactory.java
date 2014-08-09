@@ -1,7 +1,8 @@
 package net.creichen.pm.utils.factories;
 
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 
 import com.google.common.base.Predicate;
 
@@ -15,10 +16,6 @@ public class PredicateFactory {
         }
     };
 
-    public static Predicate<TypeDeclaration> isNotInterface() {
-        return NOT_INTERFACE;
-    }
-
     public static Predicate<TypeDeclaration> hasClassName(final String className) {
         return new Predicate<TypeDeclaration>() {
 
@@ -29,14 +26,28 @@ public class PredicateFactory {
         };
     }
 
-    public static Predicate<VariableDeclarationFragment> hasVariableName(final String className) {
-        return new Predicate<VariableDeclarationFragment>() {
+    public static Predicate<MethodDeclaration> hasMethodName(final String methodName) {
+        return new Predicate<MethodDeclaration>() {
 
             @Override
-            public boolean apply(final VariableDeclarationFragment type) {
+            public boolean apply(MethodDeclaration method) {
+                return method.getName().getIdentifier().equals(methodName);
+            }
+        };
+    }
+
+    public static Predicate<VariableDeclaration> hasVariableName(final String className) {
+        return new Predicate<VariableDeclaration>() {
+
+            @Override
+            public boolean apply(final VariableDeclaration type) {
                 return type.getName().getIdentifier().equals(className);
             }
         };
+    }
+
+    public static Predicate<TypeDeclaration> isNotInterface() {
+        return NOT_INTERFACE;
     }
 
 }

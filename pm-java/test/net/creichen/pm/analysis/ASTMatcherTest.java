@@ -71,9 +71,9 @@ public class ASTMatcherTest {
         assertTrue(matcher.matches());
         Map<ASTNode, ASTNode> isomorphicNodes = matcher.isomorphicNodes();
         assertSame(isomorphicNodes.get(compilationUnit1), compilationUnit2);
-        SimpleName secondY1 = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 1, "m", 0, "S", 0,
+        SimpleName secondY1 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0,
                 compilationUnit1);
-        SimpleName secondY2 = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("y", 1, "m", 0, "S", 0,
+        SimpleName secondY2 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0,
                 compilationUnit2);
         assertNotNull(isomorphicNodes.get(secondY1));
         assertSame(isomorphicNodes.get(secondY1), secondY2);

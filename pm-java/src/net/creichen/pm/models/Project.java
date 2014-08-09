@@ -261,7 +261,7 @@ public class Project {
     public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
         final CompilationUnit compilationUnit = getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        final ASTNode selectedNode = ASTQuery.nodeForSelectionInCompilationUnit(selection.getOffset(),
+        final ASTNode selectedNode = ASTQuery.findNodeForSelection(selection.getOffset(),
                 selection.getLength(), compilationUnit);
 
         return selectedNode;

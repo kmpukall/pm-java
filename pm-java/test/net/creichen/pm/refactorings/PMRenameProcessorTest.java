@@ -115,7 +115,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        ASTNode expectedCapturedNode = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1,
+        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1,
                 "method", 0, "Foo", 0, parsedCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
@@ -131,7 +131,7 @@ public class PMRenameProcessorTest extends PMTest {
         // assertEquals(expectedExpectedDeclaringNode,
         // actualExpectedDeclaringNode);
 
-        ASTNode expectedCapturingNode = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 0,
+        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 0,
                 "method", 0, "Foo", 0, parsedCompilationUnit).getParent();
 
         ASTNode actualCapturingNode = nameCapture.getActualDeclaration();
@@ -167,7 +167,7 @@ public class PMRenameProcessorTest extends PMTest {
         ASTNode expectedCapturedNode = pmProject.nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
-        ASTNode expectedCapturingNode = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1,
+        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 1,
                 "method", 0, "Foo", 0, parsedCompilationUnit).getParent();
 
         ASTNode actualCapturingNode = nameCapture.getActualDeclaration();
@@ -245,7 +245,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        ASTNode expectedCapturedNode = ASTQuery.simpleNameWithIdentifierInMethodInClassInCompilationUnit("bar", 1,
+        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1,
                 "method", 0, "Foo", 0, parsedCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
