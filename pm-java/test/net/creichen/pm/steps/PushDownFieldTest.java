@@ -11,8 +11,8 @@ package net.creichen.pm.steps;
 
 import static org.junit.Assert.assertTrue;
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
-import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 

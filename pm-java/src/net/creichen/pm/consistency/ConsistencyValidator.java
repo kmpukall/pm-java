@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
-import net.creichen.pm.models.Project;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
 import net.creichen.pm.utils.Timer;
 

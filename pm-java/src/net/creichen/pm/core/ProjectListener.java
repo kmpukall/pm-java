@@ -7,7 +7,8 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.models;
+package net.creichen.pm.core;
+
 
 public interface ProjectListener {
     void projectDidReparse(Project project);

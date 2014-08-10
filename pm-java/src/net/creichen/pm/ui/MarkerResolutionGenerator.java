@@ -11,8 +11,8 @@ package net.creichen.pm.ui;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
-import net.creichen.pm.models.Project;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;

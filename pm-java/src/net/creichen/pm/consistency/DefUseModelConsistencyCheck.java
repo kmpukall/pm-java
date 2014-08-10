@@ -11,9 +11,9 @@ import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnknownUse;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;

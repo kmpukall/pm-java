@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.visitors.SelectiveSimpleNameFinder;
 
@@ -35,10 +36,10 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 public class NameModel {
     private Map<Name, String> identifiersForNames;
 
-    private final Project project;
+    private final ASTRootsProvider rootsProvider;
 
-    public NameModel(final Project project) {
-        this.project = project;
+    public NameModel(final ASTRootsProvider rootsProvider) {
+        this.rootsProvider = rootsProvider;
         this.identifiersForNames = new HashMap<Name, String>();
         assignInitialIdentifiers();
     }
@@ -108,7 +109,7 @@ public class NameModel {
 
         this.identifiersForNames = new HashMap<Name, String>();
 
-        for (final ASTNode rootNode : this.project.getASTRoots()) {
+        for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
             rootNode.accept(new ASTVisitor() {
 
                 // We should visit more than simle names here
@@ -153,7 +154,7 @@ public class NameModel {
         SelectiveSimpleNameFinder visitor = new SelectiveSimpleNameFinder(identifier, this.identifiersForNames);
 
         // We could keep reverse mappings instead of doing this?
-        for (final ASTNode rootNode : this.project.getASTRoots()) {
+        for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
             rootNode.accept(visitor);
         }
 

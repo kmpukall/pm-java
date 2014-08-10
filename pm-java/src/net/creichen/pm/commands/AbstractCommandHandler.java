@@ -1,8 +1,8 @@
 package net.creichen.pm.commands;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
-import net.creichen.pm.models.Project;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

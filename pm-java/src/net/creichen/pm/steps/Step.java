@@ -12,7 +12,7 @@ package net.creichen.pm.steps;
 import java.util.Map;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
-import net.creichen.pm.models.Project;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.core.resources.IFile;

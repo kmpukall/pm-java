@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.Set;
 
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
-import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 

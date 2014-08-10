@@ -14,8 +14,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
-import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 

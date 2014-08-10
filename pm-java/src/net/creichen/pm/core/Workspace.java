@@ -12,8 +12,6 @@ package net.creichen.pm.core;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.creichen.pm.models.Project;
-
 import org.eclipse.jdt.core.IJavaProject;
 
 public final class Workspace {

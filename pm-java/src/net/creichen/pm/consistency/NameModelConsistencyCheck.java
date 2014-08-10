@@ -8,8 +8,8 @@ import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.NameCapture;
 import net.creichen.pm.consistency.inconsistencies.NameConflict;
 import net.creichen.pm.consistency.inconsistencies.UnknownName;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.models.NameModel;
-import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.dom.ASTNode;
