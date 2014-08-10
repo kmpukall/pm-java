@@ -182,10 +182,10 @@ public class CopyStep extends Step {
             final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes.get(copiedDefinition);
 
             final Set<NodeReference> originalUses = udModel.usesForDefinition(NodeReferenceStore.getInstance()
-                    .getReferenceForNode(originalDefinition));
+                    .getReference(originalDefinition));
 
             final Set<NodeReference> copyUses = udModel.usesForDefinition(NodeReferenceStore.getInstance()
-                    .getReferenceForNode(copiedDefinition));
+                    .getReference(copiedDefinition));
 
             for (final NodeReference originalUseReference : originalUses) {
                 final ASTNode originalUseNode = originalUseReference.getNode();
@@ -193,7 +193,7 @@ public class CopyStep extends Step {
                 final ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes.get(originalUseNode);
 
                 if (copyUseNode != null) { /* use is internal */
-                    copyUses.add(NodeReferenceStore.getInstance().getReferenceForNode(copyUseNode));
+                    copyUses.add(NodeReferenceStore.getInstance().getReference(copyUseNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyUses.add(originalUseReference);
                 }
@@ -204,10 +204,10 @@ public class CopyStep extends Step {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
             final Set<NodeReference> originalDefinitions = udModel.definitionIdentifiersForName(NodeReferenceStore
-                    .getInstance().getReferenceForNode(originalUse));
+                    .getInstance().getReference(originalUse));
 
             final Set<NodeReference> copyDefinitions = udModel.definitionIdentifiersForName(NodeReferenceStore
-                    .getInstance().getReferenceForNode(copiedUse));
+                    .getInstance().getReference(copiedUse));
 
             for (final NodeReference originalDefinitionReference : originalDefinitions) {
                 final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
@@ -216,7 +216,7 @@ public class CopyStep extends Step {
                         .get(originalDefinitionNode);
 
                 if (copyDefinitionNode != null) { /* def is internal */
-                    copyDefinitions.add(NodeReferenceStore.getInstance().getReferenceForNode(copyDefinitionNode));
+                    copyDefinitions.add(NodeReferenceStore.getInstance().getReference(copyDefinitionNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyDefinitions.add(originalDefinitionReference);
                 }

@@ -31,9 +31,9 @@ class MoveFieldRefactoring {
             final TypeDeclaration newParent) {
         this.project = project;
 
-        this.fieldReference = NodeReferenceStore.getInstance().getReferenceForNode(fieldDeclaration);
+        this.fieldReference = NodeReferenceStore.getInstance().getReference(fieldDeclaration);
 
-        this.newParentReference = NodeReferenceStore.getInstance().getReferenceForNode(newParent);
+        this.newParentReference = NodeReferenceStore.getInstance().getReference(newParent);
     }
 
     public void apply() {

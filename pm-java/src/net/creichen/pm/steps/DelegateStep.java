@@ -159,7 +159,7 @@ public class DelegateStep extends Step {
             if (this.newExpressionNode != null) {
                 if (this.newExpressionNode instanceof Name) {
 
-                    this.newExpressionNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(
+                    this.newExpressionNodeReference = NodeReferenceStore.getInstance().getReference(
                             this.newExpressionNode);
                 } else {
                     System.err.println("Unexpected new expression type " + this.newExpressionNode.getClass());

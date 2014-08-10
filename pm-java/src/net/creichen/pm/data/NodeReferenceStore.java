@@ -34,7 +34,7 @@ public final class NodeReferenceStore {
         // in memory
         // when we don't need to
 
-        private PMUUIDNodeReference(final ASTNode node) {
+        private PMUUIDNodeReference() {
             // Note: We require that the project does NOT already have a
             // PMNodeIdentifier for this node
             // otherwise we will loose uniqueness of PMNodeIdentifier and ptr
@@ -43,14 +43,13 @@ public final class NodeReferenceStore {
 
         @Override
         public ASTNode getNode() {
-            return getNodeForReference(this);
+            return NodeReferenceStore.this.getNode(this);
         }
     }
 
     private static NodeReferenceStore instance;
 
     private final WeakHashMap<NodeReference, WeakReference<ASTNode>> nodesForReferences;
-
     private final WeakHashMap<ASTNode, WeakReference<NodeReference>> referencesForNodes;
 
     public NodeReferenceStore() {
@@ -66,19 +65,16 @@ public final class NodeReferenceStore {
         return instance;
     }
 
-    public ASTNode getNodeForReference(final NodeReference nodeIdentifier) {
+    public ASTNode getNode(final NodeReference nodeIdentifier) {
         return this.nodesForReferences.get(nodeIdentifier).get();
     }
 
-    public NodeReference getReferenceForNode(final ASTNode node) {
-
+    public NodeReference getReference(final ASTNode node) {
         final WeakReference<NodeReference> weakReference = this.referencesForNodes.get(node);
 
         NodeReference reference;
-
         if (weakReference == null || weakReference.get() == null) {
-            reference = new PMUUIDNodeReference(node);
-
+            reference = new PMUUIDNodeReference();
             this.nodesForReferences.put(reference, new WeakReference<ASTNode>(node));
             this.referencesForNodes.put(node, new WeakReference<NodeReference>(reference));
         } else {

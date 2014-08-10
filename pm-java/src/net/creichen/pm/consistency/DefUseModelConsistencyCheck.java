@@ -40,7 +40,7 @@ class DefUseModelConsistencyCheck {
 
             final Collection<ASTNode> currentDefiningNodes = model.definingNodesForUse(use);
 
-            final NodeReference useNameIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(usingNode);
+            final NodeReference useNameIdentifier = NodeReferenceStore.getInstance().getReference(usingNode);
 
             if (useNameIdentifier != null) {
                 final Set<NodeReference> desiredDefinitionIdentifiers = model.getDefinitionByUse(useNameIdentifier);
@@ -85,7 +85,7 @@ class DefUseModelConsistencyCheck {
                     NodeReference currentDefiningIdentifier = null;
 
                     if (currentDefiningNode != null) {
-                        currentDefiningIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(
+                        currentDefiningIdentifier = NodeReferenceStore.getInstance().getReference(
                                 currentDefiningNode);
 
                         if (currentDefiningIdentifier == null) {

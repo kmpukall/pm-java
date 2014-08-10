@@ -128,7 +128,7 @@ public class SplitStep extends Step {
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
 
-        final NodeReference identifierForOldAssignment = NodeReferenceStore.getInstance().getReferenceForNode(
+        final NodeReference identifierForOldAssignment = NodeReferenceStore.getInstance().getReference(
                 oldAssignmentExpression);
 
         getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
@@ -136,7 +136,7 @@ public class SplitStep extends Step {
         // !!!_project.removeNode(oldAssignmentExpression);
         // !!!_project.addNode(_replacementDeclarationStatement);
 
-        final NodeReference identifierForNewVariableDeclaration = NodeReferenceStore.getInstance().getReferenceForNode(
+        final NodeReference identifierForNewVariableDeclaration = NodeReferenceStore.getInstance().getReference(
                 newVariableDeclarationFragment);
 
         final SimpleName oldLHS = (SimpleName) oldAssignmentExpression.getLeftHandSide();
@@ -178,7 +178,7 @@ public class SplitStep extends Step {
 
         parentList.set(parentList.indexOf(this.assignmentStatement), this.replacementDeclarationStatement);
 
-        this.replacementDeclarationReference = NodeReferenceStore.getInstance().getReferenceForNode(
+        this.replacementDeclarationReference = NodeReferenceStore.getInstance().getReference(
                 this.replacementDeclarationStatement);
 
     }

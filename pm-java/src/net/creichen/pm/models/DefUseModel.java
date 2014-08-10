@@ -45,7 +45,7 @@ public class DefUseModel {
         final AST ast = AST.newAST(AST.JLS4);
 
         this.uninitializedMarkerNode = ast.newSimpleName("Foo");
-        this.uninitialized = NodeReferenceStore.getInstance().getReferenceForNode(this.uninitializedMarkerNode);
+        this.uninitialized = NodeReferenceStore.getInstance().getReference(this.uninitializedMarkerNode);
 
         this.definitionIdentifiersByUseIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
         this.useIdentifiersByDefinitionIdentifier = new HashMap<NodeReference, Set<NodeReference>>();
@@ -73,7 +73,7 @@ public class DefUseModel {
     public void addUseToModel(final Use use) {
         final SimpleName name = use.getSimpleName();
 
-        final NodeReference nameIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(name);
+        final NodeReference nameIdentifier = NodeReferenceStore.getInstance().getReference(name);
 
         definitionIdentifiersForName(nameIdentifier); // To add an empty entry
         // to our store; gross.
@@ -84,7 +84,7 @@ public class DefUseModel {
 
             if (def != null) {
                 final ASTNode definingNode = def.getDefiningNode();
-                definitionIdentifier = NodeReferenceStore.getInstance().getReferenceForNode(definingNode);
+                definitionIdentifier = NodeReferenceStore.getInstance().getReference(definingNode);
 
                 if (definitionIdentifier == null) {
                     throw new RuntimeException("Couldn't find identifier for defining node " + definingNode);
@@ -136,7 +136,7 @@ public class DefUseModel {
     }
 
     public boolean nameIsUse(final SimpleName name) {
-        final NodeReference nameReference = NodeReferenceStore.getInstance().getReferenceForNode(name);
+        final NodeReference nameReference = NodeReferenceStore.getInstance().getReference(name);
 
         return this.definitionIdentifiersByUseIdentifier.containsKey(nameReference);
     }

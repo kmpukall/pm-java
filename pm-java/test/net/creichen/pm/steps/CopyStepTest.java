@@ -151,7 +151,7 @@ public class CopyStepTest extends PMTest {
         final SimpleName x3RHSOriginal = ASTQuery.findSimpleNameByIdentifier("x", 1,
                 xGetsXPlusOneAssignmentOriginal);
 
-        final NodeReference x3RHSOriginalNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(
+        final NodeReference x3RHSOriginalNodeReference = NodeReferenceStore.getInstance().getReference(
                 x3RHSOriginal);
 
         final ExpressionStatement fifthStatementOriginal = (ExpressionStatement) methodDeclaration.getBody()
@@ -179,10 +179,10 @@ public class CopyStepTest extends PMTest {
         final Assignment xGetsXPlusOneAssignmentCopy = (Assignment) fourthStatementCopy.getExpression();
 
         final NodeReference xGetsXPlusOneAssignmentCopyReference = NodeReferenceStore.getInstance()
-                .getReferenceForNode(xGetsXPlusOneAssignmentCopy);
+                .getReference(xGetsXPlusOneAssignmentCopy);
 
         final SimpleName x3RHSCopy = ASTQuery.findSimpleNameByIdentifier("x", 1, xGetsXPlusOneAssignmentCopy);
-        final NodeReference x3RHSCopyNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(x3RHSCopy);
+        final NodeReference x3RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSCopy);
 
         final Set<NodeReference> definitionsForX3RHSOriginal = udModel
                 .definitionIdentifiersForName(x3RHSOriginalNodeReference);
@@ -194,7 +194,7 @@ public class CopyStepTest extends PMTest {
         assertEquals(definitionsForX3RHSOriginal, definitionsForX3RHSCopy);
 
         final SimpleName x4RHSCopy = ASTQuery.findSimpleNameByIdentifier("x", 0, fifthStatementCopy);
-        final NodeReference x4RHSCopyNodeReference = NodeReferenceStore.getInstance().getReferenceForNode(x4RHSCopy);
+        final NodeReference x4RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x4RHSCopy);
 
         final Set<NodeReference> definitionsForX4RHSCopy = udModel.definitionIdentifiersForName(x4RHSCopyNodeReference);
 
