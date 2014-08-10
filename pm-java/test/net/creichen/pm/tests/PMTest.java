@@ -9,6 +9,7 @@
 
 package net.creichen.pm.tests;
 
+import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.Workspace;
 
 import org.eclipse.core.resources.IFolder;
@@ -103,6 +104,7 @@ public class PMTest {
 
     @After
     public void deleteProject() {
+        ConsistencyValidator.getInstance().reset();
         try {
 
             Workspace.getInstance().removeProject(this.iJavaProject);

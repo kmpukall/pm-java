@@ -9,7 +9,6 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 import net.creichen.pm.steps.SplitStep;
@@ -54,13 +53,11 @@ public class SplitProcessor extends RefactoringProcessor {
     @Override
     public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
 
-        final Project project = Workspace.getInstance().getProject(
-                this.iCompilationUnit.getJavaProject());
+        final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {
 
             project.syncSources();
-            ConsistencyValidator.getInstance().reset();
 
             ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
 

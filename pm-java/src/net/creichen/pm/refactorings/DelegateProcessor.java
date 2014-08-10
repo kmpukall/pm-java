@@ -9,7 +9,6 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.ProjectListener;
 import net.creichen.pm.core.Workspace;
@@ -50,8 +49,7 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
 
     @Override
     public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
-        final Project project = Workspace.getInstance().getProject(
-                this.iCompilationUnit.getJavaProject());
+        final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {
             final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
@@ -70,10 +68,8 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
 
     @Override
     public Change createChange(final IProgressMonitor pm) throws CoreException {
-        final Project project = Workspace.getInstance().getProject(
-                this.iCompilationUnit.getJavaProject());
+        final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
         project.syncSources();
-        ConsistencyValidator.getInstance().reset();
         Change result = new NullChange();
         final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
         this.step = new DelegateStep(project, selectedNode);
