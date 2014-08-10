@@ -48,7 +48,7 @@ public class ReachingDefsAnalysis {
     private Map<IBinding, Set<Def>> definitionsByBinding;
     private Map<ASTNode, Def> definitionsByDefiningNode;
     private Map<SimpleName, Use> usesByName;
-    private List<PMBlock> allBlocks;
+    private List<PMBlock> blocks;
     private Map<ASTNode, PMBlock> blocksByNode;
     private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnEntry;
     private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnExit;
@@ -59,10 +59,6 @@ public class ReachingDefsAnalysis {
         runAnalysis(); // may wish to do this lazily
     }
 
-    public List<PMBlock> getAllBlocks() {
-        return this.allBlocks;
-    }
-
     public Def getDefinitionForDefiningNode(final ASTNode definingNode) {
         return this.definitionsByDefiningNode.get(definingNode);
     }
@@ -71,14 +67,14 @@ public class ReachingDefsAnalysis {
         return this.definitions;
     }
 
-    public Collection<Use> getUses() {
-        return this.usesByName.values();
-    }
-
     // return Use object for a simple name, or null if the simpleName does not
     // represent a use
-    public Use useForSimpleName(final SimpleName name) {
+    public Use getUse(final SimpleName name) {
         return this.usesByName.get(name);
+    }
+
+    public Collection<Use> getUses() {
+        return this.usesByName.values();
     }
 
     private void addDefinitionForNode(final ASTNode node) {
@@ -97,16 +93,16 @@ public class ReachingDefsAnalysis {
     }
 
     private void findAllBlocks() {
-        this.allBlocks = new ArrayList<PMBlock>();
-        this.allBlocks.add(new PMBlock()); // synthetic initial block;
-        mergeBlockLists(this.allBlocks, generateBlocksForStatement(this.methodDeclaration.getBody()));
+        this.blocks = new ArrayList<PMBlock>();
+        this.blocks.add(new PMBlock()); // synthetic initial block;
+        mergeBlockLists(this.blocks, generateBlocksForStatement(this.methodDeclaration.getBody()));
 
         // fill in _blocksByNode
         // Every node should have at least one ancestor that has a block
         // according to this hash
 
         this.blocksByNode = new HashMap<ASTNode, PMBlock>();
-        for (final PMBlock block : this.allBlocks) {
+        for (final PMBlock block : this.blocks) {
             for (final ASTNode node : block.getNodes()) {
                 this.blocksByNode.put(node, block);
             }
@@ -214,7 +210,8 @@ public class ReachingDefsAnalysis {
 
                 final PMBlock block = getBlockForNode(name);
 
-                final Set<VariableAssignment> reachingDefinitions = ReachingDefsAnalysis.this.reachingDefsOnEntry.get(block);
+                final Set<VariableAssignment> reachingDefinitions = ReachingDefsAnalysis.this.reachingDefsOnEntry
+                        .get(block);
 
                 if (simpleNameIsUse(name)) {
                     final Use use = new Use(name);
@@ -297,7 +294,7 @@ public class ReachingDefsAnalysis {
             final IfStatement ifStatement = (IfStatement) statement;
             /*
              * three components: - guard block - then block - else block
-             * 
+             *
              * - exit block to join then and else
              */
 
@@ -346,7 +343,7 @@ public class ReachingDefsAnalysis {
 
             /*
              * while statements consist of: - guard condition - body
-             * 
+             *
              * - synthetic exit block
              */
 
@@ -428,8 +425,8 @@ public class ReachingDefsAnalysis {
         this.reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
         this.reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
 
-        final PMBlock initialBlock = this.allBlocks.get(0);
-        for (final PMBlock block : this.allBlocks) {
+        final PMBlock initialBlock = this.blocks.get(0);
+        for (final PMBlock block : this.blocks) {
             this.reachingDefsOnEntry.put(block, new HashSet<VariableAssignment>());
 
             if (block == initialBlock) {
@@ -459,7 +456,7 @@ public class ReachingDefsAnalysis {
             // or can we update in place??
             changed = false;
 
-            for (final PMBlock block : this.allBlocks) {
+            for (final PMBlock block : this.blocks) {
 
                 // entry prop
                 if (block != initialBlock) {
@@ -500,72 +497,16 @@ public class ReachingDefsAnalysis {
             }
         } while (changed);
 
-        /*
-         * for (PMBlock block: _allBlocks) {
-         * 
-         * String output = "For [" + block + "]:\n";
-         * 
-         * output += "\tGen Set is:\n";
-         * 
-         * if (genSets.get(block) != null) { for (VariableAssignment variableAssignment:genSets.get(block)) { output +=
-         * "\t\t" + variableAssignment.getDefinition().getDefiningNode() + " for [" +
-         * variableAssignment.getVariableBinding() + "]\n"; } }
-         * 
-         * 
-         * output += "\tKill Set is:\n";
-         * 
-         * if (killSets.get(block) != null) { for (VariableAssignment variableAssignment:killSets.get(block)) { ASTNode
-         * definingNode = null;
-         * 
-         * if (variableAssignment.getDefinition() != null) definingNode =
-         * variableAssignment.getDefinition().getDefiningNode();
-         * 
-         * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() + "]\n"; } }
-         * 
-         * output += "\tReaching defs are:\n";
-         * 
-         * for (VariableAssignment variableAssignment: _reachingDefsOnEntry.get(block)) { ASTNode definingNode = null;
-         * 
-         * if (variableAssignment.getDefinition() != null) definingNode =
-         * variableAssignment.getDefinition().getDefiningNode();
-         * 
-         * output += "\t\t" + definingNode + " for [" + variableAssignment.getVariableBinding() + "]\n"; }
-         * 
-         * 
-         * 
-         * System.out.println(output);
-         * 
-         * 
-         * }
-         */
-
         findUses();
-
-        /*
-         * System.out.println("Uses:");
-         * 
-         * 
-         * for (PMUse use: _usesByName.values()) { String output = "" + use.getSimpleName() + "\n";
-         * 
-         * for (PMDef reachingDefinition: use.getReachingDefinitions()) {
-         * 
-         * ASTNode definingNode = null;
-         * 
-         * if (reachingDefinition != null) definingNode = reachingDefinition.getDefiningNode();
-         * 
-         * output += "\t" + definingNode; }
-         * 
-         * System.out.println(output); }
-         */
     }
 
     private boolean simpleNameIsUse(final SimpleName name) {
         /*
          * we assume all simple names are uses except:
-         * 
+         *
          * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
          * SingleVariableDeclaration
-         * 
+         *
          * There are probably more cases (i.e. method names in invocations?)
          */
 

@@ -68,13 +68,13 @@ public final class ASTQuery {
 
     public static List<MethodDeclaration> getConstructorsOfClass(final TypeDeclaration classDeclaration) {
         final List<MethodDeclaration> constructors = new ArrayList<MethodDeclaration>();
-    
+
         for (final MethodDeclaration method : classDeclaration.getMethods()) {
             if (method.isConstructor()) {
                 constructors.add(method);
             }
         }
-    
+
         return constructors;
     }
 
@@ -219,10 +219,9 @@ public final class ASTQuery {
      * @param compilationUnit
      * @return
      */
-    public static SimpleName findSimpleNameByIdentifier(
-            final String simpleNameIdentifier, final int simpleNameOccurrence, final String methodName,
-            final int methodNameOccurrence, final String className, final int classNameOccurrence,
-            final CompilationUnit compilationUnit) {
+    public static SimpleName findSimpleNameByIdentifier(final String simpleNameIdentifier,
+            final int simpleNameOccurrence, final String methodName, final int methodNameOccurrence,
+            final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
         final MethodDeclaration methodDeclaration = findMethodByName(methodName, methodNameOccurrence, className,
                 classNameOccurrence, compilationUnit);
 
@@ -263,6 +262,24 @@ public final class ASTQuery {
         });
 
         return result[0];
+    }
+
+    public static List<SimpleName> findSimpleNames(final String identifier, final ASTNode node) {
+        final List<SimpleName> result = new ArrayList<SimpleName>();
+
+        node.accept(new ASTVisitor() {
+
+            @Override
+            public boolean visit(final SimpleName visitedSimpleName) {
+
+                if (visitedSimpleName.getIdentifier().equals(identifier)) {
+                    result.add(visitedSimpleName);
+                }
+                return true;
+            }
+        });
+
+        return result;
     }
 
     private ASTQuery() {

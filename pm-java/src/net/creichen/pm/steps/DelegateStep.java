@@ -254,7 +254,7 @@ public class DelegateStep extends Step {
 
             final ReachingDefsAnalysis analysis = new ReachingDefsAnalysis(methodDeclaration);
 
-            final Use use = analysis.useForSimpleName(name);
+            final Use use = analysis.getUse(name);
 
             final DefUseModel udModel = getProject().getUDModel();
 
