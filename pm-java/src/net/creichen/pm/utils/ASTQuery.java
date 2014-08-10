@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.creichen.pm.utils.visitors.VariableDeclarationFinder;
+import net.creichen.pm.utils.visitors.VariableDeclarationCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -167,7 +167,7 @@ public final class ASTQuery {
         final MethodDeclaration methodDeclaration = findMethodByName(methodName, methodNameOccurrence, className,
                 classNameOccurrence, compilationUnit);
         // visit nodes in method body to find local vars
-        VariableDeclarationFinder visitor = new VariableDeclarationFinder();
+        VariableDeclarationCollector visitor = new VariableDeclarationCollector();
         methodDeclaration.getBody().accept(visitor);
         List<VariableDeclaration> results = visitor.getResults();
         Iterable<VariableDeclaration> matchingDeclarations = filter(results, hasVariableName(localName));

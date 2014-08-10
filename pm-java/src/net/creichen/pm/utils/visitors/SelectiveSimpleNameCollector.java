@@ -5,11 +5,11 @@ import java.util.Map;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public final class SelectiveSimpleNameFinder extends CollectingASTVisitor<SimpleName> {
+public final class SelectiveSimpleNameCollector extends CollectingASTVisitor<SimpleName> {
     private final String identifier;
     private final Map<Name, String> identifiersForNames;
 
-    public SelectiveSimpleNameFinder(final String identifier, final Map<Name, String> identifiersForNames) {
+    public SelectiveSimpleNameCollector(final String identifier, final Map<Name, String> identifiersForNames) {
         this.identifier = identifier;
         this.identifiersForNames = identifiersForNames;
     }

@@ -18,11 +18,11 @@ import java.util.Set;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeReferenceStore;
+import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.ASTQuery;
-import net.creichen.pm.utils.Pasteboard;
-import net.creichen.pm.utils.visitors.DefinitionFinder;
+import net.creichen.pm.utils.visitors.DefinitionCollector;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -155,11 +155,11 @@ public class CopyStep extends Step {
         for (int rootNodeIndex = 0; rootNodeIndex < originalRootNodes.size(); rootNodeIndex++) {
             final ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
             final ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
-            final DefinitionFinder originalVisitor = new DefinitionFinder();
+            final DefinitionCollector originalVisitor = new DefinitionCollector();
             originalRootNode.accept(originalVisitor);
             final List<ASTNode> originalDefiningNodes = originalVisitor.getResults();
 
-            final DefinitionFinder visitor = new DefinitionFinder();
+            final DefinitionCollector visitor = new DefinitionCollector();
             copyRootNode.accept(visitor);
             final List<ASTNode> copyDefiningNodes = visitor.getResults();
 

@@ -8,7 +8,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public final class DefinitionFinder extends CollectingASTVisitor<ASTNode> {
+public final class DefinitionCollector extends CollectingASTVisitor<ASTNode> {
 
     @Override
     public boolean visit(final Assignment assignment) {

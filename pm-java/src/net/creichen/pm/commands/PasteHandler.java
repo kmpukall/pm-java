@@ -1,9 +1,9 @@
 package net.creichen.pm.commands;
 
+import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.selection.InsertionPoint;
 import net.creichen.pm.selection.InsertionPointFactory;
 import net.creichen.pm.steps.PasteStep;
-import net.creichen.pm.utils.Pasteboard;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jdt.core.dom.ASTNode;

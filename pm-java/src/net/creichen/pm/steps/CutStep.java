@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.core.Project;
-import net.creichen.pm.utils.Pasteboard;
+import net.creichen.pm.data.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;

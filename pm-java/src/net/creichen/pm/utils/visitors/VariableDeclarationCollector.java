@@ -5,7 +5,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public class VariableDeclarationFinder extends CollectingASTVisitor<VariableDeclaration> {
+public class VariableDeclarationCollector extends CollectingASTVisitor<VariableDeclaration> {
     // visitor methods
 
     @Override

@@ -22,7 +22,7 @@ import java.util.Set;
 
 import net.creichen.pm.models.Def;
 import net.creichen.pm.models.Use;
-import net.creichen.pm.utils.visitors.DefinitionFinder;
+import net.creichen.pm.utils.visitors.DefinitionCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -118,7 +118,7 @@ public class ReachingDefsAnalysis {
         this.definitions = new ArrayList<Def>();
         this.definitionsByDefiningNode = new HashMap<ASTNode, Def>();
 
-        final DefinitionFinder visitor = new DefinitionFinder();
+        final DefinitionCollector visitor = new DefinitionCollector();
         this.methodDeclaration.getBody().accept(visitor);
         final List<ASTNode> definingNodes = visitor.getResults();
         for (final ASTNode definingNode : definingNodes) {

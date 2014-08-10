@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.utils;
+package net.creichen.pm.data;
 
 import java.util.List;
 

@@ -20,7 +20,7 @@ import java.util.UUID;
 
 import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.utils.ASTQuery;
-import net.creichen.pm.utils.visitors.SelectiveSimpleNameFinder;
+import net.creichen.pm.utils.visitors.SelectiveSimpleNameCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -151,7 +151,7 @@ public class NameModel {
     }
 
     private List<SimpleName> nameNodesRelatedToNameNodeWithIdentifier(final String identifier) {
-        SelectiveSimpleNameFinder visitor = new SelectiveSimpleNameFinder(identifier, this.identifiersForNames);
+        SelectiveSimpleNameCollector visitor = new SelectiveSimpleNameCollector(identifier, this.identifiersForNames);
 
         // We could keep reverse mappings instead of doing this?
         for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
