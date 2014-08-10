@@ -10,7 +10,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 
-public class Matchers {
+public final class Matchers {
 
     private Matchers() {
     }

@@ -26,9 +26,7 @@ public class CutStep extends Step {
 
     public CutStep(final Project project, final ASTNode node) {
         super(project);
-
         this.selectedNodes = new ArrayList<ASTNode>();
-
         this.selectedNodes.add(node);
     }
 
