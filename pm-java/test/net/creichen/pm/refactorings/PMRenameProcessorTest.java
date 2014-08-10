@@ -10,8 +10,6 @@
 package net.creichen.pm.refactorings;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -225,8 +223,6 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
                 "public class Foo {int foo; void method() {int bar; foo = 5;} }");
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-
         PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3), iCompilationUnit);
 
         renameIvarToBar.setNewName("bar");
@@ -242,6 +238,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
+        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
         ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
@@ -250,7 +247,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         nameCapture.acceptBehavioralChange();
 
-        assertThat(getProjectInconsistencies(), is(emptyCollectionOf(Inconsistency.class)));
+        assertThat(pmProject, hasNoInconsistencies());
     }
 
 }

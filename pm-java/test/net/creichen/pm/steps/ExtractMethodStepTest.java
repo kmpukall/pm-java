@@ -9,14 +9,13 @@
 
 package net.creichen.pm.steps;
 
-import static org.hamcrest.CoreMatchers.is;
+import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
@@ -53,7 +52,7 @@ public class ExtractMethodStepTest extends PMTest {
 
         step.applyAllAtOnce();
 
-        assertThat(ConsistencyValidator.getInstance().getInconsistencies().size(), is(0));
+        assertThat(pmProject, hasNoInconsistencies());
     }
 
     @Test

@@ -9,8 +9,9 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
@@ -50,7 +51,8 @@ public class PushDownFieldTest extends PMTest {
 
         pasteStep1.applyAllAtOnce();
 
-        assertTrue(ConsistencyValidator.getInstance().getInconsistencies().isEmpty());
+        assertThat(project, hasNoInconsistencies());
+
         final ICompilationUnit iCompilationUnit2 = iCompilationUnitS;
 
         yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
@@ -79,8 +81,7 @@ public class PushDownFieldTest extends PMTest {
         yField = null;
         cutStep.applyAllAtOnce();
 
-        assertTrue(ConsistencyValidator.getInstance().getInconsistencies().isEmpty());
-
+        assertThat(project, hasNoInconsistencies());
         assertTrue(compilationUnitSourceMatchesSource("public class S {} }", iCompilationUnitS.getSource()));
 
         assertTrue(compilationUnitSourceMatchesSource("public class T1 extends S { int _y;  }",

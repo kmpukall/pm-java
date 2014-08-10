@@ -28,7 +28,8 @@ public class Matchers {
             validator.rescanForInconsistencies(item);
             Collection<Inconsistency> inconsistencies = validator.getInconsistencies();
             if (!inconsistencies.isEmpty()) {
-                mismatchDescription.appendText("Project containing " + inconsistencies.size() + " inconsistencies: ");
+                mismatchDescription.appendText("got Project containing " + inconsistencies.size()
+                        + " inconsistencies: ");
                 mismatchDescription.appendValue(inconsistencies);
                 return false;
             }
