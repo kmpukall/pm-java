@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.analysis.Def;
-import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.data.NodeReferenceStore;
 

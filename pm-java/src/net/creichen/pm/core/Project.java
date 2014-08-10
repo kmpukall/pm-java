@@ -21,13 +21,13 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.analysis.ASTMatcher;
-import net.creichen.pm.analysis.Use;
 import net.creichen.pm.analysis.UseAnalysis;
 import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.Use;
 import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.Timer;
 

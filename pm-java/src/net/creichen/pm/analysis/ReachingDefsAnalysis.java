@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.creichen.pm.models.Def;
+import net.creichen.pm.models.Use;
 import net.creichen.pm.utils.visitors.DefinitionFinder;
 
 import org.eclipse.jdt.core.dom.ASTNode;

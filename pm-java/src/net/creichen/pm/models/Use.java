@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.analysis;
+package net.creichen.pm.models;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -3,6 +3,7 @@ package net.creichen.pm.analysis;
 import java.util.Collection;
 import java.util.HashSet;
 
+import net.creichen.pm.models.Use;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
