@@ -9,36 +9,48 @@
 
 package net.creichen.pm.refactorings;
 
+import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.core.Project;
+import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.steps.CutStep;
 import net.creichen.pm.steps.PasteStep;
 
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-/**
- * We move a field by Cutting it from its old parent and Pasting it in its new parent.
- */
+//We move a field by PMCutting it from its old parent and PMPasteing it in its new parent
+
 class MoveFieldRefactoring {
     private final Project project;
 
-    private final FieldDeclaration field;
+    private final NodeReference fieldReference;
 
-    private final TypeDeclaration newParent;
+    private final NodeReference newParentReference;
 
     public MoveFieldRefactoring(final Project project, final FieldDeclaration fieldDeclaration,
             final TypeDeclaration newParent) {
         this.project = project;
-        this.field = fieldDeclaration;
-        this.newParent = newParent;
+
+        this.fieldReference = NodeReferenceStore.getInstance().getReferenceForNode(fieldDeclaration);
+
+        this.newParentReference = NodeReferenceStore.getInstance().getReferenceForNode(newParent);
     }
 
     public void apply() {
-        final CutStep cutStep = new CutStep(this.project, this.field);
+        final CutStep cutStep = new CutStep(this.project, this.fieldReference.getNode());
+
         cutStep.applyAllAtOnce();
 
-        final PasteStep pasteStep = new PasteStep(this.project, this.newParent,
-                TypeDeclaration.BODY_DECLARATIONS_PROPERTY, this.newParent.bodyDeclarations().size());
+        // race here? Will _fieldReference go away if we call gc?
+        // NO: since the field is held in the pasteboard
+        // But otherwise would be a problem
+        // So: should node store hold strong refs to ast nodes???
+
+        final TypeDeclaration newParent = (TypeDeclaration) this.newParentReference.getNode();
+
+        final PasteStep pasteStep = new PasteStep(this.project, newParent, TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
+                newParent.bodyDeclarations().size());
+
         pasteStep.applyAllAtOnce();
     }
 }
