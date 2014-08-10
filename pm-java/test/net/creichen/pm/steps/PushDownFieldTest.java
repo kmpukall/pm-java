@@ -10,11 +10,11 @@
 package net.creichen.pm.steps;
 
 import static org.junit.Assert.assertTrue;
-import net.creichen.pm.Workspace;
-import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -31,7 +31,7 @@ public class PushDownFieldTest extends PMTest {
         ICompilationUnit iCompilationUnitT1 = createNewCompilationUnit("", "T1.java", "public class T1 extends S {  }");
         ICompilationUnit iCompilationUnitT2 = createNewCompilationUnit("", "T2.java", "public class T2 extends S {  }");
 
-        Project project = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = iCompilationUnitS;
 
         FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,

@@ -14,9 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
-import net.creichen.pm.Workspace;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -33,7 +33,7 @@ public class SplitProcessorTest extends PMTest {
 
         final SplitProcessor splitTemporary = new SplitProcessor(new TextSelection(31, 6), compilationUnit);
 
-        Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Workspace.getInstance().getProject(getIJavaProject());
 
         ProcessorDriver.drive(splitTemporary);
 

@@ -18,14 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.creichen.pm.Workspace;
-import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.Pasteboard;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -49,7 +49,7 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final NameModel nameModel = pmProject.getNameModel();
 
@@ -135,7 +135,7 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final DefUseModel udModel = pmProject.getUDModel();
 
@@ -209,7 +209,7 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName(
                 "x", 0, "S", 0, pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));

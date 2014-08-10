@@ -14,10 +14,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.creichen.pm.Workspace;
-import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -42,7 +42,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName(
                 "s", 0, "S1", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit1));
@@ -76,7 +76,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S1", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit1));
@@ -107,7 +107,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit1 = createNewCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final MethodDeclaration sourceMethodDeclaration = ASTQuery.findMethodByName("m", 0, "S1",
                 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnit1));
@@ -140,7 +140,7 @@ public class PasteStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         CompilationUnit compilationUnit = (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
@@ -184,7 +184,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("A", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("B", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
@@ -218,7 +218,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS));
@@ -253,7 +253,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
@@ -287,7 +287,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
@@ -321,7 +321,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "string", 0, "S", 0, (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS))
@@ -355,7 +355,7 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createNewCompilationUnit("", "T.java", sourceT);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("foo", 0, "S", 0,
                 (CompilationUnit) pmProject.getCompilationUnitForICompilationUnit(compilationUnitS));

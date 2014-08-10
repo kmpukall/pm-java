@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;

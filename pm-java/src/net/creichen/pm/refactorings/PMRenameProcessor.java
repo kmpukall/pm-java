@@ -9,8 +9,8 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.Workspace;
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.steps.RenameStep;
 import net.creichen.pm.utils.Timer;
@@ -55,7 +55,7 @@ public class PMRenameProcessor extends RenameProcessor {
 
         Timer.sharedTimer().start("STEP");
 
-        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
+        final Project project = Workspace.getInstance().getProject(
                 this.iCompilationUnit.getJavaProject());
 
         RefactoringStatus result = null;
@@ -81,7 +81,7 @@ public class PMRenameProcessor extends RenameProcessor {
     public Change createChange(final IProgressMonitor pm) throws CoreException {
         Timer.sharedTimer().start("STEP");
 
-        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
+        final Project project = Workspace.getInstance().getProject(
                 this.iCompilationUnit.getJavaProject());
         project.syncSources();
         ConsistencyValidator.getInstance().reset();

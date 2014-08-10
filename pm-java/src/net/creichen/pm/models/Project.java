@@ -21,11 +21,11 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.analysis.ASTMatcher;
-import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.analysis.UseAnalysis;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.data.NodeReferenceStore;
+import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.ICompilationUnit;

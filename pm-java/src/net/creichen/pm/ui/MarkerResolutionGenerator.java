@@ -9,9 +9,9 @@
 
 package net.creichen.pm.ui;
 
-import net.creichen.pm.Workspace;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 
 import org.eclipse.core.resources.IMarker;
@@ -53,7 +53,7 @@ public class MarkerResolutionGenerator implements IMarkerResolutionGenerator {
     public IMarkerResolution[] getResolutions(final IMarker marker) {
         System.out.println("Getting resolutions");
         try {
-            final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
+            final Project project = Workspace.getInstance().getProject(
                     (IJavaProject) JavaCore.create((String) marker.getAttribute(PROJECT_ID)));
             final String inconsistencyID = (String) marker.getAttribute(INCONSISTENCY_ID);
             final Inconsistency inconsistency = ConsistencyValidator.getInstance().getInconsistency(inconsistencyID);

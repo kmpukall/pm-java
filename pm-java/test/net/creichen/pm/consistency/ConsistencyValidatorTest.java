@@ -10,8 +10,8 @@
 package net.creichen.pm.consistency;
 
 import static org.junit.Assert.assertEquals;
-import net.creichen.pm.Workspace;
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
 
@@ -26,7 +26,7 @@ public class ConsistencyValidatorTest extends PMTest {
 
 		createNewCompilationUnit("", "S.java", source);
 
-		Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+		Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
 		ConsistencyValidator.getInstance().rescanForInconsistencies(pmProject);
 

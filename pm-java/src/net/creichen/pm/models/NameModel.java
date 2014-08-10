@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import net.creichen.pm.analysis.ASTQuery;
+import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.visitors.SelectiveSimpleNameFinder;
 
 import org.eclipse.jdt.core.dom.ASTNode;

@@ -14,9 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
-import net.creichen.pm.Workspace;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -36,7 +36,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Workspace.getInstance().getProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
@@ -58,7 +58,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("super");
 
-        Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Workspace.getInstance().getProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
@@ -80,7 +80,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Workspace.getInstance().getProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
@@ -108,7 +108,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Workspace.getInstance().getProject(getIJavaProject());
 
         ProcessorDriver.drive(delegateProcessor);
 
@@ -130,7 +130,7 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("");
 
-        Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        Workspace.getInstance().getProject(getIJavaProject());
 
         final RefactoringStatus status = ProcessorDriver.drive(delegateProcessor);
 

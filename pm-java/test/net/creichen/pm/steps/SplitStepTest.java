@@ -16,14 +16,14 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 
-import net.creichen.pm.Workspace;
-import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -41,7 +41,7 @@ public class SplitStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(getIJavaProject());
+        final Project project = Workspace.getInstance().getProject(getIJavaProject());
 
         final Assignment secondAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0, "S", 0,
                 project.getCompilationUnitForICompilationUnit(iCompilationUnit));

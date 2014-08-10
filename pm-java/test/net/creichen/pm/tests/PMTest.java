@@ -9,7 +9,7 @@
 
 package net.creichen.pm.tests;
 
-import net.creichen.pm.Workspace;
+import net.creichen.pm.core.Workspace;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -105,7 +105,7 @@ public class PMTest {
     public void deleteProject() {
         try {
 
-            Workspace.sharedWorkspace().removeProjectForIJavaProject(this.iJavaProject);
+            Workspace.getInstance().removeProject(this.iJavaProject);
 
             this.iProject.delete(true, null);
         } catch (final CoreException e) {

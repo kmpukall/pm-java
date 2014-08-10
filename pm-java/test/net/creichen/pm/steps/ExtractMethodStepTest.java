@@ -13,11 +13,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import net.creichen.pm.Workspace;
-import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
+import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.*;
@@ -31,7 +31,7 @@ public class ExtractMethodStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.getInstance().getProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject
@@ -65,7 +65,7 @@ public class ExtractMethodStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.sharedWorkspace().projectForIJavaProject(
+        final Project pmProject = Workspace.getInstance().getProject(
                 this.getIJavaProject());
 
         final PMCompilationUnit pmCompilationUnitS = pmProject

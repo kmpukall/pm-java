@@ -3,7 +3,6 @@ package net.creichen.pm.consistency;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.NameCapture;
@@ -11,6 +10,7 @@ import net.creichen.pm.consistency.inconsistencies.NameConflict;
 import net.creichen.pm.consistency.inconsistencies.UnknownName;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
+import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;

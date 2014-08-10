@@ -1,7 +1,7 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.Workspace;
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -26,7 +26,7 @@ abstract class AbstractCommandHandler extends AbstractHandler {
     public final Object execute(final ExecutionEvent event) {
         this.window = HandlerUtil.getActiveWorkbenchWindow(event);
         this.compilationUnit = createCompilationUnit();
-        this.project = Workspace.sharedWorkspace().projectForIJavaProject(getCompilationUnit().getJavaProject());
+        this.project = Workspace.getInstance().getProject(getCompilationUnit().getJavaProject());
         this.project.syncSources();
         ConsistencyValidator.getInstance().reset();
 

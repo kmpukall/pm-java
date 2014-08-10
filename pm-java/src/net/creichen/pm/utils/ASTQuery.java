@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.analysis;
+package net.creichen.pm.utils;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.get;

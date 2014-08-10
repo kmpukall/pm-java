@@ -9,11 +9,11 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.Workspace;
-import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Workspace;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.steps.SplitStep;
+import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.core.runtime.CoreException;
@@ -54,7 +54,7 @@ public class SplitProcessor extends RefactoringProcessor {
     @Override
     public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
 
-        final Project project = Workspace.sharedWorkspace().projectForIJavaProject(
+        final Project project = Workspace.getInstance().getProject(
                 this.iCompilationUnit.getJavaProject());
 
         if (!project.sourcesAreOutOfSync()) {
