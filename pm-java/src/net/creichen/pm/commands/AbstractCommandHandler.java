@@ -1,6 +1,5 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 
@@ -28,7 +27,6 @@ abstract class AbstractCommandHandler extends AbstractHandler {
         this.compilationUnit = createCompilationUnit();
         this.project = Workspace.getInstance().getProject(getCompilationUnit().getJavaProject());
         this.project.syncSources();
-        ConsistencyValidator.getInstance().reset();
 
         ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
         if (currentSelection instanceof ITextSelection) {
@@ -69,7 +67,7 @@ abstract class AbstractCommandHandler extends AbstractHandler {
         MessageDialog.openError(getWindow().getShell(), dialogTitle, errorExplanation);
     }
 
-    public Project getProject() {
+    protected Project getProject() {
         return this.project;
     }
 }

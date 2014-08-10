@@ -36,13 +36,13 @@ public class PushDownFieldTest extends PMTest {
         final ICompilationUnit iCompilationUnit = iCompilationUnitS;
 
         FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
-                project.getCompilationUnitForICompilationUnit(iCompilationUnit)).getParent();
+                project.getCompilationUnit(iCompilationUnit)).getParent();
         CopyStep copyStep1 = new CopyStep(project, yField);
         yField = null;
         copyStep1.applyAllAtOnce();
         final ICompilationUnit iCompilationUnit1 = iCompilationUnitT1;
 
-        CompilationUnit compilationUnitT1 = project.getCompilationUnitForICompilationUnit(iCompilationUnit1);
+        CompilationUnit compilationUnitT1 = project.getCompilationUnit(iCompilationUnit1);
         TypeDeclaration classT1 = ASTQuery.findClassByName("T1", 0, compilationUnitT1);
 
         PasteStep pasteStep1 = new PasteStep(project, classT1, classT1.getBodyDeclarationsProperty(), classT1
@@ -56,13 +56,13 @@ public class PushDownFieldTest extends PMTest {
         final ICompilationUnit iCompilationUnit2 = iCompilationUnitS;
 
         yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
-                project.getCompilationUnitForICompilationUnit(iCompilationUnit2)).getParent();
+                project.getCompilationUnit(iCompilationUnit2)).getParent();
         CopyStep copyStep2 = new CopyStep(project, yField);
         yField = null;
         copyStep2.applyAllAtOnce();
         final ICompilationUnit iCompilationUnit3 = iCompilationUnitT2;
 
-        CompilationUnit compilationUnitT2 = project.getCompilationUnitForICompilationUnit(iCompilationUnit3);
+        CompilationUnit compilationUnitT2 = project.getCompilationUnit(iCompilationUnit3);
         TypeDeclaration classT2 = ASTQuery.findClassByName("T2", 0, compilationUnitT2);
 
         PasteStep pasteStep2 = new PasteStep(project, classT2, classT2.getBodyDeclarationsProperty(), classT2
@@ -73,7 +73,7 @@ public class PushDownFieldTest extends PMTest {
         final ICompilationUnit iCompilationUnit4 = iCompilationUnitS;
 
         yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
-                project.getCompilationUnitForICompilationUnit(iCompilationUnit4)).getParent();
+                project.getCompilationUnit(iCompilationUnit4)).getParent();
         CutStep cutStep = new CutStep(project, yField); // We use cut to
         // delete the
         // original field

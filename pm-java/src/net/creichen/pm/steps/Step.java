@@ -40,7 +40,6 @@ class Step {
             getProject().updateToNewVersionsOfICompilationUnits();
             ConsistencyValidator.getInstance().reset();
             updateAfterReparse();
-            cleanup();
             ConsistencyValidator.getInstance().rescanForInconsistencies(getProject());
             return result;
         }
@@ -91,17 +90,11 @@ class Step {
 
         updateAfterReparse();
 
-        cleanup();
-
         ConsistencyValidator.getInstance().rescanForInconsistencies(this.project);
     }
 
     public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
         return null;
-    }
-
-    public void cleanup() {
-        // called regardless of whether updateAfterReparse() was called
     }
 
     public Change createCompositeChange(final String changeDescription) {

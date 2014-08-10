@@ -44,7 +44,7 @@ public class SplitStepTest extends PMTest {
         final Project project = Workspace.getInstance().getProject(getIJavaProject());
 
         final Assignment secondAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0, "S", 0,
-                project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+                project.getCompilationUnit(iCompilationUnit));
 
         final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
 
@@ -71,9 +71,9 @@ public class SplitStepTest extends PMTest {
         // from first identifier)
 
         final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
-                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+                "S", 0, project.getCompilationUnit(iCompilationUnit));
         final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0,
-                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+                "S", 0, project.getCompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.getIdentifierForName(firstX));
         assertNotNull(nameModel.getIdentifierForName(secondX));
@@ -81,9 +81,9 @@ public class SplitStepTest extends PMTest {
         assertEquals(nameModel.getIdentifierForName(firstX), nameModel.getIdentifierForName(secondX));
 
         final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
-                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+                "S", 0, project.getCompilationUnit(iCompilationUnit));
         final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0,
-                "S", 0, project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+                "S", 0, project.getCompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.getIdentifierForName(thirdX));
         assertNotNull(nameModel.getIdentifierForName(fourthX));

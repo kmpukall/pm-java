@@ -10,7 +10,6 @@
 package net.creichen.pm.refactorings;
 
 import net.creichen.pm.core.Project;
-import net.creichen.pm.core.ProjectListener;
 import net.creichen.pm.core.Workspace;
 import net.creichen.pm.steps.DelegateStep;
 
@@ -28,7 +27,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
-public class DelegateProcessor extends RefactoringProcessor implements ProjectListener {
+public class DelegateProcessor extends RefactoringProcessor {
 
     private final ICompilationUnit iCompilationUnit;
     private final ITextSelection textSelection;
@@ -104,12 +103,6 @@ public class DelegateProcessor extends RefactoringProcessor implements ProjectLi
     public RefactoringParticipant[] loadParticipants(final RefactoringStatus status,
             final SharableParticipants sharedParticipants) throws CoreException {
         return new RefactoringParticipant[0];
-    }
-
-    @Override
-    public void projectDidReparse(final Project project) {
-        this.step.updateAfterReparse();
-        this.step.cleanup();
     }
 
     public void setDelegateIdentifier(final String delegateIdentifier) {

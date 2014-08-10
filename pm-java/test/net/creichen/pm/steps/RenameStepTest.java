@@ -46,7 +46,7 @@ public class RenameStepTest extends PMTest {
         final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final SimpleName firstSInT = ASTQuery.findSimpleNameByIdentifier("s", 0, "m", 0,
-                "T", 0, pmProject.getCompilationUnitForICompilationUnit(compilationUnitT));
+                "T", 0, pmProject.getCompilationUnit(compilationUnitT));
 
         final RenameStep step = new RenameStep(pmProject, firstSInT);
 
@@ -58,7 +58,7 @@ public class RenameStepTest extends PMTest {
                 "public class T {void m() {S sInstance = new S(); sInstance.sMethod();} }",
                 compilationUnitT.getSource()));
 
-        final IProblem[] problemsT = pmProject.getCompilationUnitForICompilationUnit(compilationUnitT).getProblems();
+        final IProblem[] problemsT = pmProject.getCompilationUnit(compilationUnitT).getProblems();
 
         assertEquals(0, problemsT.length);
     }
@@ -120,7 +120,7 @@ public class RenameStepTest extends PMTest {
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
 
         final TypeDeclaration classS = ASTQuery.findClassByName("S", 0,
-                pmProject.getCompilationUnitForICompilationUnit(compilationUnitS));
+                pmProject.getCompilationUnit(compilationUnitS));
 
         final SimpleName className = classS.getName();
 
@@ -135,7 +135,7 @@ public class RenameStepTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class T {void sMethod() {}}",
                 compilationUnitT.getSource()));
 
-        final IProblem[] problems = pmProject.getCompilationUnitForICompilationUnit(compilationUnitT).getProblems();
+        final IProblem[] problems = pmProject.getCompilationUnit(compilationUnitT).getProblems();
 
         assertEquals(0, problems.length);
     }

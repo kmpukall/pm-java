@@ -71,11 +71,6 @@ public class PasteStep extends Step {
     }
 
     @Override
-    public void cleanup() {
-        // called regardless of whether updateAfterReparse() was called
-    }
-
-    @Override
     public void performASTChange() {
 
         final Pasteboard pasteboard = Pasteboard.getInstance();

@@ -11,7 +11,9 @@ package net.creichen.pm.utils;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -20,6 +22,10 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
@@ -34,6 +40,25 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 public final class ASTUtil {
+
+    public static Set<ICompilationUnit> getSourceFilesForProject(final IJavaProject iJavaProject) {
+        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
+        try {
+            for (final IPackageFragment packageFragment : iJavaProject.getPackageFragments()) {
+                if (packageFragment.getKind() == IPackageFragmentRoot.K_SOURCE
+                        && packageFragment.containsJavaResources()) {
+                    for (final ICompilationUnit iCompilationUnit : packageFragment.getCompilationUnits()) {
+    
+                        result.add(iCompilationUnit);
+                    }
+    
+                }
+            }
+        } catch (final JavaModelException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     public static void applyRewrite(final ASTRewrite rewrite, final ICompilationUnit iCompilationUnit) {
         try {

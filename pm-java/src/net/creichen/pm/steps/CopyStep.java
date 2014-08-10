@@ -54,11 +54,6 @@ public class CopyStep extends Step {
 
     // need method to test for errors before asking for changes
 
-    @Override
-    public void cleanup() {
-
-    }
-
     private void copyNameModel(final List<ASTNode> originalRootNodes, final List<ASTNode> copiedRootNodes) {
         /*
          * Generate fresh identifiers for all copied declarations (and definitions) and keep a mapping from the original
@@ -177,7 +172,7 @@ public class CopyStep extends Step {
 
         /*
          * Now that we have the mappings:
-         * 
+         *
          * For each copied definition, find the original definition and get the original uses for it for each original
          * use, if it is external add it as a use for the copy if it is internal, generate a new identifier for the copy
          * use and add it to the uses for the copied definition

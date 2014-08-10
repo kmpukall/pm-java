@@ -17,7 +17,7 @@ public class PasteHandler extends AbstractCommandHandler {
     @Override
     public final void handleEvent(final ExecutionEvent event) {
         final InsertionPoint insertionPoint = InsertionPointFactory.createInsertionPoint(getProject()
-                .getCompilationUnitForICompilationUnit(getCompilationUnit()), getSelection().getOffset());
+                .getCompilationUnit(getCompilationUnit()), getSelection().getOffset());
         final ASTNode selectedNode = insertionPoint.getParent();
         final Pasteboard pasteboard = Pasteboard.getInstance();
 

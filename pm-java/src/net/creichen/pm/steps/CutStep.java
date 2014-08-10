@@ -54,16 +54,11 @@ public class CutStep extends Step {
     // need method to test for errors before asking for changes
 
     @Override
-    public void cleanup() {
-        // called regardless of whether updateAfterReparse() was called
-    }
-
-    @Override
     public void performASTChange() {
         /*
-         * 
+         *
          * _project.setPasteboardRoot(_selectedNodes.get(0));
-         * 
+         *
          * PMCompilationUnitModel usingModel = _project.modelForASTNode(_selectedNodes.get(0));
          * usingModel.removeIdentifiersForTreeStartingAtNode (_selectedNodes.get(0));
          */

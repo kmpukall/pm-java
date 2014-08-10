@@ -1,9 +1,16 @@
 package net.creichen.pm.commands;
 
-import net.creichen.pm.consistency.ConsistencyValidator;
+import java.util.Set;
+
+import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class TimeParseHandler extends AbstractCommandHandler {
 
@@ -17,7 +24,7 @@ public class TimeParseHandler extends AbstractCommandHandler {
 
             // project.updateToNewVersionsOfICompilationUnits();
 
-            getProject().justParseMeasurement(false);
+            parseSource(false);
 
             Timer.sharedTimer().stop("JUST_PARSE");
 
@@ -34,7 +41,7 @@ public class TimeParseHandler extends AbstractCommandHandler {
 
             // project.updateToNewVersionsOfICompilationUnits();
 
-            getProject().justParseMeasurement(true);
+            parseSource(true);
 
             Timer.sharedTimer().stop("PARSE_BINDINGS");
 
@@ -52,7 +59,6 @@ public class TimeParseHandler extends AbstractCommandHandler {
             // project.updateToNewVersionsOfICompilationUnits();
 
             getProject().updateToNewVersionsOfICompilationUnits();
-            ConsistencyValidator.getInstance().reset();
 
             Timer.sharedTimer().stop("PARSE_BINDINGS_UPDATE");
 
@@ -87,6 +93,21 @@ public class TimeParseHandler extends AbstractCommandHandler {
             // PMTimer.sharedTimer().accumulatedSecondsForKey("SUBTREE_BYTES"));
             // PMTimer.sharedTimer().clear("SUBTREE_BYTES");
         }
+    }
+
+    private void parseSource(final boolean resolveBindings) {
+        final Set<ICompilationUnit> iCompilationUnits = ASTUtil
+                .getSourceFilesForProject(getProject().getIJavaProject());
+
+        final ASTParser parser = ASTParser.newParser(AST.JLS4);
+        parser.setProject(getProject().getIJavaProject());
+        parser.setResolveBindings(resolveBindings);
+        parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
+                new ASTRequestor() {
+            @Override
+            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+            }
+        }, null);
     }
 
 }

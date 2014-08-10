@@ -88,11 +88,6 @@ public class SplitStep extends Step {
         return result;
     }
 
-    @Override
-    public void cleanup() {
-
-    }
-
     private MethodDeclaration findContainingMethodDeclaration(final ASTNode node) {
         MethodDeclaration containingMethodDeclaration = null;
 
@@ -228,8 +223,8 @@ public class SplitStep extends Step {
         this.replacementDeclarationStatement.setType((Type) ASTNode.copySubtree(ast, type));
 
         rewrite.replace(this.assignmentStatement, this.replacementDeclarationStatement, null /*
-                                                                                              * edit group
-                                                                                              */);
+         * edit group
+         */);
     }
 
     @Override

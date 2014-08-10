@@ -11,12 +11,10 @@ package net.creichen.pm.core;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,15 +25,14 @@ import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
-import net.creichen.pm.models.Use;
 import net.creichen.pm.utils.ASTQuery;
+import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -138,8 +135,6 @@ public class Project implements ASTRootsProvider {
     // off
     // ICompilationUnit.getHandleIdentifier
 
-    private final List<ProjectListener> projectListeners;
-
     private DefUseModel udModel;
 
     private NameModel nameModel;
@@ -147,7 +142,6 @@ public class Project implements ASTRootsProvider {
     public Project(final IJavaProject iJavaProject) {
         this.iJavaProject = iJavaProject;
         this.pmCompilationUnits = new HashMap<String, PMCompilationUnitImplementation>();
-        this.projectListeners = new ArrayList<ProjectListener>();
         updateModelData(true);
 
     }
@@ -187,7 +181,7 @@ public class Project implements ASTRootsProvider {
                 // from an IClassFile
 
                 if (declaringICompilationUnit != null) {
-                    final CompilationUnit declaringCompilationUnit = getCompilationUnitForICompilationUnit(declaringICompilationUnit);
+                    final CompilationUnit declaringCompilationUnit = getCompilationUnit(declaringICompilationUnit);
                     ASTNode declaringNode = declaringCompilationUnit.findDeclaringNode(nameBinding);
 
                     if (declaringNode == null) {
@@ -216,12 +210,12 @@ public class Project implements ASTRootsProvider {
         return roots;
     }
 
-    public CompilationUnit getCompilationUnitForICompilationUnit(final ICompilationUnit iCompilationUnit) {
+    public CompilationUnit getCompilationUnit(final ICompilationUnit iCompilationUnit) {
         return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier()).getCompilationUnit();
     }
 
     public Set<ICompilationUnit> getICompilationUnits() {
-        return getSourceFilesForProject(this.iJavaProject);
+        return ASTUtil.getSourceFilesForProject(this.iJavaProject);
     }
 
     public IJavaProject getIJavaProject() {
@@ -246,24 +240,8 @@ public class Project implements ASTRootsProvider {
         return this.udModel;
     }
 
-    // For measurement purposes only
-    public void justParseMeasurement(final boolean resolveBindings) {
-        final Set<ICompilationUnit> iCompilationUnits = getSourceFilesForProject(this.iJavaProject);
-
-        final ASTParser parser = ASTParser.newParser(AST.JLS4);
-        parser.setProject(this.iJavaProject);
-        parser.setResolveBindings(resolveBindings);
-        parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
-                new ASTRequestor() {
-                    @Override
-                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-                    }
-                }, null);
-
-    }
-
     public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
-        final CompilationUnit compilationUnit = getCompilationUnitForICompilationUnit(iCompilationUnit);
+        final CompilationUnit compilationUnit = getCompilationUnit(iCompilationUnit);
 
         final ASTNode selectedNode = ASTQuery.findNodeForSelection(selection.getOffset(), selection.getLength(),
                 compilationUnit);
@@ -296,7 +274,7 @@ public class Project implements ASTRootsProvider {
     }
 
     public boolean sourcesAreOutOfSync() {
-        for (final ICompilationUnit iCompilationUnit : getSourceFilesForProject(this.iJavaProject)) {
+        for (final ICompilationUnit iCompilationUnit : ASTUtil.getSourceFilesForProject(this.iJavaProject)) {
             if (!((PMCompilationUnitImplementation) getPMCompilationUnitForICompilationUnit(iCompilationUnit))
                     .isSourceUnchanged()) {
                 return true;
@@ -326,14 +304,13 @@ public class Project implements ASTRootsProvider {
         return result;
     }
 
-    private void resetModel() {
-        Collection<Use> currentUses = new UseAnalysis(getASTRoots()).getCurrentUses();
-        this.udModel = new DefUseModel(currentUses);
+    private void resetModels() {
+        this.udModel = new DefUseModel(new UseAnalysis(getASTRoots()).getCurrentUses());
         this.nameModel = new NameModel(this);
     }
 
     private void updateModelData(final boolean reset) {
-        final Set<ICompilationUnit> iCompilationUnits = getSourceFilesForProject(this.iJavaProject);
+        final Set<ICompilationUnit> iCompilationUnits = ASTUtil.getSourceFilesForProject(this.iJavaProject);
         final Set<ICompilationUnit> previouslyKnownCompilationUnits = allKnownICompilationUnits();
 
         final boolean resetAll;
@@ -371,7 +348,7 @@ public class Project implements ASTRootsProvider {
                 }
 
                 if (!resetAll) {
-                    final CompilationUnit oldCompilationUnit = getCompilationUnitForICompilationUnit(source);
+                    final CompilationUnit oldCompilationUnit = getCompilationUnit(source);
 
                     if (recursivelyReplaceNodeWithCopy(oldCompilationUnit, newCompilationUnit)) {
                         pmCompilationUnit.updatePair(source, newCompilationUnit);
@@ -381,7 +358,7 @@ public class Project implements ASTRootsProvider {
                         System.err.println("Old compilation unit: " + oldCompilationUnit);
                         System.err.println("New compilation unit: " + newCompilationUnit);
 
-                        resetModel();
+                        resetModels();
                     }
 
                 }
@@ -394,32 +371,9 @@ public class Project implements ASTRootsProvider {
                 requestor, null);
 
         if (resetAll) {
-            resetModel();
+            resetModels();
         }
 
-        for (final ProjectListener listener : this.projectListeners) {
-            listener.projectDidReparse(this);
-        }
-
-    }
-
-    private static Set<ICompilationUnit> getSourceFilesForProject(final IJavaProject iJavaProject) {
-        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
-        try {
-            for (final IPackageFragment packageFragment : iJavaProject.getPackageFragments()) {
-                if (packageFragment.getKind() == IPackageFragmentRoot.K_SOURCE
-                        && packageFragment.containsJavaResources()) {
-                    for (final ICompilationUnit iCompilationUnit : packageFragment.getCompilationUnits()) {
-
-                        result.add(iCompilationUnit);
-                    }
-
-                }
-            }
-        } catch (final JavaModelException e) {
-            e.printStackTrace();
-        }
-        return result;
     }
 
 }

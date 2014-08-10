@@ -97,11 +97,6 @@ public class RenameStep extends Step {
         return result;
     }
 
-    @Override
-    public void cleanup() {
-        // called regardless of whether updateAfterReparse() was called
-    }
-
     // need method to test for errors before asking for changes
 
     public String getNewName() {

@@ -53,7 +53,7 @@ public class CopyStepTest extends PMTest {
 
         final NameModel nameModel = pmProject.getNameModel();
 
-        final CompilationUnit compilationUnitS = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
+        final CompilationUnit compilationUnitS = pmProject.getCompilationUnit(iCompilationUnit);
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
                 "x", 0, "S", 0, compilationUnitS).getParent();
@@ -139,7 +139,7 @@ public class CopyStepTest extends PMTest {
 
         final DefUseModel udModel = pmProject.getUDModel();
 
-        final CompilationUnit compilationUnitS = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
+        final CompilationUnit compilationUnitS = pmProject.getCompilationUnit(iCompilationUnit);
 
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnitS);
@@ -212,7 +212,7 @@ public class CopyStepTest extends PMTest {
         final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
 
         final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName(
-                "x", 0, "S", 0, pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit));
+                "x", 0, "S", 0, pmProject.getCompilationUnit(iCompilationUnit));
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 

@@ -34,7 +34,7 @@ public class SplitTemporaryRefactoringTest extends PMTest {
 
         final Assignment secondAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(
                 1, "m", 0, "S", 0,
-                (CompilationUnit) project.getCompilationUnitForICompilationUnit(iCompilationUnit));
+                (CompilationUnit) project.getCompilationUnit(iCompilationUnit));
 
         final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment
                 .getParent();
