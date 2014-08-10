@@ -11,7 +11,7 @@ package net.creichen.pm.refactorings;
 
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
-import net.creichen.pm.checkers.ConsistencyValidator;
+import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.steps.SplitStep;
 import net.creichen.pm.utils.ASTUtil;

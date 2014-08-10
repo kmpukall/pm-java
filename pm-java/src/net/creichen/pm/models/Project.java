@@ -22,10 +22,10 @@ import java.util.Set;
 
 import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.ASTQuery;
-import net.creichen.pm.analysis.NodeReferenceStore;
-import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
+import net.creichen.pm.analysis.UseAnalysis;
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -251,18 +251,18 @@ public class Project {
         parser.setResolveBindings(resolveBindings);
         parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
                 new ASTRequestor() {
-                    @Override
-                    public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
-                    }
-                }, null);
+            @Override
+            public void acceptAST(final ICompilationUnit source, final CompilationUnit ast) {
+            }
+        }, null);
 
     }
 
     public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
         final CompilationUnit compilationUnit = getCompilationUnitForICompilationUnit(iCompilationUnit);
 
-        final ASTNode selectedNode = ASTQuery.findNodeForSelection(selection.getOffset(),
-                selection.getLength(), compilationUnit);
+        final ASTNode selectedNode = ASTQuery.findNodeForSelection(selection.getOffset(), selection.getLength(),
+                compilationUnit);
 
         return selectedNode;
     }
@@ -323,7 +323,7 @@ public class Project {
     }
 
     private void resetModel() {
-        Collection<Use> currentUses = RDefsAnalysis.getCurrentUses(getASTRoots());
+        Collection<Use> currentUses = new UseAnalysis(getASTRoots()).getCurrentUses();
         this.udModel = new DefUseModel(currentUses);
         this.nameModel = new NameModel(this);
     }
@@ -339,7 +339,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;

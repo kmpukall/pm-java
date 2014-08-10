@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.utils.Timer;
 import net.creichen.pm.utils.visitors.DefinitionFinder;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -40,7 +39,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
-public class RDefsAnalysis {
+public class ReachingDefsAnalysis {
 
     private final MethodDeclaration methodDeclaration;
     private List<Def> definitions;
@@ -53,7 +52,7 @@ public class RDefsAnalysis {
     private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnExit;
     private final Map<Def, Map<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<Def, Map<IBinding, VariableAssignment>>();
 
-    public RDefsAnalysis(final MethodDeclaration methodDeclaration) {
+    public ReachingDefsAnalysis(final MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
         runAnalysis(); // may wish to do this lazily
     }
@@ -213,12 +212,12 @@ public class RDefsAnalysis {
 
                 final PMBlock block = getBlockForNode(name);
 
-                final Set<VariableAssignment> reachingDefinitions = RDefsAnalysis.this.reachingDefsOnEntry.get(block);
+                final Set<VariableAssignment> reachingDefinitions = ReachingDefsAnalysis.this.reachingDefsOnEntry.get(block);
 
                 if (simpleNameIsUse(name)) {
                     final Use use = new Use(name);
 
-                    RDefsAnalysis.this.usesByName.put(name, use);
+                    ReachingDefsAnalysis.this.usesByName.put(name, use);
 
                     final IBinding variableBinding = name.resolveBinding();
 
@@ -443,7 +442,7 @@ public class RDefsAnalysis {
                         // locals or fields)
 
                         if (binding instanceof IVariableBinding) {
-                            RDefsAnalysis.this.reachingDefsOnEntry.get(block).add(
+                            ReachingDefsAnalysis.this.reachingDefsOnEntry.get(block).add(
                                     uniqueVariableAssignment(null, binding));
                         }
                         return true;
@@ -600,31 +599,6 @@ public class RDefsAnalysis {
         }
 
         return variableAssignment;
-    }
-
-    public static Collection<Use> getCurrentUses(final Collection<ASTNode> roots) {
-        Timer.sharedTimer().start("DUUD_CHAINS");
-
-        final Collection<Use> uses = new HashSet<Use>();
-        for (final ASTNode root : roots) {
-            root.accept(new ASTVisitor() {
-                @Override
-                public boolean visit(final MethodDeclaration methodDeclaration) {
-
-                    // There is nothing to analyze if we have an interface or
-                    // abstract method
-                    if (methodDeclaration.getBody() != null) {
-                        final RDefsAnalysis analysis = new RDefsAnalysis(methodDeclaration);
-                        uses.addAll(analysis.getUses());
-                    }
-
-                    return false; // don't visit children
-                }
-            });
-
-        }
-        Timer.sharedTimer().stop("DUUD_CHAINS");
-        return uses;
     }
 
 }

@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.analysis.Def;
-import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.data.NodeReferenceStore;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;

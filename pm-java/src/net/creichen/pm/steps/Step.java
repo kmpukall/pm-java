@@ -11,9 +11,9 @@ package net.creichen.pm.steps;
 
 import java.util.Map;
 
-import net.creichen.pm.Workspace;
-import net.creichen.pm.checkers.ConsistencyValidator;
+import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.models.Project;
+import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -81,7 +81,7 @@ class Step {
         final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
         for (final ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
-            Workspace.applyRewrite(rewrites.get(compilationUnitToRewrite), compilationUnitToRewrite);
+            ASTUtil.applyRewrite(rewrites.get(compilationUnitToRewrite), compilationUnitToRewrite);
         }
 
         performASTChange();

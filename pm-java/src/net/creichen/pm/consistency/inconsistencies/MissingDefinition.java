@@ -7,25 +7,27 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.inconsistencies;
+package net.creichen.pm.consistency.inconsistencies;
 
 import net.creichen.pm.api.PMCompilationUnit;
 
-import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.ASTNode;
 
-public class NameConflict extends Inconsistency {
+public class MissingDefinition extends Inconsistency {
+	private final ASTNode definingNode;
 
-	private final String expectedName;
-	private final SimpleName name;
+	public MissingDefinition(final PMCompilationUnit iCompilationUnit, final ASTNode usingNode,
+			final ASTNode definingNode) {
+		super(iCompilationUnit, usingNode);
+		this.definingNode = definingNode;
+	}
 
-	public NameConflict(final PMCompilationUnit iCompilationUnit, final SimpleName name, final String expectedName) {
-		super(iCompilationUnit, name);
-		this.name = name;
-		this.expectedName = expectedName;
+	public ASTNode getDefiningNode() {
+		return this.definingNode;
 	}
 
 	@Override
 	public String getHumanReadableDescription() {
-		return "Variable named " + this.name + " refers to declaration with name " + this.expectedName;
+		return "Definition (" + this.definingNode + ") should be used by " + getNode();
 	}
 }

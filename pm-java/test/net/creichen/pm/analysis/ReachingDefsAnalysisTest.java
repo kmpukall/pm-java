@@ -31,7 +31,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.junit.Test;
 
-public class RDefsAnalysisTest extends PMTest {
+public class ReachingDefsAnalysisTest extends PMTest {
     Set<ASTNode> definingNodesFromDefinitions(final Set<Def> definitions) {
         final Set<ASTNode> definingNodes = new HashSet<ASTNode>();
 
@@ -51,7 +51,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         rdefs.toString();
         // Just want to make sure it doesn't blow up
@@ -63,7 +63,7 @@ public class RDefsAnalysisTest extends PMTest {
         final CompilationUnit compilationUnit = parseCompilationUnitFromSource(source, "S.java");
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
         final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, compilationUnit);
         assertEquals(null, rdefs.useForSimpleName(firstX)); // The first x is
@@ -92,7 +92,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName thirdY = ASTQuery.findSimpleNameByIdentifier("y", 2, "m", 0,
                 "S", 0, compilationUnit);
@@ -120,7 +120,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName thirdY = ASTQuery.findSimpleNameByIdentifier("y", 2, "m", 0,
                 "S", 0, compilationUnit);
@@ -154,7 +154,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName fourthY = ASTQuery.findSimpleNameByIdentifier("y", 3, "m", 0,
                 "S", 0, compilationUnit);
@@ -188,7 +188,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName sixthY = ASTQuery.findSimpleNameByIdentifier("y", 5, "m", 0,
                 "S", 0, compilationUnit);
@@ -224,7 +224,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName fourthY = ASTQuery.findSimpleNameByIdentifier("y", 3, "m", 0,
                 "S", 0, compilationUnit);
@@ -267,7 +267,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
         rdefs.toString();
 
     }
@@ -280,7 +280,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final List<Def> definitions = rdefs.getDefinitions();
 
@@ -296,7 +296,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         rdefs.toString();
 
@@ -312,7 +312,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, compilationUnit);
@@ -336,7 +336,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         rdefs.toString();
         // Just want to make sure it doesn't blow up
@@ -351,7 +351,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         assertEquals(0, rdefs.getUses().size());
 
@@ -369,7 +369,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
                 "S", 0, compilationUnit);
@@ -412,7 +412,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
                 "S", 0, compilationUnit);
@@ -440,7 +440,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName firstY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0,
                 "S", 0, compilationUnit);
@@ -477,7 +477,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0,
                 "S", 0, compilationUnit);
@@ -504,7 +504,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0,
                 "S", 0, compilationUnit);
@@ -526,7 +526,7 @@ public class RDefsAnalysisTest extends PMTest {
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 compilationUnit);
 
-        final RDefsAnalysis rdefs = new RDefsAnalysis(methodDeclaration);
+        final ReachingDefsAnalysis rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0,
                 "S", 0, compilationUnit);

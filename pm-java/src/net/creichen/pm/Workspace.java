@@ -12,50 +12,13 @@ package net.creichen.pm;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.creichen.pm.checkers.ConsistencyValidator;
+import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.models.Project;
 
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.text.edits.TextEdit;
 
 public final class Workspace {
     private static Workspace sharedWorkspace = null;
-
-    public static void applyRewrite(final ASTRewrite rewrite, final ICompilationUnit iCompilationUnit) {
-        try {
-            final TextEdit astEdit = rewrite.rewriteAST();
-
-            final ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
-            final IPath path = iCompilationUnit.getPath();
-            try {
-                bufferManager.connect(path, LocationKind.IFILE, null);
-                final ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path, LocationKind.IFILE);
-
-                final IDocument document = textFileBuffer.getDocument();
-
-                astEdit.apply(document);
-
-                textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */);
-            } finally {
-                bufferManager.disconnect(path, LocationKind.IFILE, null);
-            }
-
-        } catch (final BadLocationException e) {
-            e.printStackTrace();
-        } catch (final CoreException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static synchronized Workspace sharedWorkspace() {
 

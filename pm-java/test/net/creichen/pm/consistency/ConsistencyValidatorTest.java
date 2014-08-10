@@ -7,11 +7,11 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.checkers;
+package net.creichen.pm.consistency;
 
 import static org.junit.Assert.assertEquals;
 import net.creichen.pm.Workspace;
-import net.creichen.pm.checkers.ConsistencyValidator;
+import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.tests.PMTest;
 

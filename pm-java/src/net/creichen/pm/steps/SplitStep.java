@@ -20,10 +20,10 @@ import java.util.UUID;
 
 import net.creichen.pm.analysis.ASTQuery;
 import net.creichen.pm.analysis.Def;
-import net.creichen.pm.analysis.NodeReferenceStore;
-import net.creichen.pm.analysis.RDefsAnalysis;
+import net.creichen.pm.analysis.ReachingDefsAnalysis;
 import net.creichen.pm.analysis.Use;
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;
@@ -118,7 +118,7 @@ public class SplitStep extends Step {
 
         final MethodDeclaration containingMethodDeclaration = findContainingMethodDeclaration(oldAssignmentExpression);
 
-        final RDefsAnalysis reachingDefsAnalysis = new RDefsAnalysis(containingMethodDeclaration);
+        final ReachingDefsAnalysis reachingDefsAnalysis = new ReachingDefsAnalysis(containingMethodDeclaration);
 
         final Def definitionForAssignment = reachingDefsAnalysis.getDefinitionForDefiningNode(oldAssignmentExpression);
 

@@ -18,8 +18,8 @@ import java.util.Set;
 
 import net.creichen.pm.Workspace;
 import net.creichen.pm.analysis.ASTQuery;
-import net.creichen.pm.analysis.NodeReferenceStore;
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.models.Project;

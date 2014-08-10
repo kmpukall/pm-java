@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.inconsistencies;
+package net.creichen.pm.consistency.inconsistencies;
 
 import net.creichen.pm.api.PMCompilationUnit;
 

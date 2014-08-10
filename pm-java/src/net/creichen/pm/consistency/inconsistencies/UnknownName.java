@@ -7,23 +7,23 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.inconsistencies;
+package net.creichen.pm.consistency.inconsistencies;
 
 import net.creichen.pm.api.PMCompilationUnit;
 
-import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.SimpleName;
 
-public class UnexpectedDefinition extends Inconsistency {
-	private final ASTNode definingNode;
+public class UnknownName extends Inconsistency {
 
-	public UnexpectedDefinition(final PMCompilationUnit iCompilationUnit, final ASTNode usingNode,
-			final ASTNode definingNode) {
-		super(iCompilationUnit, usingNode);
-		this.definingNode = definingNode;
+	private final SimpleName unknownName;
+
+	public UnknownName(final PMCompilationUnit iCompilationUnit, final SimpleName unknownName) {
+		super(iCompilationUnit, unknownName);
+		this.unknownName = unknownName;
 	}
 
 	@Override
 	public String getHumanReadableDescription() {
-		return "Unexpected definition (" + this.definingNode + ") used by " + getNode();
+		return "Unknown name " + this.unknownName;
 	}
 }

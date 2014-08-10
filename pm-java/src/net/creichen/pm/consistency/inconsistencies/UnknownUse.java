@@ -7,23 +7,22 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.inconsistencies;
+package net.creichen.pm.consistency.inconsistencies;
 
 import net.creichen.pm.api.PMCompilationUnit;
 
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public class UnknownName extends Inconsistency {
+public class UnknownUse extends Inconsistency {
+	private final SimpleName unknownUse;
 
-	private final SimpleName unknownName;
-
-	public UnknownName(final PMCompilationUnit iCompilationUnit, final SimpleName unknownName) {
-		super(iCompilationUnit, unknownName);
-		this.unknownName = unknownName;
+	public UnknownUse(final PMCompilationUnit iCompilationUnit, final SimpleName unknownUse) {
+		super(iCompilationUnit, unknownUse);
+		this.unknownUse = unknownUse;
 	}
 
 	@Override
 	public String getHumanReadableDescription() {
-		return "Unknown name " + this.unknownName;
+		return "Unknown use " + this.unknownUse;
 	}
 }

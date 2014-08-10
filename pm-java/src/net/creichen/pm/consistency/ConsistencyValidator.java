@@ -1,4 +1,4 @@
-package net.creichen.pm.checkers;
+package net.creichen.pm.consistency;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.inconsistencies.Inconsistency;
+import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
 import net.creichen.pm.utils.Timer;

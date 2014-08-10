@@ -1,17 +1,17 @@
-package net.creichen.pm.checkers;
+package net.creichen.pm.consistency;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.creichen.pm.analysis.NodeReferenceStore;
-import net.creichen.pm.analysis.RDefsAnalysis;
 import net.creichen.pm.analysis.Use;
+import net.creichen.pm.analysis.UseAnalysis;
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.inconsistencies.Inconsistency;
-import net.creichen.pm.inconsistencies.MissingDefinition;
-import net.creichen.pm.inconsistencies.UnexpectedDefinition;
-import net.creichen.pm.inconsistencies.UnknownUse;
+import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
+import net.creichen.pm.consistency.inconsistencies.UnexpectedDefinition;
+import net.creichen.pm.consistency.inconsistencies.UnknownUse;
+import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.Project;
 import net.creichen.pm.utils.Timer;
@@ -30,7 +30,7 @@ public class DefUseModelConsistencyCheck {
 
         final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
-        final Collection<Use> uses = RDefsAnalysis.getCurrentUses(this.project.getASTRoots());
+        final Collection<Use> uses = new UseAnalysis(this.project.getASTRoots()).getCurrentUses();
 
         Timer.sharedTimer().start("INCONSISTENCIES");
 

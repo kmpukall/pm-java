@@ -15,8 +15,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 
 import net.creichen.pm.Workspace;
-import net.creichen.pm.checkers.ConsistencyValidator;
-import net.creichen.pm.inconsistencies.Inconsistency;
+import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;

@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.analysis;
+package net.creichen.pm.data;
 
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;

@@ -7,22 +7,25 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.inconsistencies;
+package net.creichen.pm.consistency.inconsistencies;
 
 import net.creichen.pm.api.PMCompilationUnit;
 
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public class UnknownUse extends Inconsistency {
-	private final SimpleName unknownUse;
+public class NameConflict extends Inconsistency {
 
-	public UnknownUse(final PMCompilationUnit iCompilationUnit, final SimpleName unknownUse) {
-		super(iCompilationUnit, unknownUse);
-		this.unknownUse = unknownUse;
+	private final String expectedName;
+	private final SimpleName name;
+
+	public NameConflict(final PMCompilationUnit iCompilationUnit, final SimpleName name, final String expectedName) {
+		super(iCompilationUnit, name);
+		this.name = name;
+		this.expectedName = expectedName;
 	}
 
 	@Override
 	public String getHumanReadableDescription() {
-		return "Unknown use " + this.unknownUse;
+		return "Variable named " + this.name + " refers to declaration with name " + this.expectedName;
 	}
 }

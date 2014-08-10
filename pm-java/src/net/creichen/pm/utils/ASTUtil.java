@@ -13,6 +13,13 @@ import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 
 import java.util.List;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
@@ -21,8 +28,38 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 public final class ASTUtil {
+
+    public static void applyRewrite(final ASTRewrite rewrite, final ICompilationUnit iCompilationUnit) {
+        try {
+            final TextEdit astEdit = rewrite.rewriteAST();
+    
+            final ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
+            final IPath path = iCompilationUnit.getPath();
+            try {
+                bufferManager.connect(path, LocationKind.IFILE, null);
+                final ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path, LocationKind.IFILE);
+    
+                final IDocument document = textFileBuffer.getDocument();
+    
+                astEdit.apply(document);
+    
+                textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */);
+            } finally {
+                bufferManager.disconnect(path, LocationKind.IFILE, null);
+            }
+    
+        } catch (final BadLocationException e) {
+            e.printStackTrace();
+        } catch (final CoreException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void replaceNodeInParent(final ASTNode oldNode, final ASTNode replacement) {
         final StructuralPropertyDescriptor location = oldNode.getLocationInParent();
