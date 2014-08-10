@@ -1,8 +1,8 @@
 package net.creichen.pm.commands;
 
 import net.creichen.pm.refactorings.DelegateProcessor;
-import net.creichen.pm.ui.DelegateInputPage;
 import net.creichen.pm.ui.Wizard;
+import net.creichen.pm.ui.pages.DelegateInputPage;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;

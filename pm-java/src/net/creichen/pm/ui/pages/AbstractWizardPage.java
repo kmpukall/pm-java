@@ -1,4 +1,4 @@
-package net.creichen.pm.ui;
+package net.creichen.pm.ui.pages;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;

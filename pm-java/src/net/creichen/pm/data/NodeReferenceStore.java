@@ -90,7 +90,7 @@ public final class NodeReferenceStore {
 
     // Note that this is a non-static inner class
 
-    public void replaceOldNodeVersionWithNewVersion(final ASTNode oldNode, final ASTNode newNode) {
+    public void replaceNode(final ASTNode oldNode, final ASTNode newNode) {
         final WeakReference<NodeReference> referenceWeakRef = this.referencesForNodes.get(oldNode);
 
         if (referenceWeakRef != null) {

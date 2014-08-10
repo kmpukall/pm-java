@@ -7,27 +7,27 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.ui;
+package net.creichen.pm.ui.pages;
 
-import net.creichen.pm.refactorings.PMRenameProcessor;
+import net.creichen.pm.refactorings.DelegateProcessor;
 
-public class RenameInputPage extends AbstractWizardPage {
+public class DelegateInputPage extends AbstractWizardPage {
 
-    private final PMRenameProcessor processor;
+    private final DelegateProcessor processor;
 
-    public RenameInputPage(final PMRenameProcessor processor) {
-        super("PM Refactoring Input Page");
+    public DelegateInputPage(final DelegateProcessor processor) {
+        super("PM Delegate Input Page");
 
         this.processor = processor;
     }
 
     @Override
     protected String getLabel() {
-        return "&New name:";
+        return "&Delegate to identifier:";
     }
 
     @Override
     protected void handleNewInput(final String text) {
-        this.processor.setNewName(text);
+        this.processor.setDelegateIdentifier(text);
     }
 }

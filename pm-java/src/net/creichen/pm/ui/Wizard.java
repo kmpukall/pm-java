@@ -16,31 +16,17 @@ import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 public class Wizard extends RefactoringWizard {
 
-	private final UserInputWizardPage wizardPage;
+    private final UserInputWizardPage wizardPage;
 
-	public Wizard(final RefactoringProcessor processor, final UserInputWizardPage wizardPage) {
-		super(new ProcessorBasedRefactoring(processor), CHECK_INITIAL_CONDITIONS_ON_OPEN);
-		this.wizardPage = wizardPage;
-	}
+    public Wizard(final RefactoringProcessor processor, final UserInputWizardPage wizardPage) {
+        super(new ProcessorBasedRefactoring(processor), CHECK_INITIAL_CONDITIONS_ON_OPEN);
+        this.wizardPage = wizardPage;
+    }
 
-	@Override
-	protected void addUserInputPages() {
-		if (this.wizardPage != null) {
-			addPage(this.wizardPage);
-		}
-	}
-
-	public RefactoringProcessor getProcessor() {
-		return ((ProcessorBasedRefactoring) getRefactoring()).getProcessor();
-	}
-
-	@Override
-	public boolean performCancel() {
-		return super.performCancel();
-	}
-
-	@Override
-	public boolean performFinish() {
-		return super.performFinish();
-	}
+    @Override
+    protected void addUserInputPages() {
+        if (this.wizardPage != null) {
+            addPage(this.wizardPage);
+        }
+    }
 }

@@ -262,7 +262,7 @@ public class Project implements ASTRootsProvider {
                 if (oldNode instanceof SimpleName) {
                     this.nameModel.replaceName((SimpleName) oldNode, (SimpleName) newNode);
                 }
-                NodeReferenceStore.getInstance().replaceOldNodeVersionWithNewVersion(oldNode, newNode);
+                NodeReferenceStore.getInstance().replaceNode(oldNode, newNode);
             }
         } else {
             System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
