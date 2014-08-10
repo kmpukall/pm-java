@@ -9,6 +9,10 @@
 
 package net.creichen.pm.tests;
 
+import java.util.Collection;
+
+import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.core.Workspace;
 
 import org.eclipse.core.resources.IFolder;
@@ -143,6 +147,12 @@ public class PMTest {
         parser.setProject(this.iJavaProject);
 
         return (CompilationUnit) parser.createAST(null);
+    }
+
+    protected Collection<Inconsistency> getProjectInconsistencies() {
+        ConsistencyValidator validator = new ConsistencyValidator();
+        validator.rescanForInconsistencies(Workspace.getInstance().getProject(this.iJavaProject));
+        return validator.getInconsistencies();
     }
 
 }

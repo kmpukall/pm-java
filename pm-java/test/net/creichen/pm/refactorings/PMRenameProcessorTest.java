@@ -9,7 +9,11 @@
 
 package net.creichen.pm.refactorings;
 
+import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -96,8 +100,6 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
                 "public class Foo {int foo; void method() {int bar; foo = 5;} }");
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-
         PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3), iCompilationUnit);
 
         renameIvarToBar.setNewName("bar");
@@ -113,6 +115,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
+        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
 
         ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
@@ -145,8 +148,6 @@ public class PMRenameProcessorTest extends PMTest {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
                 "public class Foo {void method() {int foo; int bar; foo = 5; bar = 6;} }");
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-
         PMRenameProcessor renameFooToBar = new PMRenameProcessor(new TextSelection(37, 3), iCompilationUnit);
 
         renameFooToBar.setNewName("bar");
@@ -162,9 +163,10 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnitForICompilationUnit(iCompilationUnit);
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
+        CompilationUnit parsedCompilationUnit = project.getCompilationUnitForICompilationUnit(iCompilationUnit);
+        ASTNode expectedCapturedNode = project.nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
 
-        ASTNode expectedCapturedNode = pmProject.nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
         ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
@@ -183,9 +185,7 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("public class Foo {void method() {int bar; int foo; bar = 5; foo = 6;} }",
                 iCompilationUnit.getSource());
 
-        inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertTrue(inconsistencies.size() == 0);
+        assertThat(project, hasNoInconsistencies());
 
     }
 
@@ -196,8 +196,6 @@ public class PMRenameProcessorTest extends PMTest {
                 "public class Unit1 { public int x; void method() {x++;} }");
         ICompilationUnit unit2 = createNewCompilationUnit("", "Unit2.java",
                 "public class Unit2 { void method() {Unit1 unit1 = new Unit1(); unit1.x--;} }");
-
-        Workspace.getInstance().getProject(getIJavaProject());
 
         PMRenameProcessor renameXToY = new PMRenameProcessor(new TextSelection(32, 1), unit1);
 
@@ -217,7 +215,8 @@ public class PMRenameProcessorTest extends PMTest {
             }
         }
 
-        assertTrue(ConsistencyValidator.getInstance().getInconsistencies().size() == 0);
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
+        assertThat(project, hasNoInconsistencies());
 
     }
 
@@ -251,10 +250,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         nameCapture.acceptBehavioralChange();
 
-        ConsistencyValidator.getInstance().rescanForInconsistencies(pmProject);
-        Collection<Inconsistency> newInconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals(0, newInconsistencies.size());
+        assertThat(getProjectInconsistencies(), is(emptyCollectionOf(Inconsistency.class)));
     }
 
 }

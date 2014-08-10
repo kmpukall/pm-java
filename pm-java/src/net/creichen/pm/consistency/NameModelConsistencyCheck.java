@@ -17,25 +17,24 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public class NameModelConsistencyCheck {
+class NameModelConsistencyCheck {
 
     private Project project;
-    private NameModel model;
 
     public NameModelConsistencyCheck(final Project project) {
         this.project = project;
     }
 
     public Set<Inconsistency> calculateInconsistencies(final NameModel model) {
-        this.model = model;
         final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
         for (final PMCompilationUnit compilationUnit : this.project.getPMCompilationUnits()) {
-            inconsistencies.addAll(findInconsistenciesInCompilationUnit(compilationUnit));
+            inconsistencies.addAll(findInconsistenciesInCompilationUnit(model, compilationUnit));
         }
         return inconsistencies;
     }
 
-    private Set<Inconsistency> findInconsistenciesInCompilationUnit(final PMCompilationUnit pmCompilationUnit) {
+    private Set<Inconsistency> findInconsistenciesInCompilationUnit(final NameModel nameModel,
+            final PMCompilationUnit pmCompilationUnit) {
         final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
         final CompilationUnit compilationUnit = pmCompilationUnit.getCompilationUnit();
 
@@ -48,9 +47,9 @@ public class NameModelConsistencyCheck {
             if (declaringNode != null) {
                 final SimpleName declaringSimpleName = ASTQuery.getSimpleName(declaringNode);
 
-                final String declaringIdentifier = this.model.getIdentifierForName(declaringSimpleName);
+                final String declaringIdentifier = nameModel.getIdentifierForName(declaringSimpleName);
 
-                final String usingIdentifier = this.model.getIdentifierForName(simpleName);
+                final String usingIdentifier = nameModel.getIdentifierForName(simpleName);
 
                 if (usingIdentifier == null) {
                     inconsistencies.add(new UnknownName(pmCompilationUnit, simpleName));

@@ -9,28 +9,23 @@
 
 package net.creichen.pm.consistency;
 
-import static org.junit.Assert.assertEquals;
-import net.creichen.pm.consistency.ConsistencyValidator;
-import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
+import static org.junit.Assert.assertThat;
+import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.tests.PMTest;
 
 import org.junit.Test;
 
 public class ConsistencyValidatorTest extends PMTest {
 
-	@Test
-	public void testArrayLengthIsSane() {
+    @Test
+    public void testArrayLengthIsSane() {
+        String source = "public class S {void m(){int array[] = new int[5]; System.out.println(array.length); } }";
 
-		String source = "public class S {void m(){int array[] = new int[5]; System.out.println(array.length); } }";
+        createNewCompilationUnit("", "S.java", source);
 
-		createNewCompilationUnit("", "S.java", source);
-
-		Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-
-		ConsistencyValidator.getInstance().rescanForInconsistencies(pmProject);
-
-		assertEquals(0, ConsistencyValidator.getInstance().getInconsistencies().size());
-	}
+        assertThat(getProjectInconsistencies(), is(emptyCollectionOf(Inconsistency.class)));
+    }
 
 }

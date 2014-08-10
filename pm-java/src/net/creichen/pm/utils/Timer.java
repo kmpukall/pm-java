@@ -61,13 +61,9 @@ public class Timer {
 
     public void stop(final String key) {
         final long stopTime = System.currentTimeMillis();
-
         final long startTime = this.startTimes.get(key);
-
         long accumulatedTime = this.accumulatedMilliseconds.get(key);
-
         accumulatedTime += stopTime - startTime;
-
         this.accumulatedMilliseconds.put(key, accumulatedTime);
     }
 }

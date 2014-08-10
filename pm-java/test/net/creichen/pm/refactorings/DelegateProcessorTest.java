@@ -9,13 +9,10 @@
 
 package net.creichen.pm.refactorings;
 
-import static org.junit.Assert.assertEquals;
+import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Collection;
-
-import net.creichen.pm.consistency.ConsistencyValidator;
-import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 
@@ -36,16 +33,13 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        Workspace.getInstance().getProject(getIJavaProject());
-
         ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals(0, inconsistencies.size());
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
+        assertThat(project, hasNoInconsistencies());
     }
 
     @Test
@@ -58,16 +52,13 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("super");
 
-        Workspace.getInstance().getProject(getIJavaProject());
-
         ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; super.m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals(0, inconsistencies.size());
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
+        assertThat(project, hasNoInconsistencies());
     }
 
     @Test
@@ -80,16 +71,13 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        Workspace.getInstance().getProject(getIJavaProject());
-
         ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource("public class S {S s; void m(){s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals(0, inconsistencies.size());
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
+        assertThat(project, hasNoInconsistencies());
     }
 
     @Test
@@ -108,16 +96,13 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("s");
 
-        Workspace.getInstance().getProject(getIJavaProject());
-
         ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(compilationUnitSourceMatchesSource("package t; public class Sub extends Super {void g() {s.m();}}",
                 subCompilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals(0, inconsistencies.size());
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
+        assertThat(project, hasNoInconsistencies());
     }
 
     @Test
@@ -130,8 +115,6 @@ public class DelegateProcessorTest extends PMTest {
 
         delegateProcessor.setDelegateIdentifier("");
 
-        Workspace.getInstance().getProject(getIJavaProject());
-
         final RefactoringStatus status = ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(status.getSeverity() < RefactoringStatus.ERROR);
@@ -139,8 +122,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; m();}}",
                 compilationUnit.getSource()));
 
-        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals(0, inconsistencies.size());
+        Project project = Workspace.getInstance().getProject(getIJavaProject());
+        assertThat(project, hasNoInconsistencies());
     }
 }
