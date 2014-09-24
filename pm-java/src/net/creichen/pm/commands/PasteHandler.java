@@ -24,12 +24,12 @@ public class PasteHandler extends AbstractCommandHandler {
         if (!insertionPoint.isValid()
                 || ((!(selectedNode instanceof Block) || !pasteboard.containsOnlyNodesOfClass(Statement.class)) && (!(selectedNode instanceof TypeDeclaration) || !pasteboard
                         .containsOnlyNodesOfClass(BodyDeclaration.class)))) {
-            showErrorDialog("PM Paste Error", "Paste must be run a block or a class definition");
+            showErrorDialog("PM Paste Error", "Paste must be run on a block or a class definition");
             return;
         }
 
         new PasteRefactoring(getProject(), selectedNode, insertionPoint.getProperty(), insertionPoint.getIndex())
-                .apply();
+        .apply();
     }
 
 }

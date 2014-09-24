@@ -19,33 +19,22 @@ import org.eclipse.jdt.core.dom.ASTNode;
 //We use weak references to store references to nodes
 //that will automatically disappear if no one holds the reference object any more
 
+// Strictly speaking, we don't need to have the node in a weak reference
+// as long as we make sure that there are no cycles from the node to
+// the store (such as, perhaps, via the node's properties)
+
+// This provides a way of referring to nodes without using the node ptr
+// This is useful to maintain references across reparses (which will
+// create new nodes)
+// and may make it easier to ensure that we're not keeping an entire AST
+// in memory
+// when we don't need to
+
+// Note: We require that the project does NOT already have a
+// PMNodeIdentifier for this node
+// otherwise we will loose uniqueness of PMNodeIdentifier and ptr
+// comparison
 public final class NodeReferenceStore {
-
-    // Strictly speaking, we don't need to have the node in a weak reference
-    // as long as we make sure that there are no cycles from the node to
-    // the store (such as, perhaps, via the node's properties)
-
-    private final class PMUUIDNodeReference implements NodeReference {
-
-        // This provides a way of referring to nodes without using the node ptr
-        // This is useful to maintain references across reparses (which will
-        // create new nodes)
-        // and may make it easier to ensure that we're not keeping an entire AST
-        // in memory
-        // when we don't need to
-
-        private PMUUIDNodeReference() {
-            // Note: We require that the project does NOT already have a
-            // PMNodeIdentifier for this node
-            // otherwise we will loose uniqueness of PMNodeIdentifier and ptr
-            // comparison
-        }
-
-        @Override
-        public ASTNode getNode() {
-            return NodeReferenceStore.this.getNode(this);
-        }
-    }
 
     private static NodeReferenceStore instance;
 
@@ -74,9 +63,7 @@ public final class NodeReferenceStore {
 
         NodeReference reference;
         if (weakReference == null || weakReference.get() == null) {
-            reference = new PMUUIDNodeReference();
-            this.nodesForReferences.put(reference, new WeakReference<ASTNode>(node));
-            this.referencesForNodes.put(node, new WeakReference<NodeReference>(reference));
+            reference = createNodeReference(node);
         } else {
             reference = weakReference.get();
         }
@@ -84,7 +71,18 @@ public final class NodeReferenceStore {
         return reference;
     }
 
-    // Note that this is a non-static inner class
+    private NodeReference createNodeReference(final ASTNode node) {
+        NodeReference nodeReference = new NodeReference() {
+
+            @Override
+            public ASTNode getNode() {
+                return NodeReferenceStore.this.getNode(this);
+            }
+        };
+        this.nodesForReferences.put(nodeReference, new WeakReference<ASTNode>(node));
+        this.referencesForNodes.put(node, new WeakReference<NodeReference>(nodeReference));
+        return nodeReference;
+    }
 
     public void replaceNode(final ASTNode oldNode, final ASTNode newNode) {
         final WeakReference<NodeReference> referenceWeakRef = this.referencesForNodes.get(oldNode);
