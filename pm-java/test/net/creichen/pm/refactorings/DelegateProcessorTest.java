@@ -13,7 +13,6 @@ import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -38,8 +37,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
-        Project project = Workspace.getInstance().getProject(getIJavaProject());
-        assertThat(project, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
     }
 
     @Test
@@ -57,8 +55,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; super.m();}}",
                 compilationUnit.getSource()));
 
-        Project project = Workspace.getInstance().getProject(getIJavaProject());
-        assertThat(project, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
     }
 
     @Test
@@ -76,8 +73,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {S s; void m(){s.getClass(); s.m();}}",
                 compilationUnit.getSource()));
 
-        Project project = Workspace.getInstance().getProject(getIJavaProject());
-        assertThat(project, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
     }
 
     @Test
@@ -101,8 +97,7 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("package t; public class Sub extends Super {void g() {s.m();}}",
                 subCompilationUnit.getSource()));
 
-        Project project = Workspace.getInstance().getProject(getIJavaProject());
-        assertThat(project, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
     }
 
     @Test
@@ -122,7 +117,6 @@ public class DelegateProcessorTest extends PMTest {
         assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){S s; m();}}",
                 compilationUnit.getSource()));
 
-        Project project = Workspace.getInstance().getProject(getIJavaProject());
-        assertThat(project, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
     }
 }

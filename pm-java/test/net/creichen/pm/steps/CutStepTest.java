@@ -35,7 +35,6 @@ public class CutStepTest extends PMTest {
 
     @Test
     public void testInstantiation() {
-
         String source = "public class S {S s; void m(){s.getClass(); m();}}";
 
         ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
@@ -44,7 +43,7 @@ public class CutStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
         MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                (CompilationUnit) pmProject.getCompilationUnit(iCompilationUnit));
+                pmProject.getCompilationUnit(iCompilationUnit));
 
         CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
@@ -63,7 +62,7 @@ public class CutStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
         MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                (CompilationUnit) pmProject.getCompilationUnit(iCompilationUnit));
+                pmProject.getCompilationUnit(iCompilationUnit));
 
         CutStep cutStep = new CutStep(pmProject, methodDeclaration);
 
@@ -82,7 +81,7 @@ public class CutStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
         MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                (CompilationUnit) pmProject.getCompilationUnit(iCompilationUnit));
+                pmProject.getCompilationUnit(iCompilationUnit));
 
         Statement firstStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
@@ -102,8 +101,8 @@ public class CutStepTest extends PMTest {
         Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("s", 0,
-                "S", 0, (CompilationUnit) pmProject.getCompilationUnit(iCompilationUnit));
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("s", 0, "S", 0,
+                pmProject.getCompilationUnit(iCompilationUnit));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
@@ -124,10 +123,9 @@ public class CutStepTest extends PMTest {
         Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        CompilationUnit compilationUnit = (CompilationUnit) pmProject.getCompilationUnit(iCompilationUnit1);
+        CompilationUnit compilationUnit = pmProject.getCompilationUnit(iCompilationUnit1);
 
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                compilationUnit);
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnit);
 
         Statement thirdStatement = (Statement) methodDeclaration.getBody().statements().get(2);
         Statement fourthStatement = (Statement) methodDeclaration.getBody().statements().get(3);
@@ -156,10 +154,9 @@ public class CutStepTest extends PMTest {
         Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        CompilationUnit compilationUnit = (CompilationUnit) pmProject.getCompilationUnit(iCompilationUnit1);
+        CompilationUnit compilationUnit = pmProject.getCompilationUnit(iCompilationUnit1);
 
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                compilationUnit);
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnit);
 
         Statement secondStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
@@ -180,8 +177,8 @@ public class CutStepTest extends PMTest {
         Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0,
-                "S", 0, (CompilationUnit) pmProject.getCompilationUnit(iCompilationUnit1));
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0, "S", 0,
+                pmProject.getCompilationUnit(iCompilationUnit1));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 

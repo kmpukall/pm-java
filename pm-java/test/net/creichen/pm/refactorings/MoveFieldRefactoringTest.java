@@ -10,8 +10,6 @@
 package net.creichen.pm.refactorings;
 
 import static org.junit.Assert.assertTrue;
-import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -28,24 +26,17 @@ public class MoveFieldRefactoringTest extends PMTest {
     public void testMoveField() throws JavaModelException {
         final ICompilationUnit iCompilationUnitS = createNewCompilationUnit("", "S.java",
                 "public class S { int _y; void m() {int x; _y = 7; x = 5; System.out.println(x);} }");
-        final ICompilationUnit iCompilationUnitT = createNewCompilationUnit("", "T.java",
-                "public class T {  }");
+        final ICompilationUnit iCompilationUnitT = createNewCompilationUnit("", "T.java", "public class T {  }");
 
-        final Project project = Workspace.getInstance().getProject(
-                this.getIJavaProject());
+        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnitS);
+        final CompilationUnit compilationUnitT = getProject().getCompilationUnit(iCompilationUnitT);
 
-        final CompilationUnit compilationUnitS = (CompilationUnit) project.getCompilationUnit(iCompilationUnitS);
-        final CompilationUnit compilationUnitT = (CompilationUnit) project.getCompilationUnit(iCompilationUnitT);
-
-        final FieldDeclaration yField = (FieldDeclaration) ASTQuery
-                .findFieldByName("_y", 0, "S", 0, compilationUnitS)
+        final FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0, compilationUnitS)
                 .getParent();
 
-        final TypeDeclaration classT = ASTQuery.findClassByName("T", 0,
-                compilationUnitT);
+        final TypeDeclaration classT = ASTQuery.findClassByName("T", 0, compilationUnitT);
 
-        final MoveFieldRefactoring refactoring = new MoveFieldRefactoring(project, yField,
-                classT);
+        final MoveFieldRefactoring refactoring = new MoveFieldRefactoring(getProject(), yField, classT);
 
         refactoring.apply();
 
@@ -53,7 +44,6 @@ public class MoveFieldRefactoringTest extends PMTest {
                 "public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
                 iCompilationUnitS.getSource()));
 
-        assertTrue(compilationUnitSourceMatchesSource("public class T { int _y;  }",
-                iCompilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class T { int _y;  }", iCompilationUnitT.getSource()));
     }
 }

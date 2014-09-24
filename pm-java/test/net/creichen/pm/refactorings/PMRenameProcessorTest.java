@@ -20,8 +20,6 @@ import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
 import net.creichen.pm.consistency.inconsistencies.NameCapture;
-import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -41,9 +39,7 @@ public class PMRenameProcessorTest extends PMTest {
     public void testCreateNewCompilationUnitInTest() {
         ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java", "public class Foo {}");
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-
-        assertTrue(pmProject.getPMCompilationUnitForICompilationUnit(iCompilationUnit) != null);
+        assertTrue(getProject().getPMCompilationUnitForICompilationUnit(iCompilationUnit) != null);
 
     }
 
@@ -113,8 +109,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-        CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnit(iCompilationUnit);
+        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(iCompilationUnit);
 
         ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
                 parsedCompilationUnit);
@@ -161,9 +156,8 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        Project project = Workspace.getInstance().getProject(getIJavaProject());
-        CompilationUnit parsedCompilationUnit = project.getCompilationUnit(iCompilationUnit);
-        ASTNode expectedCapturedNode = project.nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
+        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(iCompilationUnit);
+        ASTNode expectedCapturedNode = getProject().nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
 
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
@@ -183,7 +177,7 @@ public class PMRenameProcessorTest extends PMTest {
         assertEquals("public class Foo {void method() {int bar; int foo; bar = 5; foo = 6;} }",
                 iCompilationUnit.getSource());
 
-        assertThat(project, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
 
     }
 
@@ -213,8 +207,7 @@ public class PMRenameProcessorTest extends PMTest {
             }
         }
 
-        Project project = Workspace.getInstance().getProject(getIJavaProject());
-        assertThat(project, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
 
     }
 
@@ -238,8 +231,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-        CompilationUnit parsedCompilationUnit = pmProject.getCompilationUnit(iCompilationUnit);
+        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(iCompilationUnit);
 
         ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
                 parsedCompilationUnit);
@@ -247,7 +239,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         nameCapture.acceptBehavioralChange();
 
-        assertThat(pmProject, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
     }
 
 }

@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.models.DefUseModel;
@@ -49,26 +47,23 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
+        final NameModel nameModel = getProject().getNameModel();
 
-        final NameModel nameModel = pmProject.getNameModel();
+        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnit);
 
-        final CompilationUnit compilationUnitS = pmProject.getCompilationUnit(iCompilationUnit);
-
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName(
-                "x", 0, "S", 0, compilationUnitS).getParent();
+        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName("x", 0, "S", 0,
+                compilationUnitS).getParent();
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()
                 .get(0)).getName();
-        final String fieldDeclarationOriginalNameIdentifier = nameModel.getIdentifierForName(fieldDeclarationOriginalName);
+        final String fieldDeclarationOriginalNameIdentifier = nameModel
+                .getIdentifierForName(fieldDeclarationOriginalName);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                compilationUnitS);
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnitS);
         final SimpleName methodDeclarationOriginalName = methodDeclaration.getName();
         final String methodDeclarationOriginalNameIdentifier = nameModel
                 .getIdentifierForName(methodDeclarationOriginalName);
 
-        final SimpleName originalUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0,
-                methodDeclaration.getBody());
+        final SimpleName originalUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0, methodDeclaration.getBody());
         final String originalUseOfYInMIdentifier = nameModel.getIdentifierForName(originalUseOfYInM);
 
         final List<ASTNode> nodesToCopy = new ArrayList<ASTNode>();
@@ -77,7 +72,7 @@ public class CopyStepTest extends PMTest {
         // before a decl
         nodesToCopy.add(fieldDeclaration);
 
-        final CopyStep copyStep = new CopyStep(pmProject, nodesToCopy);
+        final CopyStep copyStep = new CopyStep(getProject(), nodesToCopy);
 
         copyStep.applyAllAtOnce();
 
@@ -105,15 +100,15 @@ public class CopyStepTest extends PMTest {
 
         // method declaration gets fresh identifier in copy
 
-        final String methodDeclarationCopyNameIdentifier = nameModel.getIdentifierForName(methodDeclarationCopy.getName());
+        final String methodDeclarationCopyNameIdentifier = nameModel.getIdentifierForName(methodDeclarationCopy
+                .getName());
         assertNotNull(methodDeclarationCopyNameIdentifier);
         assertFalse(methodDeclarationCopyNameIdentifier.equals(methodDeclarationOriginalNameIdentifier));
 
         // use of internal field declaration points to the fresh declaration
         // identifier
 
-        final SimpleName copyUseOfXInM = ASTQuery.findSimpleNameByIdentifier("x", 0,
-                methodDeclarationCopy.getBody());
+        final SimpleName copyUseOfXInM = ASTQuery.findSimpleNameByIdentifier("x", 0, methodDeclarationCopy.getBody());
         final String copyUseOfXInMIdentifier = nameModel.getIdentifierForName(copyUseOfXInM);
 
         assertEquals(copyUseOfXInMIdentifier, fieldDeclarationCopyNameIdentifier);
@@ -121,8 +116,7 @@ public class CopyStepTest extends PMTest {
         // use of external field declaration (i.e. one not copied) still points
         // to its original declaration
 
-        final SimpleName copyUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0,
-                methodDeclarationCopy.getBody());
+        final SimpleName copyUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0, methodDeclarationCopy.getBody());
         final String copyUseOfYInMIdentifier = nameModel.getIdentifierForName(copyUseOfYInM);
 
         assertEquals(copyUseOfYInMIdentifier, originalUseOfYInMIdentifier);
@@ -135,24 +129,19 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
+        final DefUseModel udModel = getProject().getUDModel();
 
-        final DefUseModel udModel = pmProject.getUDModel();
+        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnit);
 
-        final CompilationUnit compilationUnitS = pmProject.getCompilationUnit(iCompilationUnit);
-
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                compilationUnitS);
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnitS);
 
         final ExpressionStatement fourthStatementOriginal = (ExpressionStatement) methodDeclaration.getBody()
                 .statements().get(3);
         final Assignment xGetsXPlusOneAssignmentOriginal = (Assignment) fourthStatementOriginal.getExpression();
 
-        final SimpleName x3RHSOriginal = ASTQuery.findSimpleNameByIdentifier("x", 1,
-                xGetsXPlusOneAssignmentOriginal);
+        final SimpleName x3RHSOriginal = ASTQuery.findSimpleNameByIdentifier("x", 1, xGetsXPlusOneAssignmentOriginal);
 
-        final NodeReference x3RHSOriginalNodeReference = NodeReferenceStore.getInstance().getReference(
-                x3RHSOriginal);
+        final NodeReference x3RHSOriginalNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSOriginal);
 
         final ExpressionStatement fifthStatementOriginal = (ExpressionStatement) methodDeclaration.getBody()
                 .statements().get(4);
@@ -161,7 +150,7 @@ public class CopyStepTest extends PMTest {
         nodesToCopy.add(fifthStatementOriginal);
         nodesToCopy.add(fourthStatementOriginal);
 
-        final CopyStep copyStep = new CopyStep(pmProject, nodesToCopy);
+        final CopyStep copyStep = new CopyStep(getProject(), nodesToCopy);
 
         copyStep.applyAllAtOnce();
 
@@ -178,8 +167,8 @@ public class CopyStepTest extends PMTest {
 
         final Assignment xGetsXPlusOneAssignmentCopy = (Assignment) fourthStatementCopy.getExpression();
 
-        final NodeReference xGetsXPlusOneAssignmentCopyReference = NodeReferenceStore.getInstance()
-                .getReference(xGetsXPlusOneAssignmentCopy);
+        final NodeReference xGetsXPlusOneAssignmentCopyReference = NodeReferenceStore.getInstance().getReference(
+                xGetsXPlusOneAssignmentCopy);
 
         final SimpleName x3RHSCopy = ASTQuery.findSimpleNameByIdentifier("x", 1, xGetsXPlusOneAssignmentCopy);
         final NodeReference x3RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSCopy);
@@ -209,20 +198,18 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
 
-        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-
-        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName(
-                "x", 0, "S", 0, pmProject.getCompilationUnit(iCompilationUnit));
+        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0, "S", 0,
+                getProject().getCompilationUnit(iCompilationUnit));
 
         final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()
                 .get(0)).getName();
 
-        final String fieldDeclarationOriginalNameIdentifier = pmProject.getNameModel().getIdentifierForName(
+        final String fieldDeclarationOriginalNameIdentifier = getProject().getNameModel().getIdentifierForName(
                 fieldDeclarationOriginalName);
 
-        final CopyStep copyStep = new CopyStep(pmProject, fieldDeclaration);
+        final CopyStep copyStep = new CopyStep(getProject(), fieldDeclaration);
 
         copyStep.applyAllAtOnce();
 
@@ -239,7 +226,7 @@ public class CopyStepTest extends PMTest {
         final SimpleName fieldDeclarationCopyName = ((VariableDeclarationFragment) fieldDeclarationCopy.fragments()
                 .get(0)).getName();
 
-        final String fieldDeclarationCopyNameIdentifier = pmProject.getNameModel().getIdentifierForName(
+        final String fieldDeclarationCopyNameIdentifier = getProject().getNameModel().getIdentifierForName(
                 fieldDeclarationCopyName);
 
         assertNotNull(fieldDeclarationCopyNameIdentifier);

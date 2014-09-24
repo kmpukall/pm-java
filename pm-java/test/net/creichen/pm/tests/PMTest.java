@@ -10,6 +10,7 @@
 package net.creichen.pm.tests;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 
 import org.eclipse.core.resources.IFolder;
@@ -33,37 +34,69 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-public class PMTest {
+public abstract class PMTest {
     private IProject iProject = null;
     private IJavaProject iJavaProject = null;
 
-    public boolean compilationUnitSourceMatchesSource(final String source1, final String source2) {
+    protected Project getProject() {
+        return Workspace.getInstance().getProject(getIJavaProject());
+    }
+
+    @After
+    public final void after() throws CoreException {
+        deleteProject();
+        tearDown();
+    }
+
+    @Before
+    public void before() throws CoreException {
+        createProject();
+        setUp();
+    }
+
+    private void createProject() throws CoreException {
+        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        this.iProject = root.getProject("pm_test_project_name");
+        if (this.iProject.exists()) {
+            this.iProject.delete(true, null);
+        }
+        this.iProject.create(null);
+        this.iProject.open(null);
+        final IProjectDescription description = this.iProject.getDescription();
+        description.setNatureIds(new String[] { JavaCore.NATURE_ID });
+        this.iProject.setDescription(description, null);
+        this.iJavaProject = JavaCore.create(this.iProject);
+        final IClasspathEntry[] buildPath = { JavaCore.newSourceEntry(this.iProject.getFullPath().append("src")),
+                JavaRuntime.getDefaultJREContainerEntry() };
+        this.iJavaProject.setRawClasspath(buildPath, this.iProject.getFullPath().append("bin"), null);
+    }
+
+    private void deleteProject() throws CoreException {
+        ConsistencyValidator.getInstance().reset();
+        Workspace.getInstance().removeProject(this.iJavaProject);
+        this.iProject.delete(true, null);
+        this.iProject = null;
+        this.iJavaProject = null;
+    }
+
+    protected boolean compilationUnitSourceMatchesSource(final String source1, final String source2) {
         final CompilationUnit compilationUnit1 = toCompilationUnit(source1);
         final CompilationUnit compilationUnit2 = toCompilationUnit(source2);
-
         return compilationUnit1.subtreeMatch(new ASTMatcher(), compilationUnit2);
     }
 
-    public ICompilationUnit createNewCompilationUnit(final String packageFragmentName, final String fileName,
+    protected ICompilationUnit createNewCompilationUnit(final String packageFragmentName, final String fileName,
             final String sourceText) {
-
         ICompilationUnit result = null;
-
         try {
             final IFolder folder = this.iProject.getFolder("src");
-
             if (!folder.exists()) {
                 folder.create(true, true, null);
             }
-
             final IPackageFragmentRoot srcFolder = this.iJavaProject.getPackageFragmentRoot(folder);
-
             Assert.assertTrue(srcFolder.exists());
-
             final IPackageFragment fragment = srcFolder.createPackageFragment(packageFragmentName, true, null);
-
             result = fragment.createCompilationUnit(fileName, sourceText, false, null);
-
         } catch (final CoreException e) {
             throw new RuntimeException(e);
         }
@@ -71,79 +104,33 @@ public class PMTest {
         return result;
     }
 
-    @Before
-    public void createProject() {
-        try {
-            final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-            this.iProject = root.getProject("pm_test_project_name");
-
-            if (this.iProject.exists()) {
-                this.iProject.delete(true, null);
-            }
-
-            this.iProject.create(null);
-            this.iProject.open(null);
-
-            final IProjectDescription description = this.iProject.getDescription();
-            description.setNatureIds(new String[] { JavaCore.NATURE_ID });
-            this.iProject.setDescription(description, null);
-
-            this.iJavaProject = JavaCore.create(this.iProject);
-
-            final IClasspathEntry[] buildPath = { JavaCore.newSourceEntry(this.iProject.getFullPath().append("src")),
-                    JavaRuntime.getDefaultJREContainerEntry() };
-
-            this.iJavaProject.setRawClasspath(buildPath, this.iProject.getFullPath().append("bin"), null);
-
-        } catch (final CoreException e) {
-            e.printStackTrace();
-
-            throw new RuntimeException(e);
-        }
-    }
-
-    @After
-    public void deleteProject() {
-        ConsistencyValidator.getInstance().reset();
-        try {
-
-            Workspace.getInstance().removeProject(this.iJavaProject);
-
-            this.iProject.delete(true, null);
-        } catch (final CoreException e) {
-            e.printStackTrace();
-
-            throw new RuntimeException(e);
-        }
-
-        this.iProject = null;
-        this.iJavaProject = null;
-    }
-
-    protected IJavaProject getIJavaProject() {
+    protected final IJavaProject getIJavaProject() {
         return this.iJavaProject;
     }
 
-    public CompilationUnit toCompilationUnit(final String source) {
-        return parseCompilationUnitFromSource(source, null);
-    }
-
-    public CompilationUnit parseCompilationUnitFromSource(final String source, final String unitName) {
-
+    protected CompilationUnit parseCompilationUnitFromSource(final String source, final String unitName) {
         final ASTParser parser = ASTParser.newParser(AST.JLS4);
-
         if (unitName != null) {
             final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", unitName, source);
-
             parser.setSource(iCompilationUnit);
         } else {
             parser.setSource(source.toCharArray());
         }
-
         parser.setResolveBindings(true);
         parser.setUnitName(unitName);
         parser.setProject(this.iJavaProject);
-
         return (CompilationUnit) parser.createAST(null);
+    }
+
+    protected void setUp() {
+        // can be overwritten by subclasses
+    }
+
+    protected void tearDown() {
+        // can be overwritten by subclasses
+    }
+
+    protected CompilationUnit toCompilationUnit(final String source) {
+        return parseCompilationUnitFromSource(source, null);
     }
 }

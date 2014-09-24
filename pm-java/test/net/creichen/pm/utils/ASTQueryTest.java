@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.junit.Before;
 import org.junit.Test;
 
 public class ASTQueryTest extends PMTest {
@@ -33,8 +32,8 @@ public class ASTQueryTest extends PMTest {
     private AST ast;
     private SimpleName simpleName;
 
-    @Before
-    public void setUp() {
+    @Override
+    protected void setUp() {
         this.ast = AST.newAST(AST.JLS4);
         this.simpleName = this.ast.newSimpleName("x");
     }
