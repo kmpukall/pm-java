@@ -45,7 +45,7 @@ public class CopyStepTest extends PMTest {
 
         final String source = "public class S {int x; void m(){x = 1; y++;} int y;}";
 
-        final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
         final NameModel nameModel = getProject().getNameModel();
 
@@ -127,7 +127,7 @@ public class CopyStepTest extends PMTest {
 
         final String source = "public class S {void m(){int x = 1; int y = 2; int z = 3; x = x + 1; z = y + x;}}";
 
-        final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
         final DefUseModel udModel = getProject().getUDModel();
 
@@ -196,7 +196,7 @@ public class CopyStepTest extends PMTest {
 
         final String source = "public class S {int x; void m(){x = 1;}}";
 
-        final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
         final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0, "S", 0,
                 getProject().getCompilationUnit(iCompilationUnit));

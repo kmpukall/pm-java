@@ -18,7 +18,6 @@ import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -36,12 +35,10 @@ public class DelegateStepTest extends PMTest {
         final String source1 = "public class S1 { void m(){/*S1*/}}";
         final String source2 = "public class S2 {void m(){/*S2*/} void b(){S1 s1; m();} }";
 
-        createNewCompilationUnit("", "S1.java", source1);
-        final ICompilationUnit compilationUnit2 = createNewCompilationUnit("", "S2.java", source2);
+        createCompilationUnit("", "S1.java", source1);
+        final ICompilationUnit compilationUnit2 = createCompilationUnit("", "S2.java", source2);
 
-        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-
-        final PMCompilationUnit s2PMCompilationUnit = pmProject
+        final PMCompilationUnit s2PMCompilationUnit = getProject()
                 .getPMCompilationUnitForICompilationUnit(compilationUnit2);
 
         final MethodDeclaration methodB = ASTQuery.findMethodByName("b", 0, "S2", 0,
@@ -52,7 +49,7 @@ public class DelegateStepTest extends PMTest {
 
         final MethodInvocation callToB = (MethodInvocation) methodInvocationStatement.getExpression();
 
-        final DelegateStep step = new DelegateStep(pmProject, callToB);
+        final DelegateStep step = new DelegateStep(getProject(), callToB);
 
         step.setDelegateIdentifier("s1");
 

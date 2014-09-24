@@ -37,71 +37,71 @@ public class PMRenameProcessorTest extends PMTest {
 
     @Test
     public void testCreateNewCompilationUnitInTest() {
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java", "public class Foo {}");
+        ICompilationUnit foo = createCompilationUnit("", "Foo.java", "public class Foo {}");
 
-        assertTrue(getProject().getPMCompilationUnitForICompilationUnit(iCompilationUnit) != null);
+        assertTrue(getProject().getPMCompilationUnitForICompilationUnit(foo) != null);
 
     }
 
     @Test
     public void testRenameLocalVariableViaDeclaration() throws JavaModelException {
 
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
+        ICompilationUnit foo = createCompilationUnit("", "Foo.java",
                 "public class Foo {void method() {int foo; foo = 5;} }");
 
-        PMRenameProcessor renameFooToStan = new PMRenameProcessor(new TextSelection(37, 3), iCompilationUnit);
+        PMRenameProcessor renameFooToStan = new PMRenameProcessor(new TextSelection(37, 3), foo);
 
         renameFooToStan.setNewName("stan");
 
         ProcessorDriver.drive(renameFooToStan);
 
-        assertEquals("public class Foo {void method() {int stan; stan = 5;} }", iCompilationUnit.getSource());
+        assertEquals("public class Foo {void method() {int stan; stan = 5;} }", foo.getSource());
 
-        PMRenameProcessor renameStanToBar = new PMRenameProcessor(new TextSelection(37, 4), iCompilationUnit);
+        PMRenameProcessor renameStanToBar = new PMRenameProcessor(new TextSelection(37, 4), foo);
 
         renameStanToBar.setNewName("bar");
 
         ProcessorDriver.drive(renameStanToBar);
 
-        assertEquals("public class Foo {void method() {int bar; bar = 5;} }", iCompilationUnit.getSource());
+        assertEquals("public class Foo {void method() {int bar; bar = 5;} }", foo.getSource());
     }
 
     @Test
     public void testRenameLocalVariableViaUse() throws JavaModelException {
 
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
+        ICompilationUnit foo = createCompilationUnit("", "Foo.java",
                 "public class Foo {void method() {int foo; foo = 5;} }");
 
-        PMRenameProcessor renameFooToStan = new PMRenameProcessor(new TextSelection(42, 3), iCompilationUnit);
+        PMRenameProcessor renameFooToStan = new PMRenameProcessor(new TextSelection(42, 3), foo);
 
         renameFooToStan.setNewName("stan");
 
         ProcessorDriver.drive(renameFooToStan);
 
-        assertEquals("public class Foo {void method() {int stan; stan = 5;} }", iCompilationUnit.getSource());
+        assertEquals("public class Foo {void method() {int stan; stan = 5;} }", foo.getSource());
 
-        PMRenameProcessor renameStanToBar = new PMRenameProcessor(new TextSelection(43, 4), iCompilationUnit);
+        PMRenameProcessor renameStanToBar = new PMRenameProcessor(new TextSelection(43, 4), foo);
 
         renameStanToBar.setNewName("bar");
 
         ProcessorDriver.drive(renameStanToBar);
 
-        assertEquals("public class Foo {void method() {int bar; bar = 5;} }", iCompilationUnit.getSource());
+        assertEquals("public class Foo {void method() {int bar; bar = 5;} }", foo.getSource());
     }
 
     @Test
     public void testRenameIVarCapturesLocal() throws JavaModelException {
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
+        ICompilationUnit foo = createCompilationUnit("", "Foo.java",
                 "public class Foo {int foo; void method() {int bar; foo = 5;} }");
 
-        PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3), iCompilationUnit);
+        PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3), foo);
 
         renameIvarToBar.setNewName("bar");
 
         ProcessorDriver.drive(renameIvarToBar);
 
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
-                iCompilationUnit.getSource());
+                foo.getSource());
 
         Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
@@ -109,7 +109,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(iCompilationUnit);
+        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
 
         ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
                 parsedCompilationUnit);
@@ -138,17 +138,17 @@ public class PMRenameProcessorTest extends PMTest {
 
     @Test
     public void testRenameThroughCapture() throws JavaModelException {
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
+        ICompilationUnit foo = createCompilationUnit("", "Foo.java",
                 "public class Foo {void method() {int foo; int bar; foo = 5; bar = 6;} }");
 
-        PMRenameProcessor renameFooToBar = new PMRenameProcessor(new TextSelection(37, 3), iCompilationUnit);
+        PMRenameProcessor renameFooToBar = new PMRenameProcessor(new TextSelection(37, 3), foo);
 
         renameFooToBar.setNewName("bar");
 
         ProcessorDriver.drive(renameFooToBar);
 
         assertEquals("public class Foo {void method() {int bar; int bar; bar = 5; bar = 6;} }",
-                iCompilationUnit.getSource());
+                foo.getSource());
 
         Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
@@ -156,8 +156,8 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(iCompilationUnit);
-        ASTNode expectedCapturedNode = getProject().nodeForSelection(new TextSelection(51, 3), iCompilationUnit);
+        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
+        ASTNode expectedCapturedNode = getProject().nodeForSelection(new TextSelection(51, 3), foo);
 
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
@@ -168,14 +168,14 @@ public class PMRenameProcessorTest extends PMTest {
 
         assertEquals(expectedCapturingNode, actualCapturingNode);
 
-        PMRenameProcessor renameBarToFoo = new PMRenameProcessor(new TextSelection(60, 3), iCompilationUnit);
+        PMRenameProcessor renameBarToFoo = new PMRenameProcessor(new TextSelection(60, 3), foo);
 
         renameBarToFoo.setNewName("foo");
 
         ProcessorDriver.drive(renameBarToFoo);
 
         assertEquals("public class Foo {void method() {int bar; int foo; bar = 5; foo = 6;} }",
-                iCompilationUnit.getSource());
+                foo.getSource());
 
         assertThat(getProject(), hasNoInconsistencies());
 
@@ -184,9 +184,9 @@ public class PMRenameProcessorTest extends PMTest {
     @Test
     public void testRenameInMultipleFiles() throws JavaModelException {
 
-        ICompilationUnit unit1 = createNewCompilationUnit("", "Unit1.java",
+        ICompilationUnit unit1 = createCompilationUnit("", "Unit1.java",
                 "public class Unit1 { public int x; void method() {x++;} }");
-        ICompilationUnit unit2 = createNewCompilationUnit("", "Unit2.java",
+        ICompilationUnit unit2 = createCompilationUnit("", "Unit2.java",
                 "public class Unit2 { void method() {Unit1 unit1 = new Unit1(); unit1.x--;} }");
 
         PMRenameProcessor renameXToY = new PMRenameProcessor(new TextSelection(32, 1), unit1);
@@ -213,17 +213,17 @@ public class PMRenameProcessorTest extends PMTest {
 
     @Test
     public void testAcceptNameCapture() throws JavaModelException {
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "Foo.java",
+        ICompilationUnit foo = createCompilationUnit("", "Foo.java",
                 "public class Foo {int foo; void method() {int bar; foo = 5;} }");
 
-        PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3), iCompilationUnit);
+        PMRenameProcessor renameIvarToBar = new PMRenameProcessor(new TextSelection(22, 3), foo);
 
         renameIvarToBar.setNewName("bar");
 
         ProcessorDriver.drive(renameIvarToBar);
 
         assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
-                iCompilationUnit.getSource());
+                foo.getSource());
 
         Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
@@ -231,7 +231,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(iCompilationUnit);
+        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
 
         ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
                 parsedCompilationUnit);

@@ -24,12 +24,12 @@ public class MoveFieldRefactoringTest extends PMTest {
 
     @Test
     public void testMoveField() throws JavaModelException {
-        final ICompilationUnit iCompilationUnitS = createNewCompilationUnit("", "S.java",
+        final ICompilationUnit s = createCompilationUnit("", "S.java",
                 "public class S { int _y; void m() {int x; _y = 7; x = 5; System.out.println(x);} }");
-        final ICompilationUnit iCompilationUnitT = createNewCompilationUnit("", "T.java", "public class T {  }");
+        final ICompilationUnit t = createCompilationUnit("", "T.java", "public class T {  }");
 
-        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnitS);
-        final CompilationUnit compilationUnitT = getProject().getCompilationUnit(iCompilationUnitT);
+        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(s);
+        final CompilationUnit compilationUnitT = getProject().getCompilationUnit(t);
 
         final FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0, compilationUnitS)
                 .getParent();
@@ -42,8 +42,8 @@ public class MoveFieldRefactoringTest extends PMTest {
 
         assertTrue(compilationUnitSourceMatchesSource(
                 "public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
-                iCompilationUnitS.getSource()));
+                s.getSource()));
 
-        assertTrue(compilationUnitSourceMatchesSource("public class T { int _y;  }", iCompilationUnitT.getSource()));
+        assertTrue(compilationUnitSourceMatchesSource("public class T { int _y;  }", t.getSource()));
     }
 }

@@ -18,7 +18,6 @@ import java.util.Set;
 
 import net.creichen.pm.api.NodeReference;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -38,17 +37,15 @@ public class SplitStepTest extends PMTest {
 
     @Test
     public void testSimplestCase() throws JavaModelException {
-        final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java",
+        final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        final Project project = Workspace.getInstance().getProject(getIJavaProject());
-
         final Assignment secondAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0, "S", 0,
-                project.getCompilationUnit(iCompilationUnit));
+                getProject().getCompilationUnit(iCompilationUnit));
 
         final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
 
-        final SplitStep step = new SplitStep(project, assignmentStatement);
+        final SplitStep step = new SplitStep(getProject(), assignmentStatement);
 
         step.applyAllAtOnce();
 
@@ -64,26 +61,26 @@ public class SplitStepTest extends PMTest {
 
         // Name model test
 
-        final NameModel nameModel = project.getNameModel();
+        final NameModel nameModel = getProject().getNameModel();
 
         // First two occurrences of x should have same identifier
         // Second two occurrences of x should have same identifier (different
         // from first identifier)
 
-        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0,
-                "S", 0, project.getCompilationUnit(iCompilationUnit));
-        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0,
-                "S", 0, project.getCompilationUnit(iCompilationUnit));
+        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0,
+                getProject().getCompilationUnit(iCompilationUnit));
+        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0, "S", 0,
+                getProject().getCompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.getIdentifierForName(firstX));
         assertNotNull(nameModel.getIdentifierForName(secondX));
 
         assertEquals(nameModel.getIdentifierForName(firstX), nameModel.getIdentifierForName(secondX));
 
-        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0,
-                "S", 0, project.getCompilationUnit(iCompilationUnit));
-        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0,
-                "S", 0, project.getCompilationUnit(iCompilationUnit));
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0,
+                getProject().getCompilationUnit(iCompilationUnit));
+        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0, "S", 0,
+                getProject().getCompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.getIdentifierForName(thirdX));
         assertNotNull(nameModel.getIdentifierForName(fourthX));
@@ -108,7 +105,7 @@ public class SplitStepTest extends PMTest {
 
         // DU/UD test
 
-        final DefUseModel udModel = project.getUDModel();
+        final DefUseModel udModel = getProject().getUDModel();
 
         // The use for the second declaration should be the fourthX
 

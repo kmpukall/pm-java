@@ -85,7 +85,7 @@ public abstract class PMTest {
         return compilationUnit1.subtreeMatch(new ASTMatcher(), compilationUnit2);
     }
 
-    protected ICompilationUnit createNewCompilationUnit(final String packageFragmentName, final String fileName,
+    protected ICompilationUnit createCompilationUnit(final String packageFragmentName, final String fileName,
             final String sourceText) {
         ICompilationUnit result = null;
         try {
@@ -111,7 +111,7 @@ public abstract class PMTest {
     protected CompilationUnit parseCompilationUnitFromSource(final String source, final String unitName) {
         final ASTParser parser = ASTParser.newParser(AST.JLS4);
         if (unitName != null) {
-            final ICompilationUnit iCompilationUnit = createNewCompilationUnit("", unitName, source);
+            final ICompilationUnit iCompilationUnit = createCompilationUnit("", unitName, source);
             parser.setSource(iCompilationUnit);
         } else {
             parser.setSource(source.toCharArray());

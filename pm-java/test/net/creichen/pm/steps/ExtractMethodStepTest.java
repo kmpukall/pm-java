@@ -17,7 +17,6 @@ import java.util.List;
 
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -37,10 +36,9 @@ public class ExtractMethodStepTest extends PMTest {
     @Ignore
     public void testExtractLocalVariableExpression() {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
-        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
-        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-        final PMCompilationUnit pmCompilationUnitS = pmProject
-                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
+        final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
+        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
+                compilationUnitS);
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 pmCompilationUnitS.getCompilationUnit());
         final Block bodyBlock = methodDeclaration.getBody();
@@ -48,19 +46,18 @@ public class ExtractMethodStepTest extends PMTest {
         final MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
         final Expression expression = (Expression) methodInvocation.arguments().get(0);
 
-        final ExtractMethodStep step = new ExtractMethodStep(pmProject, expression);
+        final ExtractMethodStep step = new ExtractMethodStep(getProject(), expression);
 
         step.applyAllAtOnce();
 
-        assertThat(pmProject, hasNoInconsistencies());
+        assertThat(getProject(), hasNoInconsistencies());
     }
 
     @Test
     public void testGetNamesToExtract() {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
-        final ICompilationUnit compilationUnitS = createNewCompilationUnit("", "S.java", source);
-        final Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
-        final PMCompilationUnit pmCompilationUnitS = pmProject
+        final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
+        final PMCompilationUnit pmCompilationUnitS = getProject()
                 .getPMCompilationUnitForICompilationUnit(compilationUnitS);
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 pmCompilationUnitS.getCompilationUnit());
@@ -69,7 +66,7 @@ public class ExtractMethodStepTest extends PMTest {
         final MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
         final Expression expression = (Expression) methodInvocation.arguments().get(0);
 
-        final ExtractMethodStep step = new ExtractMethodStep(pmProject, expression);
+        final ExtractMethodStep step = new ExtractMethodStep(getProject(), expression);
 
         final List<SimpleName> namesToExtract = step.getNamesToExtract();
         assertEquals(2, namesToExtract.size());

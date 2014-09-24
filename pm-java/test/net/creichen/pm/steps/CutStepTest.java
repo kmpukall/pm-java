@@ -15,8 +15,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
@@ -37,15 +35,14 @@ public class CutStepTest extends PMTest {
     public void testInstantiation() {
         String source = "public class S {S s; void m(){s.getClass(); m();}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        ICompilationUnit compilationUnit = createCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                pmProject.getCompilationUnit(iCompilationUnit));
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
 
-        CutStep cutStep = new CutStep(pmProject, methodDeclaration);
+        CutStep cutStep = new CutStep(getProject(), methodDeclaration);
 
         assertTrue(cutStep != null); // just to make warning go away
     }
@@ -56,15 +53,14 @@ public class CutStepTest extends PMTest {
     public void testCutMethod() throws JavaModelException {
         String source = "public class S {S s; void m(){System.out.println(s);}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        ICompilationUnit compilationUnit = createCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                pmProject.getCompilationUnit(iCompilationUnit));
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
 
-        CutStep cutStep = new CutStep(pmProject, methodDeclaration);
+        CutStep cutStep = new CutStep(getProject(), methodDeclaration);
 
         cutStep.applyAllAtOnce();
 
@@ -75,17 +71,16 @@ public class CutStepTest extends PMTest {
     public void testCutStatement() throws JavaModelException {
         String source = "public class S {S s; void m(){System.out.println(s);}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        ICompilationUnit compilationUnit = createCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                pmProject.getCompilationUnit(iCompilationUnit));
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
 
         Statement firstStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
-        CutStep cutStep = new CutStep(pmProject, firstStatement);
+        CutStep cutStep = new CutStep(getProject(), firstStatement);
 
         cutStep.applyAllAtOnce();
 
@@ -96,17 +91,16 @@ public class CutStepTest extends PMTest {
     public void testCutField() throws JavaModelException {
         String source = "public class S {S s; void m(){System.out.println(s);}}";
 
-        ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        ICompilationUnit compilationUnit = createCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit = compilationUnit;
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("s", 0, "S", 0,
-                pmProject.getCompilationUnit(iCompilationUnit));
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("s", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
-        CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
+        CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
 
         cutStep.applyAllAtOnce();
 
@@ -118,12 +112,11 @@ public class CutStepTest extends PMTest {
     public void testCutMultipleStatements() throws JavaModelException {
         String source = "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}";
 
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
+        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        CompilationUnit compilationUnit = pmProject.getCompilationUnit(iCompilationUnit1);
+        CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit1);
 
         MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnit);
 
@@ -134,7 +127,7 @@ public class CutStepTest extends PMTest {
         nodesToCut.add(thirdStatement);
         nodesToCut.add(fourthStatement);
 
-        CutStep cutStep = new CutStep(pmProject, nodesToCut);
+        CutStep cutStep = new CutStep(getProject(), nodesToCut);
 
         cutStep.applyAllAtOnce();
 
@@ -149,18 +142,17 @@ public class CutStepTest extends PMTest {
     public void testCutDeclarationButNotReference() throws JavaModelException {
         String source = "public class S {void m(){int x; x = 1;}}";
 
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
+        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        CompilationUnit compilationUnit = pmProject.getCompilationUnit(iCompilationUnit1);
+        CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit1);
 
         MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnit);
 
         Statement secondStatement = (Statement) methodDeclaration.getBody().statements().get(0);
 
-        CutStep cutStep = new CutStep(pmProject, secondStatement);
+        CutStep cutStep = new CutStep(getProject(), secondStatement);
 
         cutStep.applyAllAtOnce();
 
@@ -172,17 +164,16 @@ public class CutStepTest extends PMTest {
     public void testCutFieldWithReference() throws JavaModelException {
         String source = "public class S {int x; void m(){x = 1;}}";
 
-        ICompilationUnit iCompilationUnit = createNewCompilationUnit("", "S.java", source);
+        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
-        Project pmProject = Workspace.getInstance().getProject(getIJavaProject());
         final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
 
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0, "S", 0,
-                pmProject.getCompilationUnit(iCompilationUnit1));
+        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit1));
 
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
-        CutStep cutStep = new CutStep(pmProject, fieldDeclaration);
+        CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
 
         cutStep.applyAllAtOnce();
 

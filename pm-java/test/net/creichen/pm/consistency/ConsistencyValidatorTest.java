@@ -21,7 +21,7 @@ public class ConsistencyValidatorTest extends PMTest {
     public void testArrayLengthIsSane() {
         String source = "public class S {void m(){int array[] = new int[5]; System.out.println(array.length); } }";
 
-        createNewCompilationUnit("", "S.java", source);
+        createCompilationUnit("", "S.java", source);
 
         assertThat(getProject(), hasNoInconsistencies());
     }

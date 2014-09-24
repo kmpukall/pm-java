@@ -16,7 +16,6 @@ import java.util.Collection;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
-import net.creichen.pm.core.Workspace;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -29,11 +28,9 @@ public class SplitProcessorTest extends PMTest {
     public void testStraightlineCode() throws JavaModelException {
         final String source = "public class S {void m(){int x;x = 1;x = x + 1;}}";
 
-        final ICompilationUnit compilationUnit = createNewCompilationUnit("", "S.java", source);
+        final ICompilationUnit compilationUnit = createCompilationUnit("", "S.java", source);
 
         final SplitProcessor splitTemporary = new SplitProcessor(new TextSelection(31, 6), compilationUnit);
-
-        Workspace.getInstance().getProject(getIJavaProject());
 
         ProcessorDriver.drive(splitTemporary);
 
