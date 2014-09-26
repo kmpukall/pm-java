@@ -10,6 +10,7 @@
 package net.creichen.pm.steps;
 
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -54,14 +55,13 @@ public class CopyStepTest extends PMTest {
 
         final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnit);
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) ASTQuery.findFieldByName("x", 0, "S", 0,
-                compilationUnitS).getParent();
+        final TypeDeclaration type = findClassByName("S", compilationUnitS);
+        final FieldDeclaration fieldDeclaration = findFieldByName("x", type);
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()
                 .get(0)).getName();
         final String fieldDeclarationOriginalNameIdentifier = nameModel
                 .getIdentifierForName(fieldDeclarationOriginalName);
 
-        final TypeDeclaration type = findClassByName("S", compilationUnitS);
         final MethodDeclaration methodDeclaration = findMethodByName("m", type);
         final SimpleName methodDeclarationOriginalName = methodDeclaration.getName();
         final String methodDeclarationOriginalNameIdentifier = nameModel
@@ -202,10 +202,8 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
-        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit));
-
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
+        final TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit));
+        final FieldDeclaration fieldDeclaration = findFieldByName("x", type);
 
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()
                 .get(0)).getName();

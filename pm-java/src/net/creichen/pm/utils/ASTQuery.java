@@ -145,10 +145,9 @@ public final class ASTQuery {
         return Iterables.get(matchingFragments, fieldNameOccurrence, null);
     }
 
-    public static VariableDeclarationFragment findFieldByName(final TypeDeclaration classDeclaration,
-            final String fieldName) {
+    public static FieldDeclaration findFieldByName(final String fieldName, final TypeDeclaration classDeclaration) {
         Iterable<VariableDeclarationFragment> matchingFragments = getFieldsByName(classDeclaration, fieldName);
-        return Iterables.get(matchingFragments, 0, null);
+        return (FieldDeclaration) Iterables.get(matchingFragments, 0, null).getParent();
     }
 
     public static Iterable<VariableDeclarationFragment> getFieldsByName(final TypeDeclaration classDeclaration,

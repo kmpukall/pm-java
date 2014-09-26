@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.junit.Test;
 
 public class CutStepTest extends PMTest {
@@ -53,8 +52,7 @@ public class CutStepTest extends PMTest {
     @Test
     public void testCutField() throws JavaModelException {
         TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
-        VariableDeclarationFragment fieldDeclarationFragment = findFieldByName(type, "s");
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
+        FieldDeclaration fieldDeclaration = findFieldByName("s", type);
 
         new CutStep(getProject(), fieldDeclaration).applyAllAtOnce();
 
@@ -65,7 +63,7 @@ public class CutStepTest extends PMTest {
     public void testCutFieldWithReference() throws JavaModelException {
         TypeDeclaration type = createClass("public class S {int x; void m(){x = 1;}}");
 
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) findFieldByName(type, "x").getParent();
+        FieldDeclaration fieldDeclaration = findFieldByName("x", type);
 
         new CutStep(getProject(), fieldDeclaration).applyAllAtOnce();
 

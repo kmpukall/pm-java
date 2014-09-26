@@ -9,6 +9,8 @@
 
 package net.creichen.pm.refactorings;
 
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static org.junit.Assert.assertTrue;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
@@ -31,8 +33,8 @@ public class MoveFieldRefactoringTest extends PMTest {
         final CompilationUnit compilationUnitS = getProject().getCompilationUnit(s);
         final CompilationUnit compilationUnitT = getProject().getCompilationUnit(t);
 
-        final FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0, compilationUnitS)
-                .getParent();
+        final TypeDeclaration type = findClassByName("S", compilationUnitS);
+        final FieldDeclaration yField = findFieldByName("_y", type);
 
         final TypeDeclaration classT = ASTQuery.findClassByName("T", compilationUnitT);
 
