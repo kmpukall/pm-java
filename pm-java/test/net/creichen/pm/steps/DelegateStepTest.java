@@ -9,6 +9,8 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -18,12 +20,12 @@ import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.tests.PMTest;
-import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.junit.Test;
 
 public class DelegateStepTest extends PMTest {
@@ -40,8 +42,8 @@ public class DelegateStepTest extends PMTest {
         final PMCompilationUnit s2PMCompilationUnit = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnit2);
 
-        final MethodDeclaration methodB = ASTQuery.findMethodByName("b", 0, "S2", 0,
-                s2PMCompilationUnit.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("S2", s2PMCompilationUnit.getCompilationUnit());
+        final MethodDeclaration methodB = findMethodByName("b", type);
 
         final ExpressionStatement methodInvocationStatement = (ExpressionStatement) methodB.getBody().statements()
                 .get(1);

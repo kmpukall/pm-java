@@ -10,6 +10,7 @@
 package net.creichen.pm.steps;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -26,6 +27,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -38,8 +40,8 @@ public class ExtractMethodStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitS);
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         final Block bodyBlock = methodDeclaration.getBody();
         final ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);
         final MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
@@ -58,8 +60,8 @@ public class ExtractMethodStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitS);
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
-                pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         final Block bodyBlock = methodDeclaration.getBody();
         final ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);
         final MethodInvocation methodInvocation = (MethodInvocation) printlnStatement.getExpression();
@@ -77,5 +79,4 @@ public class ExtractMethodStepTest extends PMTest {
                 namesToExtract.get(1));
 
     }
-
 }

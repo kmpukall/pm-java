@@ -80,9 +80,9 @@ public final class ASTQuery {
         return constructors;
     }
 
-    public static Assignment assignmentInMethodInClassInCompilationUnit(final int assignmentOccurrence,
-            final String methodName, final int methodNameOccurrence, final String className,
-            final int classNameOccurrence, final CompilationUnit compilationUnit) {
+    public static Assignment findAssignmentInMethod(final int assignmentOccurrence, final String methodName,
+            final int methodNameOccurrence, final String className, final int classNameOccurrence,
+            final CompilationUnit compilationUnit) {
         final MethodDeclaration methodDeclaration = findMethodByName(methodName, methodNameOccurrence, className,
                 classNameOccurrence, compilationUnit);
 
@@ -179,17 +179,12 @@ public final class ASTQuery {
     public static MethodDeclaration findMethodByName(final String methodName, final int methodNameOccurrence,
             final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
         final TypeDeclaration classDeclaration = findClassByName(className, classNameOccurrence, compilationUnit);
-
-        return findMethodByName(methodName, methodNameOccurrence, classDeclaration);
-    }
-
-    public static MethodDeclaration findMethodByName(final String methodName, final int methodNameOccurrence,
-            final TypeDeclaration classDeclaration) {
         Collection<MethodDeclaration> matchingMethods = getMethodsByName(classDeclaration, methodName);
+
         return get(matchingMethods, methodNameOccurrence, null);
     }
 
-    public static MethodDeclaration findMethodByName(final TypeDeclaration classDeclaration, final String methodName) {
+    public static MethodDeclaration findMethodByName(final String methodName, final TypeDeclaration classDeclaration) {
         Collection<MethodDeclaration> matchingMethods = getMethodsByName(classDeclaration, methodName);
 
         return get(matchingMethods, 0, null);
@@ -200,13 +195,6 @@ public final class ASTQuery {
         return Collections2.filter(Arrays.asList(classDeclaration.getMethods()), hasMethodName(methodName));
     }
 
-    /**
-     *
-     * @param selectionOffset
-     * @param selectionLength
-     * @param compilationUnit
-     * @return
-     */
     public static ASTNode findNodeForSelection(final int selectionOffset, final int selectionLength,
             final CompilationUnit compilationUnit) {
 
@@ -214,17 +202,6 @@ public final class ASTQuery {
         return org.eclipse.jdt.core.dom.NodeFinder.perform(compilationUnit, selectionOffset, selectionLength);
     }
 
-    /**
-     *
-     * @param simpleNameIdentifier
-     * @param simpleNameOccurrence
-     * @param methodName
-     * @param methodNameOccurrence
-     * @param className
-     * @param classNameOccurrence
-     * @param compilationUnit
-     * @return
-     */
     public static SimpleName findSimpleNameByIdentifier(final String simpleNameIdentifier,
             final int simpleNameOccurrence, final String methodName, final int methodNameOccurrence,
             final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
@@ -234,13 +211,6 @@ public final class ASTQuery {
         return findSimpleNameByIdentifier(simpleNameIdentifier, simpleNameOccurrence, methodDeclaration.getBody());
     }
 
-    /**
-     *
-     * @param simpleNameIdentifier
-     * @param simpleNameOccurrence
-     * @param node
-     * @return
-     */
     public static SimpleName findSimpleNameByIdentifier(final String simpleNameIdentifier,
             final int simpleNameOccurrence, final ASTNode node) {
         final SimpleName[] result = new SimpleName[1]; // use aray to be able to

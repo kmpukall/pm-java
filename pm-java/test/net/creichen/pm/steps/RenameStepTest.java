@@ -9,6 +9,8 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -82,8 +84,8 @@ public class RenameStepTest extends PMTest {
 
         assertTrue(matchesSource(expectedNewSourceAfterRenameClass, pmCompilationUnitS.getSource()));
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("T", 0, "T", 0,
-                pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("T", pmCompilationUnitS.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = findMethodByName("T", type);
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -195,8 +197,8 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitS);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("A", 0, "A", 0,
-                pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("A", pmCompilationUnitS.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = findMethodByName("A", type);
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -222,8 +224,8 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitS);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("S", 0, "S", 0,
-                pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = findMethodByName("S", type);
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -270,8 +272,8 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitB = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitB);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("A", 0, "A", 0,
-                pmCompilationUnitA.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("A", pmCompilationUnitA.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = findMethodByName("A", type);
 
         final SimpleName methodName = methodDeclaration.getName();
 
@@ -312,8 +314,8 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitB = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitB);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("A", 0, "A", 0,
-                pmCompilationUnitA.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("A", pmCompilationUnitA.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = findMethodByName("A", type);
 
         final SimpleName methodName = methodDeclaration.getName();
 

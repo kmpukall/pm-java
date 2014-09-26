@@ -26,7 +26,7 @@ public class SplitTemporaryRefactoringTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        final Assignment secondAssignment = ASTQuery.assignmentInMethodInClassInCompilationUnit(1, "m", 0, "S", 0,
+        final Assignment secondAssignment = ASTQuery.findAssignmentInMethod(1, "m", 0, "S", 0,
                 getProject().getCompilationUnit(iCompilationUnit));
 
         final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();

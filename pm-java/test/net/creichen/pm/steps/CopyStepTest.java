@@ -9,6 +9,8 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -35,6 +37,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.junit.Test;
 
@@ -58,7 +61,8 @@ public class CopyStepTest extends PMTest {
         final String fieldDeclarationOriginalNameIdentifier = nameModel
                 .getIdentifierForName(fieldDeclarationOriginalName);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnitS);
+        final TypeDeclaration type = findClassByName("S", compilationUnitS);
+        final MethodDeclaration methodDeclaration = findMethodByName("m", type);
         final SimpleName methodDeclarationOriginalName = methodDeclaration.getName();
         final String methodDeclarationOriginalNameIdentifier = nameModel
                 .getIdentifierForName(methodDeclarationOriginalName);
@@ -78,8 +82,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(matchesSource("public class S {int x; void m(){x = 1; y++;} int y;}",
-                iCompilationUnit.getSource()));
+        assertTrue(matchesSource("public class S {int x; void m(){x = 1; y++;} int y;}", iCompilationUnit.getSource()));
 
         final MethodDeclaration methodDeclarationCopy = (MethodDeclaration) Pasteboard.getInstance()
                 .getPasteboardRoots().get(0);
@@ -133,7 +136,8 @@ public class CopyStepTest extends PMTest {
 
         final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnit);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnitS);
+        final TypeDeclaration type = findClassByName("S", compilationUnitS);
+        final MethodDeclaration methodDeclaration = findMethodByName("m", type);
 
         final ExpressionStatement fourthStatementOriginal = (ExpressionStatement) methodDeclaration.getBody()
                 .statements().get(3);
@@ -215,8 +219,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(matchesSource("public class S {int x; void m(){x = 1;}}",
-                iCompilationUnit.getSource()));
+        assertTrue(matchesSource("public class S {int x; void m(){x = 1;}}", iCompilationUnit.getSource()));
 
         final FieldDeclaration fieldDeclarationCopy = (FieldDeclaration) Pasteboard.getInstance().getPasteboardRoots()
                 .get(0);

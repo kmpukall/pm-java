@@ -41,7 +41,7 @@ public class CutStepTest extends PMTest {
     @Test
     public void testCutDeclarationButNotReference() throws JavaModelException {
         TypeDeclaration type = createClass("public class S {void m(){int x; x = 1;}}");
-        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+        MethodDeclaration methodDeclaration = findMethodByName("m", type);
         List<Statement> statements = statements(methodDeclaration.getBody());
 
         new CutStep(getProject(), statements.get(0)).applyAllAtOnce();
@@ -75,7 +75,7 @@ public class CutStepTest extends PMTest {
     @Test
     public void testCutMethod() throws JavaModelException {
         TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
-        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+        MethodDeclaration methodDeclaration = findMethodByName("m", type);
 
         new CutStep(getProject(), methodDeclaration).applyAllAtOnce();
 
@@ -85,7 +85,7 @@ public class CutStepTest extends PMTest {
     @Test
     public void testCutMultipleStatements() throws JavaModelException {
         TypeDeclaration type = createClass("public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}");
-        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+        MethodDeclaration methodDeclaration = findMethodByName("m", type);
         List<Statement> statements = statements(methodDeclaration.getBody());
 
         List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
@@ -102,7 +102,7 @@ public class CutStepTest extends PMTest {
     @Test
     public void testCutStatement() throws JavaModelException {
         TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName(type, "m");
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         Statement firstStatement = statements(methodDeclaration.getBody()).get(0);
 
         new CutStep(getProject(), firstStatement).applyAllAtOnce();
@@ -113,7 +113,7 @@ public class CutStepTest extends PMTest {
     @Test
     public void testInstantiation() {
         TypeDeclaration type = createClass("public class S {S s; void m(){s.getClass(); m();}}");
-        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+        MethodDeclaration methodDeclaration = findMethodByName("m", type);
 
         new CutStep(getProject(), methodDeclaration);
     }
