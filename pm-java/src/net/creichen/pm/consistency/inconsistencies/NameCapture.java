@@ -9,7 +9,6 @@
 
 package net.creichen.pm.consistency.inconsistencies;
 
-import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.models.NameModel;
 import net.creichen.pm.utils.ASTQuery;
@@ -24,9 +23,9 @@ public class NameCapture extends Inconsistency {
     private final ASTNode actualDeclaration;
     private Project project;
 
-    public NameCapture(final Project project, final PMCompilationUnit iCompilationUnit, final ASTNode capturedNode,
-            final ASTNode expectedDeclaration, final ASTNode actualDeclaration) {
-        super(iCompilationUnit, capturedNode);
+    public NameCapture(final Project project, final ASTNode capturedNode, final ASTNode expectedDeclaration,
+            final ASTNode actualDeclaration) {
+        super(capturedNode);
         this.project = project;
         this.expectedDeclaration = expectedDeclaration;
         this.actualDeclaration = actualDeclaration;

@@ -28,15 +28,14 @@ class NameModelConsistencyCheck {
     public Set<Inconsistency> calculateInconsistencies(final NameModel model) {
         final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
         for (final PMCompilationUnit compilationUnit : this.project.getPMCompilationUnits()) {
-            inconsistencies.addAll(findInconsistenciesInCompilationUnit(model, compilationUnit));
+            inconsistencies.addAll(findInconsistenciesInCompilationUnit(model, compilationUnit.getCompilationUnit()));
         }
         return inconsistencies;
     }
 
     private Set<Inconsistency> findInconsistenciesInCompilationUnit(final NameModel nameModel,
-            final PMCompilationUnit pmCompilationUnit) {
+            final CompilationUnit compilationUnit) {
         final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
-        final CompilationUnit compilationUnit = pmCompilationUnit.getCompilationUnit();
 
         final Set<SimpleName> simpleNamesInCompilationUnit = simpleNamesInCompilationUnit(compilationUnit);
 
@@ -52,16 +51,14 @@ class NameModelConsistencyCheck {
                 final String usingIdentifier = nameModel.getIdentifierForName(simpleName);
 
                 if (usingIdentifier == null) {
-                    inconsistencies.add(new UnknownName(pmCompilationUnit, simpleName));
+                    inconsistencies.add(new UnknownName(simpleName));
                 } else {
                     if (declaringIdentifier != usingIdentifier || !declaringIdentifier.equals(usingIdentifier)) {
-                        inconsistencies.add(new NameCapture(this.project, pmCompilationUnit, simpleName, null,
-                                declaringNode));
+                        inconsistencies.add(new NameCapture(this.project, simpleName, null, declaringNode));
                     }
                 }
                 if (!declaringSimpleName.getIdentifier().equals(simpleName.getIdentifier())) {
-                    inconsistencies.add(new NameConflict(pmCompilationUnit, simpleName, declaringSimpleName
-                            .getIdentifier()));
+                    inconsistencies.add(new NameConflict(simpleName, declaringSimpleName.getIdentifier()));
                 }
             }
         }

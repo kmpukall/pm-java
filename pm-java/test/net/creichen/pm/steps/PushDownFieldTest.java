@@ -76,11 +76,11 @@ public class PushDownFieldTest extends PMTest {
         cutStep.applyAllAtOnce();
 
         assertThat(getProject(), hasNoInconsistencies());
-        assertTrue(compilationUnitSourceMatchesSource("public class S {} }", iCompilationUnitS.getSource()));
+        assertTrue(matchesSource("public class S {} }", iCompilationUnitS.getSource()));
 
-        assertTrue(compilationUnitSourceMatchesSource("public class T1 extends S { int _y;  }",
+        assertTrue(matchesSource("public class T1 extends S { int _y;  }",
                 iCompilationUnitT1.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource("public class T2 extends S { int _y;  }",
+        assertTrue(matchesSource("public class T2 extends S { int _y;  }",
                 iCompilationUnitT2.getSource()));
 
     }

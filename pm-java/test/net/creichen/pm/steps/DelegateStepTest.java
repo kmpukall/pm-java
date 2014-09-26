@@ -17,7 +17,6 @@ import java.util.Collection;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
-import net.creichen.pm.core.Project;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -38,8 +37,8 @@ public class DelegateStepTest extends PMTest {
         createCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createCompilationUnit("", "S2.java", source2);
 
-        final PMCompilationUnit s2PMCompilationUnit = getProject()
-                .getPMCompilationUnitForICompilationUnit(compilationUnit2);
+        final PMCompilationUnit s2PMCompilationUnit = getProject().getPMCompilationUnitForICompilationUnit(
+                compilationUnit2);
 
         final MethodDeclaration methodB = ASTQuery.findMethodByName("b", 0, "S2", 0,
                 s2PMCompilationUnit.getCompilationUnit());
@@ -55,7 +54,7 @@ public class DelegateStepTest extends PMTest {
 
         step.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }",
+        assertTrue(matchesSource("public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }",
                 s2PMCompilationUnit.getSource()));
 
         final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();

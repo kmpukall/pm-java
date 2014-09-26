@@ -20,6 +20,7 @@ import static net.creichen.pm.utils.factories.PredicateFactory.isNotInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import net.creichen.pm.utils.visitors.VariableDeclarationCollector;
@@ -37,6 +38,7 @@ import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 
 public final class ASTQuery {
@@ -127,39 +129,38 @@ public final class ASTQuery {
         return get(matchingClasses, classNameOccurrence, null);
     }
 
-    /**
-     *
-     * @param fieldName
-     * @param fieldNameOccurrence
-     * @param className
-     * @param classNameOccurrence
-     * @param compilationUnit
-     * @return
-     */
+    public static TypeDeclaration findClassByName(final CompilationUnit compilationUnit, final String className) {
+
+        Iterable<TypeDeclaration> typeDeclarations = filter(types(compilationUnit), TypeDeclaration.class);
+        Iterable<TypeDeclaration> classes = filter(typeDeclarations, isNotInterface());
+        Iterable<TypeDeclaration> matchingClasses = filter(classes, hasClassName(className));
+
+        return get(matchingClasses, 0, null);
+    }
+
     public static VariableDeclarationFragment findFieldByName(final String fieldName, final int fieldNameOccurrence,
             final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
         final TypeDeclaration classDeclaration = findClassByName(className, classNameOccurrence, compilationUnit);
+        Iterable<VariableDeclarationFragment> matchingFragments = getFieldsByName(classDeclaration, fieldName);
+        return Iterables.get(matchingFragments, fieldNameOccurrence, null);
+    }
 
+    public static VariableDeclarationFragment findFieldByName(final TypeDeclaration classDeclaration,
+            final String fieldName) {
+        Iterable<VariableDeclarationFragment> matchingFragments = getFieldsByName(classDeclaration, fieldName);
+        return Iterables.get(matchingFragments, 0, null);
+    }
+
+    public static Iterable<VariableDeclarationFragment> getFieldsByName(final TypeDeclaration classDeclaration,
+            final String fieldName) {
         List<VariableDeclarationFragment> fragments = new ArrayList<VariableDeclarationFragment>();
         for (final FieldDeclaration fieldDeclaration : classDeclaration.getFields()) {
             fragments.addAll(fragments(fieldDeclaration));
         }
 
-        Iterable<VariableDeclarationFragment> matchingFragments = filter(fragments, hasVariableName(fieldName));
-        return Iterables.get(matchingFragments, fieldNameOccurrence, /* or default to */null);
+        return filter(fragments, hasVariableName(fieldName));
     }
 
-    /**
-     *
-     * @param localName
-     * @param localNameOccurrence
-     * @param methodName
-     * @param methodNameOccurrence
-     * @param className
-     * @param classNameOccurrence
-     * @param compilationUnit
-     * @return
-     */
     public static VariableDeclaration findLocalByName(final String localName, final int localNameOccurrence,
             final String methodName, final int methodNameOccurrence, final String className,
             final int classNameOccurrence, final CompilationUnit compilationUnit) {
@@ -175,23 +176,28 @@ public final class ASTQuery {
         return get(matchingDeclarations, localNameOccurrence, null);
     }
 
-    /**
-     *
-     * @param methodName
-     * @param methodNameOccurrence
-     * @param className
-     * @param classNameOccurrence
-     * @param compilationUnit
-     * @return
-     */
     public static MethodDeclaration findMethodByName(final String methodName, final int methodNameOccurrence,
             final String className, final int classNameOccurrence, final CompilationUnit compilationUnit) {
         final TypeDeclaration classDeclaration = findClassByName(className, classNameOccurrence, compilationUnit);
 
-        Iterable<MethodDeclaration> matchingMethods = filter(Arrays.asList(classDeclaration.getMethods()),
-                hasMethodName(methodName));
+        return findMethodByName(methodName, methodNameOccurrence, classDeclaration);
+    }
 
+    public static MethodDeclaration findMethodByName(final String methodName, final int methodNameOccurrence,
+            final TypeDeclaration classDeclaration) {
+        Collection<MethodDeclaration> matchingMethods = getMethodsByName(classDeclaration, methodName);
         return get(matchingMethods, methodNameOccurrence, null);
+    }
+
+    public static MethodDeclaration findMethodByName(final TypeDeclaration classDeclaration, final String methodName) {
+        Collection<MethodDeclaration> matchingMethods = getMethodsByName(classDeclaration, methodName);
+
+        return get(matchingMethods, 0, null);
+    }
+
+    public static Collection<MethodDeclaration> getMethodsByName(final TypeDeclaration classDeclaration,
+            final String methodName) {
+        return Collections2.filter(Arrays.asList(classDeclaration.getMethods()), hasMethodName(methodName));
     }
 
     /**

@@ -79,7 +79,7 @@ public abstract class PMTest {
         this.iJavaProject = null;
     }
 
-    protected boolean compilationUnitSourceMatchesSource(final String source1, final String source2) {
+    protected boolean matchesSource(final String source1, final String source2) {
         final CompilationUnit compilationUnit1 = toCompilationUnit(source1);
         final CompilationUnit compilationUnit2 = toCompilationUnit(source2);
         return compilationUnit1.subtreeMatch(new ASTMatcher(), compilationUnit2);

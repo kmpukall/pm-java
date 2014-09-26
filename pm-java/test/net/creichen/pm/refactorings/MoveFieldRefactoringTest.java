@@ -40,10 +40,10 @@ public class MoveFieldRefactoringTest extends PMTest {
 
         refactoring.apply();
 
-        assertTrue(compilationUnitSourceMatchesSource(
+        assertTrue(matchesSource(
                 "public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
                 s.getSource()));
 
-        assertTrue(compilationUnitSourceMatchesSource("public class T { int _y;  }", t.getSource()));
+        assertTrue(matchesSource("public class T { int _y;  }", t.getSource()));
     }
 }

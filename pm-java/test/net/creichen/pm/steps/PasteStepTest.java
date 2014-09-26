@@ -14,7 +14,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.creichen.pm.core.Project;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -58,9 +57,9 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S1 {void m1(){System.out.println(s);}}",
+        assertTrue(matchesSource("public class S1 {void m1(){System.out.println(s);}}",
                 compilationUnit1.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource("public class S2 {void a(){} S1 s; void b(){} }",
+        assertTrue(matchesSource("public class S2 {void a(){} S1 s; void b(){} }",
                 compilationUnit2.getSource()));
     }
 
@@ -88,8 +87,8 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S1 {S1 s;}", compilationUnit1.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(
+        assertTrue(matchesSource("public class S1 {S1 s;}", compilationUnit1.getSource()));
+        assertTrue(matchesSource(
                 "public class S2 {String a;  void m(){System.out.println(s);} String b;", compilationUnit2.getSource()));
     }
 
@@ -120,9 +119,9 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S1 {S1 s; void m(){}}",
+        assertTrue(matchesSource("public class S1 {S1 s; void m(){}}",
                 compilationUnit1.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(
+        assertTrue(matchesSource(
                 "public class S2 {void a(){System.out.println(1);System.out.println(s); System.out.println(2);}}",
                 compilationUnit2.getSource()));
     }
@@ -148,7 +147,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x,y; int a; x = 2;}}",
+        assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}",
                 iCompilationUnit.getSource()));
 
         // have to get new ASTNodes b/c of reparsing
@@ -161,7 +160,7 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource(
+        assertTrue(matchesSource(
                 "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}", iCompilationUnit.getSource()));
 
     }
@@ -193,8 +192,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "package A; public class S extends A.T {void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "package B; public class T {String string = foo(); }";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -226,8 +225,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
         final String expectedNewSourceT = "public class T {String string;}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -257,8 +256,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
         final String expectedNewSourceT = "public class T {String string = \"Bar\";}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -288,8 +287,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "public class T {String string = foo();}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -319,8 +318,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "public class T {static String string = foo();}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
     @Test
@@ -332,8 +331,8 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createCompilationUnit("", "T.java", sourceT);
 
-        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("foo", 0, "S", 0,
-                getProject().getCompilationUnit(compilationUnitS));
+        final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("foo", 0, "S", 0, getProject()
+                .getCompilationUnit(compilationUnitS));
 
         final CutStep cutStep = new CutStep(getProject(), methodDeclaration);
 
@@ -350,8 +349,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);}  }";
         final String expectedNewSourceT = "public class T { private static String foo() {return \"foo\";}}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
     }
 
 }

@@ -9,21 +9,18 @@
 
 package net.creichen.pm.consistency.inconsistencies;
 
-import net.creichen.pm.api.PMCompilationUnit;
-
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class UnexpectedDefinition extends Inconsistency {
-	private final ASTNode definingNode;
+    private final ASTNode definingNode;
 
-	public UnexpectedDefinition(final PMCompilationUnit iCompilationUnit, final ASTNode usingNode,
-			final ASTNode definingNode) {
-		super(iCompilationUnit, usingNode);
-		this.definingNode = definingNode;
-	}
+    public UnexpectedDefinition(final ASTNode usingNode, final ASTNode definingNode) {
+        super(usingNode);
+        this.definingNode = definingNode;
+    }
 
-	@Override
-	public String getHumanReadableDescription() {
-		return "Unexpected definition (" + this.definingNode + ") used by " + getNode();
-	}
+    @Override
+    public String getHumanReadableDescription() {
+        return "Unexpected definition (" + this.definingNode + ") used by " + getNode();
+    }
 }

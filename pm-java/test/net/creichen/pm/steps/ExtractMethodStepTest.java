@@ -16,7 +16,6 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.core.Project;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -57,8 +56,8 @@ public class ExtractMethodStepTest extends PMTest {
     public void testGetNamesToExtract() {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
-        final PMCompilationUnit pmCompilationUnitS = getProject()
-                .getPMCompilationUnitForICompilationUnit(compilationUnitS);
+        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
+                compilationUnitS);
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0,
                 pmCompilationUnitS.getCompilationUnit());
         final Block bodyBlock = methodDeclaration.getBody();

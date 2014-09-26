@@ -48,10 +48,10 @@ public final class ASTUtil {
                 if (packageFragment.getKind() == IPackageFragmentRoot.K_SOURCE
                         && packageFragment.containsJavaResources()) {
                     for (final ICompilationUnit iCompilationUnit : packageFragment.getCompilationUnits()) {
-    
+
                         result.add(iCompilationUnit);
                     }
-    
+
                 }
             }
         } catch (final JavaModelException e) {
@@ -63,22 +63,22 @@ public final class ASTUtil {
     public static void applyRewrite(final ASTRewrite rewrite, final ICompilationUnit iCompilationUnit) {
         try {
             final TextEdit astEdit = rewrite.rewriteAST();
-    
+
             final ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
             final IPath path = iCompilationUnit.getPath();
             try {
                 bufferManager.connect(path, LocationKind.IFILE, null);
                 final ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path, LocationKind.IFILE);
-    
+
                 final IDocument document = textFileBuffer.getDocument();
-    
+
                 astEdit.apply(document);
-    
+
                 textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */);
             } finally {
                 bufferManager.disconnect(path, LocationKind.IFILE, null);
             }
-    
+
         } catch (final BadLocationException e) {
             e.printStackTrace();
         } catch (final CoreException e) {
@@ -106,8 +106,8 @@ public final class ASTUtil {
         final ASTNode parent = declaration.getParent();
 
         // not sure this is actually the best way to do this
-        return (parent instanceof CatchClause || parent instanceof VariableDeclarationExpression
-                || parent instanceof VariableDeclarationStatement || parent instanceof ForStatement);
+        return parent instanceof CatchClause || parent instanceof VariableDeclarationExpression
+                || parent instanceof VariableDeclarationStatement || parent instanceof ForStatement;
 
     }
 

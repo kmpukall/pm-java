@@ -9,21 +9,19 @@
 
 package net.creichen.pm.consistency.inconsistencies;
 
-import net.creichen.pm.api.PMCompilationUnit;
-
 import org.eclipse.jdt.core.dom.SimpleName;
 
 public class UnknownName extends Inconsistency {
 
-	private final SimpleName unknownName;
+    private final SimpleName unknownName;
 
-	public UnknownName(final PMCompilationUnit iCompilationUnit, final SimpleName unknownName) {
-		super(iCompilationUnit, unknownName);
-		this.unknownName = unknownName;
-	}
+    public UnknownName(final SimpleName unknownName) {
+        super(unknownName);
+        this.unknownName = unknownName;
+    }
 
-	@Override
-	public String getHumanReadableDescription() {
-		return "Unknown name " + this.unknownName;
-	}
+    @Override
+    public String getHumanReadableDescription() {
+        return "Unknown name " + this.unknownName;
+    }
 }

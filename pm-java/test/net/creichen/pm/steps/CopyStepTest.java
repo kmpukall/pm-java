@@ -78,7 +78,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S {int x; void m(){x = 1; y++;} int y;}",
+        assertTrue(matchesSource("public class S {int x; void m(){x = 1; y++;} int y;}",
                 iCompilationUnit.getSource()));
 
         final MethodDeclaration methodDeclarationCopy = (MethodDeclaration) Pasteboard.getInstance()
@@ -156,7 +156,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(compilationUnitSourceMatchesSource(source, iCompilationUnit.getSource()));
+        assertTrue(matchesSource(source, iCompilationUnit.getSource()));
 
         final ExpressionStatement fourthStatementCopy = (ExpressionStatement) Pasteboard.getInstance()
                 .getPasteboardRoots().get(1);
@@ -215,7 +215,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S {int x; void m(){x = 1;}}",
+        assertTrue(matchesSource("public class S {int x; void m(){x = 1;}}",
                 iCompilationUnit.getSource()));
 
         final FieldDeclaration fieldDeclarationCopy = (FieldDeclaration) Pasteboard.getInstance().getPasteboardRoots()

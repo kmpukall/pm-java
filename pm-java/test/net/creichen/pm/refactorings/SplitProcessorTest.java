@@ -34,7 +34,7 @@ public class SplitProcessorTest extends PMTest {
 
         ProcessorDriver.drive(splitTemporary);
 
-        assertTrue(compilationUnitSourceMatchesSource("public class S {void m(){int x;int x = 1;x = x + 1;}}",
+        assertTrue(matchesSource("public class S {void m(){int x;int x = 1;x = x + 1;}}",
                 compilationUnit.getSource()));
 
         final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();

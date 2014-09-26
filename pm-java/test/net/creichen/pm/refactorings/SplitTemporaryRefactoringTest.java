@@ -38,7 +38,7 @@ public class SplitTemporaryRefactoringTest extends PMTest {
 
         // Since this is a refactoring, all we care about is a source test
 
-        assertTrue(compilationUnitSourceMatchesSource(
+        assertTrue(matchesSource(
                 "public class S { void m() {int x; x = 7; int y = 5; System.out.println(y);} }",
                 iCompilationUnit.getSource()));
 

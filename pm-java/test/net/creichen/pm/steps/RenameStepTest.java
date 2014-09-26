@@ -50,7 +50,7 @@ public class RenameStepTest extends PMTest {
 
         step.applyAllAtOnce();
 
-        assertTrue(compilationUnitSourceMatchesSource(
+        assertTrue(matchesSource(
                 "public class T {void m() {S sInstance = new S(); sInstance.sMethod();} }",
                 compilationUnitT.getSource()));
 
@@ -81,7 +81,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceAfterRenameClass = "class T {T() {}}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameClass, pmCompilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceAfterRenameClass, pmCompilationUnitS.getSource()));
 
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("T", 0, "T", 0,
                 pmCompilationUnitS.getCompilationUnit());
@@ -96,7 +96,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceAfterRenameConstructor = "class S {S() {}}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameConstructor,
+        assertTrue(matchesSource(expectedNewSourceAfterRenameConstructor,
                 pmCompilationUnitS.getSource()));
 
     }
@@ -123,7 +123,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitT = pmCompilationUnitS.getICompilationUnit();
 
-        assertTrue(compilationUnitSourceMatchesSource("public class T {void sMethod() {}}",
+        assertTrue(matchesSource("public class T {void sMethod() {}}",
                 compilationUnitT.getSource()));
 
         final IProblem[] problems = getProject().getCompilationUnit(compilationUnitT).getProblems();
@@ -157,7 +157,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceA = "public class x__5 {public x__5() {} public static class InnerA extends x__5 {} }";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceA, pmCompilationUnitA.getSource()));
+        assertTrue(matchesSource(expectedNewSourceA, pmCompilationUnitA.getSource()));
     }
 
     @Test
@@ -183,7 +183,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSource = "public class T {protected int x; public T(int y) {x=y;} public T() {x = 0; T a = new T(); a = new T(x);} public static class InnerA extends T { } }";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSource, pmCompilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSource, pmCompilationUnitS.getSource()));
 
     }
 
@@ -212,7 +212,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSource = "public class x__5 {protected int x; public x__5(int y) {x=y;} public x__5() {x = 0; x__5 a = new x__5(); a = new x__5(x);} public static class InnerA extends x__5 { } }";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSource, pmCompilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSource, pmCompilationUnitS.getSource()));
 
     }
 
@@ -239,7 +239,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceAfterRenameConstructor = "class T {T() {}}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameConstructor,
+        assertTrue(matchesSource(expectedNewSourceAfterRenameConstructor,
                 pmCompilationUnitS.getSource()));
 
         final TypeDeclaration classNode = ASTQuery.findClassByName("T", 0, pmCompilationUnitS.getCompilationUnit());
@@ -254,7 +254,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceAfterRenameClass = "class S {S() {}}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceAfterRenameClass, pmCompilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceAfterRenameClass, pmCompilationUnitS.getSource()));
 
     }
 
@@ -288,11 +288,11 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceA = "package testpackage; public class x__5 {public x__5() {System.out.println(6);}}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceA, pmCompilationUnitA.getSource()));
+        assertTrue(matchesSource(expectedNewSourceA, pmCompilationUnitA.getSource()));
 
         final String expectedNewSourceB = "public class B extends testpackage.x__5 {}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceB, pmCompilationUnitB.getSource()));
+        assertTrue(matchesSource(expectedNewSourceB, pmCompilationUnitB.getSource()));
     }
 
     @Test
@@ -340,9 +340,9 @@ public class RenameStepTest extends PMTest {
                 + "protected void other_nop() {this.nop(); this.another_nop();}" + "protected void another_nop(){}"
                 + "}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedTransformedSourceA, pmCompilationUnitA.getSource()));
+        assertTrue(matchesSource(expectedTransformedSourceA, pmCompilationUnitA.getSource()));
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedTransformedSourceB, pmCompilationUnitB.getSource()));
+        assertTrue(matchesSource(expectedTransformedSourceB, pmCompilationUnitB.getSource()));
     }
 
     @Test
@@ -367,7 +367,7 @@ public class RenameStepTest extends PMTest {
         final String expectedNewSourceS = "public class S {" + "String iVar;" + "void m() {" + "String iVar;"
                 + "iVar.length();" + "}" + "}";
 
-        assertTrue(compilationUnitSourceMatchesSource(expectedNewSourceS, compilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
 
         final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 

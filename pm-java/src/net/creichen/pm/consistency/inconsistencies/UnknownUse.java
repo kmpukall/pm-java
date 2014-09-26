@@ -9,20 +9,18 @@
 
 package net.creichen.pm.consistency.inconsistencies;
 
-import net.creichen.pm.api.PMCompilationUnit;
-
 import org.eclipse.jdt.core.dom.SimpleName;
 
 public class UnknownUse extends Inconsistency {
-	private final SimpleName unknownUse;
+    private final SimpleName unknownUse;
 
-	public UnknownUse(final PMCompilationUnit iCompilationUnit, final SimpleName unknownUse) {
-		super(iCompilationUnit, unknownUse);
-		this.unknownUse = unknownUse;
-	}
+    public UnknownUse(final SimpleName unknownUse) {
+        super(unknownUse);
+        this.unknownUse = unknownUse;
+    }
 
-	@Override
-	public String getHumanReadableDescription() {
-		return "Unknown use " + this.unknownUse;
-	}
+    @Override
+    public String getHumanReadableDescription() {
+        return "Unknown use " + this.unknownUse;
+    }
 }

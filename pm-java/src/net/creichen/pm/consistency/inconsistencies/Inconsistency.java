@@ -9,52 +9,50 @@
 
 package net.creichen.pm.consistency.inconsistencies;
 
-import net.creichen.pm.api.PMCompilationUnit;
-
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.ui.IMarkerResolution;
 
 public abstract class Inconsistency {
-	private final ASTNode node;
-	private final String id;
+    private final ASTNode node;
+    private final String id;
 
-	protected Inconsistency(final PMCompilationUnit pmCompilationUnit, final ASTNode node) {
-		this.node = node;
-		this.id = java.util.UUID.randomUUID().toString();
-	}
+    protected Inconsistency(final ASTNode node) {
+        this.node = node;
+        this.id = java.util.UUID.randomUUID().toString();
+    }
 
-	public void acceptBehavioralChange() {
-		throw new RuntimeException("Un-implemented acceptBehavioralChange()");
-	}
+    public void acceptBehavioralChange() {
+        throw new RuntimeException("Un-implemented acceptBehavioralChange()");
+    }
 
-	public boolean allowsAcceptBehavioralChange() {
-		return false;
-	}
+    public boolean allowsAcceptBehavioralChange() {
+        return false;
+    }
 
-	public String getHumanReadableDescription() {
-		return "Unknown inconsistency for " + this.node.getClass();
-	}
+    public String getHumanReadableDescription() {
+        return "Unknown inconsistency for " + this.node.getClass();
+    }
 
-	public String getID() {
-		return this.id;
-	}
+    public String getID() {
+        return this.id;
+    }
 
-	public ASTNode getNode() {
-		return this.node;
-	}
+    public ASTNode getNode() {
+        return this.node;
+    }
 
-	/**
-	 * Determine all quick fixes for this inconsistency.
-	 *
-	 * @return The relevant quick fixes. The default implementation returns none.
-	 */
-	public IMarkerResolution[] getQuickFixes() {
-		return new IMarkerResolution[0];
-	}
+    /**
+     * Determine all quick fixes for this inconsistency.
+     *
+     * @return The relevant quick fixes. The default implementation returns none.
+     */
+    public IMarkerResolution[] getQuickFixes() {
+        return new IMarkerResolution[0];
+    }
 
-	@Override
-	public String toString() {
-		return getHumanReadableDescription();
-	}
+    @Override
+    public String toString() {
+        return getHumanReadableDescription();
+    }
 
 }

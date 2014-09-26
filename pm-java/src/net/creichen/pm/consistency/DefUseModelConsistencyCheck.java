@@ -65,15 +65,13 @@ class DefUseModelConsistencyCheck {
 
                         if (!currentDefiningNodes.contains(desiredDefiningNode)) {
 
-                            inconsistencies.add(new MissingDefinition(this.project
-                                    .findPMCompilationUnitForNode(usingNode), usingNode, desiredDefiningNode));
+                            inconsistencies.add(new MissingDefinition(usingNode, desiredDefiningNode));
 
                         }
                     }
 
                 } else {
-                    inconsistencies.add(new UnknownUse(this.project.findPMCompilationUnitForNode(usingNode), use
-                            .getSimpleName()));
+                    inconsistencies.add(new UnknownUse(use.getSimpleName()));
                     continue;
                 }
 
@@ -85,8 +83,7 @@ class DefUseModelConsistencyCheck {
                     NodeReference currentDefiningIdentifier = null;
 
                     if (currentDefiningNode != null) {
-                        currentDefiningIdentifier = NodeReferenceStore.getInstance().getReference(
-                                currentDefiningNode);
+                        currentDefiningIdentifier = NodeReferenceStore.getInstance().getReference(currentDefiningNode);
 
                         if (currentDefiningIdentifier == null) {
                             throw new RuntimeException("Couldn't find  identifier for current defining node "
@@ -97,8 +94,7 @@ class DefUseModelConsistencyCheck {
                     }
 
                     if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
-                        inconsistencies.add(new UnexpectedDefinition(this.project
-                                .findPMCompilationUnitForNode(usingNode), usingNode, currentDefiningNode));
+                        inconsistencies.add(new UnexpectedDefinition(usingNode, currentDefiningNode));
 
                     }
                 }

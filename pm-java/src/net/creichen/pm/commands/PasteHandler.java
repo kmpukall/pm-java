@@ -22,8 +22,9 @@ public class PasteHandler extends AbstractCommandHandler {
         final Pasteboard pasteboard = Pasteboard.getInstance();
 
         if (!insertionPoint.isValid()
-                || ((!(selectedNode instanceof Block) || !pasteboard.containsOnlyNodesOfClass(Statement.class)) && (!(selectedNode instanceof TypeDeclaration) || !pasteboard
-                        .containsOnlyNodesOfClass(BodyDeclaration.class)))) {
+                || (!(selectedNode instanceof Block) || !pasteboard.containsOnlyNodesOfClass(Statement.class))
+                && (!(selectedNode instanceof TypeDeclaration) || !pasteboard
+                        .containsOnlyNodesOfClass(BodyDeclaration.class))) {
             showErrorDialog("PM Paste Error", "Paste must be run on a block or a class definition");
             return;
         }

@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
 import net.creichen.pm.models.NameModel;
@@ -55,7 +54,7 @@ public class SplitStepTest extends PMTest {
         // inconsistencies
 
         // Source test
-        assertTrue(compilationUnitSourceMatchesSource(
+        assertTrue(matchesSource(
                 "public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
                 iCompilationUnit.getSource()));
 
@@ -67,20 +66,20 @@ public class SplitStepTest extends PMTest {
         // Second two occurrences of x should have same identifier (different
         // from first identifier)
 
-        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit));
-        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit));
+        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
+        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.getIdentifierForName(firstX));
         assertNotNull(nameModel.getIdentifierForName(secondX));
 
         assertEquals(nameModel.getIdentifierForName(firstX), nameModel.getIdentifierForName(secondX));
 
-        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit));
-        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit));
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
+        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0, "S", 0, getProject()
+                .getCompilationUnit(iCompilationUnit));
 
         assertNotNull(nameModel.getIdentifierForName(thirdX));
         assertNotNull(nameModel.getIdentifierForName(fourthX));
