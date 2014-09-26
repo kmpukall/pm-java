@@ -36,127 +36,92 @@ import org.junit.Test;
 
 public class CutStepTest extends PMTest {
 
+    private ICompilationUnit iCompilationUnit;
+
     @Test
-    public void testInstantiation() {
-        String source = "public class S {S s; void m(){s.getClass(); m();}}";
-        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
-        final CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit);
-        TypeDeclaration type = findClassByName(compilationUnit, "S");
+    public void testCutDeclarationButNotReference() throws JavaModelException {
+        TypeDeclaration type = createClass("public class S {void m(){int x; x = 1;}}");
         MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+        List<Statement> statements = statements(methodDeclaration.getBody());
 
-        new CutStep(getProject(), methodDeclaration);
-    }
+        new CutStep(getProject(), statements.get(0)).applyAllAtOnce();
 
-    @Test
-    public void testCutMethod() throws JavaModelException {
-        String source = "public class S {S s; void m(){System.out.println(s);}}";
-        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
-        final CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit);
-        TypeDeclaration type = findClassByName(compilationUnit, "S");
-        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+        assertTrue(matchesSource("public class S {void m(){x = 1;}}", this.iCompilationUnit.getSource()));
 
-        new CutStep(getProject(), methodDeclaration).applyAllAtOnce();
-
-        assertTrue(matchesSource("public class S {S s;}", iCompilationUnit.getSource()));
-    }
-
-    @Test
-    public void testCutStatement() throws JavaModelException {
-        String source = "public class S {S s; void m(){System.out.println(s);}}";
-        final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
-        final CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit);
-        TypeDeclaration type = findClassByName(compilationUnit, "S");
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName(type, "m");
-        Statement firstStatement = statements(methodDeclaration.getBody()).get(0);
-
-        new CutStep(getProject(), firstStatement).applyAllAtOnce();
-
-        assertTrue(matchesSource("public class S {S s; void m(){}}", iCompilationUnit.getSource()));
     }
 
     @Test
     public void testCutField() throws JavaModelException {
-        String source = "public class S {S s; void m(){System.out.println(s);}}";
-        final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
-        CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit);
-        TypeDeclaration type = findClassByName(compilationUnit, "S");
+        TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
         VariableDeclarationFragment fieldDeclarationFragment = findFieldByName(type, "s");
         FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
 
         new CutStep(getProject(), fieldDeclaration).applyAllAtOnce();
 
-        assertTrue(matchesSource("public class S {void m(){System.out.println(s);}}", iCompilationUnit.getSource()));
+        assertTrue(matchesSource("public class S {void m(){System.out.println(s);}}", this.iCompilationUnit.getSource()));
+    }
+
+    @Test
+    public void testCutFieldWithReference() throws JavaModelException {
+        TypeDeclaration type = createClass("public class S {int x; void m(){x = 1;}}");
+
+        FieldDeclaration fieldDeclaration = (FieldDeclaration) findFieldByName(type, "x").getParent();
+
+        new CutStep(getProject(), fieldDeclaration).applyAllAtOnce();
+
+        assertTrue(matchesSource("public class S {void m(){x = 1;}}", this.iCompilationUnit.getSource()));
+    }
+
+    @Test
+    public void testCutMethod() throws JavaModelException {
+        TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
+        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+
+        new CutStep(getProject(), methodDeclaration).applyAllAtOnce();
+
+        assertTrue(matchesSource("public class S {S s;}", this.iCompilationUnit.getSource()));
     }
 
     @Test
     public void testCutMultipleStatements() throws JavaModelException {
-        String source = "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}";
-
-        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
-
-        final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
-
-        CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit1);
-
-        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", 0, "S", 0, compilationUnit);
-
-        Statement thirdStatement = (Statement) methodDeclaration.getBody().statements().get(2);
-        Statement fourthStatement = (Statement) methodDeclaration.getBody().statements().get(3);
+        TypeDeclaration type = createClass("public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}");
+        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
+        List<Statement> statements = statements(methodDeclaration.getBody());
 
         List<ASTNode> nodesToCut = new ArrayList<ASTNode>();
-        nodesToCut.add(thirdStatement);
-        nodesToCut.add(fourthStatement);
+        nodesToCut.add(statements.get(2));
+        nodesToCut.add(statements.get(3));
 
-        CutStep cutStep = new CutStep(getProject(), nodesToCut);
+        new CutStep(getProject(), nodesToCut).applyAllAtOnce();
 
-        cutStep.applyAllAtOnce();
-
-        assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
-
+        assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}", this.iCompilationUnit.getSource()));
         assertEquals(Pasteboard.getInstance().getPasteboardRoots().size(), 2);
         assertTrue(Pasteboard.getInstance().containsOnlyNodesOfClass(Statement.class));
     }
 
     @Test
-    public void testCutDeclarationButNotReference() throws JavaModelException {
-        String source = "public class S {void m(){int x; x = 1;}}";
+    public void testCutStatement() throws JavaModelException {
+        TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
+        MethodDeclaration methodDeclaration = ASTQuery.findMethodByName(type, "m");
+        Statement firstStatement = statements(methodDeclaration.getBody()).get(0);
 
-        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
+        new CutStep(getProject(), firstStatement).applyAllAtOnce();
 
-        final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
-
-        CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit1);
-        TypeDeclaration type = findClassByName(compilationUnit, "S");
-        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
-
-        Statement secondStatement = (Statement) methodDeclaration.getBody().statements().get(0);
-
-        CutStep cutStep = new CutStep(getProject(), secondStatement);
-
-        cutStep.applyAllAtOnce();
-
-        assertTrue(matchesSource("public class S {void m(){x = 1;}}", iCompilationUnit.getSource()));
-
+        assertTrue(matchesSource("public class S {S s; void m(){}}", this.iCompilationUnit.getSource()));
     }
 
     @Test
-    public void testCutFieldWithReference() throws JavaModelException {
-        String source = "public class S {int x; void m(){x = 1;}}";
+    public void testInstantiation() {
+        TypeDeclaration type = createClass("public class S {S s; void m(){s.getClass(); m();}}");
+        MethodDeclaration methodDeclaration = findMethodByName(type, "m");
 
-        ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
+        new CutStep(getProject(), methodDeclaration);
+    }
 
-        final ICompilationUnit iCompilationUnit1 = iCompilationUnit;
-
-        VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("x", 0, "S", 0, getProject()
-                .getCompilationUnit(iCompilationUnit1));
-
-        FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
-
-        CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
-
-        cutStep.applyAllAtOnce();
-
-        assertTrue(matchesSource("public class S {void m(){x = 1;}}", iCompilationUnit.getSource()));
+    private TypeDeclaration createClass(final String source) {
+        this.iCompilationUnit = createCompilationUnit("", "S.java", source);
+        CompilationUnit compilationUnit = getProject().getCompilationUnit(this.iCompilationUnit);
+        return findClassByName("S", compilationUnit);
     }
 
 }

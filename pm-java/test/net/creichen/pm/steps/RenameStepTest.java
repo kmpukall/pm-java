@@ -50,8 +50,7 @@ public class RenameStepTest extends PMTest {
 
         step.applyAllAtOnce();
 
-        assertTrue(matchesSource(
-                "public class T {void m() {S sInstance = new S(); sInstance.sMethod();} }",
+        assertTrue(matchesSource("public class T {void m() {S sInstance = new S(); sInstance.sMethod();} }",
                 compilationUnitT.getSource()));
 
         final IProblem[] problemsT = getProject().getCompilationUnit(compilationUnitT).getProblems();
@@ -69,7 +68,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitS);
 
-        final TypeDeclaration classNode = ASTQuery.findClassByName("S", 0, pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration classNode = ASTQuery.findClassByName("S", pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
 
@@ -96,8 +95,7 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceAfterRenameConstructor = "class S {S() {}}";
 
-        assertTrue(matchesSource(expectedNewSourceAfterRenameConstructor,
-                pmCompilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceAfterRenameConstructor, pmCompilationUnitS.getSource()));
 
     }
 
@@ -110,8 +108,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitS);
 
-        final TypeDeclaration classS = ASTQuery.findClassByName("S", 0,
-                getProject().getCompilationUnit(compilationUnitS));
+        final TypeDeclaration classS = ASTQuery.findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
 
         final SimpleName className = classS.getName();
 
@@ -123,8 +120,7 @@ public class RenameStepTest extends PMTest {
 
         final ICompilationUnit compilationUnitT = pmCompilationUnitS.getICompilationUnit();
 
-        assertTrue(matchesSource("public class T {void sMethod() {}}",
-                compilationUnitT.getSource()));
+        assertTrue(matchesSource("public class T {void sMethod() {}}", compilationUnitT.getSource()));
 
         final IProblem[] problems = getProject().getCompilationUnit(compilationUnitT).getProblems();
 
@@ -140,7 +136,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitA = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitA);
 
-        final TypeDeclaration outerClassDeclaration = ASTQuery.findClassByName("A", 0,
+        final TypeDeclaration outerClassDeclaration = ASTQuery.findClassByName("A",
                 pmCompilationUnitA.getCompilationUnit());
 
         final TypeDeclaration innerAClassDeclaration = (TypeDeclaration) outerClassDeclaration.bodyDeclarations()
@@ -171,7 +167,7 @@ public class RenameStepTest extends PMTest {
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
                 compilationUnitS);
 
-        final TypeDeclaration classNode = ASTQuery.findClassByName("A", 0, pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration classNode = ASTQuery.findClassByName("A", pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
 
@@ -239,10 +235,9 @@ public class RenameStepTest extends PMTest {
 
         final String expectedNewSourceAfterRenameConstructor = "class T {T() {}}";
 
-        assertTrue(matchesSource(expectedNewSourceAfterRenameConstructor,
-                pmCompilationUnitS.getSource()));
+        assertTrue(matchesSource(expectedNewSourceAfterRenameConstructor, pmCompilationUnitS.getSource()));
 
-        final TypeDeclaration classNode = ASTQuery.findClassByName("T", 0, pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration classNode = ASTQuery.findClassByName("T", pmCompilationUnitS.getCompilationUnit());
 
         final SimpleName className = classNode.getName();
 

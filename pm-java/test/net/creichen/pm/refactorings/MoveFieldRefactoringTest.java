@@ -34,14 +34,13 @@ public class MoveFieldRefactoringTest extends PMTest {
         final FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0, compilationUnitS)
                 .getParent();
 
-        final TypeDeclaration classT = ASTQuery.findClassByName("T", 0, compilationUnitT);
+        final TypeDeclaration classT = ASTQuery.findClassByName("T", compilationUnitT);
 
         final MoveFieldRefactoring refactoring = new MoveFieldRefactoring(getProject(), yField, classT);
 
         refactoring.apply();
 
-        assertTrue(matchesSource(
-                "public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
+        assertTrue(matchesSource("public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
                 s.getSource()));
 
         assertTrue(matchesSource("public class T { int _y;  }", t.getSource()));

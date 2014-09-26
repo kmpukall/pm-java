@@ -129,7 +129,7 @@ public final class ASTQuery {
         return get(matchingClasses, classNameOccurrence, null);
     }
 
-    public static TypeDeclaration findClassByName(final CompilationUnit compilationUnit, final String className) {
+    public static TypeDeclaration findClassByName(final String className, final CompilationUnit compilationUnit) {
 
         Iterable<TypeDeclaration> typeDeclarations = filter(types(compilationUnit), TypeDeclaration.class);
         Iterable<TypeDeclaration> classes = filter(typeDeclarations, isNotInterface());

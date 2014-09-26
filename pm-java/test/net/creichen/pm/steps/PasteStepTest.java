@@ -49,7 +49,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2", 0,
+        final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2",
                 getProject().getCompilationUnit(compilationUnit2));
 
         final PasteStep pasteStep = new PasteStep(getProject(), classDeclaration,
@@ -57,10 +57,8 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(matchesSource("public class S1 {void m1(){System.out.println(s);}}",
-                compilationUnit1.getSource()));
-        assertTrue(matchesSource("public class S2 {void a(){} S1 s; void b(){} }",
-                compilationUnit2.getSource()));
+        assertTrue(matchesSource("public class S1 {void m1(){System.out.println(s);}}", compilationUnit1.getSource()));
+        assertTrue(matchesSource("public class S2 {void a(){} S1 s; void b(){} }", compilationUnit2.getSource()));
     }
 
     @Test
@@ -79,7 +77,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2", 0,
+        final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2",
                 getProject().getCompilationUnit(compilationUnit2));
 
         final PasteStep pasteStep = new PasteStep(getProject(), classDeclaration,
@@ -88,8 +86,8 @@ public class PasteStepTest extends PMTest {
         pasteStep.applyAllAtOnce();
 
         assertTrue(matchesSource("public class S1 {S1 s;}", compilationUnit1.getSource()));
-        assertTrue(matchesSource(
-                "public class S2 {String a;  void m(){System.out.println(s);} String b;", compilationUnit2.getSource()));
+        assertTrue(matchesSource("public class S2 {String a;  void m(){System.out.println(s);} String b;",
+                compilationUnit2.getSource()));
     }
 
     @Test
@@ -119,8 +117,7 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(matchesSource("public class S1 {S1 s; void m(){}}",
-                compilationUnit1.getSource()));
+        assertTrue(matchesSource("public class S1 {S1 s; void m(){}}", compilationUnit1.getSource()));
         assertTrue(matchesSource(
                 "public class S2 {void a(){System.out.println(1);System.out.println(s); System.out.println(2);}}",
                 compilationUnit2.getSource()));
@@ -147,8 +144,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}",
-                iCompilationUnit.getSource()));
+        assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
 
         // have to get new ASTNodes b/c of reparsing
         compilationUnit = getProject().getCompilationUnit(iCompilationUnit);
@@ -160,8 +156,8 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.applyAllAtOnce();
 
-        assertTrue(matchesSource(
-                "public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}", iCompilationUnit.getSource()));
+        assertTrue(matchesSource("public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}",
+                iCompilationUnit.getSource()));
 
     }
 
@@ -181,7 +177,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T",
                 getProject().getCompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
@@ -214,7 +210,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T",
                 getProject().getCompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
@@ -245,7 +241,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T",
                 getProject().getCompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
@@ -276,7 +272,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T",
                 getProject().getCompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
@@ -307,7 +303,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T",
                 getProject().getCompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
@@ -338,7 +334,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.applyAllAtOnce();
 
-        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T", 0,
+        final TypeDeclaration targetDeclaration = ASTQuery.findClassByName("T",
                 getProject().getCompilationUnit(compilationUnitT));
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,

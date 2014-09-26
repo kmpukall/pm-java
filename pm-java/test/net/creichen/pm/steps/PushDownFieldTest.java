@@ -37,7 +37,7 @@ public class PushDownFieldTest extends PMTest {
         final ICompilationUnit iCompilationUnit1 = iCompilationUnitT1;
 
         CompilationUnit compilationUnitT1 = getProject().getCompilationUnit(iCompilationUnit1);
-        TypeDeclaration classT1 = ASTQuery.findClassByName("T1", 0, compilationUnitT1);
+        TypeDeclaration classT1 = ASTQuery.findClassByName("T1", compilationUnitT1);
 
         PasteStep pasteStep1 = new PasteStep(getProject(), classT1, classT1.getBodyDeclarationsProperty(), classT1
                 .bodyDeclarations().size());
@@ -57,7 +57,7 @@ public class PushDownFieldTest extends PMTest {
         final ICompilationUnit iCompilationUnit3 = iCompilationUnitT2;
 
         CompilationUnit compilationUnitT2 = getProject().getCompilationUnit(iCompilationUnit3);
-        TypeDeclaration classT2 = ASTQuery.findClassByName("T2", 0, compilationUnitT2);
+        TypeDeclaration classT2 = ASTQuery.findClassByName("T2", compilationUnitT2);
 
         PasteStep pasteStep2 = new PasteStep(getProject(), classT2, classT2.getBodyDeclarationsProperty(), classT2
                 .bodyDeclarations().size());
@@ -78,10 +78,8 @@ public class PushDownFieldTest extends PMTest {
         assertThat(getProject(), hasNoInconsistencies());
         assertTrue(matchesSource("public class S {} }", iCompilationUnitS.getSource()));
 
-        assertTrue(matchesSource("public class T1 extends S { int _y;  }",
-                iCompilationUnitT1.getSource()));
-        assertTrue(matchesSource("public class T2 extends S { int _y;  }",
-                iCompilationUnitT2.getSource()));
+        assertTrue(matchesSource("public class T1 extends S { int _y;  }", iCompilationUnitT1.getSource()));
+        assertTrue(matchesSource("public class T2 extends S { int _y;  }", iCompilationUnitT2.getSource()));
 
     }
 
