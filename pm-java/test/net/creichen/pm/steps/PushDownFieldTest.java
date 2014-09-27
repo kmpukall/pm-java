@@ -10,6 +10,8 @@
 package net.creichen.pm.steps;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import net.creichen.pm.tests.PMTest;
@@ -30,10 +32,9 @@ public class PushDownFieldTest extends PMTest {
         ICompilationUnit iCompilationUnitT1 = createCompilationUnit("", "T1.java", "public class T1 extends S {  }");
         ICompilationUnit iCompilationUnitT2 = createCompilationUnit("", "T2.java", "public class T2 extends S {  }");
 
-        FieldDeclaration yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnitS)).getParent();
-        CopyStep copyStep1 = new CopyStep(getProject(), yField);
-        copyStep1.applyAllAtOnce();
+        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnitS));
+        FieldDeclaration yField = findFieldByName("_y", type);
+        new CopyStep(getProject(), yField).apply();
         final ICompilationUnit iCompilationUnit1 = iCompilationUnitT1;
 
         CompilationUnit compilationUnitT1 = getProject().getCompilationUnit(iCompilationUnit1);
@@ -43,17 +44,17 @@ public class PushDownFieldTest extends PMTest {
                 .bodyDeclarations().size());
         classT1 = null;
 
-        pasteStep1.applyAllAtOnce();
+        pasteStep1.apply();
 
         assertThat(getProject(), hasNoInconsistencies());
 
         final ICompilationUnit iCompilationUnit2 = iCompilationUnitS;
 
-        yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit2)).getParent();
+        type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit2));
+        yField = findFieldByName("_y", type);
         CopyStep copyStep2 = new CopyStep(getProject(), yField);
         yField = null;
-        copyStep2.applyAllAtOnce();
+        copyStep2.apply();
         final ICompilationUnit iCompilationUnit3 = iCompilationUnitT2;
 
         CompilationUnit compilationUnitT2 = getProject().getCompilationUnit(iCompilationUnit3);
@@ -63,17 +64,17 @@ public class PushDownFieldTest extends PMTest {
                 .bodyDeclarations().size());
         classT2 = null;
 
-        pasteStep2.applyAllAtOnce();
+        pasteStep2.apply();
         final ICompilationUnit iCompilationUnit4 = iCompilationUnitS;
 
-        yField = (FieldDeclaration) ASTQuery.findFieldByName("_y", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit4)).getParent();
+        type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit4));
+        yField = findFieldByName("_y", type);
         CutStep cutStep = new CutStep(getProject(), yField); // We use cut to
         // delete the
         // original field
 
         yField = null;
-        cutStep.applyAllAtOnce();
+        cutStep.apply();
 
         assertThat(getProject(), hasNoInconsistencies());
         assertTrue(matchesSource("public class S {} }", iCompilationUnitS.getSource()));

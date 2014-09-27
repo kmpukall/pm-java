@@ -54,7 +54,7 @@ public class DelegateStepTest extends PMTest {
 
         step.setDelegateIdentifier("s1");
 
-        step.applyAllAtOnce();
+        step.apply();
 
         assertTrue(matchesSource("public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }",
                 s2PMCompilationUnit.getSource()));

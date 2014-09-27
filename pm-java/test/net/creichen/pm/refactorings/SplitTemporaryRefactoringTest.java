@@ -9,14 +9,21 @@
 
 package net.creichen.pm.refactorings;
 
+import static net.creichen.pm.utils.ASTQuery.findAssignments;
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
 import net.creichen.pm.tests.PMTest;
-import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.junit.Test;
 
 public class SplitTemporaryRefactoringTest extends PMTest {
@@ -26,8 +33,10 @@ public class SplitTemporaryRefactoringTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        final Assignment secondAssignment = ASTQuery.findAssignmentInMethod(1, "m", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit));
+        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit));
+        MethodDeclaration method = findMethodByName("m", type);
+        List<Assignment> assignments = findAssignments(method);
+        final Assignment secondAssignment = assignments.get(1);
 
         final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
 
@@ -38,8 +47,7 @@ public class SplitTemporaryRefactoringTest extends PMTest {
 
         // Since this is a refactoring, all we care about is a source test
 
-        assertTrue(matchesSource(
-                "public class S { void m() {int x; x = 7; int y = 5; System.out.println(y);} }",
+        assertTrue(matchesSource("public class S { void m() {int x; x = 7; int y = 5; System.out.println(y);} }",
                 iCompilationUnit.getSource()));
 
     }

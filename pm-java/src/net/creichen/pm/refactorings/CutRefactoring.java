@@ -18,6 +18,6 @@ public class CutRefactoring {
     }
 
     public void apply() {
-        new CutStep(this.project, this.selectedNodes).applyAllAtOnce();
+        new CutStep(this.project, this.selectedNodes).apply();
     }
 }

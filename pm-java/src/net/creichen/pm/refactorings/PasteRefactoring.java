@@ -22,6 +22,6 @@ public class PasteRefactoring {
     }
 
     public void apply() {
-        new PasteStep(this.project, this.parent, this.property, this.index).applyAllAtOnce();
+        new PasteStep(this.project, this.parent, this.property, this.index).apply();
     }
 }

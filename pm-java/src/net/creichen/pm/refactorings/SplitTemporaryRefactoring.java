@@ -44,7 +44,7 @@ class SplitTemporaryRefactoring {
 
     public void apply() {
 
-        this.splitStep.applyAllAtOnce();
+        this.splitStep.apply();
 
         // now find the name for the new declaration and rename it
 
@@ -58,7 +58,7 @@ class SplitTemporaryRefactoring {
 
         this.renameStep.setNewName(this.newVariableName);
 
-        this.renameStep.applyAllAtOnce();
+        this.renameStep.apply();
 
     }
 }

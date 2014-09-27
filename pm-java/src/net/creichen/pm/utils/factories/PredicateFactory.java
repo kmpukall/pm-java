@@ -53,5 +53,4 @@ public final class PredicateFactory {
     public static Predicate<TypeDeclaration> isNotInterface() {
         return NOT_INTERFACE;
     }
-
 }

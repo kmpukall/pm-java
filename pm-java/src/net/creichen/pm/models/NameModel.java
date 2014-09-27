@@ -199,7 +199,7 @@ public class NameModel {
             final TypeDeclaration containingClass = (TypeDeclaration) method.getParent();
             result.add(containingClass.getName());
 
-            for (final MethodDeclaration constructor : ASTQuery.getConstructorsOfClass(containingClass)) {
+            for (final MethodDeclaration constructor : ASTQuery.getConstructors(containingClass)) {
                 if (constructor != method) {
                     result.add(constructor.getName());
                 }
@@ -210,7 +210,7 @@ public class NameModel {
 
     private Set<SimpleName> getRepresentativeNodesForType(final TypeDeclaration parent) {
         final Set<SimpleName> result = new HashSet<SimpleName>();
-        final List<MethodDeclaration> constructors = ASTQuery.getConstructorsOfClass(parent);
+        final List<MethodDeclaration> constructors = ASTQuery.getConstructors(parent);
 
         for (final MethodDeclaration constructor : constructors) {
             result.add(constructor.getName());

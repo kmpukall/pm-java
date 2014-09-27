@@ -39,7 +39,7 @@ class MoveFieldRefactoring {
     public void apply() {
         final CutStep cutStep = new CutStep(this.project, this.fieldReference.getNode());
 
-        cutStep.applyAllAtOnce();
+        cutStep.apply();
 
         // race here? Will _fieldReference go away if we call gc?
         // NO: since the field is held in the pasteboard
@@ -51,6 +51,6 @@ class MoveFieldRefactoring {
         final PasteStep pasteStep = new PasteStep(this.project, newParent, TypeDeclaration.BODY_DECLARATIONS_PROPERTY,
                 newParent.bodyDeclarations().size());
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
     }
 }

@@ -9,6 +9,9 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.utils.ASTQuery.findAssignments;
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +30,9 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.junit.Test;
@@ -39,14 +44,16 @@ public class SplitStepTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        final Assignment secondAssignment = ASTQuery.findAssignmentInMethod(1, "m", 0, "S", 0,
-                getProject().getCompilationUnit(iCompilationUnit));
+        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit));
+        MethodDeclaration method = findMethodByName("m", type);
+        List<Assignment> assignments = findAssignments(method);
+        final Assignment secondAssignment = assignments.get(1);
 
         final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
 
         final SplitStep step = new SplitStep(getProject(), assignmentStatement);
 
-        step.applyAllAtOnce();
+        step.apply();
 
         // We have five outputs that we care about: the source, the updated name
         // model,
@@ -54,8 +61,7 @@ public class SplitStepTest extends PMTest {
         // inconsistencies
 
         // Source test
-        assertTrue(matchesSource(
-                "public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
+        assertTrue(matchesSource("public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
                 iCompilationUnit.getSource()));
 
         // Name model test

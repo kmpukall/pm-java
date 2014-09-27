@@ -75,7 +75,7 @@ class Step {
         this.project = project;
     }
 
-    public void applyAllAtOnce() {
+    public void apply() {
 
         final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 

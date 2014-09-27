@@ -49,7 +49,7 @@ public class ExtractMethodStepTest extends PMTest {
 
         final ExtractMethodStep step = new ExtractMethodStep(getProject(), expression);
 
-        step.applyAllAtOnce();
+        step.apply();
 
         assertThat(getProject(), hasNoInconsistencies());
     }

@@ -23,7 +23,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.junit.Test;
 
@@ -45,32 +44,6 @@ public class ASTQueryTest extends PMTest {
         final ASTNode expected = ASTQuery.findNodeForSelection(40, 28, compilationUnit);
 
         TypeDeclaration declaration = ASTQuery.findClassByName("S", 1, compilationUnit);
-
-        assertThat(declaration, is(equalTo(expected)));
-    }
-
-    @Test
-    public void testFindFieldByName() {
-        final String source = "class S {int x,y; int f() {} int y; int x,y,x; int y; int y,x; int x; }";
-        final CompilationUnit compilationUnit = toCompilationUnit(source);
-        // the finder finds the SimpleName, so we need to get the parent fragment
-        final ASTNode expected = ASTQuery.findNodeForSelection(60, 1, compilationUnit).getParent();
-
-        VariableDeclarationFragment field = ASTQuery.findFieldByName("x", 3, "S", 0, compilationUnit);
-
-        assertThat(field, is(equalTo(expected)));
-    }
-
-    @Test
-    public void testFindLocalByName() {
-        final String source = "class S {int x,y; int f() {int x,y; try {} catch(Exception x){} while(1) {int y,x;} } }";
-        final CompilationUnit compilationUnit = toCompilationUnit(source);
-        // the finder finds the SimpleName, so we need to get the parent fragment
-        final ASTNode expected = ASTQuery.findNodeForSelection(
-                "class S {int x,y; int f() {int x,y; try {} catch(Exception x){} while(1) {int y,".length(),
-                "x".length(), compilationUnit).getParent();
-
-        VariableDeclaration declaration = ASTQuery.findLocalByName("x", 2, "f", 0, "S", 0, compilationUnit);
 
         assertThat(declaration, is(equalTo(expected)));
     }

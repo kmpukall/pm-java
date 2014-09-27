@@ -9,7 +9,9 @@
 
 package net.creichen.pm.analysis;
 
+import static net.creichen.pm.utils.ASTQuery.findAssignments;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findLocalByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -92,7 +94,9 @@ public class ReachingDefsAnalysisTest extends PMTest {
         assertThat(use.getReachingDefinitions().size(), is(1));
 
         final Def definition = use.getReachingDefinitions().iterator().next();
-        final VariableDeclaration declaration = ASTQuery.findLocalByName("x", 0, "m", 0, "S", 0, this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        VariableDeclaration declaration = findLocalByName("x", method);
         assertEquals(declaration, definition.getDefiningNode());
     }
 
@@ -127,9 +131,10 @@ public class ReachingDefsAnalysisTest extends PMTest {
         final Def definition1 = iterator.next();
         final Def definition2 = iterator.next();
 
-        final VariableDeclaration yEquals1 = ASTQuery.findLocalByName("y", 0, "m", 0, "S", 0, this.compilationUnit);
-        final Assignment yEquals5 = ASTQuery.findAssignmentInMethod(0, "m", 0, "S", 0,
-                this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        VariableDeclaration yEquals1 = findLocalByName("y", method);
+        final Assignment yEquals5 = findAssignments(method).get(0);
 
         assertTrue(definition1.getDefiningNode() == yEquals1 && definition2.getDefiningNode() == yEquals5
                 || definition1.getDefiningNode() == yEquals5 && definition2.getDefiningNode() == yEquals1);
@@ -152,10 +157,11 @@ public class ReachingDefsAnalysisTest extends PMTest {
         final Def definition1 = (Def) definitions[0];
         final Def definition2 = (Def) definitions[1];
 
-        final Assignment yEquals5 = ASTQuery.findAssignmentInMethod(0, "m", 0, "S", 0,
-                this.compilationUnit);
-        final Assignment yEquals6 = ASTQuery.findAssignmentInMethod(1, "m", 0, "S", 0,
-                this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        List<Assignment> assignments = findAssignments(method);
+        final Assignment yEquals5 = assignments.get(0);
+        final Assignment yEquals6 = assignments.get(1);
 
         assertTrue(definition1.getDefiningNode() == yEquals5 && definition2.getDefiningNode() == yEquals6
                 || definition1.getDefiningNode() == yEquals6 && definition2.getDefiningNode() == yEquals5);
@@ -175,14 +181,13 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         final Set<ASTNode> definingNodes = definingNodesFromDefinitions(sixthYUse.getReachingDefinitions());
 
-        final Assignment yEquals2 = ASTQuery.findAssignmentInMethod(0, "m", 0, "S", 0,
-                this.compilationUnit);
-        final Assignment yEquals3 = ASTQuery.findAssignmentInMethod(1, "m", 0, "S", 0,
-                this.compilationUnit);
-        final Assignment yEquals4 = ASTQuery.findAssignmentInMethod(2, "m", 0, "S", 0,
-                this.compilationUnit);
-        final Assignment yEquals5 = ASTQuery.findAssignmentInMethod(3, "m", 0, "S", 0,
-                this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        List<Assignment> assignments = findAssignments(method);
+        final Assignment yEquals2 = assignments.get(0);
+        final Assignment yEquals3 = assignments.get(1);
+        final Assignment yEquals4 = assignments.get(2);
+        final Assignment yEquals5 = assignments.get(3);
 
         assertTrue(definingNodes.contains(yEquals2));
         assertTrue(definingNodes.contains(yEquals3));
@@ -203,10 +208,11 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         final Set<ASTNode> fourthYUseDefiningNodes = definingNodesFromDefinitions(fourthYUse.getReachingDefinitions());
 
-        final VariableDeclaration yEquals1 = ASTQuery.findLocalByName("y", 0, "m", 0, "S", 0, this.compilationUnit);
-
-        final Assignment yEqualsYPlus1 = ASTQuery.findAssignmentInMethod(0, "m", 0, "S", 0,
-                this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        VariableDeclaration yEquals1 = findLocalByName("y", method);
+        List<Assignment> assignments = findAssignments(method);
+        final Assignment yEqualsYPlus1 = assignments.get(0);
 
         assertTrue(fourthYUseDefiningNodes.contains(yEquals1));
         assertTrue(fourthYUseDefiningNodes.contains(yEqualsYPlus1));
@@ -306,8 +312,10 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         assertEquals(1, thirdXUse.getReachingDefinitions().size());
 
-        final Assignment xAssignment = ASTQuery.findAssignmentInMethod(0, "m", 0, "S", 0,
-                this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        List<Assignment> assignments = findAssignments(method);
+        final Assignment xAssignment = assignments.get(0);
 
         final Def xAssignmentDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
 
@@ -331,8 +339,10 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         assertEquals(1, thirdXUse.getReachingDefinitions().size());
 
-        final Assignment xAssignment = ASTQuery.findAssignmentInMethod(0, "m", 0, "S", 0,
-                this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        List<Assignment> assignments = findAssignments(method);
+        final Assignment xAssignment = assignments.get(0);
 
         final Def xAssignmentDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
 
@@ -360,7 +370,9 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         final Def defForSecondYUse = (Def) secondYUse.getReachingDefinitions().toArray()[0];
 
-        final VariableDeclaration yDeclaration = ASTQuery.findLocalByName("y", 0, "m", 0, "S", 0, this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        VariableDeclaration yDeclaration = findLocalByName("y", method);
 
         assertEquals(yDeclaration, defForSecondYUse.getDefiningNode());
     }
@@ -378,7 +390,9 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         final Def defForSecondYUse = (Def) secondYUse.getReachingDefinitions().toArray()[0];
 
-        final VariableDeclaration yDeclaration = ASTQuery.findLocalByName("y", 0, "m", 0, "S", 0, this.compilationUnit);
+        TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        MethodDeclaration method = findMethodByName("m", type);
+        VariableDeclaration yDeclaration = findLocalByName("y", method);
 
         assertEquals(yDeclaration, defForSecondYUse.getDefiningNode());
     }

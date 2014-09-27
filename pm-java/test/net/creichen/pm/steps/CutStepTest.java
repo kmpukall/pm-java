@@ -43,7 +43,7 @@ public class CutStepTest extends PMTest {
         MethodDeclaration methodDeclaration = findMethodByName("m", type);
         List<Statement> statements = statements(methodDeclaration.getBody());
 
-        new CutStep(getProject(), statements.get(0)).applyAllAtOnce();
+        new CutStep(getProject(), statements.get(0)).apply();
 
         assertTrue(matchesSource("public class S {void m(){x = 1;}}", this.iCompilationUnit.getSource()));
 
@@ -54,7 +54,7 @@ public class CutStepTest extends PMTest {
         TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
         FieldDeclaration fieldDeclaration = findFieldByName("s", type);
 
-        new CutStep(getProject(), fieldDeclaration).applyAllAtOnce();
+        new CutStep(getProject(), fieldDeclaration).apply();
 
         assertTrue(matchesSource("public class S {void m(){System.out.println(s);}}", this.iCompilationUnit.getSource()));
     }
@@ -65,7 +65,7 @@ public class CutStepTest extends PMTest {
 
         FieldDeclaration fieldDeclaration = findFieldByName("x", type);
 
-        new CutStep(getProject(), fieldDeclaration).applyAllAtOnce();
+        new CutStep(getProject(), fieldDeclaration).apply();
 
         assertTrue(matchesSource("public class S {void m(){x = 1;}}", this.iCompilationUnit.getSource()));
     }
@@ -75,7 +75,7 @@ public class CutStepTest extends PMTest {
         TypeDeclaration type = createClass("public class S {S s; void m(){System.out.println(s);}}");
         MethodDeclaration methodDeclaration = findMethodByName("m", type);
 
-        new CutStep(getProject(), methodDeclaration).applyAllAtOnce();
+        new CutStep(getProject(), methodDeclaration).apply();
 
         assertTrue(matchesSource("public class S {S s;}", this.iCompilationUnit.getSource()));
     }
@@ -90,7 +90,7 @@ public class CutStepTest extends PMTest {
         nodesToCut.add(statements.get(2));
         nodesToCut.add(statements.get(3));
 
-        new CutStep(getProject(), nodesToCut).applyAllAtOnce();
+        new CutStep(getProject(), nodesToCut).apply();
 
         assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}", this.iCompilationUnit.getSource()));
         assertEquals(Pasteboard.getInstance().getPasteboardRoots().size(), 2);
@@ -103,7 +103,7 @@ public class CutStepTest extends PMTest {
         MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         Statement firstStatement = statements(methodDeclaration.getBody()).get(0);
 
-        new CutStep(getProject(), firstStatement).applyAllAtOnce();
+        new CutStep(getProject(), firstStatement).apply();
 
         assertTrue(matchesSource("public class S {S s; void m(){}}", this.iCompilationUnit.getSource()));
     }

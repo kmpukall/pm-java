@@ -78,7 +78,7 @@ public class CopyStepTest extends PMTest {
 
         final CopyStep copyStep = new CopyStep(getProject(), nodesToCopy);
 
-        copyStep.applyAllAtOnce();
+        copyStep.apply();
 
         // Source shouldn't have changed
 
@@ -156,7 +156,7 @@ public class CopyStepTest extends PMTest {
 
         final CopyStep copyStep = new CopyStep(getProject(), nodesToCopy);
 
-        copyStep.applyAllAtOnce();
+        copyStep.apply();
 
         // Source shouldn't have changed
 
@@ -213,7 +213,7 @@ public class CopyStepTest extends PMTest {
 
         final CopyStep copyStep = new CopyStep(getProject(), fieldDeclaration);
 
-        copyStep.applyAllAtOnce();
+        copyStep.apply();
 
         // Source shouldn't have changed
 

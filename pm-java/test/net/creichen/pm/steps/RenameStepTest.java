@@ -50,7 +50,7 @@ public class RenameStepTest extends PMTest {
 
         step.setNewName("sInstance");
 
-        step.applyAllAtOnce();
+        step.apply();
 
         assertTrue(matchesSource("public class T {void m() {S sInstance = new S(); sInstance.sMethod();} }",
                 compilationUnitT.getSource()));
@@ -78,7 +78,7 @@ public class RenameStepTest extends PMTest {
 
         renameClassStep.setNewName("T");
 
-        renameClassStep.applyAllAtOnce();
+        renameClassStep.apply();
 
         final String expectedNewSourceAfterRenameClass = "class T {T() {}}";
 
@@ -93,7 +93,7 @@ public class RenameStepTest extends PMTest {
 
         renameConstructorStep.setNewName("S");
 
-        renameConstructorStep.applyAllAtOnce();
+        renameConstructorStep.apply();
 
         final String expectedNewSourceAfterRenameConstructor = "class S {S() {}}";
 
@@ -118,7 +118,7 @@ public class RenameStepTest extends PMTest {
 
         step.setNewName("T");
 
-        step.applyAllAtOnce();
+        step.apply();
 
         final ICompilationUnit compilationUnitT = pmCompilationUnitS.getICompilationUnit();
 
@@ -151,7 +151,7 @@ public class RenameStepTest extends PMTest {
 
         renameStep.setNewName("x__5");
 
-        renameStep.applyAllAtOnce();
+        renameStep.apply();
 
         final String expectedNewSourceA = "public class x__5 {public x__5() {} public static class InnerA extends x__5 {} }";
 
@@ -177,7 +177,7 @@ public class RenameStepTest extends PMTest {
 
         renameStep.setNewName("T");
 
-        renameStep.applyAllAtOnce();
+        renameStep.apply();
 
         final String expectedNewSource = "public class T {protected int x; public T(int y) {x=y;} public T() {x = 0; T a = new T(); a = new T(x);} public static class InnerA extends T { } }";
 
@@ -206,7 +206,7 @@ public class RenameStepTest extends PMTest {
 
         renameStep.setNewName("x__5");
 
-        renameStep.applyAllAtOnce();
+        renameStep.apply();
 
         final String expectedNewSource = "public class x__5 {protected int x; public x__5(int y) {x=y;} public x__5() {x = 0; x__5 a = new x__5(); a = new x__5(x);} public static class InnerA extends x__5 { } }";
 
@@ -233,7 +233,7 @@ public class RenameStepTest extends PMTest {
 
         renameConstructorStep.setNewName("T");
 
-        renameConstructorStep.applyAllAtOnce();
+        renameConstructorStep.apply();
 
         final String expectedNewSourceAfterRenameConstructor = "class T {T() {}}";
 
@@ -247,7 +247,7 @@ public class RenameStepTest extends PMTest {
 
         renameClassStep.setNewName("S");
 
-        renameClassStep.applyAllAtOnce();
+        renameClassStep.apply();
 
         final String expectedNewSourceAfterRenameClass = "class S {S() {}}";
 
@@ -281,7 +281,7 @@ public class RenameStepTest extends PMTest {
 
         renameStep.setNewName("x__5");
 
-        renameStep.applyAllAtOnce();
+        renameStep.apply();
 
         final String expectedNewSourceA = "package testpackage; public class x__5 {public x__5() {System.out.println(6);}}";
 
@@ -323,7 +323,7 @@ public class RenameStepTest extends PMTest {
 
         renameStep.setNewName("x__5");
 
-        renameStep.applyAllAtOnce();
+        renameStep.apply();
 
         final String expectedTransformedSourceA = "package testpackage;" + "public class x__5 {" + "protected int x;"
                 + "protected int unused;" + "public x__5(int y){x = y;}" + "public void f() { int z = x + 2; x = z; }"
@@ -359,7 +359,7 @@ public class RenameStepTest extends PMTest {
 
         step.setNewName("iVar");
 
-        step.applyAllAtOnce();
+        step.apply();
 
         final String expectedNewSourceS = "public class S {" + "String iVar;" + "void m() {" + "String iVar;"
                 + "iVar.length();" + "}" + "}";

@@ -1,12 +1,21 @@
 package net.creichen.pm.utils.visitors;
 
+import static net.creichen.pm.utils.factories.PredicateFactory.hasVariableName;
+
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
+import com.google.common.base.Predicate;
+
 public class VariableDeclarationCollector extends CollectingASTVisitor<VariableDeclaration> {
-    // visitor methods
+
+    private Predicate<VariableDeclaration> filter;
+
+    public VariableDeclarationCollector(final String variableName) {
+        this.filter = hasVariableName(variableName);
+    }
 
     @Override
     public boolean visit(final AnonymousClassDeclaration anonymousClass) {
@@ -15,13 +24,17 @@ public class VariableDeclarationCollector extends CollectingASTVisitor<VariableD
 
     @Override
     public boolean visit(final SingleVariableDeclaration singleVariableDeclaration) {
-        addResult(singleVariableDeclaration);
+        if (this.filter.apply(singleVariableDeclaration)) {
+            addResult(singleVariableDeclaration);
+        }
         return true;
     }
 
     @Override
     public boolean visit(final VariableDeclarationFragment fragment) {
-        addResult(fragment);
+        if (this.filter.apply(fragment)) {
+            addResult(fragment);
+        }
         return true;
     }
 }

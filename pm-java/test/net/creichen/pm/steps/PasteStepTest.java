@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.junit.Test;
 
 public class PasteStepTest extends PMTest {
@@ -43,14 +42,12 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnit1 = createCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createCompilationUnit("", "S2.java", source2);
 
-        final VariableDeclarationFragment fieldDeclarationFragment = ASTQuery.findFieldByName("s", 0, "S1", 0,
-                getProject().getCompilationUnit(compilationUnit1));
-
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
+        final TypeDeclaration type = findClassByName("S1", getProject().getCompilationUnit(compilationUnit1));
+        final FieldDeclaration fieldDeclaration = findFieldByName("s", type);
 
         final CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
 
-        cutStep.applyAllAtOnce();
+        cutStep.apply();
 
         final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2",
                 getProject().getCompilationUnit(compilationUnit2));
@@ -58,7 +55,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), classDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 1);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         assertTrue(matchesSource("public class S1 {void m1(){System.out.println(s);}}", compilationUnit1.getSource()));
         assertTrue(matchesSource("public class S2 {void a(){} S1 s; void b(){} }", compilationUnit2.getSource()));
@@ -76,7 +73,7 @@ public class PasteStepTest extends PMTest {
         final TypeDeclaration type = findClassByName("S1", getProject().getCompilationUnit(compilationUnit1));
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
 
-        new CutStep(getProject(), methodDeclaration).applyAllAtOnce();
+        new CutStep(getProject(), methodDeclaration).apply();
 
         final TypeDeclaration classDeclaration = ASTQuery.findClassByName("S2",
                 getProject().getCompilationUnit(compilationUnit2));
@@ -84,7 +81,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), classDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 1);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         assertTrue(matchesSource("public class S1 {S1 s;}", compilationUnit1.getSource()));
         assertTrue(matchesSource("public class S2 {String a;  void m(){System.out.println(s);} String b;",
@@ -107,7 +104,7 @@ public class PasteStepTest extends PMTest {
 
         final CutStep cutStep = new CutStep(getProject(), firstStatement);
 
-        cutStep.applyAllAtOnce();
+        cutStep.apply();
 
         final TypeDeclaration type2 = findClassByName("S2", getProject().getCompilationUnit(compilationUnit2));
         final MethodDeclaration targetMethodDeclaration = findMethodByName("a", type2);
@@ -116,7 +113,7 @@ public class PasteStepTest extends PMTest {
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetBlock, Block.STATEMENTS_PROPERTY, 1);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         assertTrue(matchesSource("public class S1 {S1 s; void m(){}}", compilationUnit1.getSource()));
         assertTrue(matchesSource(
@@ -144,7 +141,7 @@ public class PasteStepTest extends PMTest {
 
         final CutStep cutStep = new CutStep(getProject(), nodesToCut);
 
-        cutStep.applyAllAtOnce();
+        cutStep.apply();
 
         assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
 
@@ -157,7 +154,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), methodDeclaration.getBody(), Block.STATEMENTS_PROPERTY,
                 2);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         assertTrue(matchesSource("public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}",
                 iCompilationUnit.getSource()));
@@ -173,12 +170,10 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createCompilationUnit("A", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createCompilationUnit("B", "T.java", sourceT);
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) findFieldByName("string", 0, "S", 0,
-                getProject().getCompilationUnit(compilationUnitS)).getParent();
+        final TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
+        final FieldDeclaration fieldDeclaration = findFieldByName("string", type);
 
-        final CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
-
-        cutStep.applyAllAtOnce();
+        new CutStep(getProject(), fieldDeclaration).apply();
 
         final TypeDeclaration targetDeclaration = findClassByName("T", getProject()
                 .getCompilationUnit(compilationUnitT));
@@ -186,7 +181,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         final String expectedNewSourceS = "package A; public class S extends A.T {void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "package B; public class T {String string = foo(); }";
@@ -204,14 +199,10 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createCompilationUnit("", "T.java", sourceT);
 
-        final VariableDeclarationFragment fieldDeclarationFragment = findFieldByName("string", 0, "S", 0, getProject()
-                .getCompilationUnit(compilationUnitS));
+        final TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
+        final FieldDeclaration fieldDeclaration = findFieldByName("string", type);
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) fieldDeclarationFragment.getParent();
-
-        final CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
-
-        cutStep.applyAllAtOnce();
+        new CutStep(getProject(), fieldDeclaration).apply();
 
         final TypeDeclaration targetDeclaration = findClassByName("T", getProject()
                 .getCompilationUnit(compilationUnitT));
@@ -219,7 +210,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
         final String expectedNewSourceT = "public class T {String string;}";
@@ -230,19 +221,16 @@ public class PasteStepTest extends PMTest {
 
     @Test
     public void testPullupFieldViaWithConstantInitializer() throws JavaModelException {
-
         final String sourceS = "public class S extends T {String string = \"Bar\"; void m(){System.out.println(string);}}";
         final String sourceT = "public class T {}";
 
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createCompilationUnit("", "T.java", sourceT);
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) findFieldByName("string", 0, "S", 0,
-                getProject().getCompilationUnit(compilationUnitS)).getParent();
+        final TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
+        final FieldDeclaration fieldDeclaration = findFieldByName("string", type);
 
-        final CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
-
-        cutStep.applyAllAtOnce();
+        new CutStep(getProject(), fieldDeclaration).apply();
 
         final TypeDeclaration targetDeclaration = findClassByName("T", getProject()
                 .getCompilationUnit(compilationUnitT));
@@ -250,7 +238,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
         final String expectedNewSourceT = "public class T {String string = \"Bar\";}";
@@ -268,12 +256,10 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createCompilationUnit("", "T.java", sourceT);
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) findFieldByName("string", 0, "S", 0,
-                getProject().getCompilationUnit(compilationUnitS)).getParent();
+        final TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
+        final FieldDeclaration fieldDeclaration = findFieldByName("string", type);
 
-        final CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
-
-        cutStep.applyAllAtOnce();
+        new CutStep(getProject(), fieldDeclaration).apply();
 
         final TypeDeclaration targetDeclaration = findClassByName("T", getProject()
                 .getCompilationUnit(compilationUnitT));
@@ -281,7 +267,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "public class T {String string = foo();}";
@@ -299,12 +285,10 @@ public class PasteStepTest extends PMTest {
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createCompilationUnit("", "T.java", sourceT);
 
-        final FieldDeclaration fieldDeclaration = (FieldDeclaration) findFieldByName("string", 0, "S", 0,
-                getProject().getCompilationUnit(compilationUnitS)).getParent();
+        final TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
+        final FieldDeclaration fieldDeclaration = findFieldByName("string", type);
 
-        final CutStep cutStep = new CutStep(getProject(), fieldDeclaration);
-
-        cutStep.applyAllAtOnce();
+        new CutStep(getProject(), fieldDeclaration).apply();
 
         final TypeDeclaration targetDeclaration = findClassByName("T", getProject()
                 .getCompilationUnit(compilationUnitT));
@@ -312,7 +296,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
         final String expectedNewSourceT = "public class T {static String string = foo();}";
@@ -335,7 +319,7 @@ public class PasteStepTest extends PMTest {
 
         final CutStep cutStep = new CutStep(getProject(), methodDeclaration);
 
-        cutStep.applyAllAtOnce();
+        cutStep.apply();
 
         final TypeDeclaration targetDeclaration = findClassByName("T", getProject()
                 .getCompilationUnit(compilationUnitT));
@@ -343,7 +327,7 @@ public class PasteStepTest extends PMTest {
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
 
-        pasteStep.applyAllAtOnce();
+        pasteStep.apply();
 
         final String expectedNewSourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);}  }";
         final String expectedNewSourceT = "public class T { private static String foo() {return \"foo\";}}";
