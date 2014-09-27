@@ -10,6 +10,7 @@
 package net.creichen.pm.steps;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+import static net.creichen.pm.utils.ASTQuery.findParent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,30 +89,15 @@ public class SplitStep extends Step {
         return result;
     }
 
-    private MethodDeclaration findContainingMethodDeclaration(final ASTNode node) {
-        MethodDeclaration containingMethodDeclaration = null;
-
-        ASTNode iterator = node;
-        while ((iterator = iterator.getParent()) != null) {
-
-            if (iterator instanceof MethodDeclaration) {
-                containingMethodDeclaration = (MethodDeclaration) iterator;
-            }
-        }
-
-        return containingMethodDeclaration;
-    }
-
     public VariableDeclarationStatement getReplacementDeclarationStatement() {
         return (VariableDeclarationStatement) this.replacementDeclarationReference.getNode();
     }
 
     @Override
     public void performASTChange() {
-
         final Assignment oldAssignmentExpression = (Assignment) this.assignmentStatement.getExpression();
-
-        final MethodDeclaration containingMethodDeclaration = findContainingMethodDeclaration(oldAssignmentExpression);
+        final MethodDeclaration containingMethodDeclaration = findParent(oldAssignmentExpression,
+                MethodDeclaration.class);
 
         final ReachingDefsAnalysis reachingDefsAnalysis = new ReachingDefsAnalysis(containingMethodDeclaration);
 
@@ -183,6 +169,11 @@ public class SplitStep extends Step {
 
     }
 
+    @Override
+    public void updateAfterReparse() {
+
+    }
+
     private void rewriteToReplaceAssignmentStatementWithDeclaration(final ASTRewrite rewrite,
             final Assignment assignment) {
 
@@ -225,11 +216,6 @@ public class SplitStep extends Step {
         rewrite.replace(this.assignmentStatement, this.replacementDeclarationStatement, null /*
          * edit group
          */);
-    }
-
-    @Override
-    public void updateAfterReparse() {
-
     }
 
 }

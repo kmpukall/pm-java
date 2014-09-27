@@ -70,6 +70,19 @@ public final class ASTQuery {
         return get(matchingClasses, 0, null);
     }
 
+    public static <T extends ASTNode> T findParent(final ASTNode node, final Class<T> type) {
+        T result = null;
+        ASTNode parent = node;
+        while (parent != null) {
+            if (type.isInstance(parent)) {
+                result = type.cast(parent);
+                break;
+            }
+            parent = parent.getParent();
+        }
+        return result;
+    }
+
     /**
      * We use classNameOccurrence to distinguish between classes when there are two classes with the same name This is
      * likely to be a common thing when testing rename
