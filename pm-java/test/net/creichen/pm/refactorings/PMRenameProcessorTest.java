@@ -10,6 +10,9 @@
 package net.creichen.pm.refactorings;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findMethodByName;
+import static net.creichen.pm.utils.ASTQuery.findSimpleName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -21,12 +24,13 @@ import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
 import net.creichen.pm.consistency.inconsistencies.NameCapture;
 import net.creichen.pm.tests.PMTest;
-import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.TextSelection;
 import org.junit.Test;
 
@@ -100,8 +104,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         ProcessorDriver.drive(renameIvarToBar);
 
-        assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
-                foo.getSource());
+        assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }", foo.getSource());
 
         Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
@@ -111,24 +114,12 @@ public class PMRenameProcessorTest extends PMTest {
 
         CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
 
-        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
-                parsedCompilationUnit);
+        TypeDeclaration typeFoo = findClassByName("Foo", parsedCompilationUnit);
+        MethodDeclaration method = findMethodByName("method", typeFoo);
+        ASTNode expectedCapturedNode = findSimpleName("bar", 1, method);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
-        // ASTNode expectedExpectedDeclaringNode =
-        // PMASTQuery.fieldWithNameInClassInCompilationUnit("bar", 0, "Foo", 0,
-        // parsedCompilationUnit);
-
-        // ASTNode actualExpectedDeclaringNode =
-        // nameCapture.getExpectedDeclaration();
-
-        // !!! we don't actuall provide this in the implementation yet
-        // should probably leave failing test in, but . . .
-        // assertEquals(expectedExpectedDeclaringNode,
-        // actualExpectedDeclaringNode);
-
-        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 0, "method", 0, "Foo", 0,
-                parsedCompilationUnit).getParent();
+        ASTNode expectedCapturingNode = findSimpleName("bar", 0, method).getParent();
 
         ASTNode actualCapturingNode = nameCapture.getActualDeclaration();
 
@@ -147,8 +138,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         ProcessorDriver.drive(renameFooToBar);
 
-        assertEquals("public class Foo {void method() {int bar; int bar; bar = 5; bar = 6;} }",
-                foo.getSource());
+        assertEquals("public class Foo {void method() {int bar; int bar; bar = 5; bar = 6;} }", foo.getSource());
 
         Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
@@ -161,8 +151,9 @@ public class PMRenameProcessorTest extends PMTest {
 
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
-        ASTNode expectedCapturingNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
-                parsedCompilationUnit).getParent();
+        TypeDeclaration typeFoo = findClassByName("Foo", parsedCompilationUnit);
+        MethodDeclaration method = findMethodByName("method", typeFoo);
+        ASTNode expectedCapturingNode = findSimpleName("bar", 1, method).getParent();
 
         ASTNode actualCapturingNode = nameCapture.getActualDeclaration();
 
@@ -174,8 +165,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         ProcessorDriver.drive(renameBarToFoo);
 
-        assertEquals("public class Foo {void method() {int bar; int foo; bar = 5; foo = 6;} }",
-                foo.getSource());
+        assertEquals("public class Foo {void method() {int bar; int foo; bar = 5; foo = 6;} }", foo.getSource());
 
         assertThat(getProject(), hasNoInconsistencies());
 
@@ -222,8 +212,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         ProcessorDriver.drive(renameIvarToBar);
 
-        assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }",
-                foo.getSource());
+        assertEquals("Foo.java", "public class Foo {int bar; void method() {int bar; bar = 5;} }", foo.getSource());
 
         Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
@@ -233,8 +222,9 @@ public class PMRenameProcessorTest extends PMTest {
 
         CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
 
-        ASTNode expectedCapturedNode = ASTQuery.findSimpleNameByIdentifier("bar", 1, "method", 0, "Foo", 0,
-                parsedCompilationUnit);
+        TypeDeclaration typeFoo = findClassByName("Foo", parsedCompilationUnit);
+        MethodDeclaration method = findMethodByName("method", typeFoo);
+        ASTNode expectedCapturedNode = findSimpleName("bar", 1, method);
         assertEquals(expectedCapturedNode, nameCapture.getNode());
 
         nameCapture.acceptBehavioralChange();

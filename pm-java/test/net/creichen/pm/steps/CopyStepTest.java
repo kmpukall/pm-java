@@ -67,7 +67,7 @@ public class CopyStepTest extends PMTest {
         final String methodDeclarationOriginalNameIdentifier = nameModel
                 .getIdentifierForName(methodDeclarationOriginalName);
 
-        final SimpleName originalUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0, methodDeclaration.getBody());
+        final SimpleName originalUseOfYInM = ASTQuery.findSimpleNames("y", methodDeclaration.getBody()).get(0);
         final String originalUseOfYInMIdentifier = nameModel.getIdentifierForName(originalUseOfYInM);
 
         final List<ASTNode> nodesToCopy = new ArrayList<ASTNode>();
@@ -111,7 +111,7 @@ public class CopyStepTest extends PMTest {
         // use of internal field declaration points to the fresh declaration
         // identifier
 
-        final SimpleName copyUseOfXInM = ASTQuery.findSimpleNameByIdentifier("x", 0, methodDeclarationCopy.getBody());
+        final SimpleName copyUseOfXInM = ASTQuery.findSimpleNames("x", methodDeclarationCopy.getBody()).get(0);
         final String copyUseOfXInMIdentifier = nameModel.getIdentifierForName(copyUseOfXInM);
 
         assertEquals(copyUseOfXInMIdentifier, fieldDeclarationCopyNameIdentifier);
@@ -119,7 +119,7 @@ public class CopyStepTest extends PMTest {
         // use of external field declaration (i.e. one not copied) still points
         // to its original declaration
 
-        final SimpleName copyUseOfYInM = ASTQuery.findSimpleNameByIdentifier("y", 0, methodDeclarationCopy.getBody());
+        final SimpleName copyUseOfYInM = ASTQuery.findSimpleNames("y", methodDeclarationCopy.getBody()).get(0);
         final String copyUseOfYInMIdentifier = nameModel.getIdentifierForName(copyUseOfYInM);
 
         assertEquals(copyUseOfYInMIdentifier, originalUseOfYInMIdentifier);
@@ -143,7 +143,7 @@ public class CopyStepTest extends PMTest {
                 .statements().get(3);
         final Assignment xGetsXPlusOneAssignmentOriginal = (Assignment) fourthStatementOriginal.getExpression();
 
-        final SimpleName x3RHSOriginal = ASTQuery.findSimpleNameByIdentifier("x", 1, xGetsXPlusOneAssignmentOriginal);
+        final SimpleName x3RHSOriginal = ASTQuery.findSimpleNames("x", xGetsXPlusOneAssignmentOriginal).get(1);
 
         final NodeReference x3RHSOriginalNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSOriginal);
 
@@ -174,11 +174,10 @@ public class CopyStepTest extends PMTest {
         final NodeReference xGetsXPlusOneAssignmentCopyReference = NodeReferenceStore.getInstance().getReference(
                 xGetsXPlusOneAssignmentCopy);
 
-        final SimpleName x3RHSCopy = ASTQuery.findSimpleNameByIdentifier("x", 1, xGetsXPlusOneAssignmentCopy);
+        final SimpleName x3RHSCopy = ASTQuery.findSimpleNames("x", xGetsXPlusOneAssignmentCopy).get(1);
         final NodeReference x3RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSCopy);
 
-        final Set<NodeReference> definitionsForX3RHSOriginal = udModel
-                .definitionsForUse(x3RHSOriginalNodeReference);
+        final Set<NodeReference> definitionsForX3RHSOriginal = udModel.definitionsForUse(x3RHSOriginalNodeReference);
         final Set<NodeReference> definitionsForX3RHSCopy = udModel.definitionsForUse(x3RHSCopyNodeReference);
 
         // Since this x gets its single definition from outside of the copied
@@ -186,7 +185,7 @@ public class CopyStepTest extends PMTest {
         // same reaching definitions as the original
         assertEquals(definitionsForX3RHSOriginal, definitionsForX3RHSCopy);
 
-        final SimpleName x4RHSCopy = ASTQuery.findSimpleNameByIdentifier("x", 0, fifthStatementCopy);
+        final SimpleName x4RHSCopy = ASTQuery.findSimpleNames("x", fifthStatementCopy).get(0);
         final NodeReference x4RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x4RHSCopy);
 
         final Set<NodeReference> definitionsForX4RHSCopy = udModel.definitionsForUse(x4RHSCopyNodeReference);

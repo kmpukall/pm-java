@@ -68,7 +68,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
         analyze("public class S {void m(){int x = 0;x = x + 1;}}");
 
         // The first x is not a use
-        final SimpleName firstX = ASTQuery.findSimpleNames("x", this.compilationUnit).get(0);
+        final SimpleName firstX = ASTQuery.findSimpleName("x", this.compilationUnit);
         assertThat(this.rdefs.getUse(firstX), is(nullValue()));
 
     }
@@ -78,7 +78,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
         analyze("public class S {void m(){int x = 0;x = x + 1;}}");
 
         // The second x is not a use either
-        final SimpleName secondX = ASTQuery.findSimpleNames("x", this.compilationUnit).get(1);
+        final SimpleName secondX = ASTQuery.findSimpleName("x", 1, this.compilationUnit);
         assertThat(this.rdefs.getUse(secondX), is(nullValue()));
     }
 
@@ -87,7 +87,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
         analyze("public class S {void m(){int x = 0;x = x + 1;}}");
 
         // the third occurrence of x is a use and has one reaching definition
-        final SimpleName thirdX = ASTQuery.findSimpleNames("x", this.compilationUnit).get(2);
+        final SimpleName thirdX = ASTQuery.findSimpleName("x", 2, this.compilationUnit);
 
         final Use use = this.rdefs.getUse(thirdX);
         assertThat(use, is(not(nullValue())));
@@ -104,7 +104,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testDefinitionInPostIncrement() {
         analyze("public class S {void m(){int y = 1; y++; int x = y;}}");
 
-        final SimpleName thirdY = ASTQuery.findSimpleNames("y", this.compilationUnit).get(2);
+        final SimpleName thirdY = ASTQuery.findSimpleName("y", 2, this.compilationUnit);
 
         final Use use = this.rdefs.getUse(thirdY);
         assertThat(use, is(not(nullValue())));

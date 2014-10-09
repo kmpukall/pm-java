@@ -155,33 +155,13 @@ public final class ASTQuery {
         return org.eclipse.jdt.core.dom.NodeFinder.perform(compilationUnit, selectionOffset, selectionLength);
     }
 
-    public static SimpleName findSimpleNameByIdentifier(final String simpleNameIdentifier,
-            final int simpleNameOccurrence, final ASTNode node) {
-        final SimpleName[] result = new SimpleName[1]; // use aray to be able to
-        // return result from
-        // anonymous class
-        // method
+    public static SimpleName findSimpleName(final String simpleNameIdentifier, final ASTNode node) {
+        return findSimpleName(simpleNameIdentifier, 0, node);
+    }
 
-        node.accept(new ASTVisitor() {
-
-            private int simpleNameOccurrenceCount = simpleNameOccurrence;
-
-            @Override
-            public boolean visit(final SimpleName visitedSimpleName) {
-
-                if (result[0] == null && visitedSimpleName.getIdentifier().equals(simpleNameIdentifier)) {
-                    if (this.simpleNameOccurrenceCount == 0) {
-                        result[0] = visitedSimpleName;
-                    } else {
-                        this.simpleNameOccurrenceCount--;
-                    }
-                }
-
-                return true;
-            }
-        });
-
-        return result[0];
+    public static SimpleName findSimpleName(final String identifier, final int index, final ASTNode node) {
+        List<SimpleName> simpleNames = findSimpleNames(identifier, node);
+        return get(simpleNames, index, null);
     }
 
     public static SimpleName findSimpleNameByIdentifier(final String simpleNameIdentifier,
@@ -190,7 +170,8 @@ public final class ASTQuery {
         final MethodDeclaration methodDeclaration = findMethodByName(methodName, methodNameOccurrence, className,
                 classNameOccurrence, compilationUnit);
 
-        return findSimpleNameByIdentifier(simpleNameIdentifier, simpleNameOccurrence, methodDeclaration.getBody());
+        List<SimpleName> simpleNames = findSimpleNames(simpleNameIdentifier, methodDeclaration.getBody());
+        return simpleNames.size() > simpleNameOccurrence ? simpleNames.get(simpleNameOccurrence) : null;
     }
 
     public static List<SimpleName> findSimpleNames(final String identifier, final ASTNode node) {

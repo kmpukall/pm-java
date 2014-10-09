@@ -60,15 +60,15 @@ public class ASTQueryTest extends PMTest {
     }
 
     @Test
-    public void testFindSimpleNameByIdentifier() {
-        final String source = "class S {int x,y; int f(int x) {int x,y; try {x = y + 1;} catch(Exception x){} while(1) {int y,x; x--;} } }";
-        final CompilationUnit compilationUnit = toCompilationUnit(source);
-        final ASTNode expected = ASTQuery.findNodeForSelection(98, 1, compilationUnit);
-
-        SimpleName simpleName = ASTQuery.findSimpleNameByIdentifier("x", 4, "f", 0, "S", 0, compilationUnit);
-
-        assertThat(simpleName, is(equalTo(expected)));
-    }
+        public void testFindSimpleName() {
+            final String source = "class S {int x,y; int f(int x) {int x,y; try {x = y + 1;} catch(Exception x){} while(1) {int y,x; x--;} } }";
+            final CompilationUnit compilationUnit = toCompilationUnit(source);
+            final ASTNode expected = ASTQuery.findNodeForSelection(98, 1, compilationUnit);
+    
+            SimpleName simpleName = ASTQuery.findSimpleNameByIdentifier("x", 4, "f", 0, "S", 0, compilationUnit);
+    
+            assertThat(simpleName, is(equalTo(expected)));
+        }
 
     @Test
     public void testGetSimpleName1() {
