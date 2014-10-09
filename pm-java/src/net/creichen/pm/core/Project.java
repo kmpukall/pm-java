@@ -94,7 +94,7 @@ public class Project implements ASTRootsProvider {
                 Project.this.pmCompilationUnits.put(newICompilationUnit.getHandleIdentifier(), this);
             } catch (final JavaModelException e) {
                 e.printStackTrace();
-                throw new RuntimeException(e);
+                throw new PMException(e);
             }
         }
 
@@ -266,7 +266,7 @@ public class Project implements ASTRootsProvider {
             }
         } else {
             System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
-            throw new RuntimeException("Copy not does structurally match original");
+            throw new PMException("Copy not does structurally match original");
         }
 
         Timer.sharedTimer().stop("NODE_REPLACEMENT");

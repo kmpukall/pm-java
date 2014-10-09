@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
 import net.creichen.pm.utils.Timer;
@@ -66,7 +67,7 @@ public class ConsistencyValidator {
         } catch (final CoreException e) {
             e.printStackTrace();
 
-            throw new RuntimeException(e);
+            throw new PMException(e);
         }
     }
 

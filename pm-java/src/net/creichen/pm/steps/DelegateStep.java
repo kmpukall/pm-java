@@ -18,6 +18,7 @@ import java.util.Map;
 
 import net.creichen.pm.analysis.ReachingDefsAnalysis;
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
@@ -137,7 +138,7 @@ public class DelegateStep extends Step {
                 }
 
             } else {
-                throw new RuntimeException("oldArguments.size != newArguments.size()");
+                throw new PMException("oldArguments.size != newArguments.size()");
             }
 
             // FIXME(dcc) Should use ASTNodeUtils.replaceNodeInParent()
@@ -177,14 +178,14 @@ public class DelegateStep extends Step {
     private void rewriteToDelegateMethodInvocationToIdentifier(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression identifierNode) {
         astRewrite
-                .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
+        .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
     }
 
     private void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression superInvocationNode) {
         astRewrite.replace(methodInvocation, superInvocationNode, null /*
-                                                                        * edit group
-                                                                        */);
+         * edit group
+         */);
     }
 
     public void setDelegateIdentifier(final String delegateIdentifier) {

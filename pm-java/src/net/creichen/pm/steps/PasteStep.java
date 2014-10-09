@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.models.NameModel;
@@ -116,7 +117,7 @@ public class PasteStep extends Step {
             } else {
                 System.err.println("Couldn't match copied statement to original");
 
-                throw new RuntimeException("PM Paste Error: Couldn't match copied statement to original");
+                throw new PMException("PM Paste Error: Couldn't match copied statement to original");
             }
         }
 

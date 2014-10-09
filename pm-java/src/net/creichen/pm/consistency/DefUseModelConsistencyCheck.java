@@ -10,6 +10,7 @@ import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnknownUse;
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeReferenceStore;
 import net.creichen.pm.models.DefUseModel;
@@ -56,7 +57,7 @@ class DefUseModelConsistencyCheck {
                             desiredDefiningNode = desiredDefinitionIdentifier.getNode();
 
                             if (desiredDefiningNode == null) {
-                                throw new RuntimeException("Couldn't find defining node for identifier:"
+                                throw new PMException("Couldn't find defining node for identifier:"
                                         + desiredDefinitionIdentifier + "for use " + usingNode);
                             }
                         } else {
@@ -86,7 +87,7 @@ class DefUseModelConsistencyCheck {
                         currentDefiningIdentifier = NodeReferenceStore.getInstance().getReference(currentDefiningNode);
 
                         if (currentDefiningIdentifier == null) {
-                            throw new RuntimeException("Couldn't find  identifier for current defining node "
+                            throw new PMException("Couldn't find  identifier for current defining node "
                                     + currentDefiningNode);
                         }
                     } else {
@@ -100,7 +101,7 @@ class DefUseModelConsistencyCheck {
                 }
 
             } else {
-                throw new RuntimeException("Couldn't find use identifier for use:" + use.getSimpleName());
+                throw new PMException("Couldn't find use identifier for use:" + use.getSimpleName());
             }
         }
 

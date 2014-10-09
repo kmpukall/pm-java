@@ -10,6 +10,7 @@
 package net.creichen.pm.tests;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 
@@ -98,7 +99,7 @@ public abstract class PMTest {
             final IPackageFragment fragment = srcFolder.createPackageFragment(packageFragmentName, true, null);
             result = fragment.createCompilationUnit(fileName, sourceText, false, null);
         } catch (final CoreException e) {
-            throw new RuntimeException(e);
+            throw new PMException(e);
         }
 
         return result;

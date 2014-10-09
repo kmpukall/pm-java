@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.data.NodeReferenceStore;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -87,7 +88,7 @@ public class DefUseModel {
                 definitionIdentifier = NodeReferenceStore.getInstance().getReference(definingNode);
 
                 if (definitionIdentifier == null) {
-                    throw new RuntimeException("Couldn't find identifier for defining node " + definingNode);
+                    throw new PMException("Couldn't find identifier for defining node " + definingNode);
                 }
             } else {
                 definitionIdentifier = this.uninitialized;

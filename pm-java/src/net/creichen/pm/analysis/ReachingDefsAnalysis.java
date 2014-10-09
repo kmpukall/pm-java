@@ -20,8 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.models.Def;
 import net.creichen.pm.models.Use;
+import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.visitors.DefinitionCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -123,7 +125,7 @@ public class ReachingDefsAnalysis {
 
         this.definitionsByBinding = new HashMap<IBinding, Set<Def>>();
         for (final Def def : this.definitions) {
-            final IBinding binding = def.getBinding();
+            final IBinding binding = ASTUtil.getBinding(def);
             Set<Def> definitionsForBinding = this.definitionsByBinding.get(binding);
             if (definitionsForBinding == null) {
                 definitionsForBinding = new HashSet<Def>();
@@ -143,7 +145,7 @@ public class ReachingDefsAnalysis {
             // containing set)
             final Set<VariableAssignment> genSet = new HashSet<VariableAssignment>();
 
-            final IBinding binding = definition.getBinding();
+            final IBinding binding = ASTUtil.getBinding(definition);
 
             // The binding could be null if the declaration for the lhs no
             // longer exists
@@ -168,7 +170,7 @@ public class ReachingDefsAnalysis {
         // this means there will be no killset for a block with no definitions
         //
         for (final Def definition : this.definitions) {
-            final IBinding binding = definition.getBinding();
+            final IBinding binding = ASTUtil.getBinding(definition);
 
             // Binding may be null if the declaring node for our lhs no longer
             // exists
@@ -218,7 +220,7 @@ public class ReachingDefsAnalysis {
                 return block;
             }
         } while (node != null);
-        throw new RuntimeException("Couldn't find block for definingnode  " + originalNode);
+        throw new PMException("Couldn't find block for definingnode  " + originalNode);
 
     }
 
@@ -281,7 +283,7 @@ public class ReachingDefsAnalysis {
             final IfStatement ifStatement = (IfStatement) statement;
             /*
              * three components: - guard block - then block - else block
-             *
+             * 
              * - exit block to join then and else
              */
 
@@ -330,7 +332,7 @@ public class ReachingDefsAnalysis {
 
             /*
              * while statements consist of: - guard condition - body
-             *
+             * 
              * - synthetic exit block
              */
 
@@ -472,7 +474,7 @@ public class ReachingDefsAnalysis {
     private VariableAssignment uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
 
         if (variableBinding == null) {
-            throw new RuntimeException("variableBinding for " + definition + " is null!");
+            throw new PMException("variableBinding for " + definition + " is null!");
         }
 
         Map<IBinding, VariableAssignment> assignmentsForLocation = this.uniqueVariableAssigments.get(definition);
@@ -530,10 +532,10 @@ public class ReachingDefsAnalysis {
         private boolean isUse(final SimpleName name) {
             /*
              * we assume all simple names are uses except:
-             * 
+             *
              * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
              * SingleVariableDeclaration
-             * 
+             *
              * There are probably more cases (i.e. method names in invocations?)
              */
 

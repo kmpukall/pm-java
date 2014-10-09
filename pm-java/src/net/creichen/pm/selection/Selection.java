@@ -9,6 +9,8 @@
 
 package net.creichen.pm.selection;
 
+import net.creichen.pm.core.PMException;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -18,209 +20,204 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 public class Selection {
 
-	@SuppressWarnings("restriction")
-	private static class PMExactSelectionVisitor extends
-			org.eclipse.jdt.internal.corext.dom.GenericVisitor {
+    @SuppressWarnings("restriction")
+    private static class PMExactSelectionVisitor extends org.eclipse.jdt.internal.corext.dom.GenericVisitor {
 
-		private final int offset;
-		private final int length;
+        private final int offset;
+        private final int length;
 
-		private ASTNode containingNode;
+        private ASTNode containingNode;
 
-		public PMExactSelectionVisitor(final int offset, final int length) {
-			this.offset = offset;
-			this.length = length;
-		}
+        public PMExactSelectionVisitor(final int offset, final int length) {
+            this.offset = offset;
+            this.length = length;
+        }
 
-		public ASTNode getContainingNode() {
-			return this.containingNode;
-		}
+        public ASTNode getContainingNode() {
+            return this.containingNode;
+        }
 
-		private boolean nodeContainsSelection(final ASTNode node) {
-			return this.offset >= node.getStartPosition()
-					&& this.offset + this.length <= node.getStartPosition() + node.getLength();
-		}
+        private boolean nodeContainsSelection(final ASTNode node) {
+            return this.offset >= node.getStartPosition()
+                    && this.offset + this.length <= node.getStartPosition() + node.getLength();
+        }
 
-		@Override
-		public boolean visitNode(final ASTNode node) {
-			// result from this method determines whether it will be called for
-			// nodes beneath it.
+        @Override
+        public boolean visitNode(final ASTNode node) {
+            // result from this method determines whether it will be called for
+            // nodes beneath it.
 
-			if (nodeContainsSelection(node)) {
+            if (nodeContainsSelection(node)) {
 
-				this.containingNode = node;
+                this.containingNode = node;
 
-				return true;
-			} else {
+                return true;
+            } else {
 
-				return false;
-			}
+                return false;
+            }
 
-		}
-	}
+        }
+    }
 
-	private final CompilationUnit compilationUnit;
-	private int offset;
+    private final CompilationUnit compilationUnit;
+    private int offset;
 
-	private int length;
+    private int length;
 
-	private ASTNode singleSelectedNode;
-	private ASTNode propertyParentNode;
-	private StructuralPropertyDescriptor selectedPropertyDescriptor;
-	private int childListPropertyOffset;
+    private ASTNode singleSelectedNode;
+    private ASTNode propertyParentNode;
+    private StructuralPropertyDescriptor selectedPropertyDescriptor;
+    private int childListPropertyOffset;
 
-	private int childListPropertyLength;
+    private int childListPropertyLength;
 
-	public Selection(final CompilationUnit compilationUnit, final int offset, final int length) {
+    public Selection(final CompilationUnit compilationUnit, final int offset, final int length) {
 
-		this.compilationUnit = compilationUnit;
+        this.compilationUnit = compilationUnit;
 
-		this.offset = offset;
-		this.length = length;
+        this.offset = offset;
+        this.length = length;
 
-		this.childListPropertyOffset = -1;
-		this.childListPropertyLength = -1;
+        this.childListPropertyOffset = -1;
+        this.childListPropertyLength = -1;
 
-		trimWhitespace();
+        trimWhitespace();
 
-		// ought to do this lazily
-		findSelection(this.offset, this.length);
+        // ought to do this lazily
+        findSelection(this.offset, this.length);
 
-	}
+    }
 
-	private void findSelection(final int offset, final int length) {
-		final PMExactSelectionVisitor selectionVisitor = new PMExactSelectionVisitor(offset, length);
-		this.compilationUnit.accept(selectionVisitor);
+    private void findSelection(final int offset, final int length) {
+        final PMExactSelectionVisitor selectionVisitor = new PMExactSelectionVisitor(offset, length);
+        this.compilationUnit.accept(selectionVisitor);
 
-		final ASTNode containingNode = selectionVisitor.getContainingNode();
+        final ASTNode containingNode = selectionVisitor.getContainingNode();
 
-		if (containingNode.getStartPosition() == offset && containingNode.getLength() == length) {
-			this.singleSelectedNode = containingNode;
-		} else {
-			this.singleSelectedNode = null;
+        if (containingNode.getStartPosition() == offset && containingNode.getLength() == length) {
+            this.singleSelectedNode = containingNode;
+        } else {
+            this.singleSelectedNode = null;
 
-			// if there is no single selected node, find the insertion points
-			// corresponding to the start and
-			// end of the selection and see if these insertion points contain a
-			// sequence of nodes
+            // if there is no single selected node, find the insertion points
+            // corresponding to the start and
+            // end of the selection and see if these insertion points contain a
+            // sequence of nodes
 
-			final InsertionPoint startInsertionPoint = InsertionPointFactory.createInsertionPoint(
-					this.compilationUnit, offset);
+            final InsertionPoint startInsertionPoint = InsertionPointFactory.createInsertionPoint(this.compilationUnit,
+                    offset);
 
-			final InsertionPoint endInsertionPoint = InsertionPointFactory.createInsertionPoint(
-					this.compilationUnit, offset + length);
+            final InsertionPoint endInsertionPoint = InsertionPointFactory.createInsertionPoint(this.compilationUnit,
+                    offset + length);
 
-			if (startInsertionPoint.isValid() && endInsertionPoint.isValid()
-					&& startInsertionPoint.getParent() == endInsertionPoint.getParent()
-					&& startInsertionPoint.getProperty().equals(endInsertionPoint.getProperty())) {
+            if (startInsertionPoint.isValid() && endInsertionPoint.isValid()
+                    && startInsertionPoint.getParent() == endInsertionPoint.getParent()
+                    && startInsertionPoint.getProperty().equals(endInsertionPoint.getProperty())) {
 
-				this.propertyParentNode = startInsertionPoint.getParent();
+                this.propertyParentNode = startInsertionPoint.getParent();
 
-				this.selectedPropertyDescriptor = startInsertionPoint.getProperty();
+                this.selectedPropertyDescriptor = startInsertionPoint.getProperty();
 
-				this.childListPropertyOffset = startInsertionPoint.getIndex();
+                this.childListPropertyOffset = startInsertionPoint.getIndex();
 
-				this.childListPropertyLength = endInsertionPoint.getIndex()
-						- startInsertionPoint.getIndex();
-			}
-		}
+                this.childListPropertyLength = endInsertionPoint.getIndex() - startInsertionPoint.getIndex();
+            }
+        }
 
-	}
+    }
 
-	public String getSelectionAsString() {
+    public String getSelectionAsString() {
 
-		String result = null;
+        String result = null;
 
-		String entireSource = null;
+        String entireSource = null;
 
-		try {
-			final ICompilationUnit iCompilationUnit = ((ICompilationUnit) this.compilationUnit
-					.getJavaElement());
+        try {
+            final ICompilationUnit iCompilationUnit = ((ICompilationUnit) this.compilationUnit.getJavaElement());
 
-			// Sometimes CompilationUnits don't have an associated
-			// ICompilationUnit (e.g if they were parsed from a string)
-			// If not, just us the (for debugging purposes only)
-			// _compilation.toString()
+            // Sometimes CompilationUnits don't have an associated
+            // ICompilationUnit (e.g if they were parsed from a string)
+            // If not, just us the (for debugging purposes only)
+            // _compilation.toString()
 
-			if (iCompilationUnit != null) {
-				entireSource = ((ICompilationUnit) this.compilationUnit.getJavaElement())
-						.getSource();
-			} else {
-				entireSource = this.compilationUnit.toString();
-			}
+            if (iCompilationUnit != null) {
+                entireSource = ((ICompilationUnit) this.compilationUnit.getJavaElement()).getSource();
+            } else {
+                entireSource = this.compilationUnit.toString();
+            }
 
-		} catch (final JavaModelException e) {
-			System.err.println("Exception in PMSelection.getSelectionAsString(): " + e);
+        } catch (final JavaModelException e) {
+            System.err.println("Exception in PMSelection.getSelectionAsString(): " + e);
+            throw new PMException(e);
+        }
 
-			throw new RuntimeException(e);
-		}
+        result = entireSource.substring(this.offset, this.offset + this.length);
 
-		result = entireSource.substring(this.offset, this.offset + this.length);
+        return result;
+    }
 
-		return result;
-	}
+    public boolean isListSelection() {
+        return this.selectedPropertyDescriptor instanceof ChildListPropertyDescriptor;
+    }
 
-	public boolean isListSelection() {
-		return this.selectedPropertyDescriptor instanceof ChildListPropertyDescriptor;
-	}
+    public boolean isMultipleSelection() {
+        return this.childListPropertyLength > 0;
+    }
 
-	public boolean isMultipleSelection() {
-		return this.childListPropertyLength > 0;
-	}
+    public boolean isSaneSelection() {
+        return this.selectedPropertyDescriptor != null || this.singleSelectedNode != null;
+    }
 
-	public boolean isSaneSelection() {
-		return this.selectedPropertyDescriptor != null || this.singleSelectedNode != null;
-	}
+    public ASTNode selectedNodeParent() {
+        if (this.singleSelectedNode != null) {
+            return this.singleSelectedNode.getParent();
+        } else {
+            return this.propertyParentNode;
+        }
+    }
 
-	public ASTNode selectedNodeParent() {
-		if (this.singleSelectedNode != null) {
-			return this.singleSelectedNode.getParent();
-		} else {
-			return this.propertyParentNode;
-		}
-	}
+    public StructuralPropertyDescriptor selectedNodeParentProperty() {
+        return this.selectedPropertyDescriptor;
+    }
 
-	public StructuralPropertyDescriptor selectedNodeParentProperty() {
-		return this.selectedPropertyDescriptor;
-	}
+    public int selectedNodeParentPropertyListLength() {
+        return this.childListPropertyLength;
+    }
 
-	public int selectedNodeParentPropertyListLength() {
-		return this.childListPropertyLength;
-	}
+    public int selectedNodeParentPropertyListOffset() {
+        return this.childListPropertyOffset;
+    }
 
-	public int selectedNodeParentPropertyListOffset() {
-		return this.childListPropertyOffset;
-	}
+    public ASTNode singleSelectedNode() {
+        return this.singleSelectedNode;
+    }
 
-	public ASTNode singleSelectedNode() {
-		return this.singleSelectedNode;
-	}
+    private void trimWhitespace() {
+        // move the selection so that it contains no leading or trailing
+        // whitespace
 
-	private void trimWhitespace() {
-		// move the selection so that it contains no leading or trailing
-		// whitespace
+        final String selection = getSelectionAsString();
 
-		final String selection = getSelectionAsString();
+        // trim whitespace at beginning
+        for (int index = 0; index < selection.length(); index++) {
+            if (Character.isWhitespace(selection.charAt(index))) {
+                this.offset++;
+                this.length--;
+            } else {
+                break;
+            }
+        }
 
-		// trim whitespace at beginning
-		for (int index = 0; index < selection.length(); index++) {
-			if (Character.isWhitespace(selection.charAt(index))) {
-				this.offset++;
-				this.length--;
-			} else {
-				break;
-			}
-		}
+        // trim whitespace at end
+        for (int index = selection.length() - 1; index >= 0; index--) {
+            if (Character.isWhitespace(selection.charAt(index))) {
+                this.length--;
+            } else {
+                break;
+            }
+        }
 
-		// trim whitespace at end
-		for (int index = selection.length() - 1; index >= 0; index--) {
-			if (Character.isWhitespace(selection.charAt(index))) {
-				this.length--;
-			} else {
-				break;
-			}
-		}
-
-	}
+    }
 
 }

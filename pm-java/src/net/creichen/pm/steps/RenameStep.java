@@ -16,6 +16,7 @@ import java.util.Map;
 
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.models.NameModel;
 
@@ -39,7 +40,7 @@ public class RenameStep extends Step {
             this.nameNode = nameNode;
             this.nameNodesToChange = new ArrayList<SimpleName>();
         } else {
-            throw new RuntimeException("Cannot create PMRenameStep with null nameNode");
+            throw new PMException("Cannot create PMRenameStep with null nameNode");
         }
 
     }

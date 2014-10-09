@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.core.PMException;
 import net.creichen.pm.utils.APIWrapperUtil;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -59,7 +60,7 @@ public class ASTMatcher {
         if ((oldType == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
                 || oldType == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || oldType == org.eclipse.jdt.core.dom.ASTNode.JAVADOC)
                 && (newType == org.eclipse.jdt.core.dom.ASTNode.BLOCK_COMMENT
-                        || newType == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || newType == org.eclipse.jdt.core.dom.ASTNode.JAVADOC)) {
+                || newType == org.eclipse.jdt.core.dom.ASTNode.LINE_COMMENT || newType == org.eclipse.jdt.core.dom.ASTNode.JAVADOC)) {
             return true; // Nothing to do for comments, really
         }
 
@@ -147,7 +148,7 @@ public class ASTMatcher {
 
                     } else {
 
-                        throw new RuntimeException("Unknown kind of structuralPropertyDescriptor");
+                        throw new PMException("Unknown kind of structuralPropertyDescriptor");
                     }
                 }
 

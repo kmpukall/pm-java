@@ -9,6 +9,8 @@
 
 package net.creichen.pm.consistency.inconsistencies;
 
+import net.creichen.pm.core.PMException;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.ui.IMarkerResolution;
 
@@ -22,7 +24,7 @@ public abstract class Inconsistency {
     }
 
     public void acceptBehavioralChange() {
-        throw new RuntimeException("Un-implemented acceptBehavioralChange()");
+        throw new PMException("Un-implemented acceptBehavioralChange()");
     }
 
     public boolean allowsAcceptBehavioralChange() {
