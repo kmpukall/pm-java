@@ -16,25 +16,20 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public class Use {
 
-    private final SimpleName simpleName;
+    private final SimpleName name;
+    private final Set<Def> reachingDefinitions = new HashSet<Def>();
 
-    private final Set<Def> reachingDefinitions;
-
-    public Use(final SimpleName simpleName) {
-        this.simpleName = simpleName;
-
-        this.reachingDefinitions = new HashSet<Def>();
+    public Use(final SimpleName name) {
+        this.name = name;
     }
 
     public void addReachingDefinition(final Def reachingDef) {
-        if (!this.reachingDefinitions.contains(reachingDef)) {
-            this.reachingDefinitions.add(reachingDef);
+        this.reachingDefinitions.add(reachingDef);
 
-            // not sure if we want reachingDef == null to mean unitialized or
-            // real reaching def object that is marked as unitialized
-            if (reachingDef != null) {
-                reachingDef.addUse(this);
-            }
+        // not sure if we want reachingDef == null to mean unitialized or
+        // real reaching def object that is marked as unitialized
+        if (reachingDef != null && !reachingDef.getUses().contains(this)) {
+            reachingDef.addUse(this);
         }
     }
 
@@ -43,11 +38,11 @@ public class Use {
     }
 
     public SimpleName getSimpleName() {
-        return this.simpleName;
+        return this.name;
     }
 
     @Override
     public String toString() {
-        return "Use of '" + this.simpleName + "', " + this.reachingDefinitions.size() + " reaching definitions";
+        return "Use of '" + this.name + "', " + this.reachingDefinitions.size() + " reaching definitions";
     }
 }

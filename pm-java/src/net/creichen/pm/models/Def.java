@@ -27,20 +27,14 @@ public class Def {
 
     private final ASTNode definingNode;
 
-    private final Set<Use> uses;
+    private final Set<Use> uses = new HashSet<Use>();
 
     public Def(final ASTNode definingNode) {
         this.definingNode = definingNode;
-
-        this.uses = new HashSet<Use>();
     }
 
     public void addUse(final Use use) {
-        if (!this.uses.contains(use)) {
-            this.uses.add(use);
-
-            use.addReachingDefinition(this);
-        }
+        this.uses.add(use);
     }
 
     private IBinding findBindingForLHS(final Expression lhs) {
@@ -107,43 +101,43 @@ public class Def {
 
     /*
      * public VariableDeclaration getDeclaringNode() { VariableDeclaration result = null;
-     * 
+     *
      * if (_definingNode instanceof Assignment) { Assignment assignment = (Assignment)_definingNode;
-     * 
-     * 
+     *
+     *
      * Expression lhs = assignment.getLeftHandSide();
-     * 
+     *
      * if (lhs instanceof SimpleName) { SimpleName assignmentName = (SimpleName)lhs;
-     * 
+     *
      * result = localDeclarationForSimpleName(assignmentName);
-     * 
-     * 
+     *
+     *
      * } } else if (_definingNode instanceof SingleVariableDeclaration) { SingleVariableDeclaration
      * singleVariableDeclaration = (SingleVariableDeclaration)_definingNode;
-     * 
+     *
      * result = singleVariableDeclaration; //the declaring node for a SingleVariableDeclaration IS that declaration }
      * else if (_definingNode instanceof VariableDeclarationFragment) { VariableDeclarationFragment
      * variableDeclarationFragment = (VariableDeclarationFragment)_definingNode;
-     * 
+     *
      * result = variableDeclarationFragment; //the declaring node for a VariableDeclarationFragment IS that declaration
      * } else if (_definingNode instanceof PostfixExpression) { PostfixExpression postfixExpression =
      * (PostfixExpression)_definingNode;
-     * 
+     *
      * Expression operand = postfixExpression.getOperand();
-     * 
-     * 
+     *
+     *
      * if (operand instanceof SimpleName) { result = localDeclarationForSimpleName((SimpleName)operand);
-     * 
-     * 
+     *
+     *
      * } } else if (_definingNode instanceof PrefixExpression) { PrefixExpression prefixExpression =
      * (PrefixExpression)_definingNode;
-     * 
+     *
      * Expression operand = prefixExpression.getOperand();
-     * 
+     *
      * if (operand instanceof SimpleName) { result = localDeclarationForSimpleName((SimpleName)operand);
-     * 
+     *
      * } }else { throw new RuntimeException("Un-handled _definingNode type " + _definingNode.getClass()); }
-     * 
+     *
      * return result; }
      */
 
