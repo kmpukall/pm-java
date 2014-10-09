@@ -41,7 +41,7 @@ import org.junit.Test;
 public class SplitStepTest extends PMTest {
 
     private ICompilationUnit iCompilationUnit;
-    private ExpressionStatement assignmentStatement;
+    private SplitStep step;
 
     public void setUpTest() {
         this.iCompilationUnit = createCompilationUnit("", "S.java",
@@ -49,14 +49,15 @@ public class SplitStepTest extends PMTest {
         TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
         MethodDeclaration method = findMethodByName("m", type);
         final Assignment secondAssignment = findAssignments(method).get(1);
-        this.assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
+        ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
+        this.step = new SplitStep(getProject(), assignmentStatement);
     }
 
     @Test
     public void itShouldModifyTheSourceCorrectly() throws JavaModelException {
         setUpTest();
 
-        new SplitStep(getProject(), this.assignmentStatement).apply();
+        this.step.apply();
 
         assertTrue(matchesSource("public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
                 this.iCompilationUnit.getSource()));
@@ -71,8 +72,7 @@ public class SplitStepTest extends PMTest {
     public void itShouldModifyTheNameModel() {
         setUpTest();
 
-        final SplitStep step = new SplitStep(getProject(), this.assignmentStatement);
-        step.apply();
+        this.step.apply();
 
         final NameModel nameModel = getProject().getNameModel();
 
@@ -82,14 +82,11 @@ public class SplitStepTest extends PMTest {
 
         TypeDeclaration s = ASTQuery.findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
         MethodDeclaration m = ASTQuery.findMethodByName("m", s);
-        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(this.iCompilationUnit));
-        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(this.iCompilationUnit));
-        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(this.iCompilationUnit));
-        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(this.iCompilationUnit));
+        List<SimpleName> simpleNames = ASTQuery.findSimpleNames("x", m);
+        final SimpleName firstX = simpleNames.get(0);
+        final SimpleName secondX = simpleNames.get(1);
+        final SimpleName thirdX = simpleNames.get(2);
+        final SimpleName fourthX = simpleNames.get(3);
 
         assertNotNull(nameModel.getIdentifierForName(firstX));
         assertNotNull(nameModel.getIdentifierForName(secondX));
@@ -119,16 +116,17 @@ public class SplitStepTest extends PMTest {
     public void defUseTest() {
         setUpTest();
 
-        final SplitStep step = new SplitStep(getProject(), this.assignmentStatement);
-        step.apply();
+        this.step.apply();
 
         // DU/UD test
 
         final DefUseModel udModel = getProject().getUDModel();
 
         // The use for the second declaration should be the fourthX
-        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(this.iCompilationUnit));
+        TypeDeclaration s = ASTQuery.findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
+        MethodDeclaration m = ASTQuery.findMethodByName("m", s);
+        List<SimpleName> simpleNames = ASTQuery.findSimpleNames("x", m);
+        final SimpleName thirdX = simpleNames.get(2);
         final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX.getParent();
 
         final Set<NodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(NodeReferenceStore.getInstance()
@@ -143,7 +141,7 @@ public class SplitStepTest extends PMTest {
         final VariableDeclarationStatement expectedReplacementDeclaration = (VariableDeclarationStatement) secondXDeclaration
                 .getParent();
 
-        assertTrue(expectedReplacementDeclaration == step.getReplacementDeclarationStatement());
+        assertTrue(expectedReplacementDeclaration == this.step.getReplacementDeclarationStatement());
     }
 
 }
