@@ -135,7 +135,7 @@ public class CopyStep extends Step {
             public boolean match(final SimpleName originalName, final Object copyNameObject) {
                 final SimpleName copyName = (SimpleName) copyNameObject;
 
-                if (udModel.nameIsUse(originalName)) {
+                if (udModel.isUse(originalName)) {
                     originalUsingNodesForCopiedUsingNodes.put(copyName, originalName);
                     copiedUsingNodesForOriginalUsingNodes.put(originalName, copyName);
                 }
@@ -203,10 +203,10 @@ public class CopyStep extends Step {
         for (final ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
-            final Set<NodeReference> originalDefinitions = udModel.definitionIdentifiersForName(NodeReferenceStore
+            final Set<NodeReference> originalDefinitions = udModel.definitionsForUse(NodeReferenceStore
                     .getInstance().getReference(originalUse));
 
-            final Set<NodeReference> copyDefinitions = udModel.definitionIdentifiersForName(NodeReferenceStore
+            final Set<NodeReference> copyDefinitions = udModel.definitionsForUse(NodeReferenceStore
                     .getInstance().getReference(copiedUse));
 
             for (final NodeReference originalDefinitionReference : originalDefinitions) {

@@ -13,6 +13,7 @@ import static net.creichen.pm.utils.ASTQuery.findAssignments;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -39,32 +40,39 @@ import org.junit.Test;
 
 public class SplitStepTest extends PMTest {
 
-    @Test
-    public void testSimplestCase() throws JavaModelException {
-        final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java",
+    private ICompilationUnit iCompilationUnit;
+    private ExpressionStatement assignmentStatement;
+
+    public void setUpTest() {
+        this.iCompilationUnit = createCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
-
-        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit));
+        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
         MethodDeclaration method = findMethodByName("m", type);
-        List<Assignment> assignments = findAssignments(method);
-        final Assignment secondAssignment = assignments.get(1);
+        final Assignment secondAssignment = findAssignments(method).get(1);
+        this.assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
+    }
 
-        final ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
+    @Test
+    public void itShouldModifyTheSourceCorrectly() throws JavaModelException {
+        setUpTest();
 
-        final SplitStep step = new SplitStep(getProject(), assignmentStatement);
+        new SplitStep(getProject(), this.assignmentStatement).apply();
 
-        step.apply();
-
-        // We have five outputs that we care about: the source, the updated name
-        // model,
-        // the DU/UD model, replacement declaration statement node, and the
-        // inconsistencies
-
-        // Source test
         assertTrue(matchesSource("public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
-                iCompilationUnit.getSource()));
+                this.iCompilationUnit.getSource()));
+    }
 
-        // Name model test
+    // We have five outputs that we care about: the source, the updated name
+    // model,
+    // the DU/UD model, replacement declaration statement node, and the
+    // inconsistencies
+
+    @Test
+    public void itShouldModifyTheNameModel() {
+        setUpTest();
+
+        final SplitStep step = new SplitStep(getProject(), this.assignmentStatement);
+        step.apply();
 
         final NameModel nameModel = getProject().getNameModel();
 
@@ -72,27 +80,25 @@ public class SplitStepTest extends PMTest {
         // Second two occurrences of x should have same identifier (different
         // from first identifier)
 
+        TypeDeclaration s = ASTQuery.findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
+        MethodDeclaration m = ASTQuery.findMethodByName("m", s);
         final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(iCompilationUnit));
+                .getCompilationUnit(this.iCompilationUnit));
         final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(iCompilationUnit));
+                .getCompilationUnit(this.iCompilationUnit));
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, getProject()
+                .getCompilationUnit(this.iCompilationUnit));
+        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0, "S", 0, getProject()
+                .getCompilationUnit(this.iCompilationUnit));
 
         assertNotNull(nameModel.getIdentifierForName(firstX));
         assertNotNull(nameModel.getIdentifierForName(secondX));
-
-        assertEquals(nameModel.getIdentifierForName(firstX), nameModel.getIdentifierForName(secondX));
-
-        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(iCompilationUnit));
-        final SimpleName fourthX = ASTQuery.findSimpleNameByIdentifier("x", 3, "m", 0, "S", 0, getProject()
-                .getCompilationUnit(iCompilationUnit));
-
         assertNotNull(nameModel.getIdentifierForName(thirdX));
         assertNotNull(nameModel.getIdentifierForName(fourthX));
 
+        assertEquals(nameModel.getIdentifierForName(firstX), nameModel.getIdentifierForName(secondX));
         assertEquals(nameModel.getIdentifierForName(thirdX), nameModel.getIdentifierForName(fourthX));
-
-        assertTrue(!nameModel.getIdentifierForName(firstX).equals(nameModel.getIdentifierForName(thirdX)));
+        assertFalse(nameModel.getIdentifierForName(firstX).equals(nameModel.getIdentifierForName(thirdX)));
 
         // now test reverse mapping interface
 
@@ -107,13 +113,22 @@ public class SplitStepTest extends PMTest {
         assertEquals(2, nodesRelatedToSecondDeclaration.size());
         assertTrue(nodesRelatedToSecondDeclaration.contains(thirdX));
         assertTrue(nodesRelatedToSecondDeclaration.contains(fourthX));
+    }
+
+    @Test
+    public void defUseTest() {
+        setUpTest();
+
+        final SplitStep step = new SplitStep(getProject(), this.assignmentStatement);
+        step.apply();
 
         // DU/UD test
 
         final DefUseModel udModel = getProject().getUDModel();
 
         // The use for the second declaration should be the fourthX
-
+        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, getProject()
+                .getCompilationUnit(this.iCompilationUnit));
         final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX.getParent();
 
         final Set<NodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(NodeReferenceStore.getInstance()

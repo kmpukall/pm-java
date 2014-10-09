@@ -79,13 +79,10 @@ class DefUseModelConsistencyCheck {
                 // Now check to make sure there aren't any extra defs
                 // i.e. is every current defining node in the list of desired
                 // efining nodes
-
                 for (final ASTNode currentDefiningNode : currentDefiningNodes) {
                     NodeReference currentDefiningIdentifier = null;
-
                     if (currentDefiningNode != null) {
                         currentDefiningIdentifier = NodeReferenceStore.getInstance().getReference(currentDefiningNode);
-
                         if (currentDefiningIdentifier == null) {
                             throw new PMException("Couldn't find  identifier for current defining node "
                                     + currentDefiningNode);
@@ -93,13 +90,10 @@ class DefUseModelConsistencyCheck {
                     } else {
                         currentDefiningIdentifier = model.getUninitialized();
                     }
-
                     if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
                         inconsistencies.add(new UnexpectedDefinition(usingNode, currentDefiningNode));
-
                     }
                 }
-
             } else {
                 throw new PMException("Couldn't find use identifier for use:" + use.getSimpleName());
             }

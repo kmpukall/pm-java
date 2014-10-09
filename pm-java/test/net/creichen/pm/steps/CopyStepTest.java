@@ -178,8 +178,8 @@ public class CopyStepTest extends PMTest {
         final NodeReference x3RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSCopy);
 
         final Set<NodeReference> definitionsForX3RHSOriginal = udModel
-                .definitionIdentifiersForName(x3RHSOriginalNodeReference);
-        final Set<NodeReference> definitionsForX3RHSCopy = udModel.definitionIdentifiersForName(x3RHSCopyNodeReference);
+                .definitionsForUse(x3RHSOriginalNodeReference);
+        final Set<NodeReference> definitionsForX3RHSCopy = udModel.definitionsForUse(x3RHSCopyNodeReference);
 
         // Since this x gets its single definition from outside of the copied
         // nodes, the copy should have the
@@ -189,7 +189,7 @@ public class CopyStepTest extends PMTest {
         final SimpleName x4RHSCopy = ASTQuery.findSimpleNameByIdentifier("x", 0, fifthStatementCopy);
         final NodeReference x4RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x4RHSCopy);
 
-        final Set<NodeReference> definitionsForX4RHSCopy = udModel.definitionIdentifiersForName(x4RHSCopyNodeReference);
+        final Set<NodeReference> definitionsForX4RHSCopy = udModel.definitionsForUse(x4RHSCopyNodeReference);
 
         assertEquals(1, definitionsForX4RHSCopy.size());
         assertEquals(xGetsXPlusOneAssignmentCopyReference, definitionsForX4RHSCopy.toArray()[0]);

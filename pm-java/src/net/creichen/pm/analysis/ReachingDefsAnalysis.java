@@ -79,13 +79,6 @@ public class ReachingDefsAnalysis {
         return this.usesByName.values();
     }
 
-    private void addDefinitionForNode(final ASTNode node) {
-        final Def definition = new Def(node);
-
-        this.definitions.add(definition);
-        this.definitionsByDefiningNode.put(node, definition);
-    }
-
     private void addSerialBlockToEndOfList(final PMBlock block, final List<PMBlock> blockList) {
         if (blockList.size() > 0) {
             final PMBlock lastBlock = blockList.get(blockList.size() - 1);
@@ -120,7 +113,9 @@ public class ReachingDefsAnalysis {
         this.methodDeclaration.getBody().accept(visitor);
         final List<ASTNode> definingNodes = visitor.getResults();
         for (final ASTNode definingNode : definingNodes) {
-            addDefinitionForNode(definingNode);
+            final Def definition = new Def(definingNode);
+            this.definitions.add(definition);
+            this.definitionsByDefiningNode.put(definingNode, definition);
         }
 
         this.definitionsByBinding = new HashMap<IBinding, Set<Def>>();
@@ -136,29 +131,20 @@ public class ReachingDefsAnalysis {
     }
 
     private Map<PMBlock, Set<VariableAssignment>> findGenSets() {
-
         final Map<PMBlock, Set<VariableAssignment>> result = new HashMap<PMBlock, Set<VariableAssignment>>();
-
         for (final Def definition : this.definitions) {
-
             // Create singleton set for gen set (could probably dispense w/
             // containing set)
             final Set<VariableAssignment> genSet = new HashSet<VariableAssignment>();
-
             final IBinding binding = ASTUtil.getBinding(definition);
-
             // The binding could be null if the declaration for the lhs no
             // longer exists
-
             if (binding != null) {
                 genSet.add(uniqueVariableAssignment(definition, binding));
-
                 final PMBlock block = getBlockForNode(definition.getDefiningNode());
-
                 result.put(block, genSet);
             }
         }
-
         return result;
     }
 
@@ -283,7 +269,7 @@ public class ReachingDefsAnalysis {
             final IfStatement ifStatement = (IfStatement) statement;
             /*
              * three components: - guard block - then block - else block
-             * 
+             *
              * - exit block to join then and else
              */
 
@@ -332,7 +318,7 @@ public class ReachingDefsAnalysis {
 
             /*
              * while statements consist of: - guard condition - body
-             * 
+             *
              * - synthetic exit block
              */
 
@@ -532,10 +518,10 @@ public class ReachingDefsAnalysis {
         private boolean isUse(final SimpleName name) {
             /*
              * we assume all simple names are uses except:
-             *
+             * 
              * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
              * SingleVariableDeclaration
-             *
+             * 
              * There are probably more cases (i.e. method names in invocations?)
              */
 

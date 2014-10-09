@@ -178,14 +178,14 @@ public class DelegateStep extends Step {
     private void rewriteToDelegateMethodInvocationToIdentifier(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression identifierNode) {
         astRewrite
-        .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
+                .set(methodInvocation, MethodInvocation.EXPRESSION_PROPERTY, identifierNode, null /* textEditGroup */);
     }
 
     private void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression superInvocationNode) {
         astRewrite.replace(methodInvocation, superInvocationNode, null /*
-         * edit group
-         */);
+                                                                        * edit group
+                                                                        */);
     }
 
     public void setDelegateIdentifier(final String delegateIdentifier) {
@@ -216,34 +216,21 @@ public class DelegateStep extends Step {
 
     @Override
     public void updateAfterReparse() {
-
         if (this.newExpressionNodeReference != null) {
             this.newExpressionNode = (Expression) this.newExpressionNodeReference.getNode();
         }
-
         if (this.newExpressionNode instanceof SimpleName) {
-
             final SimpleName name = (SimpleName) this.newExpressionNode;
-
             final NameModel nameModel = getProject().getNameModel();
-
             final ASTNode declaringNode = getProject().findDeclaringNodeForName(name);
-
             if (declaringNode != null) {
                 final SimpleName simpleNameForDeclaringNode = ASTQuery.getSimpleName(declaringNode);
-
                 final String identifier = nameModel.getIdentifierForName(simpleNameForDeclaringNode);
-
                 nameModel.setIdentifierForName(identifier, name);
-
             }
-
             // Now update use-def model
-
             MethodDeclaration methodDeclaration = null;
-
             ASTNode iterator = name.getParent();
-
             do {
                 if (iterator instanceof MethodDeclaration) {
                     methodDeclaration = (MethodDeclaration) iterator;
@@ -252,15 +239,10 @@ public class DelegateStep extends Step {
                     iterator = iterator.getParent();
                 }
             } while (iterator != null);
-
             final ReachingDefsAnalysis analysis = new ReachingDefsAnalysis(methodDeclaration);
-
             final Use use = analysis.getUse(name);
-
             final DefUseModel udModel = getProject().getUDModel();
-
-            udModel.addUseToModel(use);
-
+            udModel.add(use);
         }
         // !!! should remove old expression info from name and use/def model
         // FIXME(dcc)

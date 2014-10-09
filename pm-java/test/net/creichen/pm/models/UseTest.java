@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
+import net.creichen.pm.utils.factories.ASTNodeFactory;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -17,8 +18,7 @@ public class UseTest {
 
     @Before
     public void setUp() {
-        AST ast = AST.newAST(AST.JLS4);
-        this.simpleName = (SimpleName) ast.createInstance(SimpleName.class);
+        this.simpleName = ASTNodeFactory.createSimpleName("x");
         this.use = new Use(this.simpleName);
     }
 

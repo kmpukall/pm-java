@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 
 import net.creichen.pm.utils.ASTQuery;
+import net.creichen.pm.utils.factories.ASTNodeFactory;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -29,19 +30,17 @@ import org.junit.Test;
 
 public class ASTMatcherTest {
 
-    private AST ast;
     private ASTParser parser;
 
     @Before
     public void setUp() {
-        this.ast = AST.newAST(AST.JLS4);
         this.parser = ASTParser.newParser(AST.JLS4);
     }
 
     @Test
     public void testMatchesIsomorphicSimpleNames() {
-        ASTNode foo1 = this.ast.newSimpleName("Foo");
-        ASTNode foo2 = this.ast.newSimpleName("Foo");
+        ASTNode foo1 = ASTNodeFactory.createSimpleName("Foo");
+        ASTNode foo2 = ASTNodeFactory.createSimpleName("Foo");
 
         ASTMatcher matcher = new ASTMatcher(foo1, foo2);
 
@@ -52,8 +51,8 @@ public class ASTMatcherTest {
 
     @Test
     public void testMatchesNonIsomorphicSimpleNames() {
-        ASTNode foo = this.ast.newSimpleName("Foo");
-        ASTNode bar = this.ast.newSimpleName("Bar");
+        ASTNode foo = ASTNodeFactory.createSimpleName("Foo");
+        ASTNode bar = ASTNodeFactory.createSimpleName("Bar");
 
         ASTMatcher matcher = new ASTMatcher(foo, bar);
 
@@ -73,10 +72,8 @@ public class ASTMatcherTest {
         assertTrue(matcher.matches());
         Map<ASTNode, ASTNode> isomorphicNodes = matcher.isomorphicNodes();
         assertSame(isomorphicNodes.get(compilationUnit1), compilationUnit2);
-        SimpleName secondY1 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0,
-                compilationUnit1);
-        SimpleName secondY2 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0,
-                compilationUnit2);
+        SimpleName secondY1 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0, compilationUnit1);
+        SimpleName secondY2 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0, compilationUnit2);
         assertNotNull(isomorphicNodes.get(secondY1));
         assertSame(isomorphicNodes.get(secondY1), secondY2);
         assertNotNull(isomorphicNodes.get(secondY1.getParent()));

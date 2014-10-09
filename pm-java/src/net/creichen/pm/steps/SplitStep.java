@@ -100,28 +100,16 @@ public class SplitStep extends Step {
                 MethodDeclaration.class);
 
         final ReachingDefsAnalysis reachingDefsAnalysis = new ReachingDefsAnalysis(containingMethodDeclaration);
-
         final Def definitionForAssignment = reachingDefsAnalysis.getDefinitionForDefiningNode(oldAssignmentExpression);
-
         final Set<SimpleName> uses = new HashSet<SimpleName>();
-
         for (final Use use : definitionForAssignment.getUses()) {
-            final SimpleName usingSimpleName = use.getSimpleName();
-
-            uses.add(usingSimpleName);
+            uses.add(use.getSimpleName());
         }
-
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
-
         final NodeReference identifierForOldAssignment = NodeReferenceStore.getInstance().getReference(
                 oldAssignmentExpression);
-
         getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
-
-        // !!!_project.removeNode(oldAssignmentExpression);
-        // !!!_project.addNode(_replacementDeclarationStatement);
-
         final NodeReference identifierForNewVariableDeclaration = NodeReferenceStore.getInstance().getReference(
                 newVariableDeclarationFragment);
 
@@ -130,16 +118,14 @@ public class SplitStep extends Step {
 
         // Need to update UDModel to replace assignment definition with variable
         // declaration fragment definition
-
         final DefUseModel udModel = getProject().getUDModel();
 
         // for each use of the assignment, replace the use of the assignment
         // with the use of the declaration
-
         for (final NodeReference useIdentifier : new HashSet<NodeReference>(
                 udModel.usesForDefinition(identifierForOldAssignment))) {
             udModel.removeDefinitionIdentifierForName(identifierForOldAssignment, useIdentifier);
-            udModel.addDefinitionIdentifierForName(identifierForNewVariableDeclaration, useIdentifier);
+            udModel.addDefinition(identifierForNewVariableDeclaration, useIdentifier);
         }
 
         udModel.deleteDefinition(identifierForOldAssignment);
@@ -194,11 +180,8 @@ public class SplitStep extends Step {
         final VariableDeclaration originalVariableDeclaration = ASTQuery.localVariableDeclarationForSimpleName(lhs);
 
         Type type = null;
-
-        // AAAAAAGH
         // It's hard to get a type from a variable declaration
         // This an instance where strong typing really gets in the way
-
         if (originalVariableDeclaration instanceof VariableDeclarationFragment) {
             final ASTNode parent = originalVariableDeclaration.getParent();
 
@@ -214,8 +197,8 @@ public class SplitStep extends Step {
         this.replacementDeclarationStatement.setType((Type) ASTNode.copySubtree(ast, type));
 
         rewrite.replace(this.assignmentStatement, this.replacementDeclarationStatement, null /*
-         * edit group
-         */);
+                                                                                              * edit group
+                                                                                              */);
     }
 
 }
