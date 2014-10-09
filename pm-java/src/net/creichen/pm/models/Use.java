@@ -25,12 +25,6 @@ public class Use {
 
     public void addReachingDefinition(final Def reachingDef) {
         this.reachingDefinitions.add(reachingDef);
-
-        // not sure if we want reachingDef == null to mean unitialized or
-        // real reaching def object that is marked as unitialized
-        if (reachingDef != null && !reachingDef.getUses().contains(this)) {
-            reachingDef.addUse(this);
-        }
     }
 
     public Set<Def> getReachingDefinitions() {

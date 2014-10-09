@@ -203,35 +203,22 @@ public class ReachingDefsAnalysis {
 
         final Block body = this.methodDeclaration.getBody();
 
-        final ASTVisitor visitor = new ASTVisitor() {
+        final VariableUsesCollector collector = new VariableUsesCollector();
+        body.accept(collector);
+        this.usesByName.putAll(collector.getUsesByName());
+    }
 
-            @Override
-            public boolean visit(final SimpleName name) {
-
-                final PMBlock block = getBlockForNode(name);
-
-                final Set<VariableAssignment> reachingDefinitions = ReachingDefsAnalysis.this.reachingDefsOnEntry
-                        .get(block);
-
-                if (simpleNameIsUse(name)) {
-                    final Use use = new Use(name);
-
-                    ReachingDefsAnalysis.this.usesByName.put(name, use);
-
-                    final IBinding variableBinding = name.resolveBinding();
-
-                    for (final VariableAssignment reachingDefinition : reachingDefinitions) {
-                        if (reachingDefinition.getVariableBinding() == variableBinding) {
-                            use.addReachingDefinition(reachingDefinition.getDefinition());
-                        }
-                    }
-                }
-
-                return true;
+    private PMBlock getBlockForNode(final ASTNode originalNode) {
+        ASTNode node = originalNode;
+        do {
+            final PMBlock block = this.blocksByNode.get(node);
+            if (block == null) {
+                node = node.getParent();
+            } else {
+                return block;
             }
-        };
-
-        body.accept(visitor);
+        } while (node != null);
+        throw new RuntimeException("Couldn't find block for definingnode  " + originalNode);
 
     }
 
@@ -384,24 +371,6 @@ public class ReachingDefsAnalysis {
         return result;
     }
 
-    private PMBlock getBlockForNode(final ASTNode originalNode) {
-        ASTNode node = originalNode;
-
-        do {
-            final PMBlock block = this.blocksByNode.get(node);
-
-            if (block == null) {
-                node = node.getParent();
-            } else {
-                return block;
-            }
-
-        } while (node != null);
-
-        throw new RuntimeException("Couldn't find block for definingnode  " + originalNode);
-
-    }
-
     private void mergeBlockLists(final List<PMBlock> first, final List<PMBlock> second) {
         // We assume the last block of the first list is followed sequentially
         // by the first block of the second list
@@ -500,27 +469,6 @@ public class ReachingDefsAnalysis {
         findUses();
     }
 
-    private boolean simpleNameIsUse(final SimpleName name) {
-        /*
-         * we assume all simple names are uses except:
-         *
-         * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
-         * SingleVariableDeclaration
-         *
-         * There are probably more cases (i.e. method names in invocations?)
-         */
-
-        final ASTNode parent = name.getParent();
-
-        if (parent instanceof Assignment && ((Assignment) parent).getLeftHandSide() == name) {
-            return false;
-        } else if (parent instanceof VariableDeclaration && ((VariableDeclaration) parent).getName() == name) {
-            return false;
-        }
-
-        return true;
-    }
-
     private VariableAssignment uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
 
         if (variableBinding == null) {
@@ -542,6 +490,63 @@ public class ReachingDefsAnalysis {
         }
 
         return variableAssignment;
+    }
+
+    private class VariableUsesCollector extends ASTVisitor {
+
+        private Map<SimpleName, Use> usesByName = new HashMap<SimpleName, Use>();
+
+        public final Map<SimpleName, Use> getUsesByName() {
+            return this.usesByName;
+        }
+
+        @Override
+        public boolean visit(final SimpleName name) {
+            final PMBlock block = getBlockForNode(name);
+            final Set<VariableAssignment> reachingDefinitions = ReachingDefsAnalysis.this.reachingDefsOnEntry
+                    .get(block);
+
+            if (isUse(name)) {
+                final Use use = new Use(name);
+                this.usesByName.put(name, use);
+                final IBinding variableBinding = name.resolveBinding();
+
+                for (final VariableAssignment reachingDefinition : reachingDefinitions) {
+                    if (reachingDefinition.getVariableBinding() == variableBinding) {
+                        Def def = reachingDefinition.getDefinition();
+                        use.addReachingDefinition(def);
+                        if (def != null) {
+                            // not sure if we want reachingDef == null to mean unitialized or
+                            // real reaching def object that is marked as unitialized
+                            def.addUse(use);
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private boolean isUse(final SimpleName name) {
+            /*
+             * we assume all simple names are uses except:
+             * 
+             * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
+             * SingleVariableDeclaration
+             * 
+             * There are probably more cases (i.e. method names in invocations?)
+             */
+
+            final ASTNode parent = name.getParent();
+
+            if (parent instanceof Assignment && ((Assignment) parent).getLeftHandSide() == name) {
+                return false;
+            } else if (parent instanceof VariableDeclaration && ((VariableDeclaration) parent).getName() == name) {
+                return false;
+            }
+
+            return true;
+        }
     }
 
 }

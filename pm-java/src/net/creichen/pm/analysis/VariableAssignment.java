@@ -4,7 +4,7 @@ import net.creichen.pm.models.Def;
 
 import org.eclipse.jdt.core.dom.IBinding;
 
-final class VariableAssignment {
+public final class VariableAssignment {
 
     private final Def definition;
 
