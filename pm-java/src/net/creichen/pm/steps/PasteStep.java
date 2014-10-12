@@ -97,7 +97,7 @@ public class PasteStep extends Step {
 
                         final SimpleName copyName = (SimpleName) other;
 
-                        final String identifier = nameModel.getIdentifierForName(pasteboardName);
+                        final String identifier = nameModel.getIdentifier(pasteboardName);
 
                         // System.out.println("Identifier for " + copyName +
                         // " is " + identifier);

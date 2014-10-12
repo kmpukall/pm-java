@@ -11,7 +11,6 @@ package net.creichen.pm.models;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,28 +19,29 @@ import java.util.UUID;
 
 import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.utils.ASTQuery;
+import net.creichen.pm.utils.visitors.IdentifierAssigner;
 import net.creichen.pm.utils.visitors.SelectiveSimpleNameCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class NameModel {
-    private Map<Name, String> identifiersForNames;
+    private Map<Name, String> identifiers;
 
     private final ASTRootsProvider rootsProvider;
 
     public NameModel(final ASTRootsProvider rootsProvider) {
         this.rootsProvider = rootsProvider;
-        this.identifiersForNames = new HashMap<Name, String>();
-        assignInitialIdentifiers();
+
+        // use ast visitor to assign identifier to each SimpleName
+        IdentifierAssigner visitor = new IdentifierAssigner();
+        for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
+            rootNode.accept(visitor);
+        }
+        this.identifiers = visitor.getIdentifiers();
     }
 
     /**
@@ -52,13 +52,8 @@ public class NameModel {
         return UUID.randomUUID().toString();
     }
 
-    /**
-     *
-     * @param name
-     * @return
-     */
-    public String getIdentifierForName(final Name name) {
-        return this.identifiersForNames.get(name);
+    public String getIdentifier(final Name name) {
+        return this.identifiers.get(name);
     }
 
     /**
@@ -77,7 +72,7 @@ public class NameModel {
      * @param name
      */
     public void removeIdentifierForName(final Name name) {
-        this.identifiersForNames.remove(name);
+        this.identifiers.remove(name);
     }
 
     /**
@@ -86,8 +81,8 @@ public class NameModel {
      * @param newName
      */
     public void replaceName(final Name oldName, final Name newName) {
-        if (this.identifiersForNames.containsKey(oldName)) {
-            setIdentifierForName(getIdentifierForName(oldName), newName);
+        if (this.identifiers.containsKey(oldName)) {
+            setIdentifierForName(getIdentifier(oldName), newName);
             removeIdentifierForName(oldName);
         }
 
@@ -100,56 +95,11 @@ public class NameModel {
      * @return
      */
     public String setIdentifierForName(final String identifier, final Name name) {
-        return this.identifiersForNames.put(name, identifier);
-    }
-
-    private void assignInitialIdentifiers() {
-        // use ast visitor to assign identifier to each SimpleName
-        final Map<IBinding, String> identifiersForBindings = new HashMap<IBinding, String>();
-
-        this.identifiersForNames = new HashMap<Name, String>();
-
-        for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
-            rootNode.accept(new ASTVisitor() {
-
-                // We should visit more than simle names here
-                // We also care about field accesses, right?
-                // method invocations, etc.??
-
-                @Override
-                public boolean visit(final SimpleName simpleName) {
-                    IBinding binding = simpleName.resolveBinding();
-
-                    if (binding instanceof IVariableBinding) {
-                        binding = ((IVariableBinding) binding).getVariableDeclaration();
-                    }
-
-                    if (binding instanceof ITypeBinding) {
-                        binding = ((ITypeBinding) binding).getTypeDeclaration();
-                    }
-
-                    if (binding instanceof IMethodBinding) {
-                        binding = ((IMethodBinding) binding).getMethodDeclaration();
-                    }
-
-                    String identifier = identifiersForBindings.get(binding);
-
-                    if (identifier == null) {
-                        identifier = generateNewIdentifier();
-                        identifiersForBindings.put(binding, identifier);
-                    }
-
-                    NameModel.this.identifiersForNames.put(simpleName, identifier);
-
-                    return true;
-                }
-            });
-
-        }
+        return this.identifiers.put(name, identifier);
     }
 
     private List<SimpleName> nameNodesRelatedToNameNodeWithIdentifier(final String identifier) {
-        SelectiveSimpleNameCollector visitor = new SelectiveSimpleNameCollector(identifier, this.identifiersForNames);
+        SelectiveSimpleNameCollector visitor = new SelectiveSimpleNameCollector(identifier, this.identifiers);
 
         // We could keep reverse mappings instead of doing this?
         for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
@@ -160,7 +110,7 @@ public class NameModel {
     }
 
     private void recursiveAddNameNodesRelatedToNameNode(final SimpleName name, final Set<SimpleName> visitedNodes) {
-        final String identifier = this.identifiersForNames.get(name);
+        final String identifier = this.identifiers.get(name);
 
         final List<SimpleName> directlyRelatedNodes = nameNodesRelatedToNameNodeWithIdentifier(identifier);
         for (final SimpleName directlyRelatedName : directlyRelatedNodes) {

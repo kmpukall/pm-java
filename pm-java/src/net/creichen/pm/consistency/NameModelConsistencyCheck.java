@@ -46,9 +46,9 @@ class NameModelConsistencyCheck {
             if (declaringNode != null) {
                 final SimpleName declaringSimpleName = ASTQuery.getSimpleName(declaringNode);
 
-                final String declaringIdentifier = nameModel.getIdentifierForName(declaringSimpleName);
+                final String declaringIdentifier = nameModel.getIdentifier(declaringSimpleName);
 
-                final String usingIdentifier = nameModel.getIdentifierForName(simpleName);
+                final String usingIdentifier = nameModel.getIdentifier(simpleName);
 
                 if (usingIdentifier == null) {
                     inconsistencies.add(new UnknownName(simpleName));

@@ -13,6 +13,7 @@ import static net.creichen.pm.tests.Matchers.hasNoProblems;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static net.creichen.pm.utils.ASTQuery.findSimpleName;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -22,6 +23,7 @@ import java.util.Collection;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.consistency.inconsistencies.NameCapture;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -308,6 +310,33 @@ public class RenameStepTest extends PMTest {
         assertTrue(matchesSource(expectedTransformedSourceA, pmCompilationUnitA.getSource()));
 
         assertTrue(matchesSource(expectedTransformedSourceB, pmCompilationUnitB.getSource()));
+    }
+
+    @Test
+    public void testNameCaptureInSubclass() {
+        final String sourceSuper = "public class Super { public void f(){} }";
+        final String sourceSub = "public class Sub extends Super { public void g(){} public static void main(String... args){new Sub().f();}}";
+
+        final ICompilationUnit compilationUnitSuper = createCompilationUnit("", "A.java", sourceSuper);
+        final ICompilationUnit compilationUnitSub = createCompilationUnit("", "B.java", sourceSub);
+
+        final PMCompilationUnit pmCompilationUnitSuper = getProject().getPMCompilationUnit(compilationUnitSuper);
+        final PMCompilationUnit pmCompilationUnitSub = getProject().getPMCompilationUnit(compilationUnitSub);
+
+        final TypeDeclaration type = findClassByName("Sub", pmCompilationUnitSub.getCompilationUnit());
+        final MethodDeclaration methodDeclaration = findMethodByName("g", type);
+        final SimpleName methodName = methodDeclaration.getName();
+
+        final RenameStep renameStep = new RenameStep(getProject(), methodName);
+        renameStep.setNewName("f");
+        renameStep.apply();
+
+        ConsistencyValidator.getInstance().rescanForInconsistencies(getProject());
+        Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
+
+        assertThat(inconsistencies.size(), is(1));
+        Inconsistency inconsistency = inconsistencies.iterator().next();
+        assertTrue(inconsistency instanceof NameCapture);
     }
 
     @Test

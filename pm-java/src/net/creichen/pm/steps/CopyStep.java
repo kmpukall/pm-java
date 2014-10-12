@@ -76,10 +76,10 @@ public class CopyStep extends Step {
                     final String freshNameModelIdentifier = NameModel.generateNewIdentifier();
                     nameModel.setIdentifierForName(freshNameModelIdentifier, copyName);
 
-                    copyNameIdentifiersForOriginals.put(nameModel.getIdentifierForName(originalName),
+                    copyNameIdentifiersForOriginals.put(nameModel.getIdentifier(originalName),
                             freshNameModelIdentifier);
                 } else {
-                    nameModel.setIdentifierForName(nameModel.getIdentifierForName(originalName), copyName);
+                    nameModel.setIdentifierForName(nameModel.getIdentifier(originalName), copyName);
                 }
 
                 return true;
@@ -102,7 +102,7 @@ public class CopyStep extends Step {
         final ASTVisitor fixupReferenceVisitor = new ASTVisitor() {
             @Override
             public boolean visit(final SimpleName name) {
-                final String nameIdentifier = nameModel.getIdentifierForName(name);
+                final String nameIdentifier = nameModel.getIdentifier(name);
 
                 if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier)) {
                     nameModel.setIdentifierForName(copyNameIdentifiersForOriginals.get(nameIdentifier), name);

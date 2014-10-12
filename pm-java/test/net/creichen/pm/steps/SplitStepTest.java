@@ -88,14 +88,14 @@ public class SplitStepTest extends PMTest {
         final SimpleName thirdX = simpleNames.get(2);
         final SimpleName fourthX = simpleNames.get(3);
 
-        assertNotNull(nameModel.getIdentifierForName(firstX));
-        assertNotNull(nameModel.getIdentifierForName(secondX));
-        assertNotNull(nameModel.getIdentifierForName(thirdX));
-        assertNotNull(nameModel.getIdentifierForName(fourthX));
+        assertNotNull(nameModel.getIdentifier(firstX));
+        assertNotNull(nameModel.getIdentifier(secondX));
+        assertNotNull(nameModel.getIdentifier(thirdX));
+        assertNotNull(nameModel.getIdentifier(fourthX));
 
-        assertEquals(nameModel.getIdentifierForName(firstX), nameModel.getIdentifierForName(secondX));
-        assertEquals(nameModel.getIdentifierForName(thirdX), nameModel.getIdentifierForName(fourthX));
-        assertFalse(nameModel.getIdentifierForName(firstX).equals(nameModel.getIdentifierForName(thirdX)));
+        assertEquals(nameModel.getIdentifier(firstX), nameModel.getIdentifier(secondX));
+        assertEquals(nameModel.getIdentifier(thirdX), nameModel.getIdentifier(fourthX));
+        assertFalse(nameModel.getIdentifier(firstX).equals(nameModel.getIdentifier(thirdX)));
 
         // now test reverse mapping interface
 
