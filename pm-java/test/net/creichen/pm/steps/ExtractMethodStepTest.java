@@ -38,7 +38,7 @@ public class ExtractMethodStepTest extends PMTest {
     public void testExtractLocalVariableExpression() {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
-        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
+        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(
                 compilationUnitS);
         final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
@@ -58,7 +58,7 @@ public class ExtractMethodStepTest extends PMTest {
     public void testGetNamesToExtract() {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
-        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnitForICompilationUnit(
+        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(
                 compilationUnitS);
         final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);

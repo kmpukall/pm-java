@@ -132,8 +132,6 @@ public class NameModel {
                         binding = ((IMethodBinding) binding).getMethodDeclaration();
                     }
 
-                    // System.err.println("Got binding " + binding.hashCode() +
-                    // " for " + simpleName);
                     String identifier = identifiersForBindings.get(binding);
 
                     if (identifier == null) {

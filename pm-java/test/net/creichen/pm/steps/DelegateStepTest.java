@@ -39,7 +39,7 @@ public class DelegateStepTest extends PMTest {
         createCompilationUnit("", "S1.java", source1);
         final ICompilationUnit compilationUnit2 = createCompilationUnit("", "S2.java", source2);
 
-        final PMCompilationUnit s2PMCompilationUnit = getProject().getPMCompilationUnitForICompilationUnit(
+        final PMCompilationUnit s2PMCompilationUnit = getProject().getPMCompilationUnit(
                 compilationUnit2);
 
         final TypeDeclaration type = findClassByName("S2", s2PMCompilationUnit.getCompilationUnit());

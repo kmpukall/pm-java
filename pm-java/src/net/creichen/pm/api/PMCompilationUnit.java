@@ -21,4 +21,6 @@ public interface PMCompilationUnit {
     String getSource();
 
     void rename(String newName);
+
+    void updatePair(ICompilationUnit source, CompilationUnit newCompilationUnit);
 }

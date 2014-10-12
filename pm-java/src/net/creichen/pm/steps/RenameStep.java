@@ -116,10 +116,10 @@ public class RenameStep extends Step {
                 final ICompilationUnit iCompilationUnitToRename = (ICompilationUnit) ((CompilationUnit) nameNode
                         .getParent().getParent()).getJavaElement();
 
-                final PMCompilationUnit pmCompilationUnitToRename = getProject()
-                        .getPMCompilationUnitForICompilationUnit(iCompilationUnitToRename);
+                final PMCompilationUnit pmCompilationUnitToRename = getProject().getPMCompilationUnit(
+                        iCompilationUnitToRename);
 
-                pmCompilationUnitToRename.rename(this.newName);
+                getProject().rename(pmCompilationUnitToRename, this.newName);
 
             }
         }

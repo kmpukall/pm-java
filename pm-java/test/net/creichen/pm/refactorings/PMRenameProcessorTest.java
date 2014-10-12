@@ -43,7 +43,7 @@ public class PMRenameProcessorTest extends PMTest {
     public void testCreateNewCompilationUnitInTest() {
         ICompilationUnit foo = createCompilationUnit("", "Foo.java", "public class Foo {}");
 
-        assertTrue(getProject().getPMCompilationUnitForICompilationUnit(foo) != null);
+        assertTrue(getProject().getPMCompilationUnit(foo) != null);
 
     }
 
