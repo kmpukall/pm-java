@@ -15,14 +15,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.Node;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.data.NodeReferenceStore;
+import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.data.Pasteboard;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.defuse.DefUseModel;
+import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.visitors.DefinitionCollector;
+import net.creichen.pm.utils.visitors.IdentifierAssigner;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -73,13 +74,13 @@ public class CopyStep extends Step {
                 if (ASTQuery.getSimpleName(getProject().findDeclaringNodeForName(originalName)) == originalName) {
                     // Generate fresh identifier for node with name model
 
-                    final String freshNameModelIdentifier = NameModel.generateNewIdentifier();
-                    nameModel.setIdentifierForName(freshNameModelIdentifier, copyName);
+                    final String freshNameModelIdentifier = IdentifierAssigner.generateNewIdentifier();
+                    nameModel.setIdentifier(freshNameModelIdentifier, copyName);
 
                     copyNameIdentifiersForOriginals.put(nameModel.getIdentifier(originalName),
                             freshNameModelIdentifier);
                 } else {
-                    nameModel.setIdentifierForName(nameModel.getIdentifier(originalName), copyName);
+                    nameModel.setIdentifier(nameModel.getIdentifier(originalName), copyName);
                 }
 
                 return true;
@@ -105,7 +106,7 @@ public class CopyStep extends Step {
                 final String nameIdentifier = nameModel.getIdentifier(name);
 
                 if (copyNameIdentifiersForOriginals.containsKey(nameIdentifier)) {
-                    nameModel.setIdentifierForName(copyNameIdentifiersForOriginals.get(nameIdentifier), name);
+                    nameModel.setIdentifier(copyNameIdentifiersForOriginals.get(nameIdentifier), name);
                 }
                 return true;
             }
@@ -181,19 +182,19 @@ public class CopyStep extends Step {
         for (final ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes.keySet()) {
             final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes.get(copiedDefinition);
 
-            final Set<NodeReference> originalUses = udModel.usesForDefinition(NodeReferenceStore.getInstance()
+            final Set<Node> originalUses = udModel.usesForDefinition(NodeStore.getInstance()
                     .getReference(originalDefinition));
 
-            final Set<NodeReference> copyUses = udModel.usesForDefinition(NodeReferenceStore.getInstance()
+            final Set<Node> copyUses = udModel.usesForDefinition(NodeStore.getInstance()
                     .getReference(copiedDefinition));
 
-            for (final NodeReference originalUseReference : originalUses) {
+            for (final Node originalUseReference : originalUses) {
                 final ASTNode originalUseNode = originalUseReference.getNode();
 
                 final ASTNode copyUseNode = copiedUsingNodesForOriginalUsingNodes.get(originalUseNode);
 
                 if (copyUseNode != null) { /* use is internal */
-                    copyUses.add(NodeReferenceStore.getInstance().getReference(copyUseNode));
+                    copyUses.add(NodeStore.getInstance().getReference(copyUseNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyUses.add(originalUseReference);
                 }
@@ -203,20 +204,20 @@ public class CopyStep extends Step {
         for (final ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
-            final Set<NodeReference> originalDefinitions = udModel.definitionsForUse(NodeReferenceStore
+            final Set<Node> originalDefinitions = udModel.definitionsForUse(NodeStore
                     .getInstance().getReference(originalUse));
 
-            final Set<NodeReference> copyDefinitions = udModel.definitionsForUse(NodeReferenceStore
+            final Set<Node> copyDefinitions = udModel.definitionsForUse(NodeStore
                     .getInstance().getReference(copiedUse));
 
-            for (final NodeReference originalDefinitionReference : originalDefinitions) {
+            for (final Node originalDefinitionReference : originalDefinitions) {
                 final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
 
                 final ASTNode copyDefinitionNode = copiedDefiningNodesForCopiedOriginalDefiningNodes
                         .get(originalDefinitionNode);
 
                 if (copyDefinitionNode != null) { /* def is internal */
-                    copyDefinitions.add(NodeReferenceStore.getInstance().getReference(copyDefinitionNode));
+                    copyDefinitions.add(NodeStore.getInstance().getReference(copyDefinitionNode));
                 } else { /* Use is external, so the original reference is fine */
                     copyDefinitions.add(originalDefinitionReference);
                 }

@@ -1,6 +1,6 @@
 package net.creichen.pm.analysis;
 
-import net.creichen.pm.models.Def;
+import net.creichen.pm.models.defuse.Def;
 
 import org.eclipse.jdt.core.dom.IBinding;
 

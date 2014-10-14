@@ -13,20 +13,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.Node;
 import net.creichen.pm.utils.factories.ASTNodeFactory;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.junit.Test;
 
-public class NodeReferenceStoreTest {
+public class NodeStoreTest {
 
-    private final NodeReferenceStore store = new NodeReferenceStore();
+    private final NodeStore store = new NodeStore();
 
     @Test
     public void testNullingOutNodeRemovesReference() {
         ASTNode node = ASTNodeFactory.createSimpleName("Foo");
-        final NodeReference reference = this.store.getReference(node);
+        final Node reference = this.store.getReference(node);
 
         // ast doesn't keep a ref to its nodes, so this is good enough
         node = null;
@@ -38,7 +38,7 @@ public class NodeReferenceStoreTest {
     @Test
     public void testNullingOutReferenceRemovesNode() {
         final ASTNode node = ASTNodeFactory.createSimpleName("Foo");
-        NodeReference reference = this.store.getReference(node);
+        Node reference = this.store.getReference(node);
         final int hashCodeBefore = reference.hashCode();
 
         reference = null;
@@ -51,10 +51,10 @@ public class NodeReferenceStoreTest {
     @Test
     public void testReplaceNodeWithExistingReferenceToNewNode() {
         final ASTNode node1 = ASTNodeFactory.createSimpleName("Foo");
-        final NodeReference reference1 = this.store.getReference(node1);
+        final Node reference1 = this.store.getReference(node1);
 
         final ASTNode node2 = ASTNodeFactory.createSimpleName("Bar");
-        final NodeReference reference2 = this.store.getReference(node1);
+        final Node reference2 = this.store.getReference(node1);
 
         this.store.replaceNode(node1, node2);
 
@@ -68,7 +68,7 @@ public class NodeReferenceStoreTest {
     @Test
     public void testReplaceNodeWithoutExistingReferenceToNewNode() {
         final ASTNode node1 = ASTNodeFactory.createSimpleName("Foo");
-        final NodeReference reference1 = this.store.getReference(node1);
+        final Node reference1 = this.store.getReference(node1);
 
         final ASTNode node2 = ASTNodeFactory.createSimpleName("Bar");
 
@@ -81,7 +81,7 @@ public class NodeReferenceStoreTest {
     public void testStoreBasics() {
         final ASTNode node = ASTNodeFactory.createSimpleName("Foo");
 
-        final NodeReference reference = this.store.getReference(node);
+        final Node reference = this.store.getReference(node);
 
         assertNotNull(reference);
         assertTrue(this.store.getReference(node) == reference);

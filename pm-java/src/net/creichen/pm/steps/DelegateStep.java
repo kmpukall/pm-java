@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.analysis.ReachingDefsAnalysis;
-import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.Node;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.data.NodeReferenceStore;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.NameModel;
-import net.creichen.pm.models.Use;
+import net.creichen.pm.data.NodeStore;
+import net.creichen.pm.models.defuse.DefUseModel;
+import net.creichen.pm.models.defuse.Use;
+import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.APIWrapperUtil;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -56,7 +56,7 @@ public class DelegateStep extends Step {
 
     // ivar to hold state across reparse
 
-    private NodeReference newExpressionNodeReference;
+    private Node newExpressionNodeReference;
 
     private final ICompilationUnit iCompilationUnit;
 
@@ -160,7 +160,7 @@ public class DelegateStep extends Step {
             if (this.newExpressionNode != null) {
                 if (this.newExpressionNode instanceof Name) {
 
-                    this.newExpressionNodeReference = NodeReferenceStore.getInstance().getReference(
+                    this.newExpressionNodeReference = NodeStore.getInstance().getReference(
                             this.newExpressionNode);
                 } else {
                     System.err.println("Unexpected new expression type " + this.newExpressionNode.getClass());
@@ -226,7 +226,7 @@ public class DelegateStep extends Step {
             if (declaringNode != null) {
                 final SimpleName simpleNameForDeclaringNode = ASTQuery.getSimpleName(declaringNode);
                 final String identifier = nameModel.getIdentifier(simpleNameForDeclaringNode);
-                nameModel.setIdentifierForName(identifier, name);
+                nameModel.setIdentifier(identifier, name);
             }
             // Now update use-def model
             MethodDeclaration methodDeclaration = null;
@@ -242,7 +242,7 @@ public class DelegateStep extends Step {
             final ReachingDefsAnalysis analysis = new ReachingDefsAnalysis(methodDeclaration);
             final Use use = analysis.getUse(name);
             final DefUseModel udModel = getProject().getUDModel();
-            udModel.add(use);
+            udModel.addUse(use);
         }
         // !!! should remove old expression info from name and use/def model
         // FIXME(dcc)

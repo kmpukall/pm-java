@@ -12,7 +12,7 @@ package net.creichen.pm.data;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
-import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.Node;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
@@ -34,34 +34,33 @@ import org.eclipse.jdt.core.dom.ASTNode;
 // PMNodeIdentifier for this node
 // otherwise we will loose uniqueness of PMNodeIdentifier and ptr
 // comparison
-public final class NodeReferenceStore {
+public final class NodeStore {
 
-    private static NodeReferenceStore instance;
+    private static NodeStore instance;
 
-    private final WeakHashMap<NodeReference, WeakReference<ASTNode>> nodesForReferences;
-    private final WeakHashMap<ASTNode, WeakReference<NodeReference>> referencesForNodes;
+    private final WeakHashMap<Node, WeakReference<ASTNode>> nodesForReferences;
+    private final WeakHashMap<ASTNode, WeakReference<Node>> referencesForNodes;
 
-    public NodeReferenceStore() {
-        this.nodesForReferences = new WeakHashMap<NodeReference, WeakReference<ASTNode>>();
-
-        this.referencesForNodes = new WeakHashMap<ASTNode, WeakReference<NodeReference>>();
+    public NodeStore() {
+        this.nodesForReferences = new WeakHashMap<Node, WeakReference<ASTNode>>();
+        this.referencesForNodes = new WeakHashMap<ASTNode, WeakReference<Node>>();
     }
 
-    public static NodeReferenceStore getInstance() {
+    public static NodeStore getInstance() {
         if (instance == null) {
-            instance = new NodeReferenceStore();
+            instance = new NodeStore();
         }
         return instance;
     }
 
-    public ASTNode getNode(final NodeReference nodeIdentifier) {
+    public ASTNode getNode(final Node nodeIdentifier) {
         return this.nodesForReferences.get(nodeIdentifier).get();
     }
 
-    public NodeReference getReference(final ASTNode node) {
-        final WeakReference<NodeReference> weakReference = this.referencesForNodes.get(node);
+    public Node getReference(final ASTNode node) {
+        final WeakReference<Node> weakReference = this.referencesForNodes.get(node);
 
-        NodeReference reference;
+        Node reference;
         if (weakReference == null || weakReference.get() == null) {
             reference = createNodeReference(node);
         } else {
@@ -71,24 +70,24 @@ public final class NodeReferenceStore {
         return reference;
     }
 
-    private NodeReference createNodeReference(final ASTNode node) {
-        NodeReference nodeReference = new NodeReference() {
+    private Node createNodeReference(final ASTNode node) {
+        Node nodeReference = new Node() {
 
             @Override
             public ASTNode getNode() {
-                return NodeReferenceStore.this.getNode(this);
+                return NodeStore.this.getNode(this);
             }
         };
         this.nodesForReferences.put(nodeReference, new WeakReference<ASTNode>(node));
-        this.referencesForNodes.put(node, new WeakReference<NodeReference>(nodeReference));
+        this.referencesForNodes.put(node, new WeakReference<Node>(nodeReference));
         return nodeReference;
     }
 
     public void replaceNode(final ASTNode oldNode, final ASTNode newNode) {
-        final WeakReference<NodeReference> referenceWeakRef = this.referencesForNodes.get(oldNode);
+        final WeakReference<Node> referenceWeakRef = this.referencesForNodes.get(oldNode);
 
         if (referenceWeakRef != null) {
-            final NodeReference reference = referenceWeakRef.get();
+            final Node reference = referenceWeakRef.get();
 
             if (reference != null) {
                 this.referencesForNodes.remove(oldNode);

@@ -19,7 +19,7 @@ import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.Pasteboard;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.name.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -102,7 +102,7 @@ public class PasteStep extends Step {
                         // System.out.println("Identifier for " + copyName +
                         // " is " + identifier);
 
-                        nameModel.setIdentifierForName(identifier, copyName);
+                        nameModel.setIdentifier(identifier, copyName);
 
                         return true;
                     } else {

@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.creichen.pm.models.Def;
-import net.creichen.pm.models.Use;
+import net.creichen.pm.models.defuse.Def;
+import net.creichen.pm.models.defuse.Use;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 

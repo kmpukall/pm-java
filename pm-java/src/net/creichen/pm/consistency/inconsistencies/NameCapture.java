@@ -10,7 +10,7 @@
 package net.creichen.pm.consistency.inconsistencies;
 
 import net.creichen.pm.core.Project;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -38,7 +38,7 @@ public class NameCapture extends Inconsistency {
         final Name capturingName = ASTQuery.getSimpleName(this.actualDeclaration);
         final String capturingIdentifier = nameModel.getIdentifier(capturingName);
 
-        nameModel.setIdentifierForName(capturingIdentifier, capturedName);
+        nameModel.setIdentifier(capturingIdentifier, capturedName);
     }
 
     @Override

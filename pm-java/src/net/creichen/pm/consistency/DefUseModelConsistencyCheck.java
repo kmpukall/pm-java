@@ -5,16 +5,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.creichen.pm.analysis.UseAnalysis;
-import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.Node;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnknownUse;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.data.NodeReferenceStore;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.Use;
+import net.creichen.pm.data.NodeStore;
+import net.creichen.pm.models.defuse.DefUseModel;
+import net.creichen.pm.models.defuse.Use;
 import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -41,16 +41,16 @@ class DefUseModelConsistencyCheck {
 
             final Collection<ASTNode> currentDefiningNodes = model.definingNodesForUse(use);
 
-            final NodeReference useNameIdentifier = NodeReferenceStore.getInstance().getReference(usingNode);
+            final Node useNameIdentifier = NodeStore.getInstance().getReference(usingNode);
 
             if (useNameIdentifier != null) {
-                final Set<NodeReference> desiredDefinitionIdentifiers = model.getDefinitionByUse(useNameIdentifier);
+                final Set<Node> desiredDefinitionIdentifiers = model.getDefinitionByUse(useNameIdentifier);
 
                 if (desiredDefinitionIdentifiers != null) {
                     // find definitions that should reach and missing
                     // definitions
 
-                    for (final NodeReference desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
+                    for (final Node desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
                         ASTNode desiredDefiningNode;
 
                         if (!model.isUninitialized(desiredDefinitionIdentifier)) {
@@ -80,9 +80,9 @@ class DefUseModelConsistencyCheck {
                 // i.e. is every current defining node in the list of desired
                 // efining nodes
                 for (final ASTNode currentDefiningNode : currentDefiningNodes) {
-                    NodeReference currentDefiningIdentifier = null;
+                    Node currentDefiningIdentifier = null;
                     if (currentDefiningNode != null) {
-                        currentDefiningIdentifier = NodeReferenceStore.getInstance().getReference(currentDefiningNode);
+                        currentDefiningIdentifier = NodeStore.getInstance().getReference(currentDefiningNode);
                         if (currentDefiningIdentifier == null) {
                             throw new PMException("Couldn't find  identifier for current defining node "
                                     + currentDefiningNode);

@@ -20,13 +20,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.creichen.pm.analysis.ReachingDefsAnalysis;
-import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.Node;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.data.NodeReferenceStore;
-import net.creichen.pm.models.Def;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.NameModel;
-import net.creichen.pm.models.Use;
+import net.creichen.pm.data.NodeStore;
+import net.creichen.pm.models.defuse.Def;
+import net.creichen.pm.models.defuse.DefUseModel;
+import net.creichen.pm.models.defuse.Use;
+import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -61,7 +61,7 @@ public class SplitStep extends Step {
     private Expression initializerCopy;
 
     // This keeps state between reparses
-    private NodeReference replacementDeclarationReference;
+    private Node replacementDeclarationReference;
 
     public SplitStep(final Project project, final ExpressionStatement assignmentStatement) {
         super(project);
@@ -107,10 +107,10 @@ public class SplitStep extends Step {
         }
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
-        final NodeReference identifierForOldAssignment = NodeReferenceStore.getInstance().getReference(
+        final Node identifierForOldAssignment = NodeStore.getInstance().getReference(
                 oldAssignmentExpression);
         getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
-        final NodeReference identifierForNewVariableDeclaration = NodeReferenceStore.getInstance().getReference(
+        final Node identifierForNewVariableDeclaration = NodeStore.getInstance().getReference(
                 newVariableDeclarationFragment);
 
         final SimpleName oldLHS = (SimpleName) oldAssignmentExpression.getLeftHandSide();
@@ -122,25 +122,25 @@ public class SplitStep extends Step {
 
         // for each use of the assignment, replace the use of the assignment
         // with the use of the declaration
-        for (final NodeReference useIdentifier : new HashSet<NodeReference>(
+        for (final Node useIdentifier : new HashSet<Node>(
                 udModel.usesForDefinition(identifierForOldAssignment))) {
             udModel.removeDefinitionIdentifierForName(identifierForOldAssignment, useIdentifier);
-            udModel.addDefinition(identifierForNewVariableDeclaration, useIdentifier);
+            udModel.addDef(identifierForNewVariableDeclaration, useIdentifier);
         }
 
         udModel.deleteDefinition(identifierForOldAssignment);
 
         final NameModel nameModel = getProject().getNameModel();
 
-        nameModel.removeIdentifierForName(oldLHS);
+        nameModel.removeIdentifier(oldLHS);
 
         final String freshIdentifier = UUID.randomUUID().toString();
 
-        nameModel.setIdentifierForName(freshIdentifier, newLHS);
+        nameModel.setIdentifier(freshIdentifier, newLHS);
 
         for (final SimpleName use : uses) {
 
-            nameModel.setIdentifierForName(freshIdentifier, use);
+            nameModel.setIdentifier(freshIdentifier, use);
         }
 
         final StructuralPropertyDescriptor location = this.assignmentStatement.getLocationInParent();
@@ -150,7 +150,7 @@ public class SplitStep extends Step {
 
         parentList.set(parentList.indexOf(this.assignmentStatement), this.replacementDeclarationStatement);
 
-        this.replacementDeclarationReference = NodeReferenceStore.getInstance().getReference(
+        this.replacementDeclarationReference = NodeStore.getInstance().getReference(
                 this.replacementDeclarationStatement);
 
     }

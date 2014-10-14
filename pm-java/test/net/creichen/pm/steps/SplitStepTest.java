@@ -20,10 +20,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 
-import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.data.NodeReferenceStore;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.api.Node;
+import net.creichen.pm.data.NodeStore;
+import net.creichen.pm.models.defuse.DefUseModel;
+import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -129,7 +129,7 @@ public class SplitStepTest extends PMTest {
         final SimpleName thirdX = simpleNames.get(2);
         final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX.getParent();
 
-        final Set<NodeReference> usesOfSecondDeclaration = udModel.usesForDefinition(NodeReferenceStore.getInstance()
+        final Set<Node> usesOfSecondDeclaration = udModel.usesForDefinition(NodeStore.getInstance()
                 .getReference(secondXDeclaration));
 
         assertEquals(1, usesOfSecondDeclaration.size());

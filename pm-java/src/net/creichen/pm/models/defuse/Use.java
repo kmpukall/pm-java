@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.models;
+package net.creichen.pm.models.defuse;
 
 import java.util.HashSet;
 import java.util.Set;

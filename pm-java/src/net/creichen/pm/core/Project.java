@@ -19,9 +19,10 @@ import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.UseAnalysis;
 import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.data.NodeReferenceStore;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.data.NodeStore;
+import net.creichen.pm.models.defuse.DefUseModel;
+import net.creichen.pm.models.defuse.Use;
+import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.Timer;
@@ -171,9 +172,9 @@ public class Project implements ASTRootsProvider {
             for (final ASTNode oldNode : isomorphicNodes.keySet()) {
                 final ASTNode newNode = isomorphicNodes.get(oldNode);
                 if (oldNode instanceof SimpleName) {
-                    this.nameModel.replaceName((SimpleName) oldNode, (SimpleName) newNode);
+                    this.nameModel.rename((SimpleName) oldNode, (SimpleName) newNode);
                 }
-                NodeReferenceStore.getInstance().replaceNode(oldNode, newNode);
+                NodeStore.getInstance().replaceNode(oldNode, newNode);
             }
         } else {
             System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
@@ -215,7 +216,8 @@ public class Project implements ASTRootsProvider {
     }
 
     private void resetModels() {
-        this.udModel = new DefUseModel(new UseAnalysis(getASTRoots()).getCurrentUses());
+        Collection<Use> currentUses = new UseAnalysis(getASTRoots()).getCurrentUses();
+        this.udModel = new DefUseModel(currentUses);
         this.nameModel = new NameModel(this);
     }
 

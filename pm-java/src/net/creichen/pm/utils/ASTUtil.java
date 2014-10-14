@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.creichen.pm.core.PMException;
-import net.creichen.pm.models.Def;
+import net.creichen.pm.models.defuse.Def;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;

@@ -9,9 +9,9 @@
 
 package net.creichen.pm.refactorings;
 
-import net.creichen.pm.api.NodeReference;
+import net.creichen.pm.api.Node;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.data.NodeReferenceStore;
+import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.steps.CutStep;
 import net.creichen.pm.steps.PasteStep;
 
@@ -23,17 +23,17 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 class MoveFieldRefactoring {
     private final Project project;
 
-    private final NodeReference fieldReference;
+    private final Node fieldReference;
 
-    private final NodeReference newParentReference;
+    private final Node newParentReference;
 
     public MoveFieldRefactoring(final Project project, final FieldDeclaration fieldDeclaration,
             final TypeDeclaration newParent) {
         this.project = project;
 
-        this.fieldReference = NodeReferenceStore.getInstance().getReference(fieldDeclaration);
+        this.fieldReference = NodeStore.getInstance().getReference(fieldDeclaration);
 
-        this.newParentReference = NodeReferenceStore.getInstance().getReference(newParent);
+        this.newParentReference = NodeStore.getInstance().getReference(newParent);
     }
 
     public void apply() {

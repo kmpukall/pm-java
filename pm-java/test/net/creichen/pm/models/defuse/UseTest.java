@@ -1,4 +1,4 @@
-package net.creichen.pm.models;
+package net.creichen.pm.models.defuse;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import net.creichen.pm.utils.factories.ASTNodeFactory;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.junit.Before;
 import org.junit.Test;

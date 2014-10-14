@@ -1,4 +1,4 @@
-package net.creichen.pm.models;
+package net.creichen.pm.models.defuse;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;

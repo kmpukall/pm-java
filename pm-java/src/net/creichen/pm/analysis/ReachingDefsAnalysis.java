@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.core.PMException;
-import net.creichen.pm.models.Def;
-import net.creichen.pm.models.Use;
+import net.creichen.pm.models.defuse.Def;
+import net.creichen.pm.models.defuse.Use;
 import net.creichen.pm.utils.ASTUtil;
 import net.creichen.pm.utils.visitors.DefinitionCollector;
 

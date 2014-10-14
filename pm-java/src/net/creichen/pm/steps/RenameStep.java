@@ -18,7 +18,7 @@ import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.name.NameModel;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.CompilationUnit;

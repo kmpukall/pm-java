@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.creichen.pm.api.NodeReference;
-import net.creichen.pm.data.NodeReferenceStore;
+import net.creichen.pm.api.Node;
+import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.data.Pasteboard;
-import net.creichen.pm.models.DefUseModel;
-import net.creichen.pm.models.NameModel;
+import net.creichen.pm.models.defuse.DefUseModel;
+import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
@@ -145,7 +145,7 @@ public class CopyStepTest extends PMTest {
 
         final SimpleName x3RHSOriginal = ASTQuery.findSimpleNames("x", xGetsXPlusOneAssignmentOriginal).get(1);
 
-        final NodeReference x3RHSOriginalNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSOriginal);
+        final Node x3RHSOriginalNodeReference = NodeStore.getInstance().getReference(x3RHSOriginal);
 
         final ExpressionStatement fifthStatementOriginal = (ExpressionStatement) methodDeclaration.getBody()
                 .statements().get(4);
@@ -171,14 +171,14 @@ public class CopyStepTest extends PMTest {
 
         final Assignment xGetsXPlusOneAssignmentCopy = (Assignment) fourthStatementCopy.getExpression();
 
-        final NodeReference xGetsXPlusOneAssignmentCopyReference = NodeReferenceStore.getInstance().getReference(
+        final Node xGetsXPlusOneAssignmentCopyReference = NodeStore.getInstance().getReference(
                 xGetsXPlusOneAssignmentCopy);
 
         final SimpleName x3RHSCopy = ASTQuery.findSimpleNames("x", xGetsXPlusOneAssignmentCopy).get(1);
-        final NodeReference x3RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x3RHSCopy);
+        final Node x3RHSCopyNodeReference = NodeStore.getInstance().getReference(x3RHSCopy);
 
-        final Set<NodeReference> definitionsForX3RHSOriginal = udModel.definitionsForUse(x3RHSOriginalNodeReference);
-        final Set<NodeReference> definitionsForX3RHSCopy = udModel.definitionsForUse(x3RHSCopyNodeReference);
+        final Set<Node> definitionsForX3RHSOriginal = udModel.definitionsForUse(x3RHSOriginalNodeReference);
+        final Set<Node> definitionsForX3RHSCopy = udModel.definitionsForUse(x3RHSCopyNodeReference);
 
         // Since this x gets its single definition from outside of the copied
         // nodes, the copy should have the
@@ -186,9 +186,9 @@ public class CopyStepTest extends PMTest {
         assertEquals(definitionsForX3RHSOriginal, definitionsForX3RHSCopy);
 
         final SimpleName x4RHSCopy = ASTQuery.findSimpleNames("x", fifthStatementCopy).get(0);
-        final NodeReference x4RHSCopyNodeReference = NodeReferenceStore.getInstance().getReference(x4RHSCopy);
+        final Node x4RHSCopyNodeReference = NodeStore.getInstance().getReference(x4RHSCopy);
 
-        final Set<NodeReference> definitionsForX4RHSCopy = udModel.definitionsForUse(x4RHSCopyNodeReference);
+        final Set<Node> definitionsForX4RHSCopy = udModel.definitionsForUse(x4RHSCopyNodeReference);
 
         assertEquals(1, definitionsForX4RHSCopy.size());
         assertEquals(xGetsXPlusOneAssignmentCopyReference, definitionsForX4RHSCopy.toArray()[0]);

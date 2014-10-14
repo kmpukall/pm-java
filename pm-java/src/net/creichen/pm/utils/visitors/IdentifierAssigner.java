@@ -2,8 +2,7 @@ package net.creichen.pm.utils.visitors;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import net.creichen.pm.models.NameModel;
+import java.util.UUID;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -44,10 +43,14 @@ public class IdentifierAssigner extends ASTVisitor {
         String identifier = this.identifiersForBindings.get(binding);
 
         if (identifier == null) {
-            identifier = NameModel.generateNewIdentifier();
+            identifier = IdentifierAssigner.generateNewIdentifier();
             this.identifiersForBindings.put(binding, identifier);
         }
         this.identifiers.put(simpleName, identifier);
         return true;
+    }
+
+    public static String generateNewIdentifier() {
+        return UUID.randomUUID().toString();
     }
 }
