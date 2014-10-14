@@ -77,10 +77,8 @@ public class ConsistencyValidator {
 
         marker.setAttribute(MarkerResolutionGenerator.INCONSISTENCY_ID, inconsistency.getID());
         marker.setAttribute(MarkerResolutionGenerator.PROJECT_ID, iJavaProject.getHandleIdentifier());
-
         marker.setAttribute(MarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
                 inconsistency.allowsAcceptBehavioralChange());
-
         marker.setAttribute(IMarker.MESSAGE, inconsistency.getHumanReadableDescription());
         marker.setAttribute(IMarker.TRANSIENT, true);
 

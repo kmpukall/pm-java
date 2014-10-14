@@ -57,6 +57,11 @@ public final class NodeStore {
         return this.nodesForReferences.get(nodeIdentifier).get();
     }
 
+    /**
+     *
+     * @param node
+     * @return will never return null.
+     */
     public Node getReference(final ASTNode node) {
         final WeakReference<Node> weakReference = this.referencesForNodes.get(node);
 

@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.creichen.pm.api.Node;
-import net.creichen.pm.core.PMException;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.utils.factories.ASTNodeFactory;
 
@@ -50,9 +49,6 @@ public class DefUseModel {
             if (def != null) {
                 final ASTNode definingNode = def.getDefiningNode();
                 defReference = NodeStore.getInstance().getReference(definingNode);
-                if (defReference == null) {
-                    throw new PMException("Couldn't find identifier for defining node " + definingNode);
-                }
             } else {
                 defReference = this.uninitialized;
             }

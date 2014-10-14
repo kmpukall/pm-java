@@ -36,66 +36,47 @@ class DefUseModelConsistencyCheck {
         Timer.sharedTimer().start("INCONSISTENCIES");
 
         for (final Use use : uses) {
-
             final ASTNode usingNode = use.getSimpleName();
-
             final Collection<ASTNode> currentDefiningNodes = model.definingNodesForUse(use);
-
             final Node useNameIdentifier = NodeStore.getInstance().getReference(usingNode);
-
-            if (useNameIdentifier != null) {
-                final Set<Node> desiredDefinitionIdentifiers = model.getDefinitionByUse(useNameIdentifier);
-
-                if (desiredDefinitionIdentifiers != null) {
-                    // find definitions that should reach and missing
-                    // definitions
-
-                    for (final Node desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
-                        ASTNode desiredDefiningNode;
-
-                        if (!model.isUninitialized(desiredDefinitionIdentifier)) {
-                            desiredDefiningNode = desiredDefinitionIdentifier.getNode();
-
-                            if (desiredDefiningNode == null) {
-                                throw new PMException("Couldn't find defining node for identifier:"
-                                        + desiredDefinitionIdentifier + "for use " + usingNode);
-                            }
-                        } else {
-                            desiredDefiningNode = null;
-                        }
-
-                        if (!currentDefiningNodes.contains(desiredDefiningNode)) {
-
-                            inconsistencies.add(new MissingDefinition(usingNode, desiredDefiningNode));
-
-                        }
-                    }
-
-                } else {
-                    inconsistencies.add(new UnknownUse(use.getSimpleName()));
-                    continue;
-                }
-
-                // Now check to make sure there aren't any extra defs
-                // i.e. is every current defining node in the list of desired
-                // efining nodes
-                for (final ASTNode currentDefiningNode : currentDefiningNodes) {
-                    Node currentDefiningIdentifier = null;
-                    if (currentDefiningNode != null) {
-                        currentDefiningIdentifier = NodeStore.getInstance().getReference(currentDefiningNode);
-                        if (currentDefiningIdentifier == null) {
-                            throw new PMException("Couldn't find  identifier for current defining node "
-                                    + currentDefiningNode);
+            final Set<Node> desiredDefinitionIdentifiers = model.getDefinitionByUse(useNameIdentifier);
+            if (desiredDefinitionIdentifiers != null) {
+                // find definitions that should reach and missing
+                // definitions
+                for (final Node desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
+                    ASTNode desiredDefiningNode;
+                    if (!model.isUninitialized(desiredDefinitionIdentifier)) {
+                        desiredDefiningNode = desiredDefinitionIdentifier.getNode();
+                        if (desiredDefiningNode == null) {
+                            throw new PMException("Couldn't find defining node for identifier:"
+                                    + desiredDefinitionIdentifier + "for use " + usingNode);
                         }
                     } else {
-                        currentDefiningIdentifier = model.getUninitialized();
+                        desiredDefiningNode = null;
                     }
-                    if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
-                        inconsistencies.add(new UnexpectedDefinition(usingNode, currentDefiningNode));
+                    if (!currentDefiningNodes.contains(desiredDefiningNode)) {
+                        inconsistencies.add(new MissingDefinition(usingNode, desiredDefiningNode));
                     }
                 }
+
             } else {
-                throw new PMException("Couldn't find use identifier for use:" + use.getSimpleName());
+                inconsistencies.add(new UnknownUse(use.getSimpleName()));
+                continue;
+            }
+
+            // Now check to make sure there aren't any extra defs
+            // i.e. is every current defining node in the list of desired
+            // efining nodes
+            for (final ASTNode currentDefiningNode : currentDefiningNodes) {
+                Node currentDefiningIdentifier = null;
+                if (currentDefiningNode == null) {
+                    currentDefiningIdentifier = model.getUninitialized();
+                } else {
+                    currentDefiningIdentifier = NodeStore.getInstance().getReference(currentDefiningNode);
+                }
+                if (!desiredDefinitionIdentifiers.contains(currentDefiningIdentifier)) {
+                    inconsistencies.add(new UnexpectedDefinition(usingNode, currentDefiningNode));
+                }
             }
         }
 
