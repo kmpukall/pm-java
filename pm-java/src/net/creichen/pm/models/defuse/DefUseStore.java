@@ -14,11 +14,14 @@ class DefUseStore {
     private final Map<Node, Set<Node>> defsByUses = new HashMap<Node, Set<Node>>();
     private final Map<Node, Set<Node>> usesByDefs = new HashMap<Node, Set<Node>>();
 
-    public Set<Node> definitionsForUse(final Node nameIdentifier) {
-        if (this.defsByUses.get(nameIdentifier) == null) {
-            this.defsByUses.put(nameIdentifier, new HashSet<Node>());
+    public Set<Node> definitionsForUse(final Node use) {
+        return this.defsByUses.get(use);
+    }
+
+    public void addUseIfNotPresent(final Node use) {
+        if (this.defsByUses.get(use) == null) {
+            this.defsByUses.put(use, new HashSet<Node>());
         }
-        return this.defsByUses.get(nameIdentifier);
     }
 
     public boolean isUse(final ASTNode node) {
@@ -31,9 +34,12 @@ class DefUseStore {
     }
 
     public Set<Node> usesForDefinition(final Node definition) {
+        return this.usesByDefs.get(definition);
+    }
+
+    public void addDefinitionIfNotPresent(final Node definition) {
         if (this.usesByDefs.get(definition) == null) {
             this.usesByDefs.put(definition, new HashSet<Node>());
         }
-        return this.usesByDefs.get(definition);
     }
 }

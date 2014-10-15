@@ -40,6 +40,9 @@ public class DefUseModel {
     }
 
     public void addMapping(final Node def, final Node use) {
+        ensureUseIsPresent(use);
+        ensureDefinitionIsPresent(def);
+
         this.store.definitionsForUse(use).add(def);
         this.store.usesForDefinition(def).add(use);
     }
@@ -52,16 +55,31 @@ public class DefUseModel {
     public void addUse(final Use use) {
         final SimpleName name = use.getSimpleName();
         final Node useReference = NodeStore.getInstance().getReference(name);
+        this.store.addUseIfNotPresent(useReference);
         for (final Def def : use.getReachingDefinitions()) {
-            Node defReference;
-            if (def != null) {
-                final ASTNode definingNode = def.getDefiningNode();
-                defReference = NodeStore.getInstance().getReference(definingNode);
-            } else {
-                defReference = this.uninitialized;
-            }
+            Node defReference = createDefNode(def);
+            ensureDefinitionIsPresent(defReference);
             addMapping(defReference, useReference);
         }
+    }
+
+    public void ensureDefinitionIsPresent(Node definition) {
+        this.store.addDefinitionIfNotPresent(definition);
+    }
+
+    public void ensureUseIsPresent(Node definition) {
+        this.store.addUseIfNotPresent(definition);
+    }
+
+    private Node createDefNode(final Def def) {
+        Node defReference;
+        if (def != null) {
+            final ASTNode definingNode = def.getDefiningNode();
+            defReference = NodeStore.getInstance().getReference(definingNode);
+        } else {
+            defReference = this.uninitialized;
+        }
+        return defReference;
     }
 
     public Collection<ASTNode> getDefiningNodesForUse(final Use use) {

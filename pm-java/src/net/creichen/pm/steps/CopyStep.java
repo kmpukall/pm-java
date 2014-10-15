@@ -77,8 +77,8 @@ public class CopyStep extends Step {
                     final String freshNameModelIdentifier = IdentifierAssigner.generateNewIdentifier();
                     nameModel.setIdentifier(freshNameModelIdentifier, copyName);
 
-                    copyNameIdentifiersForOriginals.put(nameModel.getIdentifier(originalName),
-                            freshNameModelIdentifier);
+                    copyNameIdentifiersForOriginals
+                    .put(nameModel.getIdentifier(originalName), freshNameModelIdentifier);
                 } else {
                     nameModel.setIdentifier(nameModel.getIdentifier(originalName), copyName);
                 }
@@ -182,11 +182,13 @@ public class CopyStep extends Step {
         for (final ASTNode copiedDefinition : originalDefiningNodesForCopiedDefiningNodes.keySet()) {
             final ASTNode originalDefinition = originalDefiningNodesForCopiedDefiningNodes.get(copiedDefinition);
 
-            final Set<Node> originalUses = udModel.getUsesByDefinition(NodeStore.getInstance()
-                    .getReference(originalDefinition));
+            Node originalDefReference = NodeStore.getInstance().getReference(originalDefinition);
+            udModel.ensureDefinitionIsPresent(originalDefReference);
+            final Set<Node> originalUses = udModel.getUsesByDefinition(originalDefReference);
 
-            final Set<Node> copyUses = udModel.getUsesByDefinition(NodeStore.getInstance()
-                    .getReference(copiedDefinition));
+            Node reference = NodeStore.getInstance().getReference(copiedDefinition);
+            udModel.ensureDefinitionIsPresent(reference);
+            final Set<Node> copyUses = udModel.getUsesByDefinition(reference);
 
             for (final Node originalUseReference : originalUses) {
                 final ASTNode originalUseNode = originalUseReference.getNode();
@@ -204,11 +206,12 @@ public class CopyStep extends Step {
         for (final ASTNode copiedUse : originalUsingNodesForCopiedUsingNodes.keySet()) {
             final ASTNode originalUse = originalUsingNodesForCopiedUsingNodes.get(copiedUse);
 
-            final Set<Node> originalDefinitions = udModel.getDefinitionsForUse(NodeStore
-                    .getInstance().getReference(originalUse));
+            final Set<Node> originalDefinitions = udModel.getDefinitionsForUse(NodeStore.getInstance().getReference(
+                    originalUse));
 
-            final Set<Node> copyDefinitions = udModel.getDefinitionsForUse(NodeStore
-                    .getInstance().getReference(copiedUse));
+            Node reference = NodeStore.getInstance().getReference(copiedUse);
+            udModel.ensureUseIsPresent(reference);
+            final Set<Node> copyDefinitions = udModel.getDefinitionsForUse(reference);
 
             for (final Node originalDefinitionReference : originalDefinitions) {
                 final ASTNode originalDefinitionNode = originalDefinitionReference.getNode();
@@ -228,21 +231,14 @@ public class CopyStep extends Step {
 
     @Override
     public void performASTChange() {
-
         final List<ASTNode> copiedPasteboardRootNodes = new ArrayList<ASTNode>();
-
         for (final ASTNode original : this.selectedNodes) {
             final ASTNode copy = ASTNode.copySubtree(original.getAST(), original);
-
             copiedPasteboardRootNodes.add(copy);
         }
-
         copyNameModel(this.selectedNodes, copiedPasteboardRootNodes);
-
         copyUDModel(this.selectedNodes, copiedPasteboardRootNodes);
-
         final Pasteboard pasteboard = Pasteboard.getInstance();
-
         pasteboard.setPasteboardRoots(copiedPasteboardRootNodes);
     }
 

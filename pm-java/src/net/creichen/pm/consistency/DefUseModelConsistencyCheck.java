@@ -40,7 +40,6 @@ class DefUseModelConsistencyCheck {
             final Collection<ASTNode> currentDefiningNodes = model.getDefiningNodesForUse(use);
             final Node useNameIdentifier = NodeStore.getInstance().getReference(usingNode);
             final Set<Node> desiredDefinitionIdentifiers = model.getDefinitionsForUse(useNameIdentifier);
-            // FIXME: this is currently never the case!
             if (desiredDefinitionIdentifiers == null) {
                 inconsistencies.add(new UnknownUse(use.getSimpleName()));
                 continue;
