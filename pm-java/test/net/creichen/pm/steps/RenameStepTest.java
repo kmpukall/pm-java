@@ -334,7 +334,7 @@ public class RenameStepTest extends PMTest {
         ConsistencyValidator.getInstance().rescanForInconsistencies(getProject());
         Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
 
-        assertThat(inconsistencies.size(), is(1));
+        assertThat("Unexpected inconsistency list:" + inconsistencies, inconsistencies.size(), is(1));
         Inconsistency inconsistency = inconsistencies.iterator().next();
         assertTrue(inconsistency instanceof NameCapture);
     }
@@ -369,7 +369,7 @@ public class RenameStepTest extends PMTest {
         // iVar was captured.,
         // Unexpected definition (iVar) used by iVar]
 
-        assertEquals(3, inconsistencies.size());
+        assertEquals("Unexpected inconsistency list:" + inconsistencies, 3, inconsistencies.size());
 
     }
 

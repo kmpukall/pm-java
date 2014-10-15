@@ -29,16 +29,24 @@ public class DefUseModel {
 
     public DefUseModel(final Collection<Use> currentUses) {
         // this is such a hack; we create a random ast node and then get a
-        // reference to it to
-        // act as our uninitialized distinguished marker. We have to store this
-        // node
-        // so it isn't garbage collected out of the store (since the store uses
-        // weak refs).
+        // reference to it to act as our uninitialized distinguished marker. We have to store this
+        // node so it isn't garbage collected out of the store (since the store uses weak refs).
         this.uninitializedMarkerNode = ASTNodeFactory.createSimpleName("Foo");
         this.uninitialized = NodeStore.getInstance().getReference(this.uninitializedMarkerNode);
+
         for (final Use use : currentUses) {
             addUse(use);
         }
+    }
+
+    public void addMapping(final Node def, final Node use) {
+        this.store.definitionsForUse(use).add(def);
+        this.store.usesForDefinition(def).add(use);
+    }
+
+    public void removeMapping(final Node def, final Node use) {
+        this.store.definitionsForUse(use).remove(def);
+        this.store.usesForDefinition(def).remove(use);
     }
 
     public void addUse(final Use use) {
@@ -52,17 +60,11 @@ public class DefUseModel {
             } else {
                 defReference = this.uninitialized;
             }
-            addDef(defReference, useReference);
+            addMapping(defReference, useReference);
         }
     }
 
-    public void addDef(final Node def, final Node use) {
-        this.store.definitionsForUse(use).add(def);
-        this.store.usesForDefinition(def).add(use);
-
-    }
-
-    public Collection<ASTNode> definingNodesForUse(final Use use) {
+    public Collection<ASTNode> getDefiningNodesForUse(final Use use) {
         final Set<ASTNode> definingNodes = new HashSet<ASTNode>();
         for (final Def definition : use.getReachingDefinitions()) {
             if (definition != null) {
@@ -74,21 +76,17 @@ public class DefUseModel {
         return definingNodes;
     }
 
-    public Set<Node> definitionsForUse(Node reference) {
+    public Set<Node> getDefinitionsForUse(Node reference) {
         return this.store.definitionsForUse(reference);
     }
 
     public void deleteDefinition(final Node definition) {
         // delete all uses of the definition
         for (final Node use : this.store.usesForDefinition(definition)) {
-            removeDefinitionIdentifierForName(definition, use);
+            removeMapping(definition, use);
         }
         // delete list of uses for definition
         this.store.removeDefinition(definition);
-    }
-
-    public Set<Node> getDefinitionByUse(final Node useNameIdentifier) {
-        return this.store.definitionsForUse(useNameIdentifier);
     }
 
     public Node getUninitialized() {
@@ -103,12 +101,7 @@ public class DefUseModel {
         return this.store.isUse(node);
     }
 
-    public void removeDefinitionIdentifierForName(final Node def, final Node use) {
-        this.store.definitionsForUse(use).remove(def);
-        this.store.usesForDefinition(def).remove(use);
-    }
-
-    public Set<Node> usesForDefinition(Node reference) {
-        return this.store.usesForDefinition(reference);
+    public Set<Node> getUsesByDefinition(Node def) {
+        return this.store.usesForDefinition(def);
     }
 }

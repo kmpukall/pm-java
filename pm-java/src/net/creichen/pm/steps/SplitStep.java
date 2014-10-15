@@ -107,8 +107,7 @@ public class SplitStep extends Step {
         }
         final VariableDeclarationFragment newVariableDeclarationFragment = (VariableDeclarationFragment) this.replacementDeclarationStatement
                 .fragments().get(0);
-        final Node identifierForOldAssignment = NodeStore.getInstance().getReference(
-                oldAssignmentExpression);
+        final Node identifierForOldAssignment = NodeStore.getInstance().getReference(oldAssignmentExpression);
         getProject().recursivelyReplaceNodeWithCopy(this.initializer, this.initializerCopy);
         final Node identifierForNewVariableDeclaration = NodeStore.getInstance().getReference(
                 newVariableDeclarationFragment);
@@ -122,10 +121,9 @@ public class SplitStep extends Step {
 
         // for each use of the assignment, replace the use of the assignment
         // with the use of the declaration
-        for (final Node useIdentifier : new HashSet<Node>(
-                udModel.usesForDefinition(identifierForOldAssignment))) {
-            udModel.removeDefinitionIdentifierForName(identifierForOldAssignment, useIdentifier);
-            udModel.addDef(identifierForNewVariableDeclaration, useIdentifier);
+        for (final Node useIdentifier : udModel.getUsesByDefinition(identifierForOldAssignment)) {
+            udModel.removeMapping(identifierForOldAssignment, useIdentifier);
+            udModel.addMapping(identifierForNewVariableDeclaration, useIdentifier);
         }
 
         udModel.deleteDefinition(identifierForOldAssignment);

@@ -129,7 +129,7 @@ public class SplitStepTest extends PMTest {
         final SimpleName thirdX = simpleNames.get(2);
         final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX.getParent();
 
-        final Set<Node> usesOfSecondDeclaration = udModel.usesForDefinition(NodeStore.getInstance()
+        final Set<Node> usesOfSecondDeclaration = udModel.getUsesByDefinition(NodeStore.getInstance()
                 .getReference(secondXDeclaration));
 
         assertEquals(1, usesOfSecondDeclaration.size());

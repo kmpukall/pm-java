@@ -37,10 +37,14 @@ class DefUseModelConsistencyCheck {
 
         for (final Use use : uses) {
             final ASTNode usingNode = use.getSimpleName();
-            final Collection<ASTNode> currentDefiningNodes = model.definingNodesForUse(use);
+            final Collection<ASTNode> currentDefiningNodes = model.getDefiningNodesForUse(use);
             final Node useNameIdentifier = NodeStore.getInstance().getReference(usingNode);
-            final Set<Node> desiredDefinitionIdentifiers = model.getDefinitionByUse(useNameIdentifier);
-            if (desiredDefinitionIdentifiers != null) {
+            final Set<Node> desiredDefinitionIdentifiers = model.getDefinitionsForUse(useNameIdentifier);
+            // FIXME: this is currently never the case!
+            if (desiredDefinitionIdentifiers == null) {
+                inconsistencies.add(new UnknownUse(use.getSimpleName()));
+                continue;
+            } else {
                 // find definitions that should reach and missing
                 // definitions
                 for (final Node desiredDefinitionIdentifier : desiredDefinitionIdentifiers) {
@@ -59,9 +63,6 @@ class DefUseModelConsistencyCheck {
                     }
                 }
 
-            } else {
-                inconsistencies.add(new UnknownUse(use.getSimpleName()));
-                continue;
             }
 
             // Now check to make sure there aren't any extra defs
