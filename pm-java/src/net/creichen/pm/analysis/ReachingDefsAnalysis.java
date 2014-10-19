@@ -9,9 +9,6 @@
 
 package net.creichen.pm.analysis;
 
-import static net.creichen.pm.utils.APIWrapperUtil.fragments;
-import static net.creichen.pm.utils.APIWrapperUtil.statements;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,18 +27,11 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.WhileStatement;
 
 public class ReachingDefsAnalysis {
 
@@ -52,9 +42,9 @@ public class ReachingDefsAnalysis {
     private Map<SimpleName, Use> usesByName;
     private List<PMBlock> blocks;
     private Map<ASTNode, PMBlock> blocksByNode;
-    private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnEntry;
-    private Map<PMBlock, Set<VariableAssignment>> reachingDefsOnExit;
     private final Map<Def, Map<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<Def, Map<IBinding, VariableAssignment>>();
+    private Map<PMBlock, Set<VariableAssignment>> genSets;
+    private Map<PMBlock, Set<VariableAssignment>> killSets;
 
     public ReachingDefsAnalysis(final MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
@@ -77,32 +67,6 @@ public class ReachingDefsAnalysis {
 
     public Collection<Use> getUses() {
         return this.usesByName.values();
-    }
-
-    private void addSerialBlockToEndOfList(final PMBlock block, final List<PMBlock> blockList) {
-        if (blockList.size() > 0) {
-            final PMBlock lastBlock = blockList.get(blockList.size() - 1);
-            lastBlock.addOutgoingBlock(block);
-        }
-        blockList.add(block);
-    }
-
-    private void findAllBlocks() {
-        this.blocks = new ArrayList<PMBlock>();
-        this.blocks.add(new PMBlock()); // synthetic initial block;
-        mergeBlockLists(this.blocks, generateBlocksForStatement(this.methodDeclaration.getBody()));
-
-        // fill in _blocksByNode
-        // Every node should have at least one ancestor that has a block
-        // according to this hash
-
-        this.blocksByNode = new HashMap<ASTNode, PMBlock>();
-        for (final PMBlock block : this.blocks) {
-            for (final ASTNode node : block.getNodes()) {
-                this.blocksByNode.put(node, block);
-            }
-
-        }
     }
 
     private void findDefinitions() {
@@ -210,273 +174,104 @@ public class ReachingDefsAnalysis {
 
     }
 
-    private List<PMBlock> generateBlocksForExpression(final Expression expression) {
-        final List<PMBlock> result = new ArrayList<PMBlock>();
-
-        if (expression instanceof Assignment) {
-            final Assignment assignmentExpression = (Assignment) expression;
-
-            final PMBlock block = new PMBlock();
-
-            mergeBlockLists(result, generateBlocksForExpression(assignmentExpression.getRightHandSide()));
-
-            block.addNode(expression);
-
-            addSerialBlockToEndOfList(block, result);
-        } else if (expression instanceof VariableDeclarationExpression) {
-            // add a block for reach fragment
-            // don't currently handle complex code in initializers
-
-            final VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
-
-            for (final VariableDeclarationFragment fragment : fragments(variableDeclarationExpression)) {
-                // really should generate blocks for fragment initializer
-
-                final PMBlock block = new PMBlock();
-
-                block.addNode(fragment);
-
-                addSerialBlockToEndOfList(block, result);
-            }
-        } else {
-            final PMBlock block = new PMBlock();
-
-            block.addNode(expression);
-
-            addSerialBlockToEndOfList(block, result);
-
-        }
-
-        return result;
-    }
-
-    private List<PMBlock> generateBlocksForStatement(final Statement statement) {
-        final List<PMBlock> result = new ArrayList<PMBlock>();
-
-        if (statement instanceof ExpressionStatement) {
-            final ExpressionStatement expressionStatement = (ExpressionStatement) statement;
-
-            result.addAll(generateBlocksForExpression(expressionStatement.getExpression()));
-        } else if (statement instanceof Block) {
-            final Block blockStatement = (Block) statement;
-
-            for (final Statement subStatement : statements(blockStatement)) {
-                final List<PMBlock> blocksForSubStatement = generateBlocksForStatement(subStatement);
-
-                mergeBlockLists(result, blocksForSubStatement);
-            }
-        } else if (statement instanceof IfStatement) {
-            final IfStatement ifStatement = (IfStatement) statement;
-            /*
-             * three components: - guard block - then block - else block
-             *
-             * - exit block to join then and else
-             */
-
-            final List<PMBlock> blocksForGuard = generateBlocksForExpression(ifStatement.getExpression());
-            final PMBlock endingGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
-
-            final PMBlock exitBlock = new PMBlock();
-
-            mergeBlockLists(result, blocksForGuard);
-
-            final List<PMBlock> blocksForThen = generateBlocksForStatement(ifStatement.getThenStatement());
-
-            // this will make a connection from the ending guard block to the
-            // first then block
-            mergeBlockLists(result, blocksForThen);
-
-            final PMBlock endingThenBlock = blocksForThen.get(blocksForThen.size() - 1);
-            endingThenBlock.addOutgoingBlock(exitBlock);
-
-            if (ifStatement.getElseStatement() != null) {
-                final List<PMBlock> blocksForElse = generateBlocksForStatement(ifStatement.getElseStatement());
-
-                // make connection from the ending guard block to the starting
-                // else block
-                // and from the ending else block to the exitBlock
-
-                final PMBlock startingElseBlock = blocksForElse.get(0);
-
-                endingGuardBlock.addOutgoingBlock(startingElseBlock);
-
-                final PMBlock endingElseBlock = blocksForElse.get(blocksForElse.size() - 1);
-
-                endingElseBlock.addOutgoingBlock(exitBlock);
-
-                result.addAll(blocksForElse);
-            } else {
-                // No else block, so guard block may flow directly to exit block
-
-                endingGuardBlock.addOutgoingBlock(exitBlock);
-            }
-
-            result.add(exitBlock);
-
-        } else if (statement instanceof WhileStatement) {
-            final WhileStatement whileStatement = (WhileStatement) statement;
-
-            /*
-             * while statements consist of: - guard condition - body
-             *
-             * - synthetic exit block
-             */
-
-            final List<PMBlock> blocksForGuard = generateBlocksForExpression(whileStatement.getExpression());
-            final PMBlock startingGuardBlock = blocksForGuard.get(0);
-            final PMBlock lastGuardBlock = blocksForGuard.get(blocksForGuard.size() - 1);
-
-            final PMBlock exitBlock = new PMBlock();
-
-            mergeBlockLists(result, blocksForGuard);
-
-            final List<PMBlock> blocksForBody = generateBlocksForStatement(whileStatement.getBody());
-
-            mergeBlockLists(result, blocksForBody);
-
-            // last block of body always flows to guard
-
-            final PMBlock lastBodyBlock = blocksForBody.get(blocksForBody.size() - 1);
-            lastBodyBlock.addOutgoingBlock(startingGuardBlock);
-
-            // guard may fail and flow to exit
-            lastGuardBlock.addOutgoingBlock(exitBlock);
-
-            result.add(exitBlock);
-
-        }
-
-        // we need to add the statement itself to a block to maintain the
-        // invariant that
-        // every node has some ancestor that is in a block
-
-        final PMBlock statementBlock = new PMBlock();
-
-        statementBlock.addNode(statement);
-
-        addSerialBlockToEndOfList(statementBlock, result);
-
-        return result;
-    }
-
-    private void mergeBlockLists(final List<PMBlock> first, final List<PMBlock> second) {
-        // We assume the last block of the first list is followed sequentially
-        // by the first block of the second list
-
-        if (first.size() > 0) {
-            first.get(first.size() - 1).addOutgoingBlock(second.get(0));
-        }
-
-        first.addAll(second);
-    }
-
     private void runAnalysis() {
         findDefinitions();
-        findAllBlocks();
 
-        final Map<PMBlock, Set<VariableAssignment>> genSets = findGenSets();
-        final Map<PMBlock, Set<VariableAssignment>> killSets = findKillSets();
+        BlockResolver resolver = new BlockResolver();
+        resolver.resolveBlocks(this.methodDeclaration);
+        this.blocks = resolver.getBlocks();
+        this.blocksByNode = resolver.getBlocksByNode();
 
-        // Forward analysis
+        this.genSets = findGenSets();
+        this.killSets = findKillSets();
 
-        this.reachingDefsOnEntry = new HashMap<PMBlock, Set<VariableAssignment>>();
-        this.reachingDefsOnExit = new HashMap<PMBlock, Set<VariableAssignment>>();
-
-        final PMBlock initialBlock = this.blocks.get(0);
-        for (final PMBlock block : this.blocks) {
-            this.reachingDefsOnEntry.put(block, new HashSet<VariableAssignment>());
-
-            if (block == initialBlock) {
-                // add "undefined" assignments for all free variables in method
-
-                this.methodDeclaration.accept(new ASTVisitor() {
-                    @Override
-                    public boolean visit(final SimpleName name) {
-
-                        final IBinding binding = name.resolveBinding();
-                        // We only care about names if they are variables (i.e.
-                        // locals or fields)
-
-                        if (binding instanceof IVariableBinding) {
-                            ReachingDefsAnalysis.this.reachingDefsOnEntry.get(block).add(
-                                    uniqueVariableAssignment(null, binding));
-                        }
-                        return true;
-                    }
-                });
-            }
-            this.reachingDefsOnExit.put(block, new HashSet<VariableAssignment>());
-        }
-        boolean changed = false;
         do {
             // ?? do we need to make a copy of the entry/exit info and use these
             // or can we update in place??
-            changed = false;
-
-            for (final PMBlock block : this.blocks) {
-
-                // entry prop
-                if (block != initialBlock) {
-                    final Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
-
-                    for (final PMBlock incomingBlock : block.getIncomingBlocks()) {
-                        if (this.reachingDefsOnExit.get(incomingBlock) == null) {
-                            System.out.println("Coulding find reaching defs for block " + incomingBlock);
-                        }
-                        newEntryReachingDefs.addAll(this.reachingDefsOnExit.get(incomingBlock));
-                    }
-
-                    if (!newEntryReachingDefs.equals(this.reachingDefsOnEntry.get(block))) {
-                        changed = true;
-                        this.reachingDefsOnEntry.put(block, newEntryReachingDefs);
-                    }
-
-                }
-
-                // exit prop
-
-                final Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
-
-                newExitReachingDefs.addAll(this.reachingDefsOnEntry.get(block));
-
-                final Set<VariableAssignment> killSet = killSets.get(block);
-                if (killSet != null) {
-                    newExitReachingDefs.removeAll(killSet);
-                }
-                final Set<VariableAssignment> genSet = genSets.get(block);
-                if (genSet != null) {
-                    newExitReachingDefs.addAll(genSet);
-                }
-                if (!newExitReachingDefs.equals(this.reachingDefsOnExit.get(block))) {
-                    changed = true;
-                    this.reachingDefsOnExit.put(block, newExitReachingDefs);
-                }
-            }
-        } while (changed);
+        } while (updateBlocks());
 
         findUses();
     }
 
-    private VariableAssignment uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
+    private boolean updateBlocks() {
+        boolean changed = false;
+        for (final PMBlock block : this.blocks) {
+            if (block.equals(this.blocks.get(0))) {
+                updateInitialBlock(this.blocks.get(0));
+            } else {
+                changed |= updateReachingDefsOnEntry(block);
+            }
+            changed |= updateReachingDefsOnExit(block);
+        }
+        return changed;
+    }
 
+    private void updateInitialBlock(final PMBlock initialBlock) {
+        // add "undefined" assignments for all free variables in method
+        this.methodDeclaration.accept(new ASTVisitor() {
+            @Override
+            public boolean visit(final SimpleName name) {
+
+                final IBinding binding = name.resolveBinding();
+                // We only care about names if they are variables (i.e.
+                // locals or fields)
+
+                if (binding instanceof IVariableBinding) {
+                    initialBlock.getReachingDefsOnEntry().add(uniqueVariableAssignment(null, binding));
+                }
+                return true;
+            }
+        });
+    }
+
+    private boolean updateReachingDefsOnExit(final PMBlock block) {
+        final Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
+
+        newExitReachingDefs.addAll(block.getReachingDefsOnEntry());
+
+        final Set<VariableAssignment> killSet = this.killSets.get(block);
+        if (killSet != null) {
+            newExitReachingDefs.removeAll(killSet);
+        }
+        final Set<VariableAssignment> genSet = this.genSets.get(block);
+        if (genSet != null) {
+            newExitReachingDefs.addAll(genSet);
+        }
+        if (!newExitReachingDefs.equals(block.getReachingDefsOnExit())) {
+            block.getReachingDefsOnExit().clear();
+            block.getReachingDefsOnExit().addAll(newExitReachingDefs);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean updateReachingDefsOnEntry(final PMBlock block) {
+        final Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
+        for (final PMBlock incomingBlock : block.getIncomingBlocks()) {
+            newEntryReachingDefs.addAll(incomingBlock.getReachingDefsOnExit());
+        }
+        if (!newEntryReachingDefs.equals(block.getReachingDefsOnEntry())) {
+            block.getReachingDefsOnEntry().clear();
+            block.getReachingDefsOnEntry().addAll(newEntryReachingDefs);
+            return true;
+        }
+        return false;
+    }
+
+    private VariableAssignment uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
         if (variableBinding == null) {
             throw new PMException("variableBinding for " + definition + " is null!");
         }
-
         Map<IBinding, VariableAssignment> assignmentsForLocation = this.uniqueVariableAssigments.get(definition);
-
         if (assignmentsForLocation == null) {
             assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
             this.uniqueVariableAssigments.put(definition, assignmentsForLocation);
         }
-
         VariableAssignment variableAssignment = assignmentsForLocation.get(variableBinding);
-
         if (variableAssignment == null) {
             variableAssignment = new VariableAssignment(definition, variableBinding);
             assignmentsForLocation.put(variableBinding, variableAssignment);
         }
-
         return variableAssignment;
     }
 
@@ -491,8 +286,7 @@ public class ReachingDefsAnalysis {
         @Override
         public boolean visit(final SimpleName name) {
             final PMBlock block = getBlockForNode(name);
-            final Set<VariableAssignment> reachingDefinitions = ReachingDefsAnalysis.this.reachingDefsOnEntry
-                    .get(block);
+            final Set<VariableAssignment> reachingDefinitions = block.getReachingDefsOnEntry();
 
             if (isUse(name)) {
                 final Use use = new Use(name);
@@ -518,10 +312,10 @@ public class ReachingDefsAnalysis {
         private boolean isUse(final SimpleName name) {
             /*
              * we assume all simple names are uses except:
-             * 
+             *
              * the lhs of Assignment expressions the name of a VariableDeclarationFragment the name of a
              * SingleVariableDeclaration
-             * 
+             *
              * There are probably more cases (i.e. method names in invocations?)
              */
 

@@ -16,24 +16,20 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
-public class PMBlock {
+class PMBlock {
     private final List<ASTNode> nodes;
-
     private final Set<PMBlock> incomingBlocks;
     private final Set<PMBlock> outgoingBlocks;
+    private final Set<VariableAssignment> reachingDefsOnEntry;
+    private Set<VariableAssignment> reachingDefsOnExit;
 
     public PMBlock() {
         this.nodes = new ArrayList<ASTNode>();
 
         this.incomingBlocks = new HashSet<PMBlock>();
         this.outgoingBlocks = new HashSet<PMBlock>();
-    }
-
-    private void addIncomingBlock(final PMBlock block) {
-
-        if (this.incomingBlocks.add(block)) {
-            block.addOutgoingBlock(this);
-        }
+        this.reachingDefsOnEntry = new HashSet<VariableAssignment>();
+        this.reachingDefsOnExit = new HashSet<VariableAssignment>();
     }
 
     public void addNode(final ASTNode node) {
@@ -61,14 +57,24 @@ public class PMBlock {
     @Override
     public String toString() {
         String result = "";
-
         int i = 0;
-
         for (final ASTNode node : getNodes()) {
             result = +i++ + ": " + node + "\n";
         }
-
         return result;
     }
 
+    private void addIncomingBlock(final PMBlock block) {
+        if (this.incomingBlocks.add(block)) {
+            block.addOutgoingBlock(this);
+        }
+    }
+
+    protected final Set<VariableAssignment> getReachingDefsOnEntry() {
+        return this.reachingDefsOnEntry;
+    }
+
+    protected final Set<VariableAssignment> getReachingDefsOnExit() {
+        return this.reachingDefsOnExit;
+    }
 }
