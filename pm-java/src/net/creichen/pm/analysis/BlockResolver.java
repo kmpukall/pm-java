@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.core.PMException;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
@@ -24,28 +26,27 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 class BlockResolver {
 
     private List<PMBlock> blocks;
+    private Map<ASTNode, PMBlock> blocksByNode;
 
     public final List<PMBlock> getBlocks() {
         return this.blocks;
     }
 
-    public Map<ASTNode, PMBlock> getBlocksByNode() {
-        // Every node should have at least one ancestor that has a block
-        // according to this hash
-        Map<ASTNode, PMBlock> blocksByNode = new HashMap<ASTNode, PMBlock>();
+    private void createMapping() {
+        this.blocksByNode = new HashMap<ASTNode, PMBlock>();
         for (final PMBlock block : this.blocks) {
             for (final ASTNode node : block.getNodes()) {
-                blocksByNode.put(node, block);
+                this.blocksByNode.put(node, block);
             }
         }
-        return blocksByNode;
     }
 
-    public void resolveBlocks(MethodDeclaration methodDeclaration) {
+    public void resolve(MethodDeclaration methodDeclaration) {
         this.blocks = new ArrayList<PMBlock>();
         this.blocks.add(new PMBlock()); // synthetic initial block;
         List<PMBlock> blocksFromMethod = generateBlocks(methodDeclaration.getBody());
         appendBlocks(blocksFromMethod);
+        createMapping();
     }
 
     private void appendBlock(final List<PMBlock> target, final PMBlock block) {
@@ -133,6 +134,7 @@ class BlockResolver {
             result.addAll(blocksForElse);
         } else {
             // No else block, so guard block may flow directly to exit block
+            // this assumes the condition is not tautological
 
             endingGuardBlock.addOutgoingBlock(exitBlock);
         }
@@ -215,6 +217,18 @@ class BlockResolver {
         result.add(exitBlock);
 
         return result;
+    }
+
+    public PMBlock getBlockForNode(final ASTNode originalNode) {
+        ASTNode node = originalNode;
+        do {
+            final PMBlock block = this.blocksByNode.get(node);
+            if (block != null) {
+                return block;
+            }
+            node = node.getParent();
+        } while (node != null);
+        throw new PMException("Couldn't find block for definingnode  " + originalNode);
     }
 
 }

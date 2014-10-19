@@ -11,6 +11,7 @@ package net.creichen.pm.steps;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static net.creichen.pm.utils.ASTQuery.findSimpleNames;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -75,12 +76,8 @@ public class ExtractMethodStepTest extends PMTest {
 
         final List<SimpleName> namesToExtract = step.getNamesToExtract();
         assertEquals(2, namesToExtract.size());
-        assertEquals(
-                ASTQuery.findSimpleNameByIdentifier("i", 0, "m", 0, "S", 0, pmCompilationUnitS.getCompilationUnit()),
-                namesToExtract.get(0));
-        assertEquals(
-                ASTQuery.findSimpleNameByIdentifier("j", 1, "m", 0, "S", 0, pmCompilationUnitS.getCompilationUnit()),
-                namesToExtract.get(1));
+        assertEquals(findSimpleNames("i", methodDeclaration.getBody()).get(0), namesToExtract.get(0));
+        assertEquals(findSimpleNames("j", methodDeclaration.getBody()).get(1), namesToExtract.get(1));
 
     }
 }

@@ -348,8 +348,7 @@ public class RenameStepTest extends PMTest {
 
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(compilationUnitS);
 
-        final SimpleName name = ASTQuery.findSimpleNameByIdentifier("lVar", 0, "m", 0, "S", 0,
-                pmCompilationUnitS.getCompilationUnit());
+        final SimpleName name = findSimpleName("lVar", pmCompilationUnitS.getCompilationUnit());
 
         final RenameStep step = new RenameStep(getProject(), name);
 

@@ -44,7 +44,7 @@ class NameModelConsistencyCheck {
             final ASTNode declaringNode = this.project.findDeclaringNodeForName(simpleName);
 
             if (declaringNode != null) {
-                final SimpleName declaringSimpleName = ASTQuery.getSimpleName(declaringNode);
+                final SimpleName declaringSimpleName = ASTQuery.resolveSimpleName(declaringNode);
 
                 final String declaringIdentifier = nameModel.getIdentifier(declaringSimpleName);
 

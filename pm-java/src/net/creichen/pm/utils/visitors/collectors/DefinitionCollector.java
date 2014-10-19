@@ -1,4 +1,4 @@
-package net.creichen.pm.utils.visitors;
+package net.creichen.pm.utils.visitors.collectors;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -8,7 +8,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public final class DefinitionCollector extends CollectingASTVisitor<ASTNode> {
+public final class DefinitionCollector extends AbstractCollector<ASTNode> {
 
     @Override
     public boolean visit(final Assignment assignment) {

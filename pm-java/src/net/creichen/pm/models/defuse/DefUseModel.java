@@ -27,14 +27,14 @@ public class DefUseModel {
 
     private final DefUseStore store = new DefUseStore();
 
-    public DefUseModel(final Collection<Use> currentUses) {
+    public DefUseModel(final Collection<Use> uses) {
         // this is such a hack; we create a random ast node and then get a
         // reference to it to act as our uninitialized distinguished marker. We have to store this
         // node so it isn't garbage collected out of the store (since the store uses weak refs).
         this.uninitializedMarkerNode = ASTNodeFactory.createSimpleName("Foo");
         this.uninitialized = NodeStore.getInstance().getReference(this.uninitializedMarkerNode);
 
-        for (final Use use : currentUses) {
+        for (final Use use : uses) {
             addUse(use);
         }
     }

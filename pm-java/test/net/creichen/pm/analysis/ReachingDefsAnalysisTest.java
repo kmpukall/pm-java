@@ -151,7 +151,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testDefinitionsInIfThenElseBody() {
         analyze("public class S {void m(){int y = 1; if (true) y = 5; else y = 6; System.out.println(y);}}");
 
-        final SimpleName fourthY = ASTQuery.findSimpleNameByIdentifier("y", 3, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName fourthY = findSimpleNames("y", this.compilationUnit).get(3);
         final Use fourthYUse = this.rdefs.getUse(fourthY);
 
         assertTrue(fourthYUse != null);
@@ -178,7 +178,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testDefinitionsInNestedIfThenElse() {
         analyze("public class S {void m(){int y = 1; if (true) { if (false) y = 2; else y = 3;} else {if (true) y = 4; else y = 5;} System.out.println(y);}}");
 
-        final SimpleName sixthY = ASTQuery.findSimpleNameByIdentifier("y", 5, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName sixthY = findSimpleNames("y", this.compilationUnit).get(5);
         final Use sixthYUse = this.rdefs.getUse(sixthY);
 
         assertTrue(sixthYUse != null);
@@ -205,7 +205,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testDefinitionsInWhileLoop() {
         analyze("public class S {void m(){int y = 1; while(y < 6) {y = y + 1;} System.out.println(y);}}");
 
-        final SimpleName fourthY = ASTQuery.findSimpleNameByIdentifier("y", 3, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName fourthY = findSimpleNames("y", this.compilationUnit).get(3);
         final Use fourthYUse = this.rdefs.getUse(fourthY);
 
         assertTrue(fourthYUse != null);
@@ -223,7 +223,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
         assertTrue(fourthYUseDefiningNodes.contains(yEquals1));
         assertTrue(fourthYUseDefiningNodes.contains(yEqualsYPlus1));
 
-        final SimpleName fifthY = ASTQuery.findSimpleNameByIdentifier("y", 4, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName fifthY = findSimpleNames("y", this.compilationUnit).get(4);
         final Use fifthYUse = this.rdefs.getUse(fifthY);
 
         assertTrue(fifthYUse != null);
@@ -286,10 +286,10 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testMethodParameterWithUse() {
         analyze("public class S {void m(String x){System.out.println(x); }}");
 
-        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0, this.compilationUnit);
-        assertTrue(firstX != null);
+        final SimpleName secondX = findSimpleNames("x", this.compilationUnit).get(1);
+        assertTrue(secondX != null);
 
-        final Use firstXUse = this.rdefs.getUse(firstX);
+        final Use firstXUse = this.rdefs.getUse(secondX);
 
         assertEquals(1, firstXUse.getReachingDefinitions().size());
         assertEquals(null, firstXUse.getReachingDefinitions().iterator().next()); // null
@@ -366,7 +366,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         analyze("public class S {void m(){String x;x = \"foo\";System.out.println(x);}}");
 
-        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName thirdX = findSimpleNames("x", this.compilationUnit).get(2);
 
         final Use thirdXUse = this.rdefs.getUse(thirdX);
 
@@ -388,15 +388,15 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testUseInInitializer() {
         analyze("public class S {void m(){int y = 1;int x = y;}}");
 
-        final SimpleName firstY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName firstY = findSimpleNames("y", this.compilationUnit).get(0);
         assertEquals(null, this.rdefs.getUse(firstY)); // The first y is
         // not a use
 
-        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName firstX = findSimpleNames("x", this.compilationUnit).get(0);
         assertEquals(null, this.rdefs.getUse(firstX)); // The first x is
         // not a use
 
-        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName secondY = findSimpleNames("y", this.compilationUnit).get(1);
         final Use secondYUse = this.rdefs.getUse(secondY);
 
         assertTrue(secondYUse != null);
@@ -416,7 +416,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testUseInPostIncrement() {
         analyze("public class S {void m(){int y = 1;int x = y++;}}");
 
-        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName secondY = findSimpleNames("y", this.compilationUnit).get(1);
         final Use secondYUse = this.rdefs.getUse(secondY);
 
         assertTrue(secondYUse != null);
@@ -436,7 +436,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testUseOfInstanceVariableBeforeDefinition() {
         analyze("public class S {int y; void m(){System.out.println(y); y = 5;}}");
 
-        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName secondY = findSimpleNames("y", this.compilationUnit).get(1);
         assertTrue(secondY != null);
 
         final Use secondYUse = this.rdefs.getUse(secondY);
@@ -450,7 +450,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
     public void testUseOfInstanceVariableWithoutDefinition() {
         analyze("public class S {int y; void m(){System.out.println(y);}}");
 
-        final SimpleName secondY = ASTQuery.findSimpleNameByIdentifier("y", 0, "m", 0, "S", 0, this.compilationUnit);
+        final SimpleName secondY = findSimpleNames("y", this.compilationUnit).get(1);
         assertTrue(secondY != null);
 
         final Use secondYUse = this.rdefs.getUse(secondY);

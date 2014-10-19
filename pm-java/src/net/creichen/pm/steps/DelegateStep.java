@@ -224,7 +224,7 @@ public class DelegateStep extends Step {
             final NameModel nameModel = getProject().getNameModel();
             final ASTNode declaringNode = getProject().findDeclaringNodeForName(name);
             if (declaringNode != null) {
-                final SimpleName simpleNameForDeclaringNode = ASTQuery.getSimpleName(declaringNode);
+                final SimpleName simpleNameForDeclaringNode = ASTQuery.resolveSimpleName(declaringNode);
                 final String identifier = nameModel.getIdentifier(simpleNameForDeclaringNode);
                 nameModel.setIdentifier(identifier, name);
             }

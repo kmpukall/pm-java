@@ -22,8 +22,8 @@ import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.models.defuse.DefUseModel;
 import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
-import net.creichen.pm.utils.visitors.DefinitionCollector;
 import net.creichen.pm.utils.visitors.IdentifierAssigner;
+import net.creichen.pm.utils.visitors.collectors.DefinitionCollector;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
@@ -71,7 +71,7 @@ public class CopyStep extends Step {
             public boolean match(final SimpleName originalName, final Object copyNameObject) {
                 final SimpleName copyName = (SimpleName) copyNameObject;
 
-                if (ASTQuery.getSimpleName(getProject().findDeclaringNodeForName(originalName)) == originalName) {
+                if (ASTQuery.resolveSimpleName(getProject().findDeclaringNodeForName(originalName)) == originalName) {
                     // Generate fresh identifier for node with name model
 
                     final String freshNameModelIdentifier = IdentifierAssigner.generateNewIdentifier();
@@ -151,13 +151,8 @@ public class CopyStep extends Step {
         for (int rootNodeIndex = 0; rootNodeIndex < originalRootNodes.size(); rootNodeIndex++) {
             final ASTNode originalRootNode = originalRootNodes.get(rootNodeIndex);
             final ASTNode copyRootNode = copiedRootNodes.get(rootNodeIndex);
-            final DefinitionCollector originalVisitor = new DefinitionCollector();
-            originalRootNode.accept(originalVisitor);
-            final List<ASTNode> originalDefiningNodes = originalVisitor.getResults();
-
-            final DefinitionCollector visitor = new DefinitionCollector();
-            copyRootNode.accept(visitor);
-            final List<ASTNode> copyDefiningNodes = visitor.getResults();
+            final List<ASTNode> originalDefiningNodes = new DefinitionCollector().collectFrom(originalRootNode);
+            final List<ASTNode> copyDefiningNodes = new DefinitionCollector().collectFrom(copyRootNode);
 
             for (int definingNodeIndex = 0; definingNodeIndex < originalDefiningNodes.size(); definingNodeIndex++) {
                 final ASTNode originalDefiningNode = originalDefiningNodes.get(definingNodeIndex);

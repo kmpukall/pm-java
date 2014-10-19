@@ -9,6 +9,7 @@
 
 package net.creichen.pm.analysis;
 
+import static net.creichen.pm.utils.ASTQuery.findSimpleNames;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -17,7 +18,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.factories.ASTNodeFactory;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -72,8 +72,9 @@ public class ASTMatcherTest {
         assertTrue(matcher.matches());
         Map<ASTNode, ASTNode> isomorphicNodes = matcher.isomorphicNodes();
         assertSame(isomorphicNodes.get(compilationUnit1), compilationUnit2);
-        SimpleName secondY1 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0, compilationUnit1);
-        SimpleName secondY2 = ASTQuery.findSimpleNameByIdentifier("y", 1, "m", 0, "S", 0, compilationUnit2);
+
+        SimpleName secondY1 = findSimpleNames("y", compilationUnit1).get(1);
+        SimpleName secondY2 = findSimpleNames("y", compilationUnit2).get(1);
         assertNotNull(isomorphicNodes.get(secondY1));
         assertSame(isomorphicNodes.get(secondY1), secondY2);
         assertNotNull(isomorphicNodes.get(secondY1.getParent()));

@@ -34,11 +34,6 @@
             id="pm_rename_refactoring.actions.SplitTemporaryAction"
             name="PM Split Temporary...">
       </command>
-      <command
-            defaultHandler="net.creichen.pm.commands.TimeParseHandler"
-            id="pm_rename_refactoring.actions.TimeParseAction"
-            name="PM Time Parse">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -81,12 +76,6 @@
                   label="PM Split Temporary..."
                   style="push"
                   tooltip="Split usage of this variable by introducing a new variable here.">
-            </command>
-            <command
-                  commandId="pm_rename_refactoring.actions.TimeParseAction"
-                  label="PM Time Parse"
-                  style="push"
-                  tooltip="Used in benchmarking situations.">
             </command>
          </menu>
       </menuContribution>

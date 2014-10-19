@@ -20,7 +20,7 @@ import java.util.Set;
 
 import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.utils.visitors.IdentifierAssigner;
-import net.creichen.pm.utils.visitors.SelectiveSimpleNameCollector;
+import net.creichen.pm.utils.visitors.collectors.SelectiveSimpleNameCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;

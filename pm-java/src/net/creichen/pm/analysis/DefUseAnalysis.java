@@ -2,27 +2,26 @@ package net.creichen.pm.analysis;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
+import net.creichen.pm.models.defuse.DefUseModel;
 import net.creichen.pm.models.defuse.Use;
-import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
-public class UseAnalysis {
+public class DefUseAnalysis {
 
-    private final Collection<ASTNode> roots;
+    private final Set<Use> uses;
 
-    public UseAnalysis(final Collection<ASTNode> roots) {
-        this.roots = roots;
+    public final Set<Use> getUses() {
+        return this.uses;
     }
 
-    public Collection<Use> getCurrentUses() {
-        Timer.sharedTimer().start("DUUD_CHAINS");
-
-        final Collection<Use> uses = new HashSet<Use>();
-        for (final ASTNode root : this.roots) {
+    public DefUseAnalysis(final Collection<ASTNode> roots) {
+        this.uses = new HashSet<Use>();
+        for (final ASTNode root : roots) {
             root.accept(new ASTVisitor() {
                 @Override
                 public boolean visit(final MethodDeclaration methodDeclaration) {
@@ -31,7 +30,7 @@ public class UseAnalysis {
                     // abstract method
                     if (methodDeclaration.getBody() != null) {
                         final ReachingDefsAnalysis analysis = new ReachingDefsAnalysis(methodDeclaration);
-                        uses.addAll(analysis.getUses());
+                        DefUseAnalysis.this.uses.addAll(analysis.getUses());
                     }
 
                     return false; // don't visit children
@@ -39,8 +38,10 @@ public class UseAnalysis {
             });
 
         }
-        Timer.sharedTimer().stop("DUUD_CHAINS");
-        return uses;
+    }
+
+    public DefUseModel getModel() {
+        return new DefUseModel(this.uses);
     }
 
 }

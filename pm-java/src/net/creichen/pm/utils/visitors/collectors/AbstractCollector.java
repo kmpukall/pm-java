@@ -1,4 +1,4 @@
-package net.creichen.pm.utils.visitors;
+package net.creichen.pm.utils.visitors.collectors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,11 +6,11 @@ import java.util.List;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 
-abstract class CollectingASTVisitor<T extends ASTNode> extends ASTVisitor {
+abstract class AbstractCollector<T extends ASTNode> extends ASTVisitor {
 
     private final List<T> results;
 
-    protected CollectingASTVisitor() {
+    protected AbstractCollector() {
         super();
         this.results = new ArrayList<T>();
     }
@@ -21,6 +21,11 @@ abstract class CollectingASTVisitor<T extends ASTNode> extends ASTVisitor {
 
     protected void addResult(final T result) {
         this.results.add(result);
+    }
+
+    public List<T> collectFrom(ASTNode node) {
+        node.accept(this);
+        return getResults();
     }
 
 }

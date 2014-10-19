@@ -10,7 +10,6 @@ import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.ui.MarkerResolutionGenerator;
-import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -40,16 +39,12 @@ public class ConsistencyValidator {
         try {
             this.currentInconsistencies.clear();
 
-            Timer.sharedTimer().start("INCONSISTENCIES");
-
             final Set<Inconsistency> inconsistencySet = new HashSet<Inconsistency>();
 
             inconsistencySet.addAll(new NameModelConsistencyCheck(project).calculateInconsistencies(project
                     .getNameModel()));
             inconsistencySet.addAll(new DefUseModelConsistencyCheck(project).calculateInconsistencies(project
                     .getUDModel()));
-
-            Timer.sharedTimer().stop("INCONSISTENCIES");
 
             // delete previous markers
             for (final ICompilationUnit iCompilationUnit : project.getICompilationUnits()) {

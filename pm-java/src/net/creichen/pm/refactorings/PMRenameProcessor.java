@@ -12,7 +12,6 @@ package net.creichen.pm.refactorings;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
 import net.creichen.pm.steps.RenameStep;
-import net.creichen.pm.utils.Timer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -51,9 +50,6 @@ public class PMRenameProcessor extends RenameProcessor {
 
     @Override
     public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
-
-        Timer.sharedTimer().start("STEP");
-
         final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
 
         RefactoringStatus result = null;
@@ -69,27 +65,17 @@ public class PMRenameProcessor extends RenameProcessor {
                         .createFatalErrorStatus("Please select a name to use the Rename refactoring.");
             }
         }
-
-        Timer.sharedTimer().stop("STEP");
-
         return result;
     }
 
     @Override
     public Change createChange(final IProgressMonitor pm) throws CoreException {
-        Timer.sharedTimer().start("STEP");
-
         final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
         project.syncSources();
-
         this.renameStep = new RenameStep(project, (SimpleName) project.nodeForSelection(this.textSelection,
                 this.iCompilationUnit));
         this.renameStep.setNewName(this.newName);
-
-        final Change result = this.renameStep.createCompositeChange("Rename");
-
-        Timer.sharedTimer().stop("STEP");
-        return result;
+        return this.renameStep.createCompositeChange("Rename");
     }
 
     @Override

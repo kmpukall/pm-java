@@ -21,7 +21,7 @@ import net.creichen.pm.core.PMException;
 import net.creichen.pm.models.defuse.Def;
 import net.creichen.pm.models.defuse.Use;
 import net.creichen.pm.utils.ASTUtil;
-import net.creichen.pm.utils.visitors.DefinitionCollector;
+import net.creichen.pm.utils.visitors.collectors.DefinitionCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -37,14 +37,13 @@ public class ReachingDefsAnalysis {
 
     private final MethodDeclaration methodDeclaration;
     private List<Def> definitions;
-    private Map<IBinding, Set<Def>> definitionsByBinding;
     private Map<ASTNode, Def> definitionsByDefiningNode;
     private Map<SimpleName, Use> usesByName;
     private List<PMBlock> blocks;
-    private Map<ASTNode, PMBlock> blocksByNode;
     private final Map<Def, Map<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<Def, Map<IBinding, VariableAssignment>>();
-    private Map<PMBlock, Set<VariableAssignment>> genSets;
+    private Map<PMBlock, VariableAssignment> gens;
     private Map<PMBlock, Set<VariableAssignment>> killSets;
+    private BlockResolver blockResolver;
 
     public ReachingDefsAnalysis(final MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
@@ -73,53 +72,48 @@ public class ReachingDefsAnalysis {
         this.definitions = new ArrayList<Def>();
         this.definitionsByDefiningNode = new HashMap<ASTNode, Def>();
 
-        final DefinitionCollector visitor = new DefinitionCollector();
-        this.methodDeclaration.getBody().accept(visitor);
-        final List<ASTNode> definingNodes = visitor.getResults();
+        final List<ASTNode> definingNodes = new DefinitionCollector().collectFrom(this.methodDeclaration.getBody());
         for (final ASTNode definingNode : definingNodes) {
             final Def definition = new Def(definingNode);
             this.definitions.add(definition);
             this.definitionsByDefiningNode.put(definingNode, definition);
         }
-
-        this.definitionsByBinding = new HashMap<IBinding, Set<Def>>();
-        for (final Def def : this.definitions) {
-            final IBinding binding = ASTUtil.getBinding(def);
-            Set<Def> definitionsForBinding = this.definitionsByBinding.get(binding);
-            if (definitionsForBinding == null) {
-                definitionsForBinding = new HashSet<Def>();
-                this.definitionsByBinding.put(binding, definitionsForBinding);
-            }
-            definitionsForBinding.add(def);
-        }
     }
 
-    private Map<PMBlock, Set<VariableAssignment>> findGenSets() {
-        final Map<PMBlock, Set<VariableAssignment>> result = new HashMap<PMBlock, Set<VariableAssignment>>();
+    private void findGens() {
+        this.gens = new HashMap<PMBlock, VariableAssignment>();
         for (final Def definition : this.definitions) {
-            // Create singleton set for gen set (could probably dispense w/
-            // containing set)
-            final Set<VariableAssignment> genSet = new HashSet<VariableAssignment>();
+
             final IBinding binding = ASTUtil.getBinding(definition);
             // The binding could be null if the declaration for the lhs no
             // longer exists
             if (binding != null) {
-                genSet.add(uniqueVariableAssignment(definition, binding));
-                final PMBlock block = getBlockForNode(definition.getDefiningNode());
-                result.put(block, genSet);
+                PMBlock block = this.blockResolver.getBlockForNode(definition.getDefiningNode());
+                this.gens.put(block, uniqueVariableAssignment(definition, binding));
             }
         }
-        return result;
     }
 
     private Map<PMBlock, Set<VariableAssignment>> findKillSets() {
+        List<Def> definitions = this.definitions;
+
+        Map<IBinding, Set<Def>> definitionsByBinding = new HashMap<IBinding, Set<Def>>();
+        for (final Def def : definitions) {
+            final IBinding binding = ASTUtil.getBinding(def);
+            Set<Def> definitionsForBinding = definitionsByBinding.get(binding);
+            if (definitionsForBinding == null) {
+                definitionsForBinding = new HashSet<Def>();
+                definitionsByBinding.put(binding, definitionsForBinding);
+            }
+            definitionsForBinding.add(def);
+        }
 
         final Map<PMBlock, Set<VariableAssignment>> result = new HashMap<PMBlock, Set<VariableAssignment>>();
 
         // Note: we populate the killsets by iterating through definitions
         // this means there will be no killset for a block with no definitions
         //
-        for (final Def definition : this.definitions) {
+        for (final Def definition : definitions) {
             final IBinding binding = ASTUtil.getBinding(definition);
 
             // Binding may be null if the declaring node for our lhs no longer
@@ -133,13 +127,13 @@ public class ReachingDefsAnalysis {
                 killSet.add(uniqueVariableAssignment(null, binding)); // "undefined"
                 // assignment
 
-                for (final Def otherDefinition : this.definitionsByBinding.get(binding)) {
+                for (final Def otherDefinition : definitionsByBinding.get(binding)) {
                     if (otherDefinition != definition) {
                         killSet.add(uniqueVariableAssignment(otherDefinition, binding));
                     }
                 }
 
-                final PMBlock block = getBlockForNode(definition.getDefiningNode());
+                final PMBlock block = this.blockResolver.getBlockForNode(definition.getDefiningNode());
 
                 result.put(block, killSet);
             }
@@ -150,45 +144,29 @@ public class ReachingDefsAnalysis {
     }
 
     private void findUses() {
-
         this.usesByName = new HashMap<SimpleName, Use>();
-
         final Block body = this.methodDeclaration.getBody();
-
         final VariableUsesCollector collector = new VariableUsesCollector();
         body.accept(collector);
         this.usesByName.putAll(collector.getUsesByName());
     }
 
-    private PMBlock getBlockForNode(final ASTNode originalNode) {
-        ASTNode node = originalNode;
-        do {
-            final PMBlock block = this.blocksByNode.get(node);
-            if (block == null) {
-                node = node.getParent();
-            } else {
-                return block;
-            }
-        } while (node != null);
-        throw new PMException("Couldn't find block for definingnode  " + originalNode);
-
-    }
-
     private void runAnalysis() {
         findDefinitions();
 
-        BlockResolver resolver = new BlockResolver();
-        resolver.resolveBlocks(this.methodDeclaration);
-        this.blocks = resolver.getBlocks();
-        this.blocksByNode = resolver.getBlocksByNode();
+        this.blockResolver = new BlockResolver();
+        this.blockResolver.resolve(this.methodDeclaration);
+        this.blocks = this.blockResolver.getBlocks();
 
-        this.genSets = findGenSets();
+        findGens();
         this.killSets = findKillSets();
 
+        boolean hasChanged;
         do {
+            hasChanged = updateBlocks();
             // ?? do we need to make a copy of the entry/exit info and use these
             // or can we update in place??
-        } while (updateBlocks());
+        } while (hasChanged);
 
         findUses();
     }
@@ -233,9 +211,9 @@ public class ReachingDefsAnalysis {
         if (killSet != null) {
             newExitReachingDefs.removeAll(killSet);
         }
-        final Set<VariableAssignment> genSet = this.genSets.get(block);
-        if (genSet != null) {
-            newExitReachingDefs.addAll(genSet);
+        final VariableAssignment gen = this.gens.get(block);
+        if (gen != null) {
+            newExitReachingDefs.add(gen);
         }
         if (!newExitReachingDefs.equals(block.getReachingDefsOnExit())) {
             block.getReachingDefsOnExit().clear();
@@ -285,7 +263,7 @@ public class ReachingDefsAnalysis {
 
         @Override
         public boolean visit(final SimpleName name) {
-            final PMBlock block = getBlockForNode(name);
+            final PMBlock block = ReachingDefsAnalysis.this.blockResolver.getBlockForNode(name);
             final Set<VariableAssignment> reachingDefinitions = block.getReachingDefsOnEntry();
 
             if (isUse(name)) {

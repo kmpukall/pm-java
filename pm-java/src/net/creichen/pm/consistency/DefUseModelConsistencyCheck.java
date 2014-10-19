@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.creichen.pm.analysis.UseAnalysis;
+import net.creichen.pm.analysis.DefUseAnalysis;
 import net.creichen.pm.api.Node;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
@@ -15,7 +15,6 @@ import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.models.defuse.DefUseModel;
 import net.creichen.pm.models.defuse.Use;
-import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
@@ -28,13 +27,9 @@ class DefUseModelConsistencyCheck {
     }
 
     public Collection<Inconsistency> calculateInconsistencies(final DefUseModel model) {
-
         final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
-        final Collection<Use> uses = new UseAnalysis(this.project.getASTRoots()).getCurrentUses();
-
-        Timer.sharedTimer().start("INCONSISTENCIES");
-
+        final Collection<Use> uses = new DefUseAnalysis(this.project.getASTRoots()).getUses();
         for (final Use use : uses) {
             final ASTNode usingNode = use.getSimpleName();
             final Collection<ASTNode> currentDefiningNodes = model.getDefiningNodesForUse(use);
@@ -79,8 +74,6 @@ class DefUseModelConsistencyCheck {
                 }
             }
         }
-
-        Timer.sharedTimer().stop("INCONSISTENCIES");
 
         return inconsistencies;
     }

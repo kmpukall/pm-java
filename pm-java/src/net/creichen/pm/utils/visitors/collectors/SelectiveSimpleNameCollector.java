@@ -1,4 +1,4 @@
-package net.creichen.pm.utils.visitors;
+package net.creichen.pm.utils.visitors.collectors;
 
 import java.util.Collections;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public final class SelectiveSimpleNameCollector extends CollectingASTVisitor<SimpleName> {
+public final class SelectiveSimpleNameCollector extends AbstractCollector<SimpleName> {
     private final String identifier;
     private Map<Name, String> identifiersForNames = Collections.emptyMap();
 

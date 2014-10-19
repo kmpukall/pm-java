@@ -1,4 +1,4 @@
-package net.creichen.pm.utils.visitors;
+package net.creichen.pm.utils.visitors.finders;
 
 import static net.creichen.pm.utils.factories.PredicateFactory.hasVariableName;
 
@@ -9,11 +9,11 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import com.google.common.base.Predicate;
 
-public class VariableDeclarationCollector extends CollectingASTVisitor<VariableDeclaration> {
+public class VariableDeclarationFinder extends AbstractFinder<VariableDeclaration> {
 
     private Predicate<VariableDeclaration> filter;
 
-    public VariableDeclarationCollector(final String variableName) {
+    public VariableDeclarationFinder(final String variableName) {
         this.filter = hasVariableName(variableName);
     }
 
@@ -25,7 +25,8 @@ public class VariableDeclarationCollector extends CollectingASTVisitor<VariableD
     @Override
     public boolean visit(final SingleVariableDeclaration singleVariableDeclaration) {
         if (this.filter.apply(singleVariableDeclaration)) {
-            addResult(singleVariableDeclaration);
+            setResult(singleVariableDeclaration);
+            stopSearching();
         }
         return true;
     }
@@ -33,7 +34,8 @@ public class VariableDeclarationCollector extends CollectingASTVisitor<VariableD
     @Override
     public boolean visit(final VariableDeclarationFragment fragment) {
         if (this.filter.apply(fragment)) {
-            addResult(fragment);
+            setResult(fragment);
+            stopSearching();
         }
         return true;
     }

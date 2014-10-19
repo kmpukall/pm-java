@@ -16,16 +16,14 @@ import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.analysis.ASTMatcher;
-import net.creichen.pm.analysis.UseAnalysis;
+import net.creichen.pm.analysis.DefUseAnalysis;
 import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.models.defuse.DefUseModel;
-import net.creichen.pm.models.defuse.Use;
 import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.ASTUtil;
-import net.creichen.pm.utils.Timer;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -162,8 +160,6 @@ public class Project implements ASTRootsProvider {
     }
 
     public boolean recursivelyReplaceNodeWithCopy(final ASTNode node, final ASTNode copy) {
-        Timer.sharedTimer().start("NODE_REPLACEMENT");
-
         // It's kind of silly that we have to match twice
         final ASTMatcher astMatcher = new ASTMatcher(node, copy);
         final boolean matches = astMatcher.matches();
@@ -181,7 +177,6 @@ public class Project implements ASTRootsProvider {
             throw new PMException("Copy not does structurally match original");
         }
 
-        Timer.sharedTimer().stop("NODE_REPLACEMENT");
         return matches;
     }
 
@@ -216,8 +211,7 @@ public class Project implements ASTRootsProvider {
     }
 
     private void resetModels() {
-        Collection<Use> currentUses = new UseAnalysis(getASTRoots()).getCurrentUses();
-        this.udModel = new DefUseModel(currentUses);
+        this.udModel = new DefUseAnalysis(getASTRoots()).getModel();
         this.nameModel = new NameModel(this);
     }
 
@@ -248,8 +242,6 @@ public class Project implements ASTRootsProvider {
         final ASTRequestor requestor = new ASTRequestor() {
             @Override
             public void acceptAST(final ICompilationUnit source, final CompilationUnit newCompilationUnit) {
-                Timer.sharedTimer().start("PARSE_INTERNAL");
-
                 PMCompilationUnit pmCompilationUnit = Project.this.pmCompilationUnits.get(source.getHandleIdentifier());
 
                 // We don't handle deletions yet
@@ -271,10 +263,7 @@ public class Project implements ASTRootsProvider {
 
                         resetModels();
                     }
-
                 }
-
-                Timer.sharedTimer().stop("PARSE_INTERNAL");
             }
         };
 

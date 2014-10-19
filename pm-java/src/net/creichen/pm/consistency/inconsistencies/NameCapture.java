@@ -35,7 +35,7 @@ public class NameCapture extends Inconsistency {
     public void acceptBehavioralChange() {
         final Name capturedName = (Name) getNode();
         final NameModel nameModel = this.project.getNameModel();
-        final Name capturingName = ASTQuery.getSimpleName(this.actualDeclaration);
+        final Name capturingName = ASTQuery.resolveSimpleName(this.actualDeclaration);
         final String capturingIdentifier = nameModel.getIdentifier(capturingName);
 
         nameModel.setIdentifier(capturingIdentifier, capturedName);
