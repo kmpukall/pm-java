@@ -11,6 +11,8 @@ package net.creichen.pm.steps;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -21,6 +23,7 @@ import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -35,11 +38,10 @@ public class ExtractMethodStepTest extends PMTest {
 
     @Test
     @Ignore
-    public void testExtractLocalVariableExpression() {
+    public void testExtractLocalVariableExpression() throws JavaModelException {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
-        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(
-                compilationUnitS);
+        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(compilationUnitS);
         final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         final Block bodyBlock = methodDeclaration.getBody();
@@ -51,6 +53,9 @@ public class ExtractMethodStepTest extends PMTest {
 
         step.apply();
 
+        assertThat(
+                compilationUnitS.getSource(),
+                is(equalTo("class S {String _s; void m(int i) {int j; System.out.println(extractedMethod(i, j));}\r\nfinal String extractedMethod(int i, int j) {\r\n\treturn _s + i + j;\r\n}}")));
         assertThat(getProject(), hasNoInconsistencies());
     }
 
@@ -58,8 +63,7 @@ public class ExtractMethodStepTest extends PMTest {
     public void testGetNamesToExtract() {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
-        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(
-                compilationUnitS);
+        final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(compilationUnitS);
         final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         final Block bodyBlock = methodDeclaration.getBody();

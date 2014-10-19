@@ -24,10 +24,11 @@ import java.util.Collection;
 import java.util.List;
 
 import net.creichen.pm.utils.visitors.AssignmentCollector;
+import net.creichen.pm.utils.visitors.SelectiveSimpleNameCollector;
+import net.creichen.pm.utils.visitors.SimpleNameCollector;
 import net.creichen.pm.utils.visitors.VariableDeclarationCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -175,21 +176,15 @@ public final class ASTQuery {
     }
 
     public static List<SimpleName> findSimpleNames(final String identifier, final ASTNode node) {
-        final List<SimpleName> result = new ArrayList<SimpleName>();
+        SelectiveSimpleNameCollector collector = new SelectiveSimpleNameCollector(identifier);
+        node.accept(collector);
+        return collector.getResults();
+    }
 
-        node.accept(new ASTVisitor() {
-
-            @Override
-            public boolean visit(final SimpleName visitedSimpleName) {
-
-                if (visitedSimpleName.getIdentifier().equals(identifier)) {
-                    result.add(visitedSimpleName);
-                }
-                return true;
-            }
-        });
-
-        return result;
+    public static List<SimpleName> findSimpleNames(final ASTNode node) {
+        SimpleNameCollector collector = new SimpleNameCollector();
+        node.accept(collector);
+        return collector.getResults();
     }
 
     public static List<MethodDeclaration> getConstructors(final TypeDeclaration classDeclaration) {

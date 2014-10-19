@@ -1,5 +1,6 @@
 package net.creichen.pm.utils.visitors;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.Name;
@@ -7,7 +8,11 @@ import org.eclipse.jdt.core.dom.SimpleName;
 
 public final class SelectiveSimpleNameCollector extends CollectingASTVisitor<SimpleName> {
     private final String identifier;
-    private final Map<Name, String> identifiersForNames;
+    private Map<Name, String> identifiersForNames = Collections.emptyMap();
+
+    public SelectiveSimpleNameCollector(final String identifier) {
+        this.identifier = identifier;
+    }
 
     public SelectiveSimpleNameCollector(final String identifier, final Map<Name, String> identifiersForNames) {
         this.identifier = identifier;
@@ -16,7 +21,13 @@ public final class SelectiveSimpleNameCollector extends CollectingASTVisitor<Sim
 
     @Override
     public boolean visit(final SimpleName visitedNode) {
-        if (this.identifier.equals(this.identifiersForNames.get(visitedNode))) {
+        String candidate;
+        if (this.identifiersForNames.containsKey(visitedNode)) {
+            candidate = this.identifiersForNames.get(visitedNode);
+        } else {
+            candidate = visitedNode.getIdentifier();
+        }
+        if (this.identifier.equals(candidate)) {
             addResult(visitedNode);
         }
         return true;

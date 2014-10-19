@@ -9,11 +9,13 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
 import static net.creichen.pm.utils.APIWrapperUtil.statements;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -47,6 +49,17 @@ public class CutStepTest extends PMTest {
 
         assertTrue(matchesSource("public class S {void m(){x = 1;}}", this.iCompilationUnit.getSource()));
 
+    }
+
+    @Test
+    public void testCutMethodDeclaration() throws JavaModelException {
+        TypeDeclaration s = createClass("public class S {void m(){}}");
+        MethodDeclaration m = findMethodByName("m", s);
+
+        new CutStep(getProject(), m).apply();
+
+        assertTrue(matchesSource("public class S {}", this.iCompilationUnit.getSource()));
+        assertThat(getProject(), hasNoInconsistencies());
     }
 
     @Test

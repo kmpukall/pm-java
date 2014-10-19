@@ -9,17 +9,22 @@
 
 package net.creichen.pm.analysis;
 
+import static net.creichen.pm.tests.Matchers.hasElements;
 import static net.creichen.pm.utils.ASTQuery.findAssignments;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findLocalByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
+import static net.creichen.pm.utils.ASTQuery.findSimpleNames;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -38,14 +43,14 @@ import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ReachingDefsAnalysisTest extends PMTest {
     private ReachingDefsAnalysis rdefs;
     private CompilationUnit compilationUnit;
+    private MethodDeclaration methodDeclaration;
 
-    private Set<ASTNode> definingNodesFromDefinitions(final Set<Def> definitions) {
+    private Set<ASTNode> getDefiningNodes(final Collection<Def> definitions) {
         final Set<ASTNode> definingNodes = new HashSet<ASTNode>();
 
         for (final Def definition : definitions) {
@@ -106,6 +111,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         final SimpleName thirdY = ASTQuery.findSimpleName("y", 2, this.compilationUnit);
 
+        assertThat(this.rdefs.getUses().size(), is(2));
         final Use use = this.rdefs.getUse(thirdY);
         assertThat(use, is(not(nullValue())));
         assertEquals(1, use.getReachingDefinitions().size());
@@ -179,7 +185,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         assertEquals(4, sixthYUse.getReachingDefinitions().size());
 
-        final Set<ASTNode> definingNodes = definingNodesFromDefinitions(sixthYUse.getReachingDefinitions());
+        final Set<ASTNode> definingNodes = getDefiningNodes(sixthYUse.getReachingDefinitions());
 
         TypeDeclaration type = findClassByName("S", this.compilationUnit);
         MethodDeclaration method = findMethodByName("m", type);
@@ -206,7 +212,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         assertEquals(2, fourthYUse.getReachingDefinitions().size());
 
-        final Set<ASTNode> fourthYUseDefiningNodes = definingNodesFromDefinitions(fourthYUse.getReachingDefinitions());
+        final Set<ASTNode> fourthYUseDefiningNodes = getDefiningNodes(fourthYUse.getReachingDefinitions());
 
         TypeDeclaration type = findClassByName("S", this.compilationUnit);
         MethodDeclaration method = findMethodByName("m", type);
@@ -223,7 +229,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
         assertTrue(fifthYUse != null);
         assertEquals(2, fifthYUse.getReachingDefinitions().size());
 
-        final Set<ASTNode> fifthYUseDefiningNodes = definingNodesFromDefinitions(fourthYUse.getReachingDefinitions());
+        final Set<ASTNode> fifthYUseDefiningNodes = getDefiningNodes(fourthYUse.getReachingDefinitions());
         assertTrue(fifthYUseDefiningNodes.contains(yEquals1));
         assertTrue(fifthYUseDefiningNodes.contains(yEqualsYPlus1));
 
@@ -234,18 +240,36 @@ public class ReachingDefsAnalysisTest extends PMTest {
         analyze("public class S {int y;void m(S x){x.y = 1; }}");
 
         this.rdefs.toString();
-
+        // TODO: this test does not specify any asserts?
     }
 
     @Test
-    @Ignore
-    // TODO: fix this test
     public void testFindDefinitions() {
-        analyze("class S {void m(int x){int y = x - 1; x++; --x; y += (x = y);}}");
+        this.compilationUnit = parseCompilationUnitFromSource(
+                "class S {void m(int x){int y = x - 1; x++; --x; y += (x = y);}}", "S.java");
+        final TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        final MethodDeclaration methodDeclaration = findMethodByName("m", type);
+
+        Collection<ASTNode> expected = new ArrayList<ASTNode>();
+        List<SimpleName> occurrencesOfX = findSimpleNames("x", methodDeclaration);
+        List<SimpleName> occurrencesOfY = findSimpleNames("y", methodDeclaration);
+        // parameter definition is not a Def in this case
+        occurrencesOfX.remove(0);
+        // next occurrence of x in the body is a Use, not a Def
+        occurrencesOfX.remove(0);
+        // last occurrence of y is a Use, not a Def
+        occurrencesOfY.remove(2);
+
+        expected.addAll(getParentNodes(occurrencesOfX));
+        expected.addAll(getParentNodes(occurrencesOfY));
+
+        this.rdefs = new ReachingDefsAnalysis(methodDeclaration);
 
         final List<Def> definitions = this.rdefs.getDefinitions();
 
-        assertEquals(6, definitions.size());
+        Set<ASTNode> definingNodes = getDefiningNodes(new HashSet<Def>(definitions));
+        assertThat(definitions, hasSize(5));
+        assertThat(definingNodes, hasElements(expected));
     }
 
     @Test
@@ -253,6 +277,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
         analyze("public class S {void m(String object){ }}");
 
         this.rdefs.toString();
+        // TODO: this test does not specify any asserts?
 
         // we really just want to make sure this doesn't blow up.
     }
@@ -267,8 +292,7 @@ public class ReachingDefsAnalysisTest extends PMTest {
         final Use firstXUse = this.rdefs.getUse(firstX);
 
         assertEquals(1, firstXUse.getReachingDefinitions().size());
-
-        assertEquals(null, firstXUse.getReachingDefinitions().toArray()[0]); // null
+        assertEquals(null, firstXUse.getReachingDefinitions().iterator().next()); // null
         // means
         // uninitialized
     }
@@ -279,48 +303,59 @@ public class ReachingDefsAnalysisTest extends PMTest {
 
         this.rdefs.toString();
         // Just want to make sure it doesn't blow up
+        // TODO: this test does not specify any asserts?
     }
 
     @Test
     public void testStraightlineCodeReachingDefsNoUses() {
-        analyze("public class S {void m(){int x;x = 1;int y; x = 2; y = 3; x = 5;}}");
+        this.compilationUnit = parseCompilationUnitFromSource(
+                "public class S {void m(){int x;x = 1;int y; x = 2; y = 3; x = 5;}}", "S.java");
+        final TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        this.methodDeclaration = findMethodByName("m", type);
 
-        assertEquals(0, this.rdefs.getUses().size());
+        this.rdefs = new ReachingDefsAnalysis(this.methodDeclaration);
 
-        // TODO: insert tests here!!!
+        assertThat(this.rdefs.getUses(), hasSize(0));
+        assertThat(this.rdefs.getDefinitions(), hasSize(6));
 
-        // need to figure out exactly what it means to be a definition
+        Set<ASTNode> definingNodes = getDefiningNodes(this.rdefs.getDefinitions());
+        List<SimpleName> simpleNames = findSimpleNames(this.methodDeclaration.getBody());
+        assertThat(definingNodes, hasElements(getParentNodes(simpleNames)));
+    }
+
+    private List<ASTNode> getParentNodes(List<SimpleName> simpleNames) {
+        List<ASTNode> parents = new ArrayList<ASTNode>();
+        for (SimpleName simpleName : simpleNames) {
+            parents.add(simpleName.getParent());
+        }
+        return parents;
     }
 
     @Test
     public void testStraightlineCodeUses() {
-        analyze("public class S {void m(){int x;x = 1;int y; y = x;}}");
+        this.compilationUnit = parseCompilationUnitFromSource("public class S {void m(){int x;x = 1;int y; y = x;}}",
+                "S.java");
+        final TypeDeclaration type = findClassByName("S", this.compilationUnit);
+        this.methodDeclaration = findMethodByName("m", type);
+        this.rdefs = new ReachingDefsAnalysis(this.methodDeclaration);
 
-        final SimpleName firstX = ASTQuery.findSimpleNameByIdentifier("x", 0, "m", 0, "S", 0, this.compilationUnit);
+        List<SimpleName> occurrencesOfX = findSimpleNames("x", this.methodDeclaration);
 
-        assertEquals(null, this.rdefs.getUse(firstX));
+        List<Assignment> assignments = findAssignments(this.methodDeclaration);
+        final SimpleName firstX = occurrencesOfX.get(0);
+        final SimpleName secondX = occurrencesOfX.get(1);
+        final SimpleName thirdX = occurrencesOfX.get(2);
 
-        final SimpleName secondX = ASTQuery.findSimpleNameByIdentifier("x", 1, "m", 0, "S", 0, this.compilationUnit);
-
-        assertEquals(null, this.rdefs.getUse(secondX));
-
-        final SimpleName thirdX = ASTQuery.findSimpleNameByIdentifier("x", 2, "m", 0, "S", 0, this.compilationUnit);
+        assertThat(this.rdefs.getUse(firstX), is(nullValue()));
+        assertThat(this.rdefs.getUse(secondX), is(nullValue()));
+        assertThat(this.rdefs.getUse(thirdX), is(not(nullValue())));
 
         final Use thirdXUse = this.rdefs.getUse(thirdX);
+        final Def xAssignmentDef = thirdXUse.getReachingDefinitions().iterator().next();
 
-        assertTrue(thirdXUse != null);
-
-        assertEquals(1, thirdXUse.getReachingDefinitions().size());
-
-        TypeDeclaration type = findClassByName("S", this.compilationUnit);
-        MethodDeclaration method = findMethodByName("m", type);
-        List<Assignment> assignments = findAssignments(method);
-        final Assignment xAssignment = assignments.get(0);
-
-        final Def xAssignmentDef = (Def) thirdXUse.getReachingDefinitions().toArray()[0];
-
-        assertTrue(xAssignmentDef != null);
-        assertEquals(xAssignment, xAssignmentDef.getDefiningNode());
+        assertThat(thirdXUse.getReachingDefinitions(), hasSize(1));
+        assertThat(xAssignmentDef, is(not(nullValue())));
+        assertEquals(assignments.get(0), xAssignmentDef.getDefiningNode());
     }
 
     @Test
@@ -428,8 +463,8 @@ public class ReachingDefsAnalysisTest extends PMTest {
     private void analyze(final String source) {
         this.compilationUnit = parseCompilationUnitFromSource(source, "S.java");
         final TypeDeclaration type = findClassByName("S", this.compilationUnit);
-        final MethodDeclaration methodDeclaration = findMethodByName("m", type);
-        this.rdefs = new ReachingDefsAnalysis(methodDeclaration);
+        this.methodDeclaration = findMethodByName("m", type);
+        this.rdefs = new ReachingDefsAnalysis(this.methodDeclaration);
     }
 
 }

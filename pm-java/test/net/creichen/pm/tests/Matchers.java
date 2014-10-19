@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public final class Matchers {
 
@@ -61,5 +62,28 @@ public final class Matchers {
 
     public static Matcher<CompilationUnit> hasNoProblems() {
         return HAS_NO_PROBLEMS;
+    }
+
+    public static <E> Matcher<Collection<E>> hasElements(final Collection<E> expected) {
+        return new TypeSafeMatcher<Collection<E>>() {
+
+            @Override
+            public void describeTo(Description arg0) {
+                arg0.appendText("a collection containing the following elements:").appendValue(expected);
+            }
+
+            @Override
+            protected boolean matchesSafely(Collection<E> candidate) {
+                if (candidate.size() != expected.size()) {
+                    return false;
+                }
+                for (E item : expected) {
+                    if (!candidate.contains(item)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
     }
 }
