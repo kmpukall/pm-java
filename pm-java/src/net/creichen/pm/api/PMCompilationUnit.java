@@ -9,7 +9,13 @@
 
 package net.creichen.pm.api;
 
+import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public interface PMCompilationUnit {
@@ -20,7 +26,15 @@ public interface PMCompilationUnit {
 
     String getSource();
 
+    String getHandleIdentifier();
+
     void rename(String newName);
 
     void updatePair(ICompilationUnit source, CompilationUnit newCompilationUnit);
+
+    void createMarker(final Inconsistency inconsistency, final IJavaProject iJavaProject) throws CoreException;
+
+    void accept(ASTVisitor visitor);
+
+    IProblem[] getProblems();
 }

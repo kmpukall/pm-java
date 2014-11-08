@@ -277,10 +277,9 @@ public class Project implements ASTRootsProvider {
     }
 
     public void rename(PMCompilationUnit compilationUnit, String newName) {
-        this.pmCompilationUnits.remove(compilationUnit.getICompilationUnit().getHandleIdentifier());
+        this.pmCompilationUnits.remove(compilationUnit.getHandleIdentifier());
         compilationUnit.rename(newName);
-        Project.this.pmCompilationUnits.put(compilationUnit.getICompilationUnit().getHandleIdentifier(),
-                compilationUnit);
+        this.pmCompilationUnits.put(compilationUnit.getHandleIdentifier(), compilationUnit);
     }
 
 }

@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors.finders;
 
+import net.creichen.pm.api.PMCompilationUnit;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 
@@ -20,6 +22,11 @@ public abstract class AbstractFinder<T extends ASTNode> extends ASTVisitor {
 
     public T findOn(final ASTNode node) {
         node.accept(this);
+        return this.result;
+    }
+
+    public T findOn(final PMCompilationUnit compilationUnit) {
+        compilationUnit.accept(this);
         return this.result;
     }
 

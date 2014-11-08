@@ -43,7 +43,7 @@ public class ExtractMethodStepTest extends PMTest {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(compilationUnitS);
-        final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("S", pmCompilationUnitS);
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         final Block bodyBlock = methodDeclaration.getBody();
         final ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);
@@ -65,7 +65,7 @@ public class ExtractMethodStepTest extends PMTest {
         final String source = "class S {String _s; void m(int i) {int j; System.out.println(_s + i + j);}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", source);
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(compilationUnitS);
-        final TypeDeclaration type = findClassByName("S", pmCompilationUnitS.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("S", pmCompilationUnitS);
         final MethodDeclaration methodDeclaration = ASTQuery.findMethodByName("m", type);
         final Block bodyBlock = methodDeclaration.getBody();
         final ExpressionStatement printlnStatement = (ExpressionStatement) bodyBlock.statements().get(1);

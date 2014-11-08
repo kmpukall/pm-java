@@ -14,7 +14,6 @@ import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 class NameModelConsistencyCheck {
@@ -28,13 +27,13 @@ class NameModelConsistencyCheck {
     public Set<Inconsistency> calculateInconsistencies(final NameModel model) {
         final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
         for (final PMCompilationUnit compilationUnit : this.project.getPMCompilationUnits()) {
-            inconsistencies.addAll(findInconsistenciesInCompilationUnit(model, compilationUnit.getCompilationUnit()));
+            inconsistencies.addAll(findInconsistenciesInCompilationUnit(model, compilationUnit));
         }
         return inconsistencies;
     }
 
     private Set<Inconsistency> findInconsistenciesInCompilationUnit(final NameModel nameModel,
-            final CompilationUnit compilationUnit) {
+            final PMCompilationUnit compilationUnit) {
         final Set<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
         final Set<SimpleName> simpleNamesInCompilationUnit = simpleNamesInCompilationUnit(compilationUnit);
@@ -66,7 +65,7 @@ class NameModelConsistencyCheck {
         return inconsistencies;
     }
 
-    private static Set<SimpleName> simpleNamesInCompilationUnit(final CompilationUnit compilationUnit) {
+    private static Set<SimpleName> simpleNamesInCompilationUnit(final PMCompilationUnit compilationUnit) {
         final Set<SimpleName> result = new HashSet<SimpleName>();
 
         compilationUnit.accept(new ASTVisitor() {

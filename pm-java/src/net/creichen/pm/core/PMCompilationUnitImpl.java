@@ -5,13 +5,22 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import net.creichen.pm.api.PMCompilationUnit;
+import net.creichen.pm.consistency.inconsistencies.Inconsistency;
+import net.creichen.pm.ui.MarkerResolutionGenerator;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-class PMCompilationUnitImpl implements PMCompilationUnit {
+public class PMCompilationUnitImpl implements PMCompilationUnit {
 
     private byte[] sourceDigest;
 
@@ -84,5 +93,37 @@ class PMCompilationUnitImpl implements PMCompilationUnit {
         this.iCompilationUnit = iCompilationUnit;
 
         updateHash(getSource());
+    }
+
+    @Override
+    public void createMarker(final Inconsistency inconsistency, final IJavaProject iJavaProject) throws CoreException {
+        IResource resource = this.iCompilationUnit.getResource();
+        final IMarker marker = resource.createMarker("org.eclipse.core.resources.problemmarker");
+
+        marker.setAttribute(MarkerResolutionGenerator.INCONSISTENCY_ID, inconsistency.getID());
+        marker.setAttribute(MarkerResolutionGenerator.PROJECT_ID, iJavaProject.getHandleIdentifier());
+        marker.setAttribute(MarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
+                inconsistency.allowsAcceptBehavioralChange());
+        marker.setAttribute(IMarker.MESSAGE, inconsistency.getHumanReadableDescription());
+        marker.setAttribute(IMarker.TRANSIENT, true);
+
+        final ASTNode node = inconsistency.getNode();
+        marker.setAttribute(IMarker.CHAR_START, node.getStartPosition());
+        marker.setAttribute(IMarker.CHAR_END, node.getStartPosition() + node.getLength());
+    }
+
+    @Override
+    public String getHandleIdentifier() {
+        return this.iCompilationUnit.getHandleIdentifier();
+    }
+
+    @Override
+    public void accept(ASTVisitor visitor) {
+        this.compilationUnit.accept(visitor);
+    }
+
+    @Override
+    public IProblem[] getProblems() {
+        return this.compilationUnit.getProblems();
     }
 }

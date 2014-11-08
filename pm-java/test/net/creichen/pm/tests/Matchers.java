@@ -2,11 +2,11 @@ package net.creichen.pm.tests;
 
 import java.util.Collection;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.core.Project;
 
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -38,7 +38,7 @@ public final class Matchers {
             return true;
         }
     };
-    private static final TypeSafeDiagnosingMatcher<CompilationUnit> HAS_NO_PROBLEMS = new TypeSafeDiagnosingMatcher<CompilationUnit>() {
+    private static final TypeSafeDiagnosingMatcher<PMCompilationUnit> HAS_NO_PROBLEMS = new TypeSafeDiagnosingMatcher<PMCompilationUnit>() {
 
         @Override
         public void describeTo(Description arg0) {
@@ -46,7 +46,7 @@ public final class Matchers {
         }
 
         @Override
-        protected boolean matchesSafely(CompilationUnit arg0, Description arg1) {
+        protected boolean matchesSafely(PMCompilationUnit arg0, Description arg1) {
             boolean matches = arg0.getProblems().length == 0;
             if (!matches) {
                 arg1.appendText("a CompilationUnit with the following problems:");
@@ -60,7 +60,7 @@ public final class Matchers {
         return HAS_NO_INCONSISTENCIES;
     }
 
-    public static Matcher<CompilationUnit> hasNoProblems() {
+    public static Matcher<PMCompilationUnit> hasNoProblems() {
         return HAS_NO_PROBLEMS;
     }
 

@@ -9,14 +9,10 @@ import java.util.Set;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
-import net.creichen.pm.ui.MarkerResolutionGenerator;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.dom.ASTNode;
 
 public class ConsistencyValidator {
 
@@ -54,9 +50,8 @@ public class ConsistencyValidator {
             }
 
             for (final Inconsistency inconsistency : inconsistencySet) {
-                final IResource resource = project.findPMCompilationUnitForNode(inconsistency.getNode())
-                        .getICompilationUnit().getResource();
-                ConsistencyValidator.createMarker(resource, inconsistency, project.getIJavaProject());
+                project.findPMCompilationUnitForNode(inconsistency.getNode()).createMarker(inconsistency,
+                        project.getIJavaProject());
                 this.currentInconsistencies.put(inconsistency.getID(), inconsistency);
             }
         } catch (final CoreException e) {
@@ -64,22 +59,6 @@ public class ConsistencyValidator {
 
             throw new PMException(e);
         }
-    }
-
-    public static void createMarker(final IResource resource, final Inconsistency inconsistency,
-            final IJavaProject iJavaProject) throws CoreException {
-        final IMarker marker = resource.createMarker("org.eclipse.core.resources.problemmarker");
-
-        marker.setAttribute(MarkerResolutionGenerator.INCONSISTENCY_ID, inconsistency.getID());
-        marker.setAttribute(MarkerResolutionGenerator.PROJECT_ID, iJavaProject.getHandleIdentifier());
-        marker.setAttribute(MarkerResolutionGenerator.ACCEPTS_BEHAVIORAL_CHANGE,
-                inconsistency.allowsAcceptBehavioralChange());
-        marker.setAttribute(IMarker.MESSAGE, inconsistency.getHumanReadableDescription());
-        marker.setAttribute(IMarker.TRANSIENT, true);
-
-        final ASTNode node = inconsistency.getNode();
-        marker.setAttribute(IMarker.CHAR_START, node.getStartPosition());
-        marker.setAttribute(IMarker.CHAR_END, node.getStartPosition() + node.getLength());
     }
 
     public Collection<Inconsistency> getInconsistencies() {

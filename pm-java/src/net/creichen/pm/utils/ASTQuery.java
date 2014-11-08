@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.utils.visitors.collectors.AssignmentCollector;
 import net.creichen.pm.utils.visitors.collectors.SelectiveSimpleNameCollector;
 import net.creichen.pm.utils.visitors.collectors.SimpleNameCollector;
@@ -65,6 +66,17 @@ public final class ASTQuery {
      * @return the class, or null if no matching class could be found.
      */
     public static TypeDeclaration findClassByName(final String className, final CompilationUnit compilationUnit) {
+        return new ClassFinder(className).findOn(compilationUnit);
+    }
+
+    /**
+     * Returns the first class with the given name in the compilation unit.
+     *
+     * @param className
+     * @param compilationUnit
+     * @return the class, or null if no matching class could be found.
+     */
+    public static TypeDeclaration findClassByName(final String className, final PMCompilationUnit compilationUnit) {
         return new ClassFinder(className).findOn(compilationUnit);
     }
 
@@ -122,6 +134,10 @@ public final class ASTQuery {
 
     public static SimpleName findSimpleName(final String identifier, final ASTNode node) {
         return new SimpleNameFinder(identifier).findOn(node);
+    }
+
+    public static SimpleName findSimpleName(final String identifier, final PMCompilationUnit compilationUnit) {
+        return new SimpleNameFinder(identifier).findOn(compilationUnit);
     }
 
     public static SimpleName findSimpleName(final String identifier, final int index, final ASTNode node) {

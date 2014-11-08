@@ -41,7 +41,7 @@ public class DelegateStepTest extends PMTest {
 
         final PMCompilationUnit s2PMCompilationUnit = getProject().getPMCompilationUnit(compilationUnit2);
 
-        final TypeDeclaration type = findClassByName("S2", s2PMCompilationUnit.getCompilationUnit());
+        final TypeDeclaration type = findClassByName("S2", s2PMCompilationUnit);
         final MethodDeclaration methodB = findMethodByName("b", type);
 
         final ExpressionStatement methodInvocationStatement = (ExpressionStatement) methodB.getBody().statements()
