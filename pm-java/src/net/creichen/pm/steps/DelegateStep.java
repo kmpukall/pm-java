@@ -18,6 +18,7 @@ import java.util.Map;
 
 import net.creichen.pm.analysis.ReachingDefsAnalysis;
 import net.creichen.pm.api.Node;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeStore;
@@ -58,7 +59,7 @@ public class DelegateStep extends Step {
 
     private Node newExpressionNodeReference;
 
-    private final ICompilationUnit iCompilationUnit;
+    private PMCompilationUnit pmCompilationUnit;
 
     public DelegateStep(final Project project, final ASTNode selectedNode) {
         super(project);
@@ -66,14 +67,14 @@ public class DelegateStep extends Step {
         this.selectedNode = selectedNode;
 
         final CompilationUnit containingCompilationUnit = (CompilationUnit) this.selectedNode.getRoot();
-
-        this.iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
+        ICompilationUnit iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
+        this.pmCompilationUnit = project.getPMCompilationUnit(iCompilationUnit);
 
     }
 
     @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
+        final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
 
         // we don't yet do anything fancy here; only handle the simple case.
         if (this.selectedNode instanceof MethodInvocation) {
@@ -106,7 +107,7 @@ public class DelegateStep extends Step {
                         this.newExpressionNode);
             }
 
-            result.put(this.iCompilationUnit, astRewrite);
+            result.put(this.pmCompilationUnit, astRewrite);
 
         }
 
@@ -160,8 +161,7 @@ public class DelegateStep extends Step {
             if (this.newExpressionNode != null) {
                 if (this.newExpressionNode instanceof Name) {
 
-                    this.newExpressionNodeReference = NodeStore.getInstance().getReference(
-                            this.newExpressionNode);
+                    this.newExpressionNodeReference = NodeStore.getInstance().getReference(this.newExpressionNode);
                 } else {
                     System.err.println("Unexpected new expression type " + this.newExpressionNode.getClass());
                 }
@@ -184,8 +184,8 @@ public class DelegateStep extends Step {
     private void rewriteToDelegateMethodInvocationToSuperInvocation(final ASTRewrite astRewrite,
             final MethodInvocation methodInvocation, final Expression superInvocationNode) {
         astRewrite.replace(methodInvocation, superInvocationNode, null /*
-                                                                        * edit group
-                                                                        */);
+                                                                       * edit group
+                                                                       */);
     }
 
     public void setDelegateIdentifier(final String delegateIdentifier) {

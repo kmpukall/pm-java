@@ -11,6 +11,7 @@ package net.creichen.pm.steps;
 
 import java.util.Map;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.utils.ASTUtil;
@@ -18,7 +19,6 @@ import net.creichen.pm.utils.ASTUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -77,9 +77,9 @@ class Step {
 
     public void apply() {
 
-        final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
+        final Map<PMCompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
-        for (final ICompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
+        for (final PMCompilationUnit compilationUnitToRewrite : rewrites.keySet()) {
             ASTUtil.applyRewrite(rewrites.get(compilationUnitToRewrite), compilationUnitToRewrite);
         }
 
@@ -93,13 +93,13 @@ class Step {
         ConsistencyValidator.getInstance().rescanForInconsistencies(this.project);
     }
 
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
         return null;
     }
 
     public Change createCompositeChange(final String changeDescription) {
 
-        final Map<ICompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
+        final Map<PMCompilationUnit, ASTRewrite> rewrites = calculateTextualChange();
 
         Change result = new NullChange();
 
@@ -107,7 +107,7 @@ class Step {
             if (rewrites.size() > 0) {
                 final CompositeChange combinedChange = new PMCompositeChange(changeDescription);
 
-                for (final ICompilationUnit compilationUnitToChange : rewrites.keySet()) {
+                for (final PMCompilationUnit compilationUnitToChange : rewrites.keySet()) {
                     final ASTRewrite rewrite = rewrites.get(compilationUnitToChange);
 
                     final TextEdit astEdit = rewrite.rewriteAST();

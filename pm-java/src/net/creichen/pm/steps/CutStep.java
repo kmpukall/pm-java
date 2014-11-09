@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.Pasteboard;
 
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
@@ -37,15 +37,15 @@ public class CutStep extends Step {
     }
 
     @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
+        final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
 
         final ASTRewrite astRewrite = ASTRewrite.create(this.selectedNodes.get(0).getAST());
 
         for (final ASTNode node : this.selectedNodes) {
             astRewrite.remove(node, null);
 
-            result.put(getProject().findPMCompilationUnitForNode(node).getICompilationUnit(), astRewrite);
+            result.put(getProject().findPMCompilationUnitForNode(node), astRewrite);
         }
 
         return result;

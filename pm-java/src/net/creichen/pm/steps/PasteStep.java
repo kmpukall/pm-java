@@ -15,13 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.models.name.NameModel;
 
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
@@ -47,25 +47,20 @@ public class PasteStep extends Step {
     }
 
     @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
+        final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
 
         final Pasteboard pasteboard = Pasteboard.getInstance();
-
         final List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
-
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
-
         final ASTRewrite astRewrite = ASTRewrite.create(this.parent.getAST());
-
         int index = this.index;
-
         for (final ASTNode nodeToPaste : nodesToPaste) {
             final ASTNode copiedNode = ASTNode.copySubtree(this.parent.getAST(), nodeToPaste);
 
             final ListRewrite lrw = astRewrite.getListRewrite(this.parent, this.property);
             lrw.insertAt(copiedNode, index++, null /* textEditGroup */);
 
-            result.put(getProject().findPMCompilationUnitForNode(this.parent).getICompilationUnit(), astRewrite);
+            result.put(getProject().findPMCompilationUnitForNode(this.parent), astRewrite);
         }
 
         return result;

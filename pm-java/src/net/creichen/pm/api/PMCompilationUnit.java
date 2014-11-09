@@ -11,7 +11,9 @@ package net.creichen.pm.api;
 
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -20,7 +22,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public interface PMCompilationUnit {
 
-    CompilationUnit getASTRoot();
+    CompilationUnit getCompilationUnit();
 
     ICompilationUnit getICompilationUnit();
 
@@ -37,4 +39,8 @@ public interface PMCompilationUnit {
     void accept(ASTVisitor visitor);
 
     IProblem[] getProblems();
+
+    IResource getResource();
+
+    IPath getPath();
 }

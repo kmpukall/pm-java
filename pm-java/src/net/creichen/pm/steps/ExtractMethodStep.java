@@ -9,18 +9,38 @@
 
 package net.creichen.pm.steps;
 
-import static net.creichen.pm.utils.APIWrapperUtil.*;
+import static net.creichen.pm.utils.APIWrapperUtil.arguments;
+import static net.creichen.pm.utils.APIWrapperUtil.bodyDeclarations;
+import static net.creichen.pm.utils.APIWrapperUtil.modifiers;
+import static net.creichen.pm.utils.APIWrapperUtil.parameters;
+import static net.creichen.pm.utils.APIWrapperUtil.statements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.utils.ASTUtil;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
@@ -94,27 +114,16 @@ class ExtractMethodStep extends Step {
     }
 
     @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
-
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
+        final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
         final AST ast = this.originalExpression.getAST();
-
         final ASTRewrite astRewrite = ASTRewrite.create(ast);
-
         final TypeDeclaration containingClass = containingClass(this.originalExpression);
-
         final int insertionIndex = containingClass.bodyDeclarations().size();
-
-        final ListRewrite lrw = astRewrite.getListRewrite(containingClass,
-                TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-
+        final ListRewrite lrw = astRewrite.getListRewrite(containingClass, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
         lrw.insertAt(this.extractedMethodDeclaration, insertionIndex, null /* textEditGroup */);
-
         astRewrite.replace(this.originalExpression, this.replacementMethodInvocation, null);
-
-        result.put(getProject().findPMCompilationUnitForNode(this.originalExpression)
-                .getICompilationUnit(), astRewrite);
-
+        result.put(getProject().findPMCompilationUnitForNode(this.originalExpression), astRewrite);
         return result;
     }
 
@@ -148,16 +157,14 @@ class ExtractMethodStep extends Step {
         newMethodDeclaration.setReturnType2(ExtractMethodStep.newTypeASTNodeForTypeBinding(ast,
                 this.originalExpression.resolveTypeBinding()));
 
-        modifiers(newMethodDeclaration)
-                .add(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD));
+        modifiers(newMethodDeclaration).add(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD));
 
         for (final SimpleName nameToExtract : this.namesToExtract) {
             final SingleVariableDeclaration parameter = ast.newSingleVariableDeclaration();
 
             parameter.setName(ast.newSimpleName(nameToExtract.getIdentifier()));
 
-            parameter.setType(ExtractMethodStep.newTypeASTNodeForTypeBinding(ast,
-                    nameToExtract.resolveTypeBinding()));
+            parameter.setType(ExtractMethodStep.newTypeASTNodeForTypeBinding(ast, nameToExtract.resolveTypeBinding()));
 
             parameters(newMethodDeclaration).add(parameter);
         }
@@ -182,8 +189,7 @@ class ExtractMethodStep extends Step {
 
         final MethodInvocation newMethodInvocation = ast.newMethodInvocation();
 
-        newMethodInvocation.setName(ast.newSimpleName(this.extractedMethodDeclaration.getName()
-                .getIdentifier()));
+        newMethodInvocation.setName(ast.newSimpleName(this.extractedMethodDeclaration.getName().getIdentifier()));
 
         for (final SimpleName nameToExtract : this.namesToExtract) {
             arguments(newMethodInvocation).add(ast.newSimpleName(nameToExtract.getIdentifier()));
@@ -198,11 +204,9 @@ class ExtractMethodStep extends Step {
 
         bodyDeclarations(containingClass).add(this.extractedMethodDeclaration);
 
-        getProject().recursivelyReplaceNodeWithCopy(this.originalExpression,
-                this.extractedExpression);
+        getProject().recursivelyReplaceNodeWithCopy(this.originalExpression, this.extractedExpression);
 
-        ASTUtil
-                .replaceNodeInParent(this.originalExpression, this.replacementMethodInvocation);
+        ASTUtil.replaceNodeInParent(this.originalExpression, this.replacementMethodInvocation);
 
         performNameModelChange();
         performUDModelChange();

@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.models.defuse.Def;
 
@@ -57,12 +58,12 @@ public final class ASTUtil {
         // private utility class constructor
     }
 
-    public static void applyRewrite(final ASTRewrite rewrite, final ICompilationUnit iCompilationUnit) {
+    public static void applyRewrite(final ASTRewrite rewrite, final PMCompilationUnit compilationUnitToRewrite) {
         try {
             final TextEdit astEdit = rewrite.rewriteAST();
 
             final ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
-            final IPath path = iCompilationUnit.getPath();
+            final IPath path = compilationUnitToRewrite.getPath();
             try {
                 bufferManager.connect(path, LocationKind.IFILE, null);
                 final ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path, LocationKind.IFILE);

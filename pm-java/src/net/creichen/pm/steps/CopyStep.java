@@ -10,12 +10,14 @@
 package net.creichen.pm.steps;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.api.Node;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.data.Pasteboard;
@@ -25,7 +27,6 @@ import net.creichen.pm.utils.ASTQuery;
 import net.creichen.pm.utils.visitors.IdentifierAssigner;
 import net.creichen.pm.utils.visitors.collectors.DefinitionCollector;
 
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -47,10 +48,8 @@ public class CopyStep extends Step {
     }
 
     @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
-
-        return result;
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
+        return Collections.emptyMap();
     }
 
     // need method to test for errors before asking for changes

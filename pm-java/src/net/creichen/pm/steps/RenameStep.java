@@ -46,8 +46,8 @@ public class RenameStep extends Step {
     }
 
     @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
+        final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
 
         getProject().syncSources();
         ConsistencyValidator.getInstance().reset();
@@ -58,26 +58,23 @@ public class RenameStep extends Step {
 
         this.nameNodesToChange.addAll(nodesToRename);
 
-        final Map<ICompilationUnit, List<SimpleName>> nodesByICompilationUnit = new HashMap<ICompilationUnit, List<SimpleName>>();
+        final Map<PMCompilationUnit, List<SimpleName>> nodesByICompilationUnit = new HashMap<PMCompilationUnit, List<SimpleName>>();
 
         for (final SimpleName nodeToRename : nodesToRename) {
-            final CompilationUnit containingCompilationUnit = (CompilationUnit) nodeToRename.getRoot();
+            PMCompilationUnit pmCompilationUnit = getProject().findPMCompilationUnitForNode(nodeToRename);
 
-            final ICompilationUnit containingICompilationUnit = (ICompilationUnit) containingCompilationUnit
-                    .getJavaElement();
-
-            List<SimpleName> namesForUnit = nodesByICompilationUnit.get(containingICompilationUnit);
+            List<SimpleName> namesForUnit = nodesByICompilationUnit.get(pmCompilationUnit);
 
             if (namesForUnit == null) {
                 namesForUnit = new ArrayList<SimpleName>();
-                nodesByICompilationUnit.put(containingICompilationUnit, namesForUnit);
+                nodesByICompilationUnit.put(pmCompilationUnit, namesForUnit);
             }
 
             namesForUnit.add(nodeToRename);
         }
 
         if (nodesByICompilationUnit.size() > 0) {
-            for (final ICompilationUnit unitForRename : nodesByICompilationUnit.keySet()) {
+            for (final PMCompilationUnit unitForRename : nodesByICompilationUnit.keySet()) {
 
                 final List<SimpleName> nodesInUnit = nodesByICompilationUnit.get(unitForRename);
 

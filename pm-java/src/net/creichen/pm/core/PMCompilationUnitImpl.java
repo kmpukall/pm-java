@@ -11,6 +11,7 @@ import net.creichen.pm.ui.MarkerResolutionGenerator;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -32,13 +33,18 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
     }
 
     @Override
-    public CompilationUnit getASTRoot() {
+    public CompilationUnit getCompilationUnit() {
         return this.compilationUnit;
     }
 
     @Override
     public ICompilationUnit getICompilationUnit() {
         return this.iCompilationUnit;
+    }
+
+    @Override
+    public IResource getResource() {
+        return this.iCompilationUnit.getResource();
     }
 
     @Override
@@ -125,5 +131,10 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
     @Override
     public IProblem[] getProblems() {
         return this.compilationUnit.getProblems();
+    }
+
+    @Override
+    public IPath getPath() {
+        return this.iCompilationUnit.getPath();
     }
 }

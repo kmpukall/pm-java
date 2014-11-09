@@ -113,7 +113,7 @@ public class Project {
     @Deprecated
     // TODO: remove this
     public CompilationUnit getCompilationUnit(final ICompilationUnit iCompilationUnit) {
-        return getPMCompilationUnit(iCompilationUnit).getASTRoot();
+        return getPMCompilationUnit(iCompilationUnit).getCompilationUnit();
     }
 
     public Set<ICompilationUnit> getICompilationUnits() {

@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import net.creichen.pm.analysis.ReachingDefsAnalysis;
 import net.creichen.pm.api.Node;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.models.defuse.Def;
@@ -29,12 +30,10 @@ import net.creichen.pm.models.defuse.Use;
 import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
 
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -50,7 +49,7 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class SplitStep extends Step {
 
-    private final ICompilationUnit iCompilationUnit;
+    private final PMCompilationUnit compilationUnit;
 
     private final ExpressionStatement assignmentStatement;
 
@@ -65,26 +64,21 @@ public class SplitStep extends Step {
 
     public SplitStep(final Project project, final ExpressionStatement assignmentStatement) {
         super(project);
-
         this.assignmentStatement = assignmentStatement;
-
-        final CompilationUnit containingCompilationUnit = (CompilationUnit) this.assignmentStatement.getRoot();
-
-        this.iCompilationUnit = (ICompilationUnit) containingCompilationUnit.getJavaElement();
-
+        this.compilationUnit = project.findPMCompilationUnitForNode(assignmentStatement);
     }
 
     @Override
-    public Map<ICompilationUnit, ASTRewrite> calculateTextualChange() {
+    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
         final ASTRewrite astRewrite = ASTRewrite.create(this.assignmentStatement.getAST());
 
         final Assignment assignmentExpression = (Assignment) this.assignmentStatement.getExpression();
 
         rewriteToReplaceAssignmentStatementWithDeclaration(astRewrite, assignmentExpression);
 
-        final Map<ICompilationUnit, ASTRewrite> result = new HashMap<ICompilationUnit, ASTRewrite>();
+        final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
 
-        result.put(this.iCompilationUnit, astRewrite);
+        result.put(this.compilationUnit, astRewrite);
 
         return result;
     }
@@ -195,8 +189,8 @@ public class SplitStep extends Step {
         this.replacementDeclarationStatement.setType((Type) ASTNode.copySubtree(ast, type));
 
         rewrite.replace(this.assignmentStatement, this.replacementDeclarationStatement, null /*
-                                                                                              * edit group
-                                                                                              */);
+                                                                                             * edit group
+                                                                                             */);
     }
 
 }
