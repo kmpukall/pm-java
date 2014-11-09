@@ -12,12 +12,12 @@ package net.creichen.pm.refactorings;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static org.junit.Assert.assertTrue;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.junit.Test;
@@ -30,8 +30,8 @@ public class MoveFieldRefactoringTest extends PMTest {
                 "public class S { int _y; void m() {int x; _y = 7; x = 5; System.out.println(x);} }");
         final ICompilationUnit t = createCompilationUnit("", "T.java", "public class T {  }");
 
-        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(s);
-        final CompilationUnit compilationUnitT = getProject().getCompilationUnit(t);
+        final PMCompilationUnit compilationUnitS = getProject().getPMCompilationUnit(s);
+        final PMCompilationUnit compilationUnitT = getProject().getPMCompilationUnit(t);
 
         final TypeDeclaration type = findClassByName("S", compilationUnitS);
         final FieldDeclaration yField = findFieldByName("_y", type);

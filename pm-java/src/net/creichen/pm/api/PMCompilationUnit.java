@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public interface PMCompilationUnit {
 
-    CompilationUnit getCompilationUnit();
+    CompilationUnit getASTRoot();
 
     ICompilationUnit getICompilationUnit();
 

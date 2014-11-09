@@ -12,13 +12,14 @@ package net.creichen.pm.models.name;
 import static net.creichen.pm.utils.ASTQuery.getConstructors;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.creichen.pm.api.ASTRootsProvider;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.utils.visitors.IdentifierAssigner;
 import net.creichen.pm.utils.visitors.collectors.SelectiveSimpleNameCollector;
 
@@ -28,22 +29,18 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 public class NameModel {
     private Map<Name, String> identifiers;
-    private Multimap<String, Name> names = HashMultimap.create();
 
-    private final ASTRootsProvider rootsProvider;
+    private Collection<PMCompilationUnit> compilationUnits;
 
-    public NameModel(final ASTRootsProvider rootsProvider) {
-        this.rootsProvider = rootsProvider;
+    public NameModel(final Collection<PMCompilationUnit> compilationUnits) {
+        this.compilationUnits = compilationUnits;
 
         // use ast visitor to assign identifier to each SimpleName
         IdentifierAssigner visitor = new IdentifierAssigner();
-        for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
-            rootNode.accept(visitor);
+        for (final PMCompilationUnit compilationUnit : this.compilationUnits) {
+            compilationUnit.accept(visitor);
         }
         this.identifiers = visitor.getIdentifiers();
     }
@@ -93,8 +90,8 @@ public class NameModel {
         SelectiveSimpleNameCollector visitor = new SelectiveSimpleNameCollector(identifier, this.identifiers);
 
         // We could keep reverse mappings instead of doing this?
-        for (final ASTNode rootNode : this.rootsProvider.getASTRoots()) {
-            rootNode.accept(visitor);
+        for (final PMCompilationUnit compilationUnit : this.compilationUnits) {
+            compilationUnit.accept(visitor);
         }
 
         return visitor.getResults();

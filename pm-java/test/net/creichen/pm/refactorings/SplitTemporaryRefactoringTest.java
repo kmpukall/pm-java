@@ -33,7 +33,7 @@ public class SplitTemporaryRefactoringTest extends PMTest {
         final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
 
-        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit));
+        TypeDeclaration type = findClassByName("S", getProject().getPMCompilationUnit(iCompilationUnit));
         MethodDeclaration method = findMethodByName("m", type);
         List<Assignment> assignments = findAssignments(method);
         final Assignment secondAssignment = assignments.get(1);

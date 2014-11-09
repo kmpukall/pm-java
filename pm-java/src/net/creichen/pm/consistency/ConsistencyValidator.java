@@ -39,8 +39,8 @@ public class ConsistencyValidator {
 
             inconsistencySet.addAll(new NameModelConsistencyCheck(project).calculateInconsistencies(project
                     .getNameModel()));
-            inconsistencySet.addAll(new DefUseModelConsistencyCheck(project).calculateInconsistencies(project
-                    .getUDModel()));
+            inconsistencySet.addAll(new DefUseModelConsistencyCheck(project.getPMCompilationUnits())
+            .calculateInconsistencies(project.getUDModel()));
 
             // delete previous markers
             for (final ICompilationUnit iCompilationUnit : project.getICompilationUnits()) {

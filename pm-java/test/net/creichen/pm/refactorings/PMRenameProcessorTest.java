@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
@@ -28,7 +29,6 @@ import net.creichen.pm.tests.PMTest;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.TextSelection;
@@ -112,7 +112,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
+        PMCompilationUnit parsedCompilationUnit = getProject().getPMCompilationUnit(foo);
 
         TypeDeclaration typeFoo = findClassByName("Foo", parsedCompilationUnit);
         MethodDeclaration method = findMethodByName("method", typeFoo);
@@ -146,7 +146,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
+        PMCompilationUnit parsedCompilationUnit = getProject().getPMCompilationUnit(foo);
         ASTNode expectedCapturedNode = getProject().nodeForSelection(new TextSelection(51, 3), foo);
 
         assertEquals(expectedCapturedNode, nameCapture.getNode());
@@ -220,7 +220,7 @@ public class PMRenameProcessorTest extends PMTest {
 
         NameCapture nameCapture = (NameCapture) inconsistencies.toArray()[0];
 
-        CompilationUnit parsedCompilationUnit = getProject().getCompilationUnit(foo);
+        PMCompilationUnit parsedCompilationUnit = getProject().getPMCompilationUnit(foo);
 
         TypeDeclaration typeFoo = findClassByName("Foo", parsedCompilationUnit);
         MethodDeclaration method = findMethodByName("method", typeFoo);

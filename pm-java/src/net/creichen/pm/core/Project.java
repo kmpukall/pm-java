@@ -17,7 +17,6 @@ import java.util.Set;
 
 import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.DefUseAnalysis;
-import net.creichen.pm.api.ASTRootsProvider;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.models.defuse.DefUseModel;
@@ -38,7 +37,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jface.text.ITextSelection;
 
-public class Project implements ASTRootsProvider {
+public class Project {
 
     private final IJavaProject iJavaProject;
 
@@ -111,17 +110,10 @@ public class Project implements ASTRootsProvider {
                 .getHandleIdentifier());
     }
 
-    @Override
-    public Collection<ASTNode> getASTRoots() {
-        final Collection<ASTNode> roots = new HashSet<ASTNode>();
-        for (final PMCompilationUnit pmCompilationUnit : this.pmCompilationUnits.values()) {
-            roots.add(pmCompilationUnit.getCompilationUnit());
-        }
-        return roots;
-    }
-
+    @Deprecated
+    // TODO: remove this
     public CompilationUnit getCompilationUnit(final ICompilationUnit iCompilationUnit) {
-        return getPMCompilationUnit(iCompilationUnit).getCompilationUnit();
+        return getPMCompilationUnit(iCompilationUnit).getASTRoot();
     }
 
     public Set<ICompilationUnit> getICompilationUnits() {
@@ -211,8 +203,8 @@ public class Project implements ASTRootsProvider {
     }
 
     private void resetModels() {
-        this.udModel = new DefUseAnalysis(getASTRoots()).getModel();
-        this.nameModel = new NameModel(this);
+        this.udModel = new DefUseAnalysis(getPMCompilationUnits()).getModel();
+        this.nameModel = new NameModel(getPMCompilationUnits());
     }
 
     private void updateModelData(final boolean reset) {
@@ -226,7 +218,7 @@ public class Project implements ASTRootsProvider {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;

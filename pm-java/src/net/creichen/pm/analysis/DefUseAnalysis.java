@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.models.defuse.DefUseModel;
 import net.creichen.pm.models.defuse.Use;
 
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -19,10 +19,10 @@ public class DefUseAnalysis {
         return this.uses;
     }
 
-    public DefUseAnalysis(final Collection<ASTNode> roots) {
+    public DefUseAnalysis(final Collection<PMCompilationUnit> compilationUnits) {
         this.uses = new HashSet<Use>();
-        for (final ASTNode root : roots) {
-            root.accept(new ASTVisitor() {
+        for (final PMCompilationUnit compilationUnit : compilationUnits) {
+            compilationUnit.accept(new ASTVisitor() {
                 @Override
                 public boolean visit(final MethodDeclaration methodDeclaration) {
 

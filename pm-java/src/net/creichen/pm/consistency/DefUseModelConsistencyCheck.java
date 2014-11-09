@@ -6,12 +6,12 @@ import java.util.Set;
 
 import net.creichen.pm.analysis.DefUseAnalysis;
 import net.creichen.pm.api.Node;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.MissingDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnexpectedDefinition;
 import net.creichen.pm.consistency.inconsistencies.UnknownUse;
 import net.creichen.pm.core.PMException;
-import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.models.defuse.DefUseModel;
 import net.creichen.pm.models.defuse.Use;
@@ -20,16 +20,16 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 class DefUseModelConsistencyCheck {
 
-    private Project project;
+    private Collection<PMCompilationUnit> compilationUnits;
 
-    public DefUseModelConsistencyCheck(final Project project) {
-        this.project = project;
+    public DefUseModelConsistencyCheck(final Collection<PMCompilationUnit> compilationUnits) {
+        this.compilationUnits = compilationUnits;
     }
 
     public Collection<Inconsistency> calculateInconsistencies(final DefUseModel model) {
         final Collection<Inconsistency> inconsistencies = new HashSet<Inconsistency>();
 
-        final Collection<Use> uses = new DefUseAnalysis(this.project.getASTRoots()).getUses();
+        final Collection<Use> uses = new DefUseAnalysis(this.compilationUnits).getUses();
         for (final Use use : uses) {
             final ASTNode usingNode = use.getSimpleName();
             final Collection<ASTNode> currentDefiningNodes = model.getDefiningNodesForUse(use);

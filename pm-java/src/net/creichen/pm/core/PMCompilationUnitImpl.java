@@ -32,7 +32,7 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
     }
 
     @Override
-    public CompilationUnit getCompilationUnit() {
+    public CompilationUnit getASTRoot() {
         return this.compilationUnit;
     }
 

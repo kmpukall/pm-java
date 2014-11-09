@@ -9,6 +9,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.consistency.inconsistencies.UnknownUse;
 import net.creichen.pm.tests.PMTest;
@@ -16,7 +17,6 @@ import net.creichen.pm.tests.PMTest;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -28,7 +28,7 @@ public class DefUseModelConsistencyCheckTest extends PMTest {
     @Test
     public void whenAUseIsAddedLater_then_theCheckReturnsAnUnknownUse() {
         ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", "public class S { int m() {} }");
-        CompilationUnit compilationUnit = getProject().getCompilationUnit(iCompilationUnit);
+        PMCompilationUnit compilationUnit = getProject().getPMCompilationUnit(iCompilationUnit);
 
         TypeDeclaration s = findClassByName("S", compilationUnit);
         MethodDeclaration m = findMethodByName("m", s);
@@ -38,8 +38,8 @@ public class DefUseModelConsistencyCheckTest extends PMTest {
         returnStatement.setExpression(x);
         statements(m.getBody()).add(returnStatement);
 
-        Collection<Inconsistency> inconsistencies = new DefUseModelConsistencyCheck(getProject())
-        .calculateInconsistencies(getProject().getUDModel());
+        Collection<Inconsistency> inconsistencies = new DefUseModelConsistencyCheck(getProject()
+                .getPMCompilationUnits()).calculateInconsistencies(getProject().getUDModel());
 
         assertThat(inconsistencies.size(), is(1));
         Inconsistency inconsistency = inconsistencies.iterator().next();
