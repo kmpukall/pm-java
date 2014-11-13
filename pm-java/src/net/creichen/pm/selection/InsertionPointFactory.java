@@ -14,12 +14,12 @@ import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.utils.visitors.finders.SurroundingNodeFinder;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import com.google.common.collect.Iterables;
@@ -50,12 +50,12 @@ public final class InsertionPointFactory {
         return ranges;
     }
 
-    public static InsertionPoint createInsertionPoint(final CompilationUnit compilationUnit, final int offset) {
+    public static InsertionPoint createInsertionPoint(final PMCompilationUnit compilationUnit, final int offset) {
         InsertionPoint insertionPoint = InsertionPoint.INVALID;
 
         /*
          * a point is an insertion point if:
-         * 
+         *
          * - it is in a block or a type declaration - it is NOT in a child of
          * the above - OR it is the first/last character of such a child
          */

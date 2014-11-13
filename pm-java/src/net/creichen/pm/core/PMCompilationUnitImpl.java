@@ -49,6 +49,10 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
 
     @Override
     public String getSource() {
+        if (this.iCompilationUnit == null) {
+            // not clear if this can actually happen
+            return this.compilationUnit.toString();
+        }
         try {
             return this.iCompilationUnit.getSource();
         } catch (final JavaModelException e) {

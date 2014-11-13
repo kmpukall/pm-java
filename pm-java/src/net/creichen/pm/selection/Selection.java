@@ -9,13 +9,10 @@
 
 package net.creichen.pm.selection;
 
-import net.creichen.pm.core.PMException;
+import net.creichen.pm.api.PMCompilationUnit;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 public class Selection {
@@ -60,7 +57,7 @@ public class Selection {
         }
     }
 
-    private final CompilationUnit compilationUnit;
+    private final PMCompilationUnit compilationUnit;
     private int offset;
 
     private int length;
@@ -72,7 +69,7 @@ public class Selection {
 
     private int childListPropertyLength;
 
-    public Selection(final CompilationUnit compilationUnit, final int offset, final int length) {
+    public Selection(final PMCompilationUnit compilationUnit, final int offset, final int length) {
 
         this.compilationUnit = compilationUnit;
 
@@ -128,33 +125,7 @@ public class Selection {
     }
 
     public String getSelectionAsString() {
-
-        String result = null;
-
-        String entireSource = null;
-
-        try {
-            final ICompilationUnit iCompilationUnit = ((ICompilationUnit) this.compilationUnit.getJavaElement());
-
-            // Sometimes CompilationUnits don't have an associated
-            // ICompilationUnit (e.g if they were parsed from a string)
-            // If not, just us the (for debugging purposes only)
-            // _compilation.toString()
-
-            if (iCompilationUnit != null) {
-                entireSource = ((ICompilationUnit) this.compilationUnit.getJavaElement()).getSource();
-            } else {
-                entireSource = this.compilationUnit.toString();
-            }
-
-        } catch (final JavaModelException e) {
-            System.err.println("Exception in PMSelection.getSelectionAsString(): " + e);
-            throw new PMException(e);
-        }
-
-        result = entireSource.substring(this.offset, this.offset + this.length);
-
-        return result;
+        return this.compilationUnit.getSource().substring(this.offset, this.offset + this.length);
     }
 
     public boolean isListSelection() {

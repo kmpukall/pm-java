@@ -134,4 +134,5 @@ public abstract class PMTest {
     protected CompilationUnit toCompilationUnit(final String source) {
         return parseCompilationUnitFromSource(source, null);
     }
+
 }

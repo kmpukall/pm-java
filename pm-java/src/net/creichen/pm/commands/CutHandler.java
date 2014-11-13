@@ -19,8 +19,8 @@ public class CutHandler extends AbstractCommandHandler {
 
     @Override
     public final void handleEvent(final ExecutionEvent event) {
-        final Selection selectionDescriptor = new Selection(getProject().getCompilationUnit(
-                getCompilationUnit()), getSelection().getOffset(), getSelection().getLength());
+        final Selection selectionDescriptor = new Selection(getProject().getPMCompilationUnit(getCompilationUnit()),
+                getSelection().getOffset(), getSelection().getLength());
 
         if (!selectionDescriptor.isSaneSelection()) {
             showErrorDialog("PM Cut Error", "PMCut cannot be applied to this selection");
