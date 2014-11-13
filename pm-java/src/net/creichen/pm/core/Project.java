@@ -90,7 +90,8 @@ public class Project {
                 // from an IClassFile
 
                 if (declaringICompilationUnit != null) {
-                    final CompilationUnit declaringCompilationUnit = getCompilationUnit(declaringICompilationUnit);
+                    final CompilationUnit declaringCompilationUnit = getPMCompilationUnit(declaringICompilationUnit)
+                            .getCompilationUnit();
                     ASTNode declaringNode = declaringCompilationUnit.findDeclaringNode(nameBinding);
 
                     if (declaringNode == null) {
@@ -108,12 +109,6 @@ public class Project {
     public PMCompilationUnit findPMCompilationUnitForNode(final ASTNode node) {
         return this.pmCompilationUnits.get(((ICompilationUnit) ((CompilationUnit) node.getRoot()).getJavaElement())
                 .getHandleIdentifier());
-    }
-
-    @Deprecated
-    // TODO: remove this
-    public CompilationUnit getCompilationUnit(final ICompilationUnit iCompilationUnit) {
-        return getPMCompilationUnit(iCompilationUnit).getCompilationUnit();
     }
 
     public Set<ICompilationUnit> getICompilationUnits() {
@@ -143,7 +138,7 @@ public class Project {
     }
 
     public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
-        final CompilationUnit compilationUnit = getCompilationUnit(iCompilationUnit);
+        final CompilationUnit compilationUnit = getPMCompilationUnit(iCompilationUnit).getCompilationUnit();
 
         final ASTNode selectedNode = ASTQuery.findNodeForSelection(selection.getOffset(), selection.getLength(),
                 compilationUnit);
@@ -218,7 +213,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;
@@ -243,7 +238,7 @@ public class Project {
                 }
 
                 if (!resetAll) {
-                    final CompilationUnit oldCompilationUnit = getCompilationUnit(source);
+                    final CompilationUnit oldCompilationUnit = getPMCompilationUnit(source).getCompilationUnit();
 
                     if (recursivelyReplaceNodeWithCopy(oldCompilationUnit, newCompilationUnit)) {
                         pmCompilationUnit.updatePair(source, newCompilationUnit);
