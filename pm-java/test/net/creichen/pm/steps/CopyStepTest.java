@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.creichen.pm.api.Node;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.models.defuse.DefUseModel;
@@ -33,7 +34,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -53,19 +53,17 @@ public class CopyStepTest extends PMTest {
 
         final NameModel nameModel = getProject().getNameModel();
 
-        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnit);
+        final PMCompilationUnit compilationUnitS = getProject().getPMCompilationUnit(iCompilationUnit);
 
         final TypeDeclaration type = findClassByName("S", compilationUnitS);
         final FieldDeclaration fieldDeclaration = findFieldByName("x", type);
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()
                 .get(0)).getName();
-        final String fieldDeclarationOriginalNameIdentifier = nameModel
-                .getIdentifier(fieldDeclarationOriginalName);
+        final String fieldDeclarationOriginalNameIdentifier = nameModel.getIdentifier(fieldDeclarationOriginalName);
 
         final MethodDeclaration methodDeclaration = findMethodByName("m", type);
         final SimpleName methodDeclarationOriginalName = methodDeclaration.getName();
-        final String methodDeclarationOriginalNameIdentifier = nameModel
-                .getIdentifier(methodDeclarationOriginalName);
+        final String methodDeclarationOriginalNameIdentifier = nameModel.getIdentifier(methodDeclarationOriginalName);
 
         final SimpleName originalUseOfYInM = ASTQuery.findSimpleNames("y", methodDeclaration.getBody()).get(0);
         final String originalUseOfYInMIdentifier = nameModel.getIdentifier(originalUseOfYInM);
@@ -103,8 +101,7 @@ public class CopyStepTest extends PMTest {
 
         // method declaration gets fresh identifier in copy
 
-        final String methodDeclarationCopyNameIdentifier = nameModel.getIdentifier(methodDeclarationCopy
-                .getName());
+        final String methodDeclarationCopyNameIdentifier = nameModel.getIdentifier(methodDeclarationCopy.getName());
         assertNotNull(methodDeclarationCopyNameIdentifier);
         assertFalse(methodDeclarationCopyNameIdentifier.equals(methodDeclarationOriginalNameIdentifier));
 
@@ -134,7 +131,7 @@ public class CopyStepTest extends PMTest {
 
         final DefUseModel udModel = getProject().getUDModel();
 
-        final CompilationUnit compilationUnitS = getProject().getCompilationUnit(iCompilationUnit);
+        final PMCompilationUnit compilationUnitS = getProject().getPMCompilationUnit(iCompilationUnit);
 
         final TypeDeclaration type = findClassByName("S", compilationUnitS);
         final MethodDeclaration methodDeclaration = findMethodByName("m", type);
@@ -201,7 +198,7 @@ public class CopyStepTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit = createCompilationUnit("", "S.java", source);
 
-        final TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit));
+        final TypeDeclaration type = findClassByName("S", getProject().getPMCompilationUnit(iCompilationUnit));
         final FieldDeclaration fieldDeclaration = findFieldByName("x", type);
 
         final SimpleName fieldDeclarationOriginalName = ((VariableDeclarationFragment) fieldDeclaration.fragments()

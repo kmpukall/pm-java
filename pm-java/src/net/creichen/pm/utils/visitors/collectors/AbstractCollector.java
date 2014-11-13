@@ -3,6 +3,8 @@ package net.creichen.pm.utils.visitors.collectors;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.creichen.pm.api.PMCompilationUnit;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 
@@ -25,6 +27,11 @@ abstract class AbstractCollector<T extends ASTNode> extends ASTVisitor {
 
     public List<T> collectFrom(ASTNode node) {
         node.accept(this);
+        return getResults();
+    }
+
+    public List<T> collectFrom(PMCompilationUnit compilationUnit) {
+        compilationUnit.accept(this);
         return getResults();
     }
 

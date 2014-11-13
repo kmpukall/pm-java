@@ -45,7 +45,7 @@ public class RenameStepTest extends PMTest {
         createCompilationUnit("", "S.java", sourceS);
         final ICompilationUnit compilationUnitT = createCompilationUnit("", "T.java", sourceT);
 
-        TypeDeclaration t = findClassByName("T", getProject().getCompilationUnit(compilationUnitT));
+        TypeDeclaration t = findClassByName("T", getProject().getPMCompilationUnit(compilationUnitT));
         MethodDeclaration m = findMethodByName("m", t);
         final SimpleName firstSInT = findSimpleName("s", m);
 
@@ -62,7 +62,7 @@ public class RenameStepTest extends PMTest {
     public void whenTheClassIsRenamed_then_theConstructorIsRenamedToo() {
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", "class S {S() {}}");
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(compilationUnitS);
-        final TypeDeclaration classNode = findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
+        final TypeDeclaration classNode = findClassByName("S", pmCompilationUnitS);
 
         final RenameStep renameClassStep = new RenameStep(getProject(), classNode.getName());
         renameClassStep.setNewName("T");
@@ -95,7 +95,7 @@ public class RenameStepTest extends PMTest {
         final String sourceS = "public class S {void sMethod() {}}";
         final ICompilationUnit compilationUnitS = createCompilationUnit("", "S.java", sourceS);
         final PMCompilationUnit pmCompilationUnitS = getProject().getPMCompilationUnit(compilationUnitS);
-        final TypeDeclaration classS = ASTQuery.findClassByName("S", getProject().getCompilationUnit(compilationUnitS));
+        final TypeDeclaration classS = ASTQuery.findClassByName("S", pmCompilationUnitS);
         final SimpleName className = classS.getName();
 
         final RenameStep step = new RenameStep(getProject(), className);
@@ -315,10 +315,9 @@ public class RenameStepTest extends PMTest {
         final String sourceSuper = "public class Super { public void f(){} }";
         final String sourceSub = "public class Sub extends Super { public void g(){} public static void main(String... args){new Sub().f();}}";
 
-        final ICompilationUnit compilationUnitSuper = createCompilationUnit("", "A.java", sourceSuper);
+        createCompilationUnit("", "A.java", sourceSuper);
         final ICompilationUnit compilationUnitSub = createCompilationUnit("", "B.java", sourceSub);
 
-        final PMCompilationUnit pmCompilationUnitSuper = getProject().getPMCompilationUnit(compilationUnitSuper);
         final PMCompilationUnit pmCompilationUnitSub = getProject().getPMCompilationUnit(compilationUnitSub);
 
         final TypeDeclaration type = findClassByName("Sub", pmCompilationUnitSub);

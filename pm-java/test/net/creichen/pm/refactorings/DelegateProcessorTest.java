@@ -33,8 +33,7 @@ public class DelegateProcessorTest extends PMTest {
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(matchesSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}",
-                s.getSource()));
+        assertTrue(matchesSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}", s.getSource()));
 
         assertThat(getProject(), hasNoInconsistencies());
     }
@@ -68,8 +67,7 @@ public class DelegateProcessorTest extends PMTest {
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(matchesSource("public class S {S s; void m(){s.getClass(); s.m();}}",
-                s.getSource()));
+        assertTrue(matchesSource("public class S {S s; void m(){s.getClass(); s.m();}}", s.getSource()));
 
         assertThat(getProject(), hasNoInconsistencies());
     }
@@ -92,8 +90,7 @@ public class DelegateProcessorTest extends PMTest {
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(matchesSource("package t; public class Sub extends Super {void g() {s.m();}}",
-                sub.getSource()));
+        assertTrue(matchesSource("package t; public class Sub extends Super {void g() {s.m();}}", sub.getSource()));
 
         assertThat(getProject(), hasNoInconsistencies());
     }
@@ -107,7 +104,6 @@ public class DelegateProcessorTest extends PMTest {
         final DelegateProcessor delegateProcessor = new DelegateProcessor(new TextSelection(30, 5), s);
 
         delegateProcessor.setDelegateIdentifier("");
-
         final RefactoringStatus status = ProcessorDriver.drive(delegateProcessor);
 
         assertTrue(status.getSeverity() < RefactoringStatus.ERROR);

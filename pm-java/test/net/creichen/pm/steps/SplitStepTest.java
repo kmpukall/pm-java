@@ -46,7 +46,7 @@ public class SplitStepTest extends PMTest {
     public void setUpTest() {
         this.iCompilationUnit = createCompilationUnit("", "S.java",
                 "public class S { void m() {int x; x = 7; x = 5; System.out.println(x);} }");
-        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
+        TypeDeclaration type = findClassByName("S", getProject().getPMCompilationUnit(this.iCompilationUnit));
         MethodDeclaration method = findMethodByName("m", type);
         final Assignment secondAssignment = findAssignments(method).get(1);
         ExpressionStatement assignmentStatement = (ExpressionStatement) secondAssignment.getParent();
@@ -80,7 +80,7 @@ public class SplitStepTest extends PMTest {
         // Second two occurrences of x should have same identifier (different
         // from first identifier)
 
-        TypeDeclaration s = ASTQuery.findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
+        TypeDeclaration s = ASTQuery.findClassByName("S", getProject().getPMCompilationUnit(this.iCompilationUnit));
         MethodDeclaration m = ASTQuery.findMethodByName("m", s);
         List<SimpleName> simpleNames = ASTQuery.findSimpleNames("x", m);
         final SimpleName firstX = simpleNames.get(0);
@@ -123,14 +123,14 @@ public class SplitStepTest extends PMTest {
         final DefUseModel udModel = getProject().getUDModel();
 
         // The use for the second declaration should be the fourthX
-        TypeDeclaration s = ASTQuery.findClassByName("S", getProject().getCompilationUnit(this.iCompilationUnit));
+        TypeDeclaration s = ASTQuery.findClassByName("S", getProject().getPMCompilationUnit(this.iCompilationUnit));
         MethodDeclaration m = ASTQuery.findMethodByName("m", s);
         List<SimpleName> simpleNames = ASTQuery.findSimpleNames("x", m);
         final SimpleName thirdX = simpleNames.get(2);
         final VariableDeclarationFragment secondXDeclaration = (VariableDeclarationFragment) thirdX.getParent();
 
-        final Set<Node> usesOfSecondDeclaration = udModel.getUsesByDefinition(NodeStore.getInstance()
-                .getReference(secondXDeclaration));
+        final Set<Node> usesOfSecondDeclaration = udModel.getUsesByDefinition(NodeStore.getInstance().getReference(
+                secondXDeclaration));
 
         assertEquals(1, usesOfSecondDeclaration.size());
 

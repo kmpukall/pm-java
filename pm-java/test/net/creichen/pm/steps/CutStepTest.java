@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.data.Pasteboard;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
@@ -28,7 +29,6 @@ import net.creichen.pm.utils.ASTQuery;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
@@ -131,7 +131,7 @@ public class CutStepTest extends PMTest {
 
     private TypeDeclaration createClass(final String source) {
         this.iCompilationUnit = createCompilationUnit("", "S.java", source);
-        CompilationUnit compilationUnit = getProject().getCompilationUnit(this.iCompilationUnit);
+        PMCompilationUnit compilationUnit = getProject().getPMCompilationUnit(this.iCompilationUnit);
         return findClassByName("S", compilationUnit);
     }
 

@@ -14,12 +14,12 @@ import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.junit.Test;
@@ -32,12 +32,12 @@ public class PushDownFieldTest extends PMTest {
         ICompilationUnit iCompilationUnitT1 = createCompilationUnit("", "T1.java", "public class T1 extends S {  }");
         ICompilationUnit iCompilationUnitT2 = createCompilationUnit("", "T2.java", "public class T2 extends S {  }");
 
-        TypeDeclaration type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnitS));
+        TypeDeclaration type = findClassByName("S", getProject().getPMCompilationUnit(iCompilationUnitS));
         FieldDeclaration yField = findFieldByName("_y", type);
         new CopyStep(getProject(), yField).apply();
         final ICompilationUnit iCompilationUnit1 = iCompilationUnitT1;
 
-        CompilationUnit compilationUnitT1 = getProject().getCompilationUnit(iCompilationUnit1);
+        PMCompilationUnit compilationUnitT1 = getProject().getPMCompilationUnit(iCompilationUnit1);
         TypeDeclaration classT1 = ASTQuery.findClassByName("T1", compilationUnitT1);
 
         PasteStep pasteStep1 = new PasteStep(getProject(), classT1, classT1.getBodyDeclarationsProperty(), classT1
@@ -50,14 +50,14 @@ public class PushDownFieldTest extends PMTest {
 
         final ICompilationUnit iCompilationUnit2 = iCompilationUnitS;
 
-        type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit2));
+        type = findClassByName("S", getProject().getPMCompilationUnit(iCompilationUnit2));
         yField = findFieldByName("_y", type);
         CopyStep copyStep2 = new CopyStep(getProject(), yField);
         yField = null;
         copyStep2.apply();
         final ICompilationUnit iCompilationUnit3 = iCompilationUnitT2;
 
-        CompilationUnit compilationUnitT2 = getProject().getCompilationUnit(iCompilationUnit3);
+        PMCompilationUnit compilationUnitT2 = getProject().getPMCompilationUnit(iCompilationUnit3);
         TypeDeclaration classT2 = ASTQuery.findClassByName("T2", compilationUnitT2);
 
         PasteStep pasteStep2 = new PasteStep(getProject(), classT2, classT2.getBodyDeclarationsProperty(), classT2
@@ -67,7 +67,7 @@ public class PushDownFieldTest extends PMTest {
         pasteStep2.apply();
         final ICompilationUnit iCompilationUnit4 = iCompilationUnitS;
 
-        type = findClassByName("S", getProject().getCompilationUnit(iCompilationUnit4));
+        type = findClassByName("S", getProject().getPMCompilationUnit(iCompilationUnit4));
         yField = findFieldByName("_y", type);
         CutStep cutStep = new CutStep(getProject(), yField); // We use cut to
         // delete the

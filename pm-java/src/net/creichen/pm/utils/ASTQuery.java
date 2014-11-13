@@ -64,7 +64,9 @@ public final class ASTQuery {
      * @param className
      * @param compilationUnit
      * @return the class, or null if no matching class could be found.
+     * @deprecated use {@link #findClassByName(String, PMCompilationUnit)} instead
      */
+    @Deprecated
     public static TypeDeclaration findClassByName(final String className, final CompilationUnit compilationUnit) {
         return new ClassFinder(className).findOn(compilationUnit);
     }
@@ -164,6 +166,10 @@ public final class ASTQuery {
      */
     public static List<SimpleName> findSimpleNames(final String identifier, final ASTNode node) {
         return new SelectiveSimpleNameCollector(identifier).collectFrom(node);
+    }
+
+    public static List<SimpleName> findSimpleNames(final String identifier, final PMCompilationUnit compilationUnit) {
+        return new SelectiveSimpleNameCollector(identifier).collectFrom(compilationUnit);
     }
 
     public static List<MethodDeclaration> getConstructors(final TypeDeclaration classDeclaration) {
