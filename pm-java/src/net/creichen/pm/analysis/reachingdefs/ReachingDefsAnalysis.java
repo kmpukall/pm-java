@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.analysis;
+package net.creichen.pm.analysis.reachingdefs;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +39,7 @@ public class ReachingDefsAnalysis {
     private Map<ASTNode, Def> definitionsByDefiningNode;
     private Map<SimpleName, Use> usesByName;
     private List<PMBlock> blocks;
-    private final Map<Def, Map<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<Def, Map<IBinding, VariableAssignment>>();
+    private final Map<Def, Map<IBinding, ReachingDefinition>> uniqueVariableAssigments = new HashMap<Def, Map<IBinding, ReachingDefinition>>();
     private BlockResolver blockResolver;
 
     public ReachingDefsAnalysis(final MethodDeclaration methodDeclaration) {
@@ -108,7 +108,7 @@ public class ReachingDefsAnalysis {
             // Binding may be null if the declaring node for our lhs no longer
             // exists
             if (binding != null) {
-                final Set<VariableAssignment> killSet = new HashSet<VariableAssignment>();
+                final Set<ReachingDefinition> killSet = new HashSet<ReachingDefinition>();
 
                 // killset for an assignment is the "undefined" assignment plus
                 // all the other assignments than this one
@@ -130,7 +130,7 @@ public class ReachingDefsAnalysis {
     }
 
     private void findUses() {
-        final VariableUsesCollector collector = new VariableUsesCollector();
+        final VariableUsesCollector collector = new VariableUsesCollector(this.blockResolver);
         this.methodDeclaration.getBody().accept(collector);
         this.usesByName = collector.getUsesByName();
     }
@@ -186,24 +186,31 @@ public class ReachingDefsAnalysis {
         });
     }
 
-    private VariableAssignment uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
+    private ReachingDefinition uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
         if (variableBinding == null) {
             throw new PMException("variableBinding for " + definition + " is null!");
         }
-        Map<IBinding, VariableAssignment> assignmentsForLocation = this.uniqueVariableAssigments.get(definition);
+        Map<IBinding, ReachingDefinition> assignmentsForLocation = this.uniqueVariableAssigments.get(definition);
         if (assignmentsForLocation == null) {
-            assignmentsForLocation = new HashMap<IBinding, VariableAssignment>();
+            assignmentsForLocation = new HashMap<IBinding, ReachingDefinition>();
             this.uniqueVariableAssigments.put(definition, assignmentsForLocation);
         }
-        VariableAssignment variableAssignment = assignmentsForLocation.get(variableBinding);
+        ReachingDefinition variableAssignment = assignmentsForLocation.get(variableBinding);
         if (variableAssignment == null) {
-            variableAssignment = new VariableAssignment(definition, variableBinding);
+            variableAssignment = new ReachingDefinition(definition, variableBinding);
             assignmentsForLocation.put(variableBinding, variableAssignment);
         }
         return variableAssignment;
     }
 
-    private class VariableUsesCollector extends ASTVisitor {
+    private static class VariableUsesCollector extends ASTVisitor {
+
+        private BlockResolver blockResolver;
+
+        public VariableUsesCollector(BlockResolver blockResolver) {
+            this.blockResolver = blockResolver;
+
+        }
 
         private Map<SimpleName, Use> usesByName = new HashMap<SimpleName, Use>();
 
@@ -213,16 +220,14 @@ public class ReachingDefsAnalysis {
 
         @Override
         public boolean visit(final SimpleName name) {
-            final PMBlock block = ReachingDefsAnalysis.this.blockResolver.getBlockForNode(name);
-            final Set<VariableAssignment> reachingDefinitions = block.getIn();
+            final PMBlock block = this.blockResolver.getBlockForNode(name);
+            final Set<ReachingDefinition> reachingDefinitions = block.getIn();
 
             if (isUse(name)) {
                 final Use use = new Use(name);
                 this.usesByName.put(name, use);
-                final IBinding variableBinding = name.resolveBinding();
-
-                for (final VariableAssignment reachingDefinition : reachingDefinitions) {
-                    if (reachingDefinition.getVariableBinding() == variableBinding) {
+                for (final ReachingDefinition reachingDefinition : reachingDefinitions) {
+                    if (reachingDefinition.matches(name)) {
                         Def def = reachingDefinition.getDefinition();
                         use.addReachingDefinition(def);
                         if (def != null) {

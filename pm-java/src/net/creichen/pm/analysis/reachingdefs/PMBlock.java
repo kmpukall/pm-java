@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.analysis;
+package net.creichen.pm.analysis.reachingdefs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,24 +19,24 @@ import org.eclipse.jdt.core.dom.ASTNode;
 class PMBlock {
     private final List<ASTNode> nodes;
     private final Set<PMBlock> previousBlocks;
-    private Set<VariableAssignment> in;
-    private Set<VariableAssignment> out;
-    private VariableAssignment gen;
-    private Set<VariableAssignment> killSet;
+    private Set<ReachingDefinition> in;
+    private Set<ReachingDefinition> out;
+    private ReachingDefinition gen;
+    private Set<ReachingDefinition> killSet;
 
-    public PMBlock() {
+    PMBlock() {
         this.nodes = new ArrayList<ASTNode>();
         this.previousBlocks = new HashSet<PMBlock>();
-        this.in = new HashSet<VariableAssignment>();
-        this.out = new HashSet<VariableAssignment>();
-        this.killSet = new HashSet<VariableAssignment>();
+        this.in = new HashSet<ReachingDefinition>();
+        this.out = new HashSet<ReachingDefinition>();
+        this.killSet = new HashSet<ReachingDefinition>();
     }
 
-    public void addNode(final ASTNode node) {
+    void addNode(final ASTNode node) {
         this.nodes.add(node);
     }
 
-    public List<ASTNode> getNodes() {
+    List<ASTNode> getNodes() {
         return this.nodes;
     }
 
@@ -50,24 +50,24 @@ class PMBlock {
         return result;
     }
 
-    public void addPrevious(final PMBlock block) {
+    void addPrevious(final PMBlock block) {
         this.previousBlocks.add(block);
     }
 
-    protected final Set<VariableAssignment> getIn() {
+    final Set<ReachingDefinition> getIn() {
         return this.in;
     }
 
-    public void setGen(VariableAssignment assignment) {
+    void setGen(ReachingDefinition assignment) {
         this.gen = assignment;
     }
 
-    public void setKillSet(Set<VariableAssignment> killSet) {
+    void setKillSet(Set<ReachingDefinition> killSet) {
         this.killSet = killSet;
     }
 
     boolean updateOut() {
-        final Set<VariableAssignment> newOut = new HashSet<VariableAssignment>();
+        final Set<ReachingDefinition> newOut = new HashSet<ReachingDefinition>();
         newOut.addAll(this.in);
         newOut.removeAll(this.killSet);
         if (this.gen != null) {
@@ -81,7 +81,7 @@ class PMBlock {
     }
 
     boolean updateIn() {
-        final Set<VariableAssignment> newIn = new HashSet<VariableAssignment>();
+        final Set<ReachingDefinition> newIn = new HashSet<ReachingDefinition>();
         for (final PMBlock incomingBlock : this.previousBlocks) {
             newIn.addAll(incomingBlock.out);
         }

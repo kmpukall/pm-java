@@ -1,4 +1,4 @@
-package net.creichen.pm.analysis;
+package net.creichen.pm.analysis.reachingdefs;
 
 import static net.creichen.pm.utils.APIWrapperUtil.fragments;
 import static net.creichen.pm.utils.APIWrapperUtil.statements;
@@ -28,7 +28,7 @@ class BlockResolver {
     private List<PMBlock> blocks;
     private Map<ASTNode, PMBlock> blocksByNode;
 
-    public final List<PMBlock> getBlocks() {
+    final List<PMBlock> getBlocks() {
         return this.blocks;
     }
 
@@ -41,7 +41,7 @@ class BlockResolver {
         }
     }
 
-    public void resolve(MethodDeclaration methodDeclaration) {
+    void resolve(MethodDeclaration methodDeclaration) {
         this.blocks = new ArrayList<PMBlock>();
         this.blocks.add(new PMBlock()); // synthetic initial block;
         List<PMBlock> blocksFromMethod = generateBlocks(methodDeclaration.getBody());
@@ -212,7 +212,7 @@ class BlockResolver {
         return result;
     }
 
-    public PMBlock getBlockForNode(final ASTNode originalNode) {
+    PMBlock getBlockForNode(final ASTNode originalNode) {
         ASTNode node = originalNode;
         do {
             final PMBlock block = this.blocksByNode.get(node);

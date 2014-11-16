@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.creichen.pm.analysis.ReachingDefsAnalysis;
+import net.creichen.pm.analysis.reachingdefs.ReachingDefsAnalysis;
 import net.creichen.pm.api.Node;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.PMException;

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import net.creichen.pm.analysis.ReachingDefsAnalysis;
+import net.creichen.pm.analysis.reachingdefs.ReachingDefsAnalysis;
 import net.creichen.pm.api.Node;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;

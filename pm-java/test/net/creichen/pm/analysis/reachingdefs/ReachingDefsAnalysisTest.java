@@ -7,7 +7,7 @@
 
  *******************************************************************************/
 
-package net.creichen.pm.analysis;
+package net.creichen.pm.analysis.reachingdefs;
 
 import static net.creichen.pm.tests.Matchers.hasElements;
 import static net.creichen.pm.utils.ASTQuery.findAssignments;
@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.creichen.pm.analysis.reachingdefs.ReachingDefsAnalysis;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.models.defuse.Def;
 import net.creichen.pm.models.defuse.Use;
