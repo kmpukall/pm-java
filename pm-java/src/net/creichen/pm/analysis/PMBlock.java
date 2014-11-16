@@ -22,6 +22,8 @@ class PMBlock {
     private final Set<PMBlock> outgoingBlocks;
     private final Set<VariableAssignment> reachingDefsOnEntry;
     private Set<VariableAssignment> reachingDefsOnExit;
+    private VariableAssignment gen;
+    private Set<VariableAssignment> killSet;
 
     public PMBlock() {
         this.nodes = new ArrayList<ASTNode>();
@@ -76,5 +78,21 @@ class PMBlock {
 
     protected final Set<VariableAssignment> getReachingDefsOnExit() {
         return this.reachingDefsOnExit;
+    }
+
+    public VariableAssignment getGen() {
+        return this.gen;
+    }
+
+    public void setGen(VariableAssignment assignment) {
+        this.gen = assignment;
+    }
+
+    public Set<VariableAssignment> getKillSet() {
+        return this.killSet;
+    }
+
+    public void setKillSet(Set<VariableAssignment> killSet) {
+        this.killSet = killSet;
     }
 }

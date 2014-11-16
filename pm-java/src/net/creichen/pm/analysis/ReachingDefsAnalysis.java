@@ -26,7 +26,6 @@ import net.creichen.pm.utils.visitors.collectors.DefinitionCollector;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -41,8 +40,6 @@ public class ReachingDefsAnalysis {
     private Map<SimpleName, Use> usesByName;
     private List<PMBlock> blocks;
     private final Map<Def, Map<IBinding, VariableAssignment>> uniqueVariableAssigments = new HashMap<Def, Map<IBinding, VariableAssignment>>();
-    private Map<PMBlock, VariableAssignment> gens;
-    private Map<PMBlock, Set<VariableAssignment>> killSets;
     private BlockResolver blockResolver;
 
     public ReachingDefsAnalysis(final MethodDeclaration methodDeclaration) {
@@ -81,7 +78,6 @@ public class ReachingDefsAnalysis {
     }
 
     private void findGens() {
-        this.gens = new HashMap<PMBlock, VariableAssignment>();
         for (final Def definition : this.definitions) {
 
             final IBinding binding = ASTUtil.getBinding(definition);
@@ -89,12 +85,12 @@ public class ReachingDefsAnalysis {
             // longer exists
             if (binding != null) {
                 PMBlock block = this.blockResolver.getBlockForNode(definition.getDefiningNode());
-                this.gens.put(block, uniqueVariableAssignment(definition, binding));
+                block.setGen(uniqueVariableAssignment(definition, binding));
             }
         }
     }
 
-    private Map<PMBlock, Set<VariableAssignment>> findKillSets() {
+    private void findKillSets() {
         List<Def> definitions = this.definitions;
 
         Map<IBinding, Set<Def>> definitionsByBinding = new HashMap<IBinding, Set<Def>>();
@@ -107,8 +103,6 @@ public class ReachingDefsAnalysis {
             }
             definitionsForBinding.add(def);
         }
-
-        final Map<PMBlock, Set<VariableAssignment>> result = new HashMap<PMBlock, Set<VariableAssignment>>();
 
         // Note: we populate the killsets by iterating through definitions
         // this means there will be no killset for a block with no definitions
@@ -134,21 +128,16 @@ public class ReachingDefsAnalysis {
                 }
 
                 final PMBlock block = this.blockResolver.getBlockForNode(definition.getDefiningNode());
-
-                result.put(block, killSet);
+                block.setKillSet(killSet);
             }
 
         }
-
-        return result;
     }
 
     private void findUses() {
-        this.usesByName = new HashMap<SimpleName, Use>();
-        final Block body = this.methodDeclaration.getBody();
         final VariableUsesCollector collector = new VariableUsesCollector();
-        body.accept(collector);
-        this.usesByName.putAll(collector.getUsesByName());
+        this.methodDeclaration.getBody().accept(collector);
+        this.usesByName = collector.getUsesByName();
     }
 
     private void runAnalysis() {
@@ -159,7 +148,7 @@ public class ReachingDefsAnalysis {
         this.blocks = this.blockResolver.getBlocks();
 
         findGens();
-        this.killSets = findKillSets();
+        findKillSets();
 
         boolean hasChanged;
         do {
@@ -207,11 +196,11 @@ public class ReachingDefsAnalysis {
 
         newExitReachingDefs.addAll(block.getReachingDefsOnEntry());
 
-        final Set<VariableAssignment> killSet = this.killSets.get(block);
+        final Set<VariableAssignment> killSet = block.getKillSet();
         if (killSet != null) {
             newExitReachingDefs.removeAll(killSet);
         }
-        final VariableAssignment gen = this.gens.get(block);
+        final VariableAssignment gen = block.getGen();
         if (gen != null) {
             newExitReachingDefs.add(gen);
         }
