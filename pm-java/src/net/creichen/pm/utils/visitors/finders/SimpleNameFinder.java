@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors.finders;
 
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
+
 import org.eclipse.jdt.core.dom.SimpleName;
 
 public final class SimpleNameFinder extends AbstractFinder<SimpleName> {
@@ -15,7 +17,7 @@ public final class SimpleNameFinder extends AbstractFinder<SimpleName> {
             setResult(visitedNode);
             stopSearching();
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 
 }

@@ -1,6 +1,7 @@
 package net.creichen.pm.utils.visitors.finders;
 
 import static net.creichen.pm.utils.APIWrapperUtil.fragments;
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
 import static net.creichen.pm.utils.factories.PredicateFactory.hasVariableName;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class FieldFinder extends AbstractFinder<FieldDeclaration> {
                 stopSearching();
             }
         }
-        return true;
+        return VISIT_CHILDREN;
 
     }
 

@@ -1,5 +1,7 @@
 package net.creichen.pm.analysis;
 
+import static net.creichen.pm.utils.Constants.SKIP_CHILDREN;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,7 +35,7 @@ public class DefUseAnalysis {
                         DefUseAnalysis.this.uses.addAll(analysis.getUses());
                     }
 
-                    return false; // don't visit children
+                    return SKIP_CHILDREN;
                 }
             });
 

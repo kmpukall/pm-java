@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors.collectors;
 
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
+
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class ClassCollector extends AbstractCollector<TypeDeclaration> {
@@ -15,6 +17,6 @@ public class ClassCollector extends AbstractCollector<TypeDeclaration> {
         if (!node.isInterface() && node.getName().getIdentifier().equals(this.className)) {
             addResult(node);
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 }

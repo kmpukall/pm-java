@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors.finders;
 
+import static net.creichen.pm.utils.Constants.SKIP_CHILDREN;
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
 import static net.creichen.pm.utils.factories.PredicateFactory.hasVariableName;
 
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
@@ -19,7 +21,7 @@ public class VariableDeclarationFinder extends AbstractFinder<VariableDeclaratio
 
     @Override
     public boolean visit(final AnonymousClassDeclaration anonymousClass) {
-        return false;
+        return SKIP_CHILDREN;
     }
 
     @Override
@@ -28,7 +30,7 @@ public class VariableDeclarationFinder extends AbstractFinder<VariableDeclaratio
             setResult(singleVariableDeclaration);
             stopSearching();
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 
     @Override
@@ -37,6 +39,6 @@ public class VariableDeclarationFinder extends AbstractFinder<VariableDeclaratio
             setResult(fragment);
             stopSearching();
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 }

@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors.collectors;
 
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -30,7 +32,7 @@ public final class SelectiveSimpleNameCollector extends AbstractCollector<Simple
         if (this.identifier.equals(candidate)) {
             addResult(visitedNode);
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 
 }

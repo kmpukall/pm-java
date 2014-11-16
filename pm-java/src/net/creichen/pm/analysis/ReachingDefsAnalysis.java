@@ -91,10 +91,8 @@ public class ReachingDefsAnalysis {
     }
 
     private void findKillSets() {
-        List<Def> definitions = this.definitions;
-
         Map<IBinding, Set<Def>> definitionsByBinding = new HashMap<IBinding, Set<Def>>();
-        for (final Def def : definitions) {
+        for (final Def def : this.definitions) {
             final IBinding binding = ASTUtil.getBinding(def);
             Set<Def> definitionsForBinding = definitionsByBinding.get(binding);
             if (definitionsForBinding == null) {
@@ -104,10 +102,7 @@ public class ReachingDefsAnalysis {
             definitionsForBinding.add(def);
         }
 
-        // Note: we populate the killsets by iterating through definitions
-        // this means there will be no killset for a block with no definitions
-        //
-        for (final Def definition : definitions) {
+        for (final Def definition : this.definitions) {
             final IBinding binding = ASTUtil.getBinding(definition);
 
             // Binding may be null if the declaring node for our lhs no longer
@@ -166,9 +161,9 @@ public class ReachingDefsAnalysis {
             if (block.equals(this.blocks.get(0))) {
                 updateInitialBlock(this.blocks.get(0));
             } else {
-                changed |= updateReachingDefsOnEntry(block);
+                changed |= block.updateIn();
             }
-            changed |= updateReachingDefsOnExit(block);
+            changed |= block.updateOut();
         }
         return changed;
     }
@@ -184,45 +179,11 @@ public class ReachingDefsAnalysis {
                 // locals or fields)
 
                 if (binding instanceof IVariableBinding) {
-                    initialBlock.getReachingDefsOnEntry().add(uniqueVariableAssignment(null, binding));
+                    initialBlock.getIn().add(uniqueVariableAssignment(null, binding));
                 }
                 return true;
             }
         });
-    }
-
-    private boolean updateReachingDefsOnExit(final PMBlock block) {
-        final Set<VariableAssignment> newExitReachingDefs = new HashSet<VariableAssignment>();
-
-        newExitReachingDefs.addAll(block.getReachingDefsOnEntry());
-
-        final Set<VariableAssignment> killSet = block.getKillSet();
-        if (killSet != null) {
-            newExitReachingDefs.removeAll(killSet);
-        }
-        final VariableAssignment gen = block.getGen();
-        if (gen != null) {
-            newExitReachingDefs.add(gen);
-        }
-        if (!newExitReachingDefs.equals(block.getReachingDefsOnExit())) {
-            block.getReachingDefsOnExit().clear();
-            block.getReachingDefsOnExit().addAll(newExitReachingDefs);
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean updateReachingDefsOnEntry(final PMBlock block) {
-        final Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
-        for (final PMBlock incomingBlock : block.getPreviousBlocks()) {
-            newEntryReachingDefs.addAll(incomingBlock.getReachingDefsOnExit());
-        }
-        if (!newEntryReachingDefs.equals(block.getReachingDefsOnEntry())) {
-            block.getReachingDefsOnEntry().clear();
-            block.getReachingDefsOnEntry().addAll(newEntryReachingDefs);
-            return true;
-        }
-        return false;
     }
 
     private VariableAssignment uniqueVariableAssignment(final Def definition, final IBinding variableBinding) {
@@ -253,7 +214,7 @@ public class ReachingDefsAnalysis {
         @Override
         public boolean visit(final SimpleName name) {
             final PMBlock block = ReachingDefsAnalysis.this.blockResolver.getBlockForNode(name);
-            final Set<VariableAssignment> reachingDefinitions = block.getReachingDefsOnEntry();
+            final Set<VariableAssignment> reachingDefinitions = block.getIn();
 
             if (isUse(name)) {
                 final Use use = new Use(name);

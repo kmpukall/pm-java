@@ -19,27 +19,21 @@ import org.eclipse.jdt.core.dom.ASTNode;
 class PMBlock {
     private final List<ASTNode> nodes;
     private final Set<PMBlock> previousBlocks;
-    private final Set<PMBlock> outgoingBlocks;
-    private final Set<VariableAssignment> reachingDefsOnEntry;
-    private Set<VariableAssignment> reachingDefsOnExit;
+    private Set<VariableAssignment> in;
+    private Set<VariableAssignment> out;
     private VariableAssignment gen;
     private Set<VariableAssignment> killSet;
 
     public PMBlock() {
         this.nodes = new ArrayList<ASTNode>();
-
         this.previousBlocks = new HashSet<PMBlock>();
-        this.outgoingBlocks = new HashSet<PMBlock>();
-        this.reachingDefsOnEntry = new HashSet<VariableAssignment>();
-        this.reachingDefsOnExit = new HashSet<VariableAssignment>();
+        this.in = new HashSet<VariableAssignment>();
+        this.out = new HashSet<VariableAssignment>();
+        this.killSet = new HashSet<VariableAssignment>();
     }
 
     public void addNode(final ASTNode node) {
         this.nodes.add(node);
-    }
-
-    public Set<PMBlock> getPreviousBlocks() {
-        return this.previousBlocks;
     }
 
     public List<ASTNode> getNodes() {
@@ -60,27 +54,41 @@ class PMBlock {
         this.previousBlocks.add(block);
     }
 
-    protected final Set<VariableAssignment> getReachingDefsOnEntry() {
-        return this.reachingDefsOnEntry;
-    }
-
-    protected final Set<VariableAssignment> getReachingDefsOnExit() {
-        return this.reachingDefsOnExit;
-    }
-
-    public VariableAssignment getGen() {
-        return this.gen;
+    protected final Set<VariableAssignment> getIn() {
+        return this.in;
     }
 
     public void setGen(VariableAssignment assignment) {
         this.gen = assignment;
     }
 
-    public Set<VariableAssignment> getKillSet() {
-        return this.killSet;
-    }
-
     public void setKillSet(Set<VariableAssignment> killSet) {
         this.killSet = killSet;
+    }
+
+    boolean updateOut() {
+        final Set<VariableAssignment> newOut = new HashSet<VariableAssignment>();
+        newOut.addAll(this.in);
+        newOut.removeAll(this.killSet);
+        if (this.gen != null) {
+            newOut.add(this.gen);
+        }
+        if (!newOut.equals(this.out)) {
+            this.out = newOut;
+            return true;
+        }
+        return false;
+    }
+
+    boolean updateIn() {
+        final Set<VariableAssignment> newIn = new HashSet<VariableAssignment>();
+        for (final PMBlock incomingBlock : this.previousBlocks) {
+            newIn.addAll(incomingBlock.out);
+        }
+        if (!newIn.equals(this.in)) {
+            this.in = newIn;
+            return true;
+        }
+        return false;
     }
 }

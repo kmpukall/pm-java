@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors.collectors;
 
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.PostfixExpression;
@@ -17,7 +19,7 @@ public final class DefinitionCollector extends AbstractCollector<ASTNode> {
         if (isAnalyzable(assignment.getLeftHandSide())) {
             addResult(assignment);
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 
     @Override
@@ -27,7 +29,7 @@ public final class DefinitionCollector extends AbstractCollector<ASTNode> {
         if (isAnalyzable(postfixExpression.getOperand())) {
             addResult(postfixExpression);
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 
     @Override
@@ -38,7 +40,7 @@ public final class DefinitionCollector extends AbstractCollector<ASTNode> {
             addResult(prefixExpression);
         }
 
-        return true;
+        return VISIT_CHILDREN;
     }
 
     @Override
@@ -47,7 +49,7 @@ public final class DefinitionCollector extends AbstractCollector<ASTNode> {
         // There is an implicit definition here
 
         addResult(singleVariableDeclaration);
-        return true;
+        return VISIT_CHILDREN;
     }
 
     @Override
@@ -55,7 +57,7 @@ public final class DefinitionCollector extends AbstractCollector<ASTNode> {
         // int x, y, z = 7; //etc
 
         addResult(variableDeclarationFragment);
-        return true;
+        return VISIT_CHILDREN;
     }
 
     private boolean isAnalyzable(final ASTNode node) {

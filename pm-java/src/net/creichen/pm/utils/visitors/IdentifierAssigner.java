@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors;
 
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +49,7 @@ public class IdentifierAssigner extends ASTVisitor {
             this.identifiersForBindings.put(binding, identifier);
         }
         this.identifiers.put(simpleName, identifier);
-        return true;
+        return VISIT_CHILDREN;
     }
 
     public static String generateNewIdentifier() {

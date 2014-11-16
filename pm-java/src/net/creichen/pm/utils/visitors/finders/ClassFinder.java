@@ -1,5 +1,7 @@
 package net.creichen.pm.utils.visitors.finders;
 
+import static net.creichen.pm.utils.Constants.VISIT_CHILDREN;
+
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class ClassFinder extends AbstractFinder<TypeDeclaration> {
@@ -16,7 +18,7 @@ public class ClassFinder extends AbstractFinder<TypeDeclaration> {
             setResult(node);
             stopSearching();
         }
-        return true;
+        return VISIT_CHILDREN;
     }
 
 }
