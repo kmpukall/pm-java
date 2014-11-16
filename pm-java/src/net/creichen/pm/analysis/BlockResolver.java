@@ -58,7 +58,7 @@ class BlockResolver {
         // by the first block of the second list
 
         if (target.size() > 0) {
-            target.get(target.size() - 1).addOutgoingBlock(list.get(0));
+            list.get(0).addPrevious(target.get(target.size() - 1));
         }
 
         target.addAll(list);
@@ -114,29 +114,22 @@ class BlockResolver {
         appendBlockList(result, blocksForThen);
 
         final PMBlock endingThenBlock = blocksForThen.get(blocksForThen.size() - 1);
-        endingThenBlock.addOutgoingBlock(exitBlock);
+        exitBlock.addPrevious(endingThenBlock);
 
         if (ifStatement.getElseStatement() != null) {
             final List<PMBlock> blocksForElse = generateBlocks(ifStatement.getElseStatement());
-
             // make connection from the ending guard block to the starting
             // else block
             // and from the ending else block to the exitBlock
-
             final PMBlock startingElseBlock = blocksForElse.get(0);
-
-            endingGuardBlock.addOutgoingBlock(startingElseBlock);
-
+            startingElseBlock.addPrevious(endingGuardBlock);
             final PMBlock endingElseBlock = blocksForElse.get(blocksForElse.size() - 1);
-
-            endingElseBlock.addOutgoingBlock(exitBlock);
-
+            exitBlock.addPrevious(endingElseBlock);
             result.addAll(blocksForElse);
         } else {
             // No else block, so guard block may flow directly to exit block
             // this assumes the condition is not tautological
-
-            endingGuardBlock.addOutgoingBlock(exitBlock);
+            exitBlock.addPrevious(endingGuardBlock);
         }
 
         result.add(exitBlock);
@@ -209,10 +202,10 @@ class BlockResolver {
         // last block of body always flows to guard
 
         final PMBlock lastBodyBlock = blocksForBody.get(blocksForBody.size() - 1);
-        lastBodyBlock.addOutgoingBlock(startingGuardBlock);
+        startingGuardBlock.addPrevious(lastBodyBlock);
 
         // guard may fail and flow to exit
-        lastGuardBlock.addOutgoingBlock(exitBlock);
+        exitBlock.addPrevious(lastGuardBlock);
 
         result.add(exitBlock);
 

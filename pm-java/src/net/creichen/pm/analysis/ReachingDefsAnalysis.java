@@ -214,7 +214,7 @@ public class ReachingDefsAnalysis {
 
     private static boolean updateReachingDefsOnEntry(final PMBlock block) {
         final Set<VariableAssignment> newEntryReachingDefs = new HashSet<VariableAssignment>();
-        for (final PMBlock incomingBlock : block.getIncomingBlocks()) {
+        for (final PMBlock incomingBlock : block.getPreviousBlocks()) {
             newEntryReachingDefs.addAll(incomingBlock.getReachingDefsOnExit());
         }
         if (!newEntryReachingDefs.equals(block.getReachingDefsOnEntry())) {

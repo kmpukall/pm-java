@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 class PMBlock {
     private final List<ASTNode> nodes;
-    private final Set<PMBlock> incomingBlocks;
+    private final Set<PMBlock> previousBlocks;
     private final Set<PMBlock> outgoingBlocks;
     private final Set<VariableAssignment> reachingDefsOnEntry;
     private Set<VariableAssignment> reachingDefsOnExit;
@@ -28,7 +28,7 @@ class PMBlock {
     public PMBlock() {
         this.nodes = new ArrayList<ASTNode>();
 
-        this.incomingBlocks = new HashSet<PMBlock>();
+        this.previousBlocks = new HashSet<PMBlock>();
         this.outgoingBlocks = new HashSet<PMBlock>();
         this.reachingDefsOnEntry = new HashSet<VariableAssignment>();
         this.reachingDefsOnExit = new HashSet<VariableAssignment>();
@@ -38,22 +38,12 @@ class PMBlock {
         this.nodes.add(node);
     }
 
-    public void addOutgoingBlock(final PMBlock block) {
-        if (this.outgoingBlocks.add(block)) {
-            block.addIncomingBlock(this);
-        }
-    }
-
-    public Set<PMBlock> getIncomingBlocks() {
-        return this.incomingBlocks;
+    public Set<PMBlock> getPreviousBlocks() {
+        return this.previousBlocks;
     }
 
     public List<ASTNode> getNodes() {
         return this.nodes;
-    }
-
-    public Set<PMBlock> getOutgoingBlocks() {
-        return this.outgoingBlocks;
     }
 
     @Override
@@ -66,10 +56,8 @@ class PMBlock {
         return result;
     }
 
-    private void addIncomingBlock(final PMBlock block) {
-        if (this.incomingBlocks.add(block)) {
-            block.addOutgoingBlock(this);
-        }
+    public void addPrevious(final PMBlock block) {
+        this.previousBlocks.add(block);
     }
 
     protected final Set<VariableAssignment> getReachingDefsOnEntry() {
