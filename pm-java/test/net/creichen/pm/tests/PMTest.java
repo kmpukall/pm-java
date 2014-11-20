@@ -36,22 +36,11 @@ public abstract class PMTest {
     private IJavaProject iJavaProject = null;
 
     protected Project getProject() {
-        return Workspace.getInstance().getProject(getIJavaProject());
-    }
-
-    @After
-    public final void after() throws CoreException {
-        deleteProject();
-        tearDown();
+        return Workspace.getInstance().getProject(this.iJavaProject);
     }
 
     @Before
     public void before() throws CoreException {
-        createProject();
-        setUp();
-    }
-
-    private void createProject() throws CoreException {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         this.iProject = root.getProject("pm_test_project_name");
         if (this.iProject.exists()) {
@@ -66,14 +55,8 @@ public abstract class PMTest {
         final IClasspathEntry[] buildPath = { JavaCore.newSourceEntry(this.iProject.getFullPath().append("src")),
                 JavaRuntime.getDefaultJREContainerEntry() };
         this.iJavaProject.setRawClasspath(buildPath, this.iProject.getFullPath().append("bin"), null);
-    }
 
-    private void deleteProject() throws CoreException {
         ConsistencyValidator.getInstance().reset();
-        Workspace.getInstance().removeProject(this.iJavaProject);
-        this.iProject.delete(true, null);
-        this.iProject = null;
-        this.iJavaProject = null;
     }
 
     protected ICompilationUnit createCompilationUnit(final String packageFragmentName, final String fileName,
@@ -95,16 +78,12 @@ public abstract class PMTest {
         return result;
     }
 
-    protected final IJavaProject getIJavaProject() {
-        return this.iJavaProject;
-    }
-
-    protected void setUp() {
-        // can be overwritten by subclasses
-    }
-
-    protected void tearDown() {
-        // can be overwritten by subclasses
+    @After
+    public final void after() throws CoreException {
+        Workspace.getInstance().removeProject(this.iJavaProject);
+        this.iProject.delete(true, null);
+        this.iProject = null;
+        this.iJavaProject = null;
     }
 
 }

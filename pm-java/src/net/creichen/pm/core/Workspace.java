@@ -23,18 +23,22 @@ public final class Workspace {
         this.projectMapping = new HashMap<IJavaProject, Project>();
     }
 
-    public synchronized Project getProject(final IJavaProject iJavaProject) {
+    public Project getProject(final IJavaProject iJavaProject) {
         if (!this.projectMapping.containsKey(iJavaProject)) {
-            this.projectMapping.put(iJavaProject, new Project(iJavaProject));
+            createProject(iJavaProject);
         }
         return this.projectMapping.get(iJavaProject);
     }
 
-    public synchronized void removeProject(final IJavaProject iJavaProject) {
+    public void createProject(final IJavaProject javaProject) {
+        this.projectMapping.put(javaProject, new Project(javaProject));
+    }
+
+    public void removeProject(final IJavaProject iJavaProject) {
         this.projectMapping.remove(iJavaProject);
     }
 
-    public static synchronized Workspace getInstance() {
+    public static Workspace getInstance() {
         if (sharedWorkspace == null) {
             sharedWorkspace = new Workspace();
         }

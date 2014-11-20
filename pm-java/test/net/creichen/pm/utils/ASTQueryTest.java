@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ASTQueryTest extends PMTest {
@@ -28,58 +29,58 @@ public class ASTQueryTest extends PMTest {
     private AST ast;
     private SimpleName simpleName;
 
-    @Override
-    protected void setUp() {
+    @Before
+    public void setUp() {
         this.ast = AST.newAST(AST.JLS4);
         this.simpleName = this.ast.newSimpleName("x");
     }
 
     @Test
-        public void testResolveSimpleName1() {
-            VariableDeclarationFragment node = (VariableDeclarationFragment) this.ast
-                    .createInstance(VariableDeclarationFragment.class);
-            node.setName(this.simpleName);
-            assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
-        }
+    public void testResolveSimpleName1() {
+        VariableDeclarationFragment node = (VariableDeclarationFragment) this.ast
+                .createInstance(VariableDeclarationFragment.class);
+        node.setName(this.simpleName);
+        assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
+    }
 
     @Test
-        public void testResolveSimpleName2() {
-            SingleVariableDeclaration node = (SingleVariableDeclaration) this.ast
-                    .createInstance(SingleVariableDeclaration.class);
-            node.setName(this.simpleName);
-            assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
-        }
+    public void testResolveSimpleName2() {
+        SingleVariableDeclaration node = (SingleVariableDeclaration) this.ast
+                .createInstance(SingleVariableDeclaration.class);
+        node.setName(this.simpleName);
+        assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
+    }
 
     @Test
-        public void testResolveSimpleName3() {
-            TypeDeclaration node = (TypeDeclaration) this.ast.createInstance(TypeDeclaration.class);
-            node.setName(this.simpleName);
-            assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
-        }
+    public void testResolveSimpleName3() {
+        TypeDeclaration node = (TypeDeclaration) this.ast.createInstance(TypeDeclaration.class);
+        node.setName(this.simpleName);
+        assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
+    }
 
     @Test
-        public void testResolveSimpleName4() {
-            MethodDeclaration node = (MethodDeclaration) this.ast.createInstance(MethodDeclaration.class);
-            node.setName(this.simpleName);
-            assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
-        }
+    public void testResolveSimpleName4() {
+        MethodDeclaration node = (MethodDeclaration) this.ast.createInstance(MethodDeclaration.class);
+        node.setName(this.simpleName);
+        assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
+    }
 
     @Test
-        public void testResolveSimpleName5() {
-            TypeParameter node = (TypeParameter) this.ast.createInstance(TypeParameter.class);
-            node.setName(this.simpleName);
-            assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
-        }
+    public void testResolveSimpleName5() {
+        TypeParameter node = (TypeParameter) this.ast.createInstance(TypeParameter.class);
+        node.setName(this.simpleName);
+        assertThat(ASTQuery.resolveSimpleName(node), is(this.simpleName));
+    }
 
     @Test(expected = IllegalArgumentException.class)
-        public void testResolveSimpleName6() {
-            Assignment node = (Assignment) this.ast.createInstance(Assignment.class);
-            ASTQuery.resolveSimpleName(node);
-        }
+    public void testResolveSimpleName6() {
+        Assignment node = (Assignment) this.ast.createInstance(Assignment.class);
+        ASTQuery.resolveSimpleName(node);
+    }
 
     @Test(expected = NullPointerException.class)
-        public void testResolveSimpleName7() {
-            ASTQuery.resolveSimpleName(null);
-        }
+    public void testResolveSimpleName7() {
+        ASTQuery.resolveSimpleName(null);
+    }
 
 }
