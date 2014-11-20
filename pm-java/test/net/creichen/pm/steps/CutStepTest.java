@@ -10,6 +10,7 @@
 package net.creichen.pm.steps;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static net.creichen.pm.tests.Matchers.hasSource;
 import static net.creichen.pm.utils.APIWrapperUtil.statements;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
@@ -47,7 +48,7 @@ public class CutStepTest extends PMTest {
 
         new CutStep(getProject(), statements.get(0)).apply();
 
-        assertTrue(matchesSource("public class S {void m(){x = 1;}}", this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit, hasSource("public class S {void m(){x = 1;}}"));
 
     }
 
@@ -58,7 +59,7 @@ public class CutStepTest extends PMTest {
 
         new CutStep(getProject(), m).apply();
 
-        assertTrue(matchesSource("public class S {}", this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit, hasSource("public class S {}"));
         assertThat(getProject(), hasNoInconsistencies());
     }
 
@@ -69,7 +70,7 @@ public class CutStepTest extends PMTest {
 
         new CutStep(getProject(), fieldDeclaration).apply();
 
-        assertTrue(matchesSource("public class S {void m(){System.out.println(s);}}", this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit, hasSource("public class S {void m(){System.out.println(s);}}"));
     }
 
     @Test
@@ -80,7 +81,7 @@ public class CutStepTest extends PMTest {
 
         new CutStep(getProject(), fieldDeclaration).apply();
 
-        assertTrue(matchesSource("public class S {void m(){x = 1;}}", this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit, hasSource("public class S {void m(){x = 1;}}"));
     }
 
     @Test
@@ -90,7 +91,7 @@ public class CutStepTest extends PMTest {
 
         new CutStep(getProject(), methodDeclaration).apply();
 
-        assertTrue(matchesSource("public class S {S s;}", this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit, hasSource("public class S {S s;}"));
     }
 
     @Test
@@ -105,7 +106,7 @@ public class CutStepTest extends PMTest {
 
         new CutStep(getProject(), nodesToCut).apply();
 
-        assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}", this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit, hasSource("public class S {void m(){int x,y; int a; x = 2;}}"));
         assertEquals(Pasteboard.getInstance().getPasteboardRoots().size(), 2);
         assertTrue(Pasteboard.getInstance().containsOnlyNodesOfClass(Statement.class));
     }
@@ -118,7 +119,7 @@ public class CutStepTest extends PMTest {
 
         new CutStep(getProject(), firstStatement).apply();
 
-        assertTrue(matchesSource("public class S {S s; void m(){}}", this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit, hasSource("public class S {S s; void m(){}}"));
     }
 
     @Test

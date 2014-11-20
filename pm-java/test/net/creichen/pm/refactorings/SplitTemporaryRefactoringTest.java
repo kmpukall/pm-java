@@ -9,10 +9,11 @@
 
 package net.creichen.pm.refactorings;
 
+import static net.creichen.pm.tests.Matchers.hasSource;
 import static net.creichen.pm.utils.ASTQuery.findAssignments;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -47,8 +48,8 @@ public class SplitTemporaryRefactoringTest extends PMTest {
 
         // Since this is a refactoring, all we care about is a source test
 
-        assertTrue(matchesSource("public class S { void m() {int x; x = 7; int y = 5; System.out.println(y);} }",
-                iCompilationUnit.getSource()));
+        assertThat(iCompilationUnit,
+                hasSource("public class S { void m() {int x; x = 7; int y = 5; System.out.println(y);} }"));
 
     }
 }

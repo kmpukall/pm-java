@@ -9,13 +9,10 @@
 
 package net.creichen.pm.refactorings;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Collection;
-
+import static net.creichen.pm.tests.Matchers.hasSource;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 import net.creichen.pm.consistency.ConsistencyValidator;
-import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -34,11 +31,7 @@ public class SplitProcessorTest extends PMTest {
 
         ProcessorDriver.drive(splitTemporary);
 
-        assertTrue(matchesSource("public class S {void m(){int x;int x = 1;x = x + 1;}}",
-                compilationUnit.getSource()));
-
-        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals(1, inconsistencies.size());
+        assertThat(compilationUnit, hasSource("public class S {void m(){int x;int x = 1;x = x + 1;}}"));
+        assertThat(ConsistencyValidator.getInstance().getInconsistencies(), hasSize(1));
     }
 }

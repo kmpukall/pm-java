@@ -10,8 +10,10 @@
 package net.creichen.pm.refactorings;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static net.creichen.pm.tests.Matchers.hasSource;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -33,8 +35,7 @@ public class DelegateProcessorTest extends PMTest {
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(matchesSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}", s.getSource()));
-
+        assertThat(s, hasSource("public class S {void m(){S s = new S();s.getClass(); s.m();}}"));
         assertThat(getProject(), hasNoInconsistencies());
     }
 
@@ -50,8 +51,7 @@ public class DelegateProcessorTest extends PMTest {
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(matchesSource("public class S {void m(){S s; super.m();}}", s.getSource()));
-
+        assertThat(s, hasSource("public class S {void m(){S s; super.m();}}"));
         assertThat(getProject(), hasNoInconsistencies());
     }
 
@@ -67,8 +67,7 @@ public class DelegateProcessorTest extends PMTest {
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(matchesSource("public class S {S s; void m(){s.getClass(); s.m();}}", s.getSource()));
-
+        assertThat(s, hasSource("public class S {S s; void m(){s.getClass(); s.m();}}"));
         assertThat(getProject(), hasNoInconsistencies());
     }
 
@@ -90,8 +89,7 @@ public class DelegateProcessorTest extends PMTest {
 
         ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(matchesSource("package t; public class Sub extends Super {void g() {s.m();}}", sub.getSource()));
-
+        assertThat(sub, hasSource("package t; public class Sub extends Super {void g() {s.m();}}"));
         assertThat(getProject(), hasNoInconsistencies());
     }
 
@@ -106,10 +104,8 @@ public class DelegateProcessorTest extends PMTest {
         delegateProcessor.setDelegateIdentifier("");
         final RefactoringStatus status = ProcessorDriver.drive(delegateProcessor);
 
-        assertTrue(status.getSeverity() < RefactoringStatus.ERROR);
-
-        assertTrue(matchesSource("public class S {void m(){S s; m();}}", s.getSource()));
-
+        assertThat(status.getSeverity(), is(lessThan(RefactoringStatus.ERROR)));
+        assertThat(s, hasSource("public class S {void m(){S s; m();}}"));
         assertThat(getProject(), hasNoInconsistencies());
     }
 }

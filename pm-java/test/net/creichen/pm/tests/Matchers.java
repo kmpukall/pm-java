@@ -7,6 +7,12 @@ import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.core.Project;
 
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTMatcher;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -86,4 +92,61 @@ public final class Matchers {
             }
         };
     }
+
+    public static Matcher<ICompilationUnit> hasSource(final String source) {
+        return new TypeSafeMatcher<ICompilationUnit>() {
+
+            @Override
+            public void describeTo(Description arg0) {
+                arg0.appendText("an ICompilationUnit with source \"" + source + "\"");
+            }
+
+            @Override
+            protected boolean matchesSafely(ICompilationUnit arg0) {
+                try {
+                    final ASTNode node1 = parseNodeFromSource(arg0.getSource());
+                    final ASTNode node2 = parseNodeFromSource(source);
+                    return node1.subtreeMatch(new ASTMatcher(), node2);
+                } catch (JavaModelException e) {
+                    return false;
+                }
+            }
+
+            protected ASTNode parseNodeFromSource(final String source) {
+                final ASTParser parser = ASTParser.newParser(AST.JLS4);
+                parser.setSource(source.toCharArray());
+                parser.setResolveBindings(true);
+                return parser.createAST(null);
+            }
+        };
+    }
+
+    public static Matcher<PMCompilationUnit> hasPMSource(final String source) {
+        return new TypeSafeMatcher<PMCompilationUnit>() {
+
+            @Override
+            public void describeTo(Description arg0) {
+                arg0.appendText("an ICompilationUnit with source \"" + source + "\"");
+            }
+
+            @Override
+            protected boolean matchesSafely(PMCompilationUnit arg0) {
+                try {
+                    final ASTNode node1 = parseNodeFromSource(arg0.getSource());
+                    final ASTNode node2 = parseNodeFromSource(source);
+                    return node1.subtreeMatch(new ASTMatcher(), node2);
+                } catch (JavaModelException e) {
+                    return false;
+                }
+            }
+
+            protected ASTNode parseNodeFromSource(final String source) {
+                final ASTParser parser = ASTParser.newParser(AST.JLS4);
+                parser.setSource(source.toCharArray());
+                parser.setResolveBindings(true);
+                return parser.createAST(null);
+            }
+        };
+    }
+
 }

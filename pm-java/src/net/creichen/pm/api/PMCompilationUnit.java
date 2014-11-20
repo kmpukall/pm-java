@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -26,7 +27,7 @@ public interface PMCompilationUnit {
 
     ICompilationUnit getICompilationUnit();
 
-    String getSource();
+    String getSource() throws JavaModelException;
 
     String getHandleIdentifier();
 

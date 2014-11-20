@@ -10,10 +10,10 @@
 package net.creichen.pm.steps;
 
 import static net.creichen.pm.tests.Matchers.hasNoInconsistencies;
+import static net.creichen.pm.tests.Matchers.hasSource;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
@@ -77,10 +77,9 @@ public class PushDownFieldTest extends PMTest {
         cutStep.apply();
 
         assertThat(getProject(), hasNoInconsistencies());
-        assertTrue(matchesSource("public class S {} }", iCompilationUnitS.getSource()));
-
-        assertTrue(matchesSource("public class T1 extends S { int _y;  }", iCompilationUnitT1.getSource()));
-        assertTrue(matchesSource("public class T2 extends S { int _y;  }", iCompilationUnitT2.getSource()));
+        assertThat(iCompilationUnitS, hasSource("public class S {} }"));
+        assertThat(iCompilationUnitT1, hasSource("public class T1 extends S { int _y;  }"));
+        assertThat(iCompilationUnitT2, hasSource("public class T2 extends S { int _y;  }"));
 
     }
 

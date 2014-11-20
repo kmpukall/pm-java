@@ -9,9 +9,10 @@
 
 package net.creichen.pm.refactorings;
 
+import static net.creichen.pm.tests.Matchers.hasSource;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.tests.PMTest;
 import net.creichen.pm.utils.ASTQuery;
@@ -42,9 +43,7 @@ public class MoveFieldRefactoringTest extends PMTest {
 
         refactoring.apply();
 
-        assertTrue(matchesSource("public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }",
-                s.getSource()));
-
-        assertTrue(matchesSource("public class T { int _y;  }", t.getSource()));
+        assertThat(s, hasSource("public class S {void m() {int x; _y = 7; x = 5; System.out.println(x);} }"));
+        assertThat(t, hasSource("public class T { int _y;  }"));
     }
 }

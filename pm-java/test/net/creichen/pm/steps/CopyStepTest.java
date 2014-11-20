@@ -9,13 +9,14 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.tests.Matchers.hasSource;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(matchesSource("public class S {int x; void m(){x = 1; y++;} int y;}", iCompilationUnit.getSource()));
+        assertThat(iCompilationUnit, hasSource("public class S {int x; void m(){x = 1; y++;} int y;}"));
 
         final MethodDeclaration methodDeclarationCopy = (MethodDeclaration) Pasteboard.getInstance()
                 .getPasteboardRoots().get(0);
@@ -157,7 +158,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(matchesSource(source, iCompilationUnit.getSource()));
+        assertThat(iCompilationUnit, hasSource(source));
 
         final ExpressionStatement fourthStatementCopy = (ExpressionStatement) Pasteboard.getInstance()
                 .getPasteboardRoots().get(1);
@@ -213,7 +214,7 @@ public class CopyStepTest extends PMTest {
 
         // Source shouldn't have changed
 
-        assertTrue(matchesSource("public class S {int x; void m(){x = 1;}}", iCompilationUnit.getSource()));
+        assertThat(iCompilationUnit, hasSource("public class S {int x; void m(){x = 1;}}"));
 
         final FieldDeclaration fieldDeclarationCopy = (FieldDeclaration) Pasteboard.getInstance().getPasteboardRoots()
                 .get(0);

@@ -48,17 +48,12 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
     }
 
     @Override
-    public String getSource() {
+    public String getSource() throws JavaModelException {
         if (this.iCompilationUnit == null) {
             // not clear if this can actually happen
             return this.compilationUnit.toString();
         }
-        try {
-            return this.iCompilationUnit.getSource();
-        } catch (final JavaModelException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return this.iCompilationUnit.getSource();
     }
 
     // we parse more than one compilation unit at once (since this makes it
@@ -78,7 +73,14 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
     }
 
     public boolean isSourceUnchanged() {
-        return Arrays.equals(calculateHashForSource(getSource()), this.sourceDigest);
+        String source;
+        try {
+            source = getSource();
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return Arrays.equals(calculateHashForSource(source), this.sourceDigest);
     }
 
     private byte[] calculateHashForSource(final String source) {
@@ -102,7 +104,13 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
         this.compilationUnit = compilationUnit;
         this.iCompilationUnit = iCompilationUnit;
 
-        updateHash(getSource());
+        String source;
+        try {
+            source = getSource();
+            updateHash(source);
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

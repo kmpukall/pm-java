@@ -9,16 +9,13 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.tests.Matchers.hasPMSource;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Collection;
-
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
-import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.tests.PMTest;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -55,12 +52,8 @@ public class DelegateStepTest extends PMTest {
 
         step.apply();
 
-        assertTrue(matchesSource("public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }",
-                s2PMCompilationUnit.getSource()));
-
-        final Collection<Inconsistency> inconsistencies = ConsistencyValidator.getInstance().getInconsistencies();
-
-        assertEquals("Unexpected inconsistency list:" + inconsistencies, 1, inconsistencies.size());
+        assertThat(s2PMCompilationUnit, hasPMSource("public class S2 {void m(){/*S2*/} void b(){S1 s1; s1.m();} }"));
+        assertThat(ConsistencyValidator.getInstance().getInconsistencies(), hasSize(1));
 
     }
 

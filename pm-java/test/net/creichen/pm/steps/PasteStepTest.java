@@ -9,10 +9,11 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.tests.Matchers.hasSource;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findFieldByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +58,8 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.apply();
 
-        assertTrue(matchesSource("public class S1 {void m1(){System.out.println(s);}}", compilationUnit1.getSource()));
-        assertTrue(matchesSource("public class S2 {void a(){} S1 s; void b(){} }", compilationUnit2.getSource()));
+        assertThat(compilationUnit1, hasSource("public class S1 {void m1(){System.out.println(s);}}"));
+        assertThat(compilationUnit2, hasSource("public class S2 {void a(){} S1 s; void b(){} }"));
     }
 
     @Test
@@ -83,9 +84,9 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.apply();
 
-        assertTrue(matchesSource("public class S1 {S1 s;}", compilationUnit1.getSource()));
-        assertTrue(matchesSource("public class S2 {String a;  void m(){System.out.println(s);} String b;",
-                compilationUnit2.getSource()));
+        assertThat(compilationUnit1, hasSource("public class S1 {S1 s;}"));
+        assertThat(compilationUnit2,
+                hasSource("public class S2 {String a;  void m(){System.out.println(s);} String b;"));
     }
 
     @Test
@@ -115,10 +116,10 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.apply();
 
-        assertTrue(matchesSource("public class S1 {S1 s; void m(){}}", compilationUnit1.getSource()));
-        assertTrue(matchesSource(
-                "public class S2 {void a(){System.out.println(1);System.out.println(s); System.out.println(2);}}",
-                compilationUnit2.getSource()));
+        assertThat(compilationUnit1, hasSource("public class S1 {S1 s; void m(){}}"));
+        assertThat(
+                compilationUnit2,
+                hasSource("public class S2 {void a(){System.out.println(1);System.out.println(s); System.out.println(2);}}"));
     }
 
     @Test
@@ -143,7 +144,7 @@ public class PasteStepTest extends PMTest {
 
         cutStep.apply();
 
-        assertTrue(matchesSource("public class S {void m(){int x,y; int a; x = 2;}}", iCompilationUnit.getSource()));
+        assertThat(iCompilationUnit, hasSource("public class S {void m(){int x,y; int a; x = 2;}}"));
 
         // have to get new ASTNodes b/c of reparsing
         compilationUnit = getProject().getPMCompilationUnit(iCompilationUnit);
@@ -156,8 +157,7 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.apply();
 
-        assertTrue(matchesSource("public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}",
-                iCompilationUnit.getSource()));
+        assertThat(iCompilationUnit, hasSource("public class S {void m(){int x,y; int a; a = 1; y = 3; x = 2;}}"));
 
     }
 
@@ -183,11 +183,10 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.apply();
 
-        final String expectedNewSourceS = "package A; public class S extends A.T {void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        final String expectedNewSourceT = "package B; public class T {String string = foo(); }";
-
-        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertThat(
+                compilationUnitS,
+                hasSource("package A; public class S extends A.T {void m(){System.out.println(string);} private static String foo() {return \"foo\";} }"));
+        assertThat(compilationUnitT, hasSource("package B; public class T {String string = foo(); }"));
     }
 
     @Test
@@ -215,8 +214,8 @@ public class PasteStepTest extends PMTest {
         final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
         final String expectedNewSourceT = "public class T {String string;}";
 
-        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertThat(compilationUnitS, hasSource(expectedNewSourceS));
+        assertThat(compilationUnitT, hasSource(expectedNewSourceT));
     }
 
     @Test
@@ -240,11 +239,8 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.apply();
 
-        final String expectedNewSourceS = "public class S extends T {void m(){System.out.println(string);}}";
-        final String expectedNewSourceT = "public class T {String string = \"Bar\";}";
-
-        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertThat(compilationUnitS, hasSource("public class S extends T {void m(){System.out.println(string);}}"));
+        assertThat(compilationUnitT, hasSource("public class T {String string = \"Bar\";}"));
     }
 
     @Test
@@ -266,14 +262,12 @@ public class PasteStepTest extends PMTest {
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
-
         pasteStep.apply();
 
-        final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        final String expectedNewSourceT = "public class T {String string = foo();}";
-
-        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertThat(
+                compilationUnitS,
+                hasSource("public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }"));
+        assertThat(compilationUnitT, hasSource("public class T {String string = foo();}"));
     }
 
     @Test
@@ -298,11 +292,10 @@ public class PasteStepTest extends PMTest {
 
         pasteStep.apply();
 
-        final String expectedNewSourceS = "public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }";
-        final String expectedNewSourceT = "public class T {static String string = foo();}";
-
-        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertThat(
+                compilationUnitS,
+                hasSource("public class S extends T { void m(){System.out.println(string);} private static String foo() {return \"foo\";} }"));
+        assertThat(compilationUnitT, hasSource("public class T {static String string = foo();}"));
     }
 
     @Test
@@ -326,14 +319,12 @@ public class PasteStepTest extends PMTest {
 
         final PasteStep pasteStep = new PasteStep(getProject(), targetDeclaration,
                 TypeDeclaration.BODY_DECLARATIONS_PROPERTY, 0);
-
         pasteStep.apply();
 
-        final String expectedNewSourceS = "public class S extends T {static String string = foo(); void m(){System.out.println(string);}  }";
-        final String expectedNewSourceT = "public class T { private static String foo() {return \"foo\";}}";
-
-        assertTrue(matchesSource(expectedNewSourceS, compilationUnitS.getSource()));
-        assertTrue(matchesSource(expectedNewSourceT, compilationUnitT.getSource()));
+        assertThat(
+                compilationUnitS,
+                hasSource("public class S extends T {static String string = foo(); void m(){System.out.println(string);}  }"));
+        assertThat(compilationUnitT, hasSource("public class T { private static String foo() {return \"foo\";}}"));
     }
 
 }

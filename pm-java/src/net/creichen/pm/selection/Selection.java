@@ -11,6 +11,7 @@ package net.creichen.pm.selection;
 
 import net.creichen.pm.api.PMCompilationUnit;
 
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
@@ -125,7 +126,14 @@ public class Selection {
     }
 
     public String getSelectionAsString() {
-        return this.compilationUnit.getSource().substring(this.offset, this.offset + this.length);
+        String source;
+        try {
+            source = this.compilationUnit.getSource();
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+            return "";
+        }
+        return source.substring(this.offset, this.offset + this.length);
     }
 
     public boolean isListSelection() {

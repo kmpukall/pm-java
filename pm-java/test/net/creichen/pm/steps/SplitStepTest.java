@@ -9,12 +9,14 @@
 
 package net.creichen.pm.steps;
 
+import static net.creichen.pm.tests.Matchers.hasSource;
 import static net.creichen.pm.utils.ASTQuery.findAssignments;
 import static net.creichen.pm.utils.ASTQuery.findClassByName;
 import static net.creichen.pm.utils.ASTQuery.findMethodByName;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -59,8 +61,8 @@ public class SplitStepTest extends PMTest {
 
         this.step.apply();
 
-        assertTrue(matchesSource("public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }",
-                this.iCompilationUnit.getSource()));
+        assertThat(this.iCompilationUnit,
+                hasSource("public class S { void m() {int x; x = 7; int x = 5; System.out.println(x);} }"));
     }
 
     // We have five outputs that we care about: the source, the updated name

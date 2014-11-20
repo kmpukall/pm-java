@@ -26,10 +26,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTMatcher;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.junit.After;
 import org.junit.Assert;
@@ -80,12 +76,6 @@ public abstract class PMTest {
         this.iJavaProject = null;
     }
 
-    protected boolean matchesSource(final String source1, final String source2) {
-        final CompilationUnit compilationUnit1 = toCompilationUnit(source1);
-        final CompilationUnit compilationUnit2 = toCompilationUnit(source2);
-        return compilationUnit1.subtreeMatch(new ASTMatcher(), compilationUnit2);
-    }
-
     protected ICompilationUnit createCompilationUnit(final String packageFragmentName, final String fileName,
             final String sourceText) {
         ICompilationUnit result = null;
@@ -109,30 +99,12 @@ public abstract class PMTest {
         return this.iJavaProject;
     }
 
-    protected CompilationUnit parseCompilationUnitFromSource(final String source, final String unitName) {
-        final ASTParser parser = ASTParser.newParser(AST.JLS4);
-        if (unitName != null) {
-            final ICompilationUnit iCompilationUnit = createCompilationUnit("", unitName, source);
-            parser.setSource(iCompilationUnit);
-        } else {
-            parser.setSource(source.toCharArray());
-        }
-        parser.setResolveBindings(true);
-        parser.setUnitName(unitName);
-        parser.setProject(this.iJavaProject);
-        return (CompilationUnit) parser.createAST(null);
-    }
-
     protected void setUp() {
         // can be overwritten by subclasses
     }
 
     protected void tearDown() {
         // can be overwritten by subclasses
-    }
-
-    protected CompilationUnit toCompilationUnit(final String source) {
-        return parseCompilationUnitFromSource(source, null);
     }
 
 }
