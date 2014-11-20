@@ -21,7 +21,7 @@ import net.creichen.pm.data.Pasteboard;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class CutStep extends Step {
+public class CutStep extends AbstractStep {
     private List<ASTNode> selectedNodes;
 
     public CutStep(final Project project, final ASTNode node) {
@@ -32,22 +32,17 @@ public class CutStep extends Step {
 
     public CutStep(final Project project, final List<ASTNode> selectedNodes) {
         super(project);
-
         this.selectedNodes = selectedNodes;
     }
 
     @Override
     public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
         final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
-
         final ASTRewrite astRewrite = ASTRewrite.create(this.selectedNodes.get(0).getAST());
-
         for (final ASTNode node : this.selectedNodes) {
             astRewrite.remove(node, null);
-
             result.put(getProject().findPMCompilationUnitForNode(node), astRewrite);
         }
-
         return result;
     }
 
@@ -55,27 +50,10 @@ public class CutStep extends Step {
 
     @Override
     public void performASTChange() {
-        /*
-         *
-         * _project.setPasteboardRoot(_selectedNodes.get(0));
-         *
-         * PMCompilationUnitModel usingModel = _project.modelForASTNode(_selectedNodes.get(0));
-         * usingModel.removeIdentifiersForTreeStartingAtNode (_selectedNodes.get(0));
-         */
-
         final Pasteboard pasteboard = Pasteboard.getInstance();
-
         pasteboard.setPasteboardRoots(this.selectedNodes);
-
         for (final ASTNode node : this.selectedNodes) {
             node.delete();
         }
-
     }
-
-    @Override
-    public void updateAfterReparse() {
-
-    }
-
 }

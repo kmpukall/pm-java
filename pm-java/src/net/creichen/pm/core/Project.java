@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.creichen.pm.analysis.ASTMatcher;
@@ -139,21 +140,17 @@ public class Project {
 
     public ASTNode nodeForSelection(final ITextSelection selection, final ICompilationUnit iCompilationUnit) {
         final CompilationUnit compilationUnit = getPMCompilationUnit(iCompilationUnit).getCompilationUnit();
-
-        final ASTNode selectedNode = ASTQuery.findNodeForSelection(selection.getOffset(), selection.getLength(),
-                compilationUnit);
-
-        return selectedNode;
+        return ASTQuery.findNodeForSelection(selection.getOffset(), selection.getLength(), compilationUnit);
     }
 
-    public boolean recursivelyReplaceNodeWithCopy(final ASTNode node, final ASTNode copy) {
+    public void recursivelyReplaceNodeWithCopy(final ASTNode node, final ASTNode copy) {
         // It's kind of silly that we have to match twice
         final ASTMatcher astMatcher = new ASTMatcher(node, copy);
-        final boolean matches = astMatcher.matches();
-        if (matches) {
+        if (astMatcher.matches()) {
             final Map<ASTNode, ASTNode> isomorphicNodes = astMatcher.isomorphicNodes();
-            for (final ASTNode oldNode : isomorphicNodes.keySet()) {
-                final ASTNode newNode = isomorphicNodes.get(oldNode);
+            for (final Entry<ASTNode, ASTNode> pair : isomorphicNodes.entrySet()) {
+                final ASTNode oldNode = pair.getKey();
+                final ASTNode newNode = pair.getValue();
                 if (oldNode instanceof SimpleName) {
                     this.nameModel.rename((SimpleName) oldNode, (SimpleName) newNode);
                 }
@@ -163,8 +160,6 @@ public class Project {
             System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
             throw new PMException("Copy not does structurally match original");
         }
-
-        return matches;
     }
 
     public boolean sourcesAreOutOfSync() {
@@ -213,7 +208,7 @@ public class Project {
         // for now we punt and have this reset the model
         if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
             System.err
-            .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
+                    .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
             this.pmCompilationUnits.clear();
             resetAll = true;
@@ -239,17 +234,8 @@ public class Project {
 
                 if (!resetAll) {
                     final CompilationUnit oldCompilationUnit = getPMCompilationUnit(source).getCompilationUnit();
-
-                    if (recursivelyReplaceNodeWithCopy(oldCompilationUnit, newCompilationUnit)) {
-                        pmCompilationUnit.updatePair(source, newCompilationUnit);
-
-                    } else {
-                        System.err.println("Couldn't update to new version of compilation unit!");
-                        System.err.println("Old compilation unit: " + oldCompilationUnit);
-                        System.err.println("New compilation unit: " + newCompilationUnit);
-
-                        resetModels();
-                    }
+                    recursivelyReplaceNodeWithCopy(oldCompilationUnit, newCompilationUnit);
+                    pmCompilationUnit.updatePair(source, newCompilationUnit);
                 }
             }
         };

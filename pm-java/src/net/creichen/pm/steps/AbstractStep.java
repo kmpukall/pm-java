@@ -9,6 +9,7 @@
 
 package net.creichen.pm.steps;
 
+import java.util.Collections;
 import java.util.Map;
 
 import net.creichen.pm.api.PMCompilationUnit;
@@ -27,7 +28,7 @@ import org.eclipse.ltk.core.refactoring.NullChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.TextEdit;
 
-class Step {
+abstract class AbstractStep {
     private final class PMCompositeChange extends CompositeChange {
         private PMCompositeChange(final String name) {
             super(name);
@@ -46,32 +47,11 @@ class Step {
 
     }
 
-    private final class PMTextFileChange extends TextFileChange {
-        private PMTextFileChange(final String name, final IFile file) {
-            super(name, file);
-        }
-
-        // This will do the text change but not the ast changes
-
-        @Override
-        public Change perform(final IProgressMonitor pm) throws CoreException {
-
-            // In future, we might as well do the text replacement parts of the
-            // change ourselves, too (since this will make sure that we do the
-            // same thing in all situations), but for now we let the superclass
-            // do it
-            final Change result = super.perform(pm);
-
-            return result;
-        }
-
-    }
-
     // need method to test for errors before asking for changes
 
     private final Project project;
 
-    Step(final Project project) {
+    AbstractStep(final Project project) {
         this.project = project;
     }
 
@@ -94,7 +74,7 @@ class Step {
     }
 
     public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
-        return null;
+        return Collections.emptyMap();
     }
 
     public Change createCompositeChange(final String changeDescription) {
@@ -112,7 +92,7 @@ class Step {
 
                     final TextEdit astEdit = rewrite.rewriteAST();
 
-                    final TextFileChange localChange = new PMTextFileChange(changeDescription,
+                    final TextFileChange localChange = new TextFileChange(changeDescription,
                             (IFile) compilationUnitToChange.getResource());
 
                     localChange.setTextType("java");
@@ -135,9 +115,7 @@ class Step {
         return this.project;
     }
 
-    public void performASTChange() {
-
-    }
+    public abstract void performASTChange();
 
     public void updateAfterReparse() {
 

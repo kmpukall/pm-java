@@ -10,14 +10,12 @@
 package net.creichen.pm.steps;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.creichen.pm.api.Node;
-import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.data.Pasteboard;
@@ -31,9 +29,8 @@ import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class CopyStep extends Step {
+public class CopyStep extends AbstractStep {
     private final List<ASTNode> selectedNodes;
 
     public CopyStep(final Project project, final ASTNode node) {
@@ -45,11 +42,6 @@ public class CopyStep extends Step {
     CopyStep(final Project project, final List<ASTNode> selectedNodes) {
         super(project);
         this.selectedNodes = selectedNodes;
-    }
-
-    @Override
-    public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
-        return Collections.emptyMap();
     }
 
     // need method to test for errors before asking for changes
@@ -77,7 +69,7 @@ public class CopyStep extends Step {
                     nameModel.setIdentifier(freshNameModelIdentifier, copyName);
 
                     copyNameIdentifiersForOriginals
-                    .put(nameModel.getIdentifier(originalName), freshNameModelIdentifier);
+                            .put(nameModel.getIdentifier(originalName), freshNameModelIdentifier);
                 } else {
                     nameModel.setIdentifier(nameModel.getIdentifier(originalName), copyName);
                 }
@@ -235,10 +227,4 @@ public class CopyStep extends Step {
         final Pasteboard pasteboard = Pasteboard.getInstance();
         pasteboard.setPasteboardRoots(copiedPasteboardRootNodes);
     }
-
-    @Override
-    public void updateAfterReparse() {
-
-    }
-
 }

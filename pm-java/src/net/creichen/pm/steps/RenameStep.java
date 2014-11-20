@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class RenameStep extends Step {
+public class RenameStep extends AbstractStep {
     private SimpleName nameNode;
 
     private String newName;
@@ -117,18 +117,11 @@ public class RenameStep extends Step {
                         iCompilationUnitToRename);
 
                 getProject().rename(pmCompilationUnitToRename, this.newName);
-
             }
         }
-
     }
 
     public void setNewName(final String newName) {
         this.newName = newName;
-    }
-
-    @Override
-    public void updateAfterReparse() {
-
     }
 }

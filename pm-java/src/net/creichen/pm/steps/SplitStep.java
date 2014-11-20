@@ -47,7 +47,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class SplitStep extends Step {
+public class SplitStep extends AbstractStep {
 
     private final PMCompilationUnit compilationUnit;
 
@@ -71,15 +71,10 @@ public class SplitStep extends Step {
     @Override
     public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
         final ASTRewrite astRewrite = ASTRewrite.create(this.assignmentStatement.getAST());
-
         final Assignment assignmentExpression = (Assignment) this.assignmentStatement.getExpression();
-
         rewriteToReplaceAssignmentStatementWithDeclaration(astRewrite, assignmentExpression);
-
         final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
-
         result.put(this.compilationUnit, astRewrite);
-
         return result;
     }
 
@@ -144,11 +139,6 @@ public class SplitStep extends Step {
 
         this.replacementDeclarationReference = NodeStore.getInstance().getReference(
                 this.replacementDeclarationStatement);
-
-    }
-
-    @Override
-    public void updateAfterReparse() {
 
     }
 

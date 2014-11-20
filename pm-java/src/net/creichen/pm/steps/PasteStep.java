@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.data.Pasteboard;
@@ -29,7 +28,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
-public class PasteStep extends Step {
+public class PasteStep extends AbstractStep {
 
     private final ASTNode parent;
 
@@ -39,10 +38,8 @@ public class PasteStep extends Step {
     public PasteStep(final Project project, final ASTNode parent, final ChildListPropertyDescriptor property,
             final int index) {
         super(project);
-
         this.parent = parent;
         this.property = property;
-
         this.index = index;
     }
 
@@ -68,10 +65,7 @@ public class PasteStep extends Step {
 
     @Override
     public void performASTChange() {
-
-        final Pasteboard pasteboard = Pasteboard.getInstance();
-
-        final List<ASTNode> nodesToPaste = pasteboard.getPasteboardRoots();
+        final List<ASTNode> nodesToPaste = Pasteboard.getInstance().getPasteboardRoots();
 
         final NameModel nameModel = getProject().getNameModel();
 
@@ -89,16 +83,9 @@ public class PasteStep extends Step {
                 @Override
                 public boolean match(final SimpleName pasteboardName, final Object other) {
                     if (super.match(pasteboardName, other)) {
-
                         final SimpleName copyName = (SimpleName) other;
-
                         final String identifier = nameModel.getIdentifier(pasteboardName);
-
-                        // System.out.println("Identifier for " + copyName +
-                        // " is " + identifier);
-
                         nameModel.setIdentifier(identifier, copyName);
-
                         return true;
                     } else {
                         return false;
@@ -108,22 +95,10 @@ public class PasteStep extends Step {
 
             if (node.subtreeMatch(identifierMatcher, copiedNode)) {
                 getProject().recursivelyReplaceNodeWithCopy(node, copiedNode);
-
             } else {
                 System.err.println("Couldn't match copied statement to original");
-
                 throw new PMException("PM Paste Error: Couldn't match copied statement to original");
             }
         }
-
-        // FIXME(dcc) is this update necessary?
-        getProject().updateToNewVersionsOfICompilationUnits();
-        ConsistencyValidator.getInstance().reset();
     }
-
-    @Override
-    public void updateAfterReparse() {
-
-    }
-
 }

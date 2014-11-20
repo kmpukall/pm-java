@@ -44,7 +44,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
-class ExtractMethodStep extends Step {
+class ExtractMethodStep extends AbstractStep {
 
     private static Type newTypeASTNodeForTypeBinding(final AST ast, final ITypeBinding typeBinding) {
         // for now we only support simple types and primitive types
@@ -201,23 +201,8 @@ class ExtractMethodStep extends Step {
     @Override
     public void performASTChange() {
         final TypeDeclaration containingClass = containingClass(this.originalExpression);
-
         bodyDeclarations(containingClass).add(this.extractedMethodDeclaration);
-
         getProject().recursivelyReplaceNodeWithCopy(this.originalExpression, this.extractedExpression);
-
         ASTUtil.replaceNodeInParent(this.originalExpression, this.replacementMethodInvocation);
-
-        performNameModelChange();
-        performUDModelChange();
-
-    }
-
-    private void performNameModelChange() {
-
-    }
-
-    private void performUDModelChange() {
-
     }
 }

@@ -42,7 +42,7 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
-public class DelegateStep extends Step {
+public class DelegateStep extends AbstractStep {
 
     private final ASTNode selectedNode;
 
