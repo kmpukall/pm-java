@@ -10,7 +10,7 @@
 package net.creichen.pm.core;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,11 +23,13 @@ import net.creichen.pm.data.NodeStore;
 import net.creichen.pm.models.defuse.DefUseModel;
 import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
-import net.creichen.pm.utils.ASTUtil;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -42,18 +44,19 @@ public class Project {
 
     private final IJavaProject iJavaProject;
 
-    private final Map<String, PMCompilationUnit> pmCompilationUnits; // keyed
-    // off
-    // ICompilationUnit.getHandleIdentifier
-
     private DefUseModel udModel;
     private NameModel nameModel;
 
-    public Project(final IJavaProject iJavaProject) {
-        this.iJavaProject = iJavaProject;
-        this.pmCompilationUnits = new HashMap<String, PMCompilationUnit>();
-        updateModelData(true);
+    private CompilationUnitStore compilationUnits;
 
+    public Project(final IJavaProject iJavaProject) {
+        this(iJavaProject, new CompilationUnitStore());
+    }
+
+    public Project(final IJavaProject iJavaProject, final CompilationUnitStore store) {
+        this.iJavaProject = iJavaProject;
+        this.compilationUnits = store;
+        updateModelData(true);
     }
 
     public ASTNode findDeclaringNodeForName(final Name nameNode) {
@@ -108,12 +111,7 @@ public class Project {
     }
 
     public PMCompilationUnit findPMCompilationUnitForNode(final ASTNode node) {
-        return this.pmCompilationUnits.get(((ICompilationUnit) ((CompilationUnit) node.getRoot()).getJavaElement())
-                .getHandleIdentifier());
-    }
-
-    public Set<ICompilationUnit> getICompilationUnits() {
-        return ASTUtil.getSourceFilesForProject(this.iJavaProject);
+        return this.compilationUnits.forNode(node);
     }
 
     public IJavaProject getIJavaProject() {
@@ -125,13 +123,11 @@ public class Project {
     }
 
     public PMCompilationUnit getPMCompilationUnit(final ICompilationUnit iCompilationUnit) {
-        return this.pmCompilationUnits.get(iCompilationUnit.getHandleIdentifier());
+        return this.compilationUnits.get(iCompilationUnit);
     }
 
     public Collection<PMCompilationUnit> getPMCompilationUnits() {
-        final Collection<PMCompilationUnit> result = new HashSet<PMCompilationUnit>();
-        result.addAll(this.pmCompilationUnits.values());
-        return result;
+        return this.compilationUnits.getAll();
     }
 
     public DefUseModel getUDModel() {
@@ -163,8 +159,8 @@ public class Project {
     }
 
     public boolean sourcesAreOutOfSync() {
-        for (final ICompilationUnit iCompilationUnit : ASTUtil.getSourceFilesForProject(this.iJavaProject)) {
-            if (!((PMCompilationUnitImpl) getPMCompilationUnit(iCompilationUnit)).isSourceUnchanged()) {
+        for (final ICompilationUnit sourceFile : getProjectSourceFiles()) {
+            if (!((PMCompilationUnitImpl) getPMCompilationUnit(sourceFile)).isSourceUnchanged()) {
                 return true;
             }
         }
@@ -198,7 +194,7 @@ public class Project {
     }
 
     private void updateModelData(final boolean reset) {
-        final Set<ICompilationUnit> iCompilationUnits = ASTUtil.getSourceFilesForProject(this.iJavaProject);
+        final Set<ICompilationUnit> sourceFiles = getProjectSourceFiles();
         final Set<ICompilationUnit> previouslyKnownCompilationUnits = allKnownICompilationUnits();
 
         final boolean resetAll;
@@ -206,53 +202,78 @@ public class Project {
         // compilation units
         // and updating the models accordingly
         // for now we punt and have this reset the model
-        if (!reset && !iCompilationUnits.equals(previouslyKnownCompilationUnits)) {
+        if (!reset && !sourceFiles.equals(previouslyKnownCompilationUnits)) {
             System.err
                     .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
 
-            this.pmCompilationUnits.clear();
+            this.compilationUnits = new CompilationUnitStore();
             resetAll = true;
         } else {
             resetAll = reset;
         }
 
-        final ASTParser parser = ASTParser.newParser(AST.JLS4);
-        parser.setProject(this.iJavaProject);
+        if (resetAll) {
+            final ASTParser parser = ASTParser.newParser(AST.JLS4);
+            parser.setProject(this.iJavaProject);
+            parser.setResolveBindings(true);
+            final ASTRequestor requestor = new ASTRequestor() {
+                @Override
+                public void acceptAST(final ICompilationUnit source, final CompilationUnit newCompilationUnit) {
+                    PMCompilationUnit pmCompilationUnit = Project.this.compilationUnits.get(source);
 
-        parser.setResolveBindings(true);
-
-        final ASTRequestor requestor = new ASTRequestor() {
-            @Override
-            public void acceptAST(final ICompilationUnit source, final CompilationUnit newCompilationUnit) {
-                PMCompilationUnit pmCompilationUnit = Project.this.pmCompilationUnits.get(source.getHandleIdentifier());
-
-                // We don't handle deletions yet
-                if (pmCompilationUnit == null) {
-                    pmCompilationUnit = new PMCompilationUnitImpl(source, newCompilationUnit);
-                    Project.this.pmCompilationUnits.put(source.getHandleIdentifier(), pmCompilationUnit);
+                    // We don't handle deletions yet
+                    if (pmCompilationUnit == null) {
+                        pmCompilationUnit = new PMCompilationUnitImpl(source, newCompilationUnit);
+                        Project.this.compilationUnits.put(pmCompilationUnit);
+                    }
                 }
+            };
+            parser.createASTs(sourceFiles.toArray(new ICompilationUnit[sourceFiles.size()]), new String[0], requestor,
+                    null);
+            resetModels();
+        } else {
+            final ASTParser parser = ASTParser.newParser(AST.JLS4);
+            parser.setProject(this.iJavaProject);
+            parser.setResolveBindings(true);
+            final ASTRequestor requestor = new ASTRequestor() {
+                @Override
+                public void acceptAST(final ICompilationUnit source, final CompilationUnit newCompilationUnit) {
+                    PMCompilationUnit pmCompilationUnit = Project.this.compilationUnits.get(source);
 
-                if (!resetAll) {
+                    // We don't handle deletions yet
+                    if (pmCompilationUnit == null) {
+                        pmCompilationUnit = new PMCompilationUnitImpl(source, newCompilationUnit);
+                        Project.this.compilationUnits.put(pmCompilationUnit);
+                    }
+
                     final CompilationUnit oldCompilationUnit = getPMCompilationUnit(source).getCompilationUnit();
                     recursivelyReplaceNodeWithCopy(oldCompilationUnit, newCompilationUnit);
                     pmCompilationUnit.updatePair(source, newCompilationUnit);
                 }
-            }
-        };
-
-        parser.createASTs(iCompilationUnits.toArray(new ICompilationUnit[iCompilationUnits.size()]), new String[0],
-                requestor, null);
-
-        if (resetAll) {
-            resetModels();
+            };
+            parser.createASTs(sourceFiles.toArray(new ICompilationUnit[sourceFiles.size()]), new String[0], requestor,
+                    null);
         }
-
     }
 
     public void rename(PMCompilationUnit compilationUnit, String newName) {
-        this.pmCompilationUnits.remove(compilationUnit.getHandleIdentifier());
-        compilationUnit.rename(newName);
-        this.pmCompilationUnits.put(compilationUnit.getHandleIdentifier(), compilationUnit);
+        this.compilationUnits.rename(compilationUnit, newName);
+    }
+
+    public Set<ICompilationUnit> getProjectSourceFiles() {
+        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
+        try {
+            for (final IPackageFragment packageFragment : this.iJavaProject.getPackageFragments()) {
+                if (packageFragment.getKind() == IPackageFragmentRoot.K_SOURCE
+                        && packageFragment.containsJavaResources()) {
+                    Collections.addAll(result, packageFragment.getCompilationUnits());
+
+                }
+            }
+        } catch (final JavaModelException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
 }

@@ -10,6 +10,7 @@
 package net.creichen.pm.tests;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
+import net.creichen.pm.core.CompilationUnitStore;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.core.Workspace;
@@ -34,6 +35,7 @@ import org.junit.Before;
 public abstract class PMTest {
     private IProject iProject = null;
     private IJavaProject iJavaProject = null;
+    private CompilationUnitStore compilationUnits;
 
     protected Project getProject() {
         return Workspace.getInstance().getProject(this.iJavaProject);

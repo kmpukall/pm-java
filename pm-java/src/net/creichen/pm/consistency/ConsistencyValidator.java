@@ -40,12 +40,11 @@ public class ConsistencyValidator {
             inconsistencySet.addAll(new NameModelConsistencyCheck(project).calculateInconsistencies(project
                     .getNameModel()));
             inconsistencySet.addAll(new DefUseModelConsistencyCheck(project.getPMCompilationUnits())
-            .calculateInconsistencies(project.getUDModel()));
+                    .calculateInconsistencies(project.getUDModel()));
 
             // delete previous markers
-            for (final ICompilationUnit iCompilationUnit : project.getICompilationUnits()) {
-
-                iCompilationUnit.getResource().deleteMarkers("org.eclipse.core.resources.problemmarker", false,
+            for (final ICompilationUnit sourceFile : project.getProjectSourceFiles()) {
+                sourceFile.getResource().deleteMarkers("org.eclipse.core.resources.problemmarker", false,
                         IResource.DEPTH_ZERO);
             }
 
