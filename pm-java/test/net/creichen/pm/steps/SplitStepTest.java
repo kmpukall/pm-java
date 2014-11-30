@@ -101,13 +101,13 @@ public class SplitStepTest extends PMTest {
 
         // now test reverse mapping interface
 
-        final List<SimpleName> nodesRelatedToFirstDeclaration = nameModel.nameNodesRelatedToNameNode(firstX);
+        final List<SimpleName> nodesRelatedToFirstDeclaration = nameModel.getRelatedNodes(firstX);
 
         assertEquals(2, nodesRelatedToFirstDeclaration.size());
         assertTrue(nodesRelatedToFirstDeclaration.contains(firstX));
         assertTrue(nodesRelatedToFirstDeclaration.contains(secondX));
 
-        final List<SimpleName> nodesRelatedToSecondDeclaration = nameModel.nameNodesRelatedToNameNode(thirdX);
+        final List<SimpleName> nodesRelatedToSecondDeclaration = nameModel.getRelatedNodes(thirdX);
 
         assertEquals(2, nodesRelatedToSecondDeclaration.size());
         assertTrue(nodesRelatedToSecondDeclaration.contains(thirdX));

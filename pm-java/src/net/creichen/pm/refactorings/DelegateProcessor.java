@@ -50,7 +50,9 @@ public class DelegateProcessor extends RefactoringProcessor {
     public RefactoringStatus checkInitialConditions(final IProgressMonitor pm) throws CoreException {
         final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
 
-        if (!project.sourcesAreOutOfSync()) {
+        if (project.requiresReset()) {
+            return RefactoringStatus.createWarningStatus("PM Model is out of date. This will reinitialize.");
+        } else {
             final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
 
             if (selectedNode instanceof MethodInvocation) {
@@ -59,8 +61,6 @@ public class DelegateProcessor extends RefactoringProcessor {
                 return RefactoringStatus.createFatalErrorStatus("Please select a method invocation [not a "
                         + selectedNode.getClass() + "]");
             }
-        } else {
-            return RefactoringStatus.createWarningStatus("PM Model is out of date. This will reinitialize.");
         }
 
     }
@@ -68,7 +68,9 @@ public class DelegateProcessor extends RefactoringProcessor {
     @Override
     public Change createChange(final IProgressMonitor pm) throws CoreException {
         final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
-        project.syncSources();
+        if (project.requiresReset()) {
+            project.reset();
+        }
         Change result = new NullChange();
         final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
         this.step = new DelegateStep(project, selectedNode);

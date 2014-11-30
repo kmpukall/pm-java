@@ -54,7 +54,7 @@ public class PMRenameProcessor extends RenameProcessor {
 
         RefactoringStatus result = null;
 
-        if (project.sourcesAreOutOfSync()) {
+        if (project.requiresReset()) {
             result = RefactoringStatus.createWarningStatus("PM Model is out of date. This will reinitialize.");
         } else {
             final ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
@@ -71,7 +71,9 @@ public class PMRenameProcessor extends RenameProcessor {
     @Override
     public Change createChange(final IProgressMonitor pm) throws CoreException {
         final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
-        project.syncSources();
+        if (project.requiresReset()) {
+            project.reset();
+        }
         this.renameStep = new RenameStep(project, (SimpleName) project.nodeForSelection(this.textSelection,
                 this.iCompilationUnit));
         this.renameStep.setNewName(this.newName);

@@ -10,7 +10,6 @@
 package net.creichen.pm.core;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -43,7 +42,7 @@ public class Project {
     private DefUseModel udModel;
     private NameModel nameModel;
 
-    private CompilationUnitStore compilationUnits;
+    public CompilationUnitStore compilationUnits;
 
     public Project(final IJavaProject iJavaProject) {
         this(iJavaProject, new CompilationUnitStore(iJavaProject));
@@ -52,7 +51,7 @@ public class Project {
     public Project(final IJavaProject iJavaProject, final CompilationUnitStore store) {
         this.iJavaProject = iJavaProject;
         this.compilationUnits = store;
-        resetModelData();
+        reset();
     }
 
     public ASTNode findDeclaringNodeForName(final Name nameNode) {
@@ -154,56 +153,29 @@ public class Project {
         }
     }
 
-    public boolean sourcesAreOutOfSync() {
-        for (final ICompilationUnit sourceFile : this.compilationUnits.getSourceFiles()) {
-            if (!((PMCompilationUnitImpl) getPMCompilationUnit(sourceFile)).isSourceUnchanged()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public void syncSources() {
-        if (sourcesAreOutOfSync()) {
-            resetModelData();
-        }
-    }
-
-    public void updateToNewVersionsOfICompilationUnits() {
-        if (!this.compilationUnits.getSourceFiles().equals(allKnownICompilationUnits())) {
-            resetModelData();
+    public void update() {
+        if (this.compilationUnits.hasDifferentSourceFiles()) {
+            reset();
         } else {
             updateModelData();
         }
     }
 
-    private Set<ICompilationUnit> allKnownICompilationUnits() {
-        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
-
-        for (final PMCompilationUnit pmCompilationUnit : getPMCompilationUnits()) {
-            result.add(pmCompilationUnit.getICompilationUnit());
-        }
-
-        return result;
-    }
-
-    private void resetModelData() {
+    public void reset() {
         // In future we will be smarter about detecting add/remove of
         // compilation units
         // and updating the models accordingly
         // for now we punt and have this reset the model
 
         System.err
-                .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
-        this.compilationUnits = new CompilationUnitStore(this.iJavaProject);
+        .println("Previously known ICompilationUnits does not match current ICompilationUnits so resetting!!!");
         this.compilationUnits.reset();
         this.udModel = new DefUseAnalysis(getPMCompilationUnits()).getModel();
         this.nameModel = new NameModel(getPMCompilationUnits());
     }
 
     private void updateModelData() {
-        final Set<ICompilationUnit> sourceFiles = this.compilationUnits.getSourceFiles();
+        final Set<ICompilationUnit> sourceFiles = this.compilationUnits.getSourceFilesFromProject();
         final ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setProject(this.iJavaProject);
         parser.setResolveBindings(true);
@@ -231,7 +203,11 @@ public class Project {
     }
 
     public Collection<ICompilationUnit> getProjectSourceFiles() {
-        return this.compilationUnits.getSourceFiles();
+        return this.compilationUnits.getSourceFilesFromProject();
+    }
+
+    public boolean requiresReset() {
+        return this.compilationUnits.hasDifferentSourceFiles();
     }
 
 }

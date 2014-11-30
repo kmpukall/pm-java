@@ -34,13 +34,6 @@ public class CompilationUnitStore {
     }
 
     /**
-     * Removes all compilation units from the store.
-     */
-    public void clear() {
-        this.compilationUnits.clear();
-    }
-
-    /**
      * Returns the {@link PMCompilationUnit} that contains the given node.
      *
      * @param node
@@ -84,7 +77,7 @@ public class CompilationUnitStore {
         put(compilationUnit);
     }
 
-    public Set<ICompilationUnit> getSourceFiles() {
+    public Set<ICompilationUnit> getSourceFilesFromProject() {
         final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
         try {
             for (final IPackageFragment packageFragment : this.iJavaProject.getPackageFragments()) {
@@ -101,7 +94,8 @@ public class CompilationUnitStore {
     }
 
     void reset() {
-        final Set<ICompilationUnit> sourceFiles = getSourceFiles();
+        this.compilationUnits.clear();
+        final Set<ICompilationUnit> sourceFiles = getSourceFilesFromProject();
         final ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setProject(this.iJavaProject);
         parser.setResolveBindings(true);
@@ -118,6 +112,20 @@ public class CompilationUnitStore {
             }
         };
         parser.createASTs(sourceFiles.toArray(new ICompilationUnit[sourceFiles.size()]), new String[0], requestor, null);
+    }
+
+    Set<ICompilationUnit> getSourceFilesFromStore() {
+        final Set<ICompilationUnit> result = new HashSet<ICompilationUnit>();
+
+        for (final PMCompilationUnit pmCompilationUnit : this.compilationUnits.values()) {
+            result.add(pmCompilationUnit.getICompilationUnit());
+        }
+
+        return result;
+    }
+
+    boolean hasDifferentSourceFiles() {
+        return !getSourceFilesFromProject().equals(getSourceFilesFromStore());
     }
 
 }

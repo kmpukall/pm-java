@@ -26,7 +26,9 @@ abstract class AbstractCommandHandler extends AbstractHandler {
         this.window = HandlerUtil.getActiveWorkbenchWindow(event);
         this.compilationUnit = createCompilationUnit();
         this.project = Workspace.getInstance().getProject(getCompilationUnit().getJavaProject());
-        this.project.syncSources();
+        if (this.project.requiresReset()) {
+            this.project.reset();
+        }
 
         ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
         if (currentSelection instanceof ITextSelection) {

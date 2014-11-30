@@ -38,7 +38,7 @@ abstract class AbstractStep {
         public Change perform(final IProgressMonitor pm) throws CoreException {
             final Change result = super.perform(pm);
             performASTChange();
-            getProject().updateToNewVersionsOfICompilationUnits();
+            getProject().update();
             ConsistencyValidator.getInstance().reset();
             updateAfterReparse();
             ConsistencyValidator.getInstance().rescanForInconsistencies(getProject());
@@ -65,7 +65,7 @@ abstract class AbstractStep {
 
         performASTChange();
 
-        this.project.updateToNewVersionsOfICompilationUnits();
+        this.project.update();
         ConsistencyValidator.getInstance().reset();
 
         updateAfterReparse();

@@ -49,7 +49,7 @@ public class NameModel {
         return this.identifiers.get(name);
     }
 
-    public List<SimpleName> nameNodesRelatedToNameNode(final SimpleName name) {
+    public List<SimpleName> getRelatedNodes(final SimpleName name) {
         final Set<SimpleName> allRelatedNodes = new HashSet<SimpleName>();
         recursiveAddNameNodesRelatedToNameNode(name, allRelatedNodes);
         return new ArrayList<SimpleName>(allRelatedNodes);

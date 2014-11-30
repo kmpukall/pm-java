@@ -24,6 +24,7 @@ public class NodeStoreTest {
     private final NodeStore store = new NodeStore();
 
     @Test
+    //TODO: this test fails randomly. improve it
     public void testNullingOutNodeRemovesReference() {
         ASTNode node = ASTNodeFactory.createSimpleName("Foo");
         final Node reference = this.store.getReference(node);

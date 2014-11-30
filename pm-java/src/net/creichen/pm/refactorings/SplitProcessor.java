@@ -55,10 +55,9 @@ public class SplitProcessor extends RefactoringProcessor {
 
         final Project project = Workspace.getInstance().getProject(this.iCompilationUnit.getJavaProject());
 
-        if (!project.sourcesAreOutOfSync()) {
-
-            project.syncSources();
-
+        if (project.requiresReset()) {
+            return RefactoringStatus.createWarningStatus("PM Model is out of date. This will reinitialize.");
+        } else {
             ASTNode selectedNode = project.nodeForSelection(this.textSelection, this.iCompilationUnit);
 
             // We expect the selected node to be an ExpressionStatement with an
@@ -100,8 +99,6 @@ public class SplitProcessor extends RefactoringProcessor {
             return RefactoringStatus
                     .createFatalErrorStatus("Split temporary can only be run on an assignment to a local variable.");
 
-        } else {
-            return RefactoringStatus.createWarningStatus("PM Model is out of date. This will reinitialize.");
         }
 
     }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.creichen.pm.api.PMCompilationUnit;
-import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.core.Project;
 import net.creichen.pm.models.name.NameModel;
@@ -48,19 +47,12 @@ public class RenameStep extends AbstractStep {
     @Override
     public Map<PMCompilationUnit, ASTRewrite> calculateTextualChange() {
         final Map<PMCompilationUnit, ASTRewrite> result = new HashMap<PMCompilationUnit, ASTRewrite>();
-
-        getProject().syncSources();
-        ConsistencyValidator.getInstance().reset();
-
         final NameModel nameModel = getProject().getNameModel();
-
-        final List<SimpleName> nodesToRename = nameModel.nameNodesRelatedToNameNode(this.nameNode);
-
-        this.nameNodesToChange.addAll(nodesToRename);
+        this.nameNodesToChange = nameModel.getRelatedNodes(this.nameNode);
 
         final Map<PMCompilationUnit, List<SimpleName>> nodesByICompilationUnit = new HashMap<PMCompilationUnit, List<SimpleName>>();
 
-        for (final SimpleName nodeToRename : nodesToRename) {
+        for (final SimpleName nodeToRename : nameModel.getRelatedNodes(this.nameNode)) {
             PMCompilationUnit pmCompilationUnit = getProject().findPMCompilationUnitForNode(nodeToRename);
 
             List<SimpleName> namesForUnit = nodesByICompilationUnit.get(pmCompilationUnit);
