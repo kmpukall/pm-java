@@ -6,17 +6,13 @@ import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.consistency.ConsistencyValidator;
 import net.creichen.pm.consistency.inconsistencies.Inconsistency;
 import net.creichen.pm.core.Project;
+import net.creichen.pm.models.function.FunctionModel;
+import net.creichen.pm.models.function.FunctionModelEquivalenceChecker;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTMatcher;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
-import org.hamcrest.TypeSafeMatcher;
+import org.eclipse.jdt.core.dom.*;
+import org.hamcrest.*;
 
 public final class Matchers {
 
@@ -61,6 +57,25 @@ public final class Matchers {
             return matches;
         }
     };
+
+    public static Matcher<MethodDeclaration> equivalentTo(final MethodDeclaration other) {
+        TypeSafeDiagnosingMatcher<MethodDeclaration> equivalentTo = new TypeSafeDiagnosingMatcher<MethodDeclaration>() {
+    
+            private FunctionModelEquivalenceChecker checker = new FunctionModelEquivalenceChecker();
+    
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a method declaration equivalent to " + other);
+            }
+    
+            @Override
+            protected boolean matchesSafely(MethodDeclaration method, Description description) {
+                return this.checker.checkEquivalence(new FunctionModel(method),
+                        new FunctionModel(other));
+            }
+        };
+        return equivalentTo;
+    }
 
     public static Matcher<Project> hasNoInconsistencies() {
         return HAS_NO_INCONSISTENCIES;
@@ -113,7 +128,7 @@ public final class Matchers {
             }
 
             protected ASTNode parseNodeFromSource(final String source) {
-                final ASTParser parser = ASTParser.newParser(AST.JLS4);
+                final ASTParser parser = ASTParser.newParser(AST.JLS8);
                 parser.setSource(source.toCharArray());
                 parser.setResolveBindings(true);
                 return parser.createAST(null);
@@ -141,7 +156,7 @@ public final class Matchers {
             }
 
             protected ASTNode parseNodeFromSource(final String source) {
-                final ASTParser parser = ASTParser.newParser(AST.JLS4);
+                final ASTParser parser = ASTParser.newParser(AST.JLS8);
                 parser.setSource(source.toCharArray());
                 parser.setResolveBindings(true);
                 return parser.createAST(null);

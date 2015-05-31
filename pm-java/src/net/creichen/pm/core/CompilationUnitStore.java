@@ -1,24 +1,11 @@
 package net.creichen.pm.core;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import net.creichen.pm.api.PMCompilationUnit;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTRequestor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.*;
 
 public class CompilationUnitStore {
 
@@ -96,7 +83,7 @@ public class CompilationUnitStore {
     void reset() {
         this.compilationUnits.clear();
         final Set<ICompilationUnit> sourceFiles = getSourceFilesFromProject();
-        final ASTParser parser = ASTParser.newParser(AST.JLS4);
+        final ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setProject(this.iJavaProject);
         parser.setResolveBindings(true);
         final ASTRequestor requestor = new ASTRequestor() {

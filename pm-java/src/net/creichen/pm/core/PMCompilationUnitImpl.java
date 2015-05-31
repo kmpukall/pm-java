@@ -149,4 +149,13 @@ public class PMCompilationUnitImpl implements PMCompilationUnit {
     public IPath getPath() {
         return this.iCompilationUnit.getPath();
     }
+
+    @Override
+    public String toString() {
+        try {
+            return getSource();
+        } catch (JavaModelException e) {
+            return "Invalid PMCompilationUnitImpl: " + e.getMessage();
+        }
+    }
 }

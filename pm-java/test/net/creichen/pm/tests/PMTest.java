@@ -10,32 +10,17 @@
 package net.creichen.pm.tests;
 
 import net.creichen.pm.consistency.ConsistencyValidator;
-import net.creichen.pm.core.CompilationUnitStore;
-import net.creichen.pm.core.PMException;
-import net.creichen.pm.core.Project;
-import net.creichen.pm.core.Workspace;
+import net.creichen.pm.core.*;
 
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.*;
 
 public abstract class PMTest {
     private IProject iProject = null;
     private IJavaProject iJavaProject = null;
-    private CompilationUnitStore compilationUnits;
 
     protected Project getProject() {
         return Workspace.getInstance().getProject(this.iJavaProject);

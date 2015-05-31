@@ -13,14 +13,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import net.creichen.pm.tests.PMTest;
 
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +24,7 @@ public class ASTQueryTest extends PMTest {
 
     @Before
     public void setUp() {
-        this.ast = AST.newAST(AST.JLS4);
+        this.ast = AST.newAST(AST.JLS8);
         this.simpleName = this.ast.newSimpleName("x");
     }
 

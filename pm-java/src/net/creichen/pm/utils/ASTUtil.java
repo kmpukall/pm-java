@@ -10,6 +10,8 @@
 package net.creichen.pm.utils;
 
 import static net.creichen.pm.utils.APIWrapperUtil.getStructuralProperty;
+import static net.creichen.pm.utils.APIWrapperUtil.statements;
+import static net.creichen.pm.utils.factories.ASTNodeFactory.*;
 
 import java.util.List;
 
@@ -17,29 +19,10 @@ import net.creichen.pm.api.PMCompilationUnit;
 import net.creichen.pm.core.PMException;
 import net.creichen.pm.models.defuse.Def;
 
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.filebuffers.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CatchClause;
-import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -49,6 +32,14 @@ public final class ASTUtil {
 
     private ASTUtil() {
         // private utility class constructor
+    }
+
+    public static void setReturnStatement(MethodDeclaration method, Expression expression) {
+        Block block = createBlock();
+        ReturnStatement returnStatement = createReturnStatement();
+        returnStatement.setExpression(expression);
+        statements(block).add(returnStatement);
+        method.setBody(block);
     }
 
     public static void applyRewrite(final ASTRewrite rewrite, final PMCompilationUnit compilationUnitToRewrite) {
@@ -130,5 +121,12 @@ public final class ASTUtil {
             throw new PMException("Don't know how to find binding for " + expression.getClass().getSimpleName() + " ["
                     + expression + "]");
         }
+    }
+
+    public static void addMethodExpression(MethodDeclaration m, Expression ex) {
+        Block block = m.getBody() == null ? createBlock() : m.getBody();
+        ExpressionStatement returnStatement = newExpressionStatement(ex);
+        statements(block).add(returnStatement);
+        m.setBody(block);
     }
 }

@@ -10,21 +10,13 @@
 package net.creichen.pm.analysis;
 
 import static net.creichen.pm.utils.ASTQuery.findSimpleNames;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Map;
 
 import net.creichen.pm.utils.factories.ASTNodeFactory;
 
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +26,7 @@ public class ASTMatcherTest {
 
     @Before
     public void setUp() {
-        this.parser = ASTParser.newParser(AST.JLS4);
+        this.parser = ASTParser.newParser(AST.JLS8);
     }
 
     @Test

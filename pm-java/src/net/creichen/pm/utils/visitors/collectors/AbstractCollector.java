@@ -8,7 +8,7 @@ import net.creichen.pm.api.PMCompilationUnit;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 
-abstract class AbstractCollector<T extends ASTNode> extends ASTVisitor {
+abstract class AbstractCollector<T> extends ASTVisitor {
 
     private final List<T> results;
 

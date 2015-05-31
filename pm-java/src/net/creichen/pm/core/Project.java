@@ -9,10 +9,8 @@
 
 package net.creichen.pm.core;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import net.creichen.pm.analysis.ASTMatcher;
 import net.creichen.pm.analysis.DefUseAnalysis;
@@ -22,17 +20,8 @@ import net.creichen.pm.models.defuse.DefUseModel;
 import net.creichen.pm.models.name.NameModel;
 import net.creichen.pm.utils.ASTQuery;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTRequestor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jface.text.ITextSelection;
 
 public class Project {
@@ -148,8 +137,9 @@ public class Project {
                 NodeStore.getInstance().replaceNode(oldNode, newNode);
             }
         } else {
-            System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
-            throw new PMException("Copy not does structurally match original");
+            NodeStore.getInstance().replaceNode(node, copy);
+            //            System.err.println("Copy [" + copy + "] does not structurally match original [" + node + "]");
+            //            throw new PMException("Copy not does structurally match original");
         }
     }
 
@@ -176,7 +166,7 @@ public class Project {
 
     private void updateModelData() {
         final Set<ICompilationUnit> sourceFiles = this.compilationUnits.getSourceFilesFromProject();
-        final ASTParser parser = ASTParser.newParser(AST.JLS4);
+        final ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setProject(this.iJavaProject);
         parser.setResolveBindings(true);
         final ASTRequestor requestor = new ASTRequestor() {
